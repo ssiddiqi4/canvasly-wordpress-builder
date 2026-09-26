@@ -35,6 +35,11 @@ class Html extends Unit {
 				return '<div class="' . $this->cls( $s ) . ' lb-html lb-html-embed">' . $html . '</div>';
 			}
 		}
-		return '<div class="' . $this->cls( $s ) . ' lb-html">' . wp_kses_post( $raw ) . '</div>';
+		if ( class_exists( '\\CanvaslyLite\\Controls\\Code' ) ) {
+			$raw = \CanvaslyLite\Controls\Code::sanitize_html( $raw );
+		} elseif ( class_exists( '\\CanvaslyLite\\Templates\\ThemeChrome' ) ) {
+			$raw = \CanvaslyLite\Templates\ThemeChrome::safe_html( $raw );
+		}
+		return '<div class="' . $this->cls( $s ) . ' lb-html">' . $raw . '</div>';
 	}
 }

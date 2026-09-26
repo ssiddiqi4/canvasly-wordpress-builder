@@ -92,21 +92,22 @@ class ThemeChromeEdits {
 	public static function payload( $post_id ) {
 		$post_id = absint( $post_id );
 		$live    = array(
-			'header' => ThemeChrome::provides() ? ThemeChrome::markup( 'header' ) : '',
-			'footer' => ThemeChrome::provides() ? ThemeChrome::markup( 'footer' ) : '',
+			'header' => ThemeChrome::provides() ? ThemeChrome::markup( 'header', $post_id, true ) : '',
+			'footer' => ThemeChrome::provides() ? ThemeChrome::markup( 'footer', $post_id, true ) : '',
 		);
 		$page    = self::page_bundle( $post_id );
 		$global  = self::global_bundle();
 		return array(
-			'inherit' => ThemeChrome::provides(),
-			'header'  => self::prefer( $page['header'], $global['header'], $live['header'] ),
-			'footer'  => self::prefer( $page['footer'], $global['footer'], $live['footer'] ),
-			'live'    => $live,
-			'page'    => $page,
-			'global'  => $global,
-			'scope'   => self::scope( $post_id ),
-			'styles'  => ThemeChrome::editor_styles(),
-			'home'    => function_exists( 'home_url' ) ? home_url( '/' ) : '',
+			'inherit'   => ThemeChrome::provides(),
+			'header'    => ThemeChrome::with_builder_css( ThemeChrome::isolate( self::prefer( $page['header'], $global['header'], $live['header'] ) ) ),
+			'footer'    => ThemeChrome::with_builder_css( ThemeChrome::isolate( self::prefer( $page['footer'], $global['footer'], $live['footer'] ) ) ),
+			'live'      => $live,
+			'page'      => $page,
+			'global'    => $global,
+			'scope'     => self::scope( $post_id ),
+			'styles'    => ThemeChrome::editor_styles(),
+			'home'      => function_exists( 'home_url' ) ? home_url( '/' ) : '',
+			'bodyClass' => ThemeChrome::editor_body_class(),
 		);
 	}
 
@@ -131,7 +132,7 @@ class ThemeChromeEdits {
 			if ( ! array_key_exists( $part, $parts ) ) {
 				continue;
 			}
-			$bundle[ $part ] = self::store_html( $part, $parts[ $part ] );
+			$bundle[ $part ] = self::store_html( $part, $parts[ $part ], $post_id );
 			if ( 'theme' === $scope ) {
 				self::clear_page_part( $post_id, $part );
 			}
@@ -155,11 +156,11 @@ class ThemeChromeEdits {
 	public static function html( $post_id, $part ) {
 		$part = 'footer' === $part ? 'footer' : 'header';
 		$page = self::page_bundle( absint( $post_id ) );
-		if ( '' !== $page[ $part ] ) {
+		if ( '' !== $page[ $part ] && ThemeChrome::visible_html( $page[ $part ] ) ) {
 			return $page[ $part ];
 		}
 		$global = self::global_bundle();
-		return $global[ $part ];
+		return ThemeChrome::visible_html( $global[ $part ] ) ? $global[ $part ] : '';
 	}
 
 	/**
@@ -181,7 +182,7 @@ class ThemeChromeEdits {
 		if ( '' === $html ) {
 			return false;
 		}
-		echo self::expand_units( $html ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sanitized in clean(), units rendered by the unit renderer.
+		echo self::expand_units( ThemeChrome::isolate( $html ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sanitized in clean(), units rendered by the unit renderer.
 		return true;
 	}
 
@@ -337,10 +338,24 @@ class ThemeChromeEdits {
 	 * @param mixed  $html
 	 * @return string
 	 */
-	private static function store_html( $part, $html ) {
-		$html = self::clean( $html );
-		$live = ThemeChrome::provides() ? self::clean( ThemeChrome::markup( $part ) ) : '';
+	private static function store_html( $part, $html, $post_id = 0 ) {
+		$html = self::usable( self::clean( $html ) );
+		$live = ThemeChrome::provides() ? self::usable( self::clean( ThemeChrome::markup( $part, $post_id, true ) ) ) : '';
 		if ( self::norm( $html ) === self::norm( $live ) ) {
+			return '';
+		}
+		return $html;
+	}
+
+	/**
+	 * The editor placeholder is not theme markup.
+	 *
+	 * @param string $html
+	 * @return string
+	 */
+	private static function usable( $html ) {
+		$html = (string) $html;
+		if ( false !== stripos( $html, 'lb-chrome-empty' ) ) {
 			return '';
 		}
 		return $html;
@@ -407,8 +422,8 @@ class ThemeChromeEdits {
 	private static function bundle( $raw ) {
 		$raw = is_array( $raw ) ? $raw : array();
 		return array(
-			'header' => self::clean( $raw['header'] ?? '' ),
-			'footer' => self::clean( $raw['footer'] ?? '' ),
+			'header' => self::usable( self::clean( $raw['header'] ?? '' ) ),
+			'footer' => self::usable( self::clean( $raw['footer'] ?? '' ) ),
 		);
 	}
 
@@ -419,10 +434,10 @@ class ThemeChromeEdits {
 	 * @return string
 	 */
 	private static function prefer( $page, $global, $live ) {
-		if ( '' !== $page ) {
+		if ( '' !== $page && ThemeChrome::visible_html( $page ) ) {
 			return $page;
 		}
-		if ( '' !== $global ) {
+		if ( '' !== $global && ThemeChrome::visible_html( $global ) ) {
 			return $global;
 		}
 		return (string) $live;
