@@ -4,7 +4,7 @@ Tags: page builder, drag-and-drop, landing page, website builder, responsive
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.12.80
+Stable tag: 0.12.95
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -294,6 +294,19 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 6. **Canvasly Pro** - Theme Builder, popups, shop units, and the annual plans.
 
 == Changelog ==
+
+= 0.12.95 =
+* Fixed: an inherited theme header logo (including Header Footer Elementor site-logo widgets) could get clipped off the left edge of the canvas. The logo's column had no width constraint from a local capture, so it rendered at the source image's full size and pushed the header bar past the canvas.
+* Fixed: a header logo using WordPress's native `loading="lazy"` attribute could stay blank in the canvas, because the browser's "is this near the viewport" check that native lazy-loading depends on never fires inside the canvas's offscreen iframe. Captured header and footer images now always load immediately.
+
+= 0.12.93 =
+* Publish from the editor. Saving a draft page (a converted Elementor copy, a page created with Add New Page, or any WordPress draft) now publishes it; the Save button reads Publish until it does. Page Settings gains a Status control to keep a page as a draft, submit it for review, or make it private.
+* A save whose request body cannot be read (for example a payload the server dropped) is refused with an error instead of being stored as an empty page. Previously that emptied the document, so the editor fell back to previewing the Elementor source and units added after the import disappeared.
+* Save errors returned by the server are shown in the editor status text.
+* Revision snapshots keep escaped quotes in the document JSON, so restoring a revision with quoted text works.
+
+= 0.12.86 =
+* Converted Elementor pages open on the canvas. The editor no longer treats a toolbar element as the translator, so canvas sizing keeps running, and the page document is loaded from a JSON block instead of an attribute that large layouts truncate.
 
 = 0.12.80 =
 * Plugin header name matches the readme title: Canvasly - Visual Page Builder.
