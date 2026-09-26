@@ -889,9 +889,9 @@ html.lb-ui-dark .lb-fx-kf-head,html.lb-ui-auto.lb-ui-scheme-dark .lb-fx-kf-head{
 @media (max-width:720px){.lb-template-grid{grid-template-columns:1fr}}
 
 /* Widget visuals fill the selection node so Advanced size matches the element. */
-.lb-node:not(.lb-node-container):not(.lb-node-grid):not(.lb-node-image):not(.lb-node-tinymce_text_editor){display:flex;flex-direction:column;min-width:0}
-.lb-node:not(.lb-node-container):not(.lb-node-grid):not(.lb-node-image):not(.lb-node-tinymce_text_editor)>.lb-node-toolbar{position:absolute}
-.lb-node:not(.lb-node-container):not(.lb-node-grid):not(.lb-node-image):not(.lb-node-tinymce_text_editor):not(.lb-node-social)>:not(.lb-node-toolbar):not(.lb-insert-zone):not(.lb21-hover-tab):not(.lb-flip-box){width:100%;max-width:100%;flex:1 1 auto;min-width:0;min-height:inherit;box-sizing:border-box}
+.lb-node:not(.lb-node-container):not(.lb-node-grid):not(.lb-node-image):not(.lb-node-tinymce_text_editor):not(.lb-node-shortcode):not(.lb-node-wpforms):not(.lb-node-form){display:flex;flex-direction:column;min-width:0}
+.lb-node:not(.lb-node-container):not(.lb-node-grid):not(.lb-node-image):not(.lb-node-tinymce_text_editor):not(.lb-node-shortcode):not(.lb-node-wpforms):not(.lb-node-form)>.lb-node-toolbar{position:absolute}
+.lb-node:not(.lb-node-container):not(.lb-node-grid):not(.lb-node-image):not(.lb-node-tinymce_text_editor):not(.lb-node-shortcode):not(.lb-node-wpforms):not(.lb-node-form):not(.lb-node-social)>:not(.lb-node-toolbar):not(.lb-insert-zone):not(.lb21-hover-tab):not(.lb-flip-box){width:100%;max-width:100%;flex:1 1 auto;min-width:0;min-height:inherit;box-sizing:border-box}
 .lb-node-flip_box{display:flex;flex-direction:column;width:var(--lb-el-w,100%);max-width:min(100%,var(--lb-el-max-w,100%));height:var(--lb-el-h,auto);min-height:var(--lb-el-min-h,var(--lb-flip-height,280px));align-self:stretch;justify-self:stretch}
 .lb-grid-inner>.lb-node.lb-node-flip_box:not(.lb-node-image),.lb-container-inner>.lb-node.lb-node-flip_box:not(.lb-node-image),.lb21-grid-target>.lb-node.lb-node-flip_box:not(.lb-node-image),.lb22-grid-host>.lb-node.lb-node-flip_box:not(.lb-node-image){width:100%!important;max-width:100%!important;justify-self:stretch!important;align-self:stretch!important;min-height:var(--lb-el-min-h,var(--lb-flip-height,280px))!important;overflow:visible!important}
 .lb-node-flip_box>.lb-flip-box{flex:1 1 auto;align-self:stretch;width:100%;height:100%;min-height:var(--lb-flip-height,280px)}
@@ -1103,3 +1103,29 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-canvas-device,
 .lb-panel.right .lb-tab-content button.lb-globals-btn[data-globals-kind="typography"]:hover{background:var(--lb-picked,#d5dae1)!important;color:#fff!important;-webkit-text-fill-color:#fff!important;filter:brightness(.92)}
 .lb-panel.right .lb-tab-content button.lb-globals-btn[data-globals-kind="typography"]:hover{background:#fff!important;color:#2f73d9!important;-webkit-text-fill-color:#2f73d9!important;filter:none}
 .lb-globals-btn svg,.lb-eyedropper svg{width:14px;height:14px;filter:drop-shadow(0 0 1px rgba(0,0,0,.85))}
+
+/* WPForms full and base stylesheets keep their own layout. This only stacks fields when that styling is off, and it still matches after the canvas turns the form tag into a div. */
+.lb-node-shortcode,.lb-node-wpforms,.lb-node-form,.lb-shortcode,.cp-wpforms{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base){display:block;width:100%;max-width:100%}
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field{display:block;clear:both;float:none;width:100%;max-width:100%;margin:0 0 1rem}
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-label,
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-sublabel,
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-description{display:block;float:none;width:100%;max-width:100%}
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-row{display:flex;flex-flow:row wrap;gap:.75rem 1rem;width:100%;clear:both}
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-row-block{display:flex;flex-direction:column;align-items:stretch;float:none;flex:1 1 10rem;min-width:0;margin:0}
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-sublabel.before{order:-1;margin:0 0 .25rem}
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-sublabel.after{order:1;margin:.25rem 0 0}
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field select:not(.wpforms-payment-quantity),
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field textarea,
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field > input:not([type=radio]):not([type=checkbox]):not([type=submit]):not([type=button]):not([type=hidden]):not([type=file]){display:block;width:100%;max-width:100%;box-sizing:border-box}
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-radio,
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-checkbox,
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-payment-multiple ul,
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-payment-checkbox ul{display:block;width:100%;margin:.35rem 0 0;padding:0;list-style:none}
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-radio li,
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-checkbox li,
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-payment-multiple li,
+.wpforms-container:not(.wpforms-container-full):not(.wpforms-container-base) .wpforms-field-payment-checkbox li{display:flex;align-items:flex-start;gap:.45rem;width:100%;margin:.3rem 0}
+
+
+

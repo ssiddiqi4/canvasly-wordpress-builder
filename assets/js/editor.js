@@ -658,7 +658,7 @@
     };
     app.lbSanitizeHtml = function lbSanitizeHtml(html) {
       let s = String(html ?? "");
-      s = s.replace(/<\?(?:php|=)?[\s\S]*?\?>/gi, "").replace(/<(script|iframe|object|embed|link|meta|base|form|svg|math)\b[^>]*>[\s\S]*?<\/\1>/gi, "").replace(/<(script|iframe|object|embed|link|meta|base|form)[^>]*\/?>/gi, "").replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "").replace(/\s(href|src|xlink:href|action|formaction|poster)\s*=\s*(["']?)\s*(javascript|vbscript|data\s*:\s*text\s*\/\s*html)\b[^"'\s>]*/gi, " $1=$2").replace(/expression\s*\(|javascript\s*:|vbscript\s*:/gi, "");
+      s = s.replace(/<\?(?:php|=)?[\s\S]*?\?>/gi, "").replace(/<(script|iframe|object|embed|link|meta|base|svg|math)\b[^>]*>[\s\S]*?<\/\1>/gi, "").replace(/<(script|iframe|object|embed|link|meta|base)[^>]*\/?>/gi, "").replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "").replace(/\s(href|src|xlink:href|action|formaction|poster)\s*=\s*(["']?)\s*(javascript|vbscript|data\s*:\s*text\s*\/\s*html)\b[^"'\s>]*/gi, " $1=$2").replace(/expression\s*\(|javascript\s*:|vbscript\s*:/gi, "");
       if (app.lbLooksLikeEval(s)) s = s.replace(/\b(?:eval|Function)\s*\([^)]*\)/gi, "").replace(/new\s+Function\s*\([^)]*\)/gi, "");
       return s;
     };
@@ -734,7 +734,14 @@
       });
       s = s.replace(/<(script|object|embed|link|meta|base|math|foreignObject|annotation-xml)\b[^>]*>[\s\S]*?<\/\1>/gi, "");
       s = s.replace(/<(script|object|embed|link|meta|base|foreignObject|annotation-xml)\b[^>]*\/?>/gi, "");
-      s = s.replace(/<\/?form\b[^>]*>/gi, "");
+      s = s.replace(/<form\b([^>]*)>/gi, (full, attrs) => {
+        const cls = String(attrs).match(/\bclass\s*=\s*(?:"([^"]*)"|'([^']*)')/i) || [];
+        const id = String(attrs).match(/\bid\s*=\s*(?:"([^"]*)"|'([^']*)')/i) || [];
+        const className = [cls[1] || cls[2] || "", "lb-form-shell"].filter(Boolean).join(" ").replace(/["<>]/g, "");
+        const idAttr = id[1] || id[2] ? ' id="' + String(id[1] || id[2]).replace(/["<>]/g, "") + '"' : "";
+        return '<div class="' + className + '"' + idAttr + ">";
+      });
+      s = s.replace(/<\/form\s*>/gi, "</div>");
       s = s.replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
       s = s.replace(/\s(href|src|xlink:href|action|formaction|poster)\s*=\s*(["']?)\s*(javascript|vbscript|data\s*:\s*text\s*\/\s*html)\b[^"'\s>]*/gi, " $1=$2");
       s = s.replace(/expression\s*\(|javascript\s*:|vbscript\s*:/gi, "");
@@ -787,7 +794,28 @@
       return c;
     };
     app.menuOpen = false, app.menuDialog = null, app.contextMenuEl = null, app.styleClipboard = null, app.pageClipboard = null;
-    app.state = JSON.parse(app.root.dataset.document || '{"version":"1.0","root":[],"settings":{}}'), app.selected = null, app.history = [], app.future = [], app.historyLimit = 40, app.clipboard = null, app.dirty = false, app.device = "desktop", app.saveTimer = null, app.category = "all", app.unitSearch = "", app.leftWidth = 250, app.rightWidth = 330, app.leftHidden = false, app.rightHidden = false, app.activeTab = "navigator", app.styleTab = "content", app.modal = null, app.dragNode = null, app.suppressUnitClick = false;
+    function lbReadBootDocument() {
+      const parse = (raw) => {
+        try {
+          const d = JSON.parse(raw);
+          return d && typeof d === "object" && !Array.isArray(d) ? d : null;
+        } catch (e) {
+          return null;
+        }
+      };
+      const node = document.getElementById("lb-editor-document");
+      if (node) {
+        const d = parse(String(node.textContent || "").trim());
+        if (d) return d;
+      }
+      const attr = app.root.dataset.document || "";
+      if (attr && attr !== "{}") {
+        const d = parse(attr);
+        if (d) return d;
+      }
+      return { version: "1.0", root: [], header: [], footer: [], settings: {} };
+    }
+    app.state = lbReadBootDocument(), app.selected = null, app.history = [], app.future = [], app.historyLimit = 40, app.clipboard = null, app.dirty = false, app.device = "desktop", app.saveTimer = null, app.category = "all", app.unitSearch = "", app.leftWidth = 250, app.rightWidth = 330, app.leftHidden = false, app.rightHidden = false, app.activeTab = "navigator", app.styleTab = "content", app.modal = null, app.dragNode = null, app.suppressUnitClick = false;
     if (!Array.isArray(app.state.header)) app.state.header = [];
     if (!Array.isArray(app.state.footer)) app.state.footer = [];
     app.sitePart = function sitePart(part) {
@@ -804,6 +832,28 @@
         if (!slot) return;
         app.sitePartMeta[part] = { id: Number(slot.id), type: String(slot.type || ""), version: slot.version || app.state.version || "2.8", settings: slot.settings && typeof slot.settings === "object" ? slot.settings : {}, header: Array.isArray(slot.header) ? slot.header : [], footer: Array.isArray(slot.footer) ? slot.footer : [] };
         app.state[part] = Array.isArray(slot.nodes) ? JSON.parse(JSON.stringify(slot.nodes)) : [];
+      });
+    };
+    app.lbDocumentHasNodes = function lbDocumentHasNodes(d) {
+      d = d || {};
+      return !!(Array.isArray(d.root) && d.root.length || Array.isArray(d.header) && d.header.length || Array.isArray(d.footer) && d.footer.length);
+    };
+    app.lbHydrateDocument = function lbHydrateDocument() {
+      if (!app.root || app.root.dataset.lbHasDocument !== "1" || app.lbDocumentHasNodes(app.state) || !app.D || !app.D.postId || !app.D.api) return;
+      const api = String(app.D.api).replace(/\/$/, "");
+      fetch(api + "/document/" + encodeURIComponent(app.D.postId), { headers: { "X-WP-Nonce": app.D.nonce || "" }, credentials: "same-origin" }).then((r) => r.ok ? r.json() : null).then((doc) => {
+        if (!doc || typeof doc !== "object" || !app.lbDocumentHasNodes(doc)) return;
+        const added = app.dirty && Array.isArray(app.state.root) ? app.state.root.slice() : [];
+        app.state = doc;
+        if (added.length) {
+          app.state.root = (Array.isArray(app.state.root) ? app.state.root : []).concat(added);
+          app.dirty = true;
+        } else app.dirty = false;
+        if (!Array.isArray(app.state.header)) app.state.header = [];
+        if (!Array.isArray(app.state.footer)) app.state.footer = [];
+        if (typeof app.mountSiteParts === "function") app.mountSiteParts();
+        if (typeof app.render === "function") app.render();
+      }).catch(() => {
       });
     };
     app.pageDocumentForSave = function pageDocumentForSave() {
@@ -1582,13 +1632,64 @@
       clearTimeout(app.saveTimer);
       app.saveTimer = setTimeout(() => app.save(true), 1500);
     };
+    app.postStatus = function postStatus() {
+      return String(app.D && app.D.postStatus || "").toLowerCase();
+    };
+    app.isPublishablePost = function isPublishablePost() {
+      if (!app.D || !app.D.postId) return false;
+      const type = String(app.D.postType || "");
+      if (type === "lb_template" || type === "revision") return false;
+      return true;
+    };
+    app.publishTarget = function publishTarget() {
+      if (!app.isPublishablePost()) return "";
+      const current = app.postStatus();
+      if (app.statusIntent) return app.statusIntent;
+      if (current === "draft" || current === "auto-draft" || current === "pending" || current === "") return app.D.canPublish ? "publish" : current;
+      return current;
+    };
+    app.saveButtonLabel = function saveButtonLabel() {
+      const target = app.publishTarget(), current = app.postStatus();
+      if (target && target !== current) {
+        if (target === "publish" || target === "private") return app.t("Publish");
+        if (target === "draft") return app.t("Save Draft");
+      }
+      return app.t("Save");
+    };
+    app.refreshSaveButton = function refreshSaveButton() {
+      const btn = app.$("#lb-save");
+      if (btn && !btn.disabled) btn.textContent = app.saveButtonLabel();
+    };
+    app.applyPostStatus = async function applyPostStatus(target) {
+      const id = parseInt(app.D.postId || app.root.dataset.postId || 0, 10);
+      if (!id || !target || !app.isPublishablePost()) return { ok: true, changed: false };
+      if (target === app.postStatus()) {
+        app.statusIntent = null;
+        return { ok: true, changed: false };
+      }
+      const r = await fetch(`${app.D.api}/document/${id}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify({ status: target })
+      });
+      if (!r.ok) return { ok: false, changed: false };
+      const d = await r.json().catch(() => null);
+      if (!d || !d.success) return { ok: false, changed: false };
+      app.D.postStatus = String(d.status || target);
+      if (d.permalink) app.D.permalink = d.permalink;
+      if (d.previewUrl) app.D.previewUrl = d.previewUrl;
+      app.statusIntent = null;
+      return { ok: true, changed: !!d.changed, status: app.D.postStatus };
+    };
     app.save = async function save(auto) {
       const id = parseInt(app.D.postId || app.root.dataset.postId || 0, 10);
       if (!id || app.previewingRevision) return;
       const status = app.$("#lb-status"), btn = app.$("#lb-save");
+      const target = auto ? "" : app.publishTarget();
+      const publishing = !!target && target !== app.postStatus() && (target === "publish" || target === "private");
       if (!auto && btn) {
         btn.disabled = true;
-        btn.textContent = app.t("Saving\u2026");
+        btn.textContent = publishing ? app.t("Publishing\u2026") : app.t("Saving\u2026");
       }
       try {
         const persist = (nodes) => (nodes || []).forEach((n) => {
@@ -1603,30 +1704,45 @@
         const headers = { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce };
         for (const part of packed.parts || []) {
           const partUrl = auto ? `${app.D.api}/document/${part.id}/autosave` : `${app.D.api}/document/${part.id}`;
-          const saved = await fetch(partUrl, { method: "POST", headers, body: JSON.stringify(part.document) });
-          if (!saved.ok) throw Error();
+          const saved2 = await fetch(partUrl, { method: "POST", headers, body: JSON.stringify(part.document) });
+          if (!saved2.ok) throw Error();
         }
         const url = auto ? `${app.D.api}/document/${id}/autosave` : `${app.D.api}/document/${id}`;
         const r = await fetch(url, { method: "POST", headers, body: JSON.stringify(packed.page) });
-        if (!r.ok) throw Error();
+        if (!r.ok) {
+          const err = await r.json().catch(() => null);
+          throw Error(err && err.message ? String(err.message) : "");
+        }
+        const saved = await r.json().catch(() => null);
+        if (!saved || saved.success === false) throw Error();
+        if (saved && saved.status && app.D) app.D.postStatus = String(saved.status);
         if (typeof app.persistThemeChrome === "function") await app.persistThemeChrome();
+        let statusResult = { ok: true, changed: false };
+        if (!auto && target) statusResult = await app.applyPostStatus(target).catch(() => ({ ok: false, changed: false }));
         if (!auto) {
           app.dirty = false;
           app.D.updated = (/* @__PURE__ */ new Date()).toISOString().slice(0, 19).replace("T", " ");
           app.loadWpRevisions();
         }
-        if (status) status.textContent = auto ? app.t("Autosaved %s", (/* @__PURE__ */ new Date()).toLocaleTimeString()) : app.t("Saved %s", (/* @__PURE__ */ new Date()).toLocaleTimeString());
+        const when = (/* @__PURE__ */ new Date()).toLocaleTimeString();
+        if (status) {
+          if (auto) status.textContent = app.t("Autosaved %s", when);
+          else if (!statusResult.ok) status.textContent = app.t("Saved, but the page could not be published.");
+          else if (statusResult.changed && app.postStatus() === "publish") status.textContent = app.t("Published %s", when);
+          else status.textContent = app.t("Saved %s", when);
+        }
         if (btn && !auto) {
-          btn.textContent = app.t("Saved");
+          btn.textContent = statusResult.changed && app.postStatus() === "publish" ? app.t("Published") : app.t("Saved");
           setTimeout(() => {
-            btn.textContent = app.t("Save");
+            btn.textContent = app.saveButtonLabel();
             btn.disabled = false;
           }, 700);
         }
       } catch (e) {
-        if (status) status.textContent = app.t("Save failed");
+        const why = e && e.message ? String(e.message) : "";
+        if (status) status.textContent = why ? app.t("Save failed") + ": " + why : app.t("Save failed");
         if (btn && !auto) {
-          btn.textContent = app.t("Save");
+          btn.textContent = app.saveButtonLabel();
           btn.disabled = false;
         }
       }
@@ -2043,13 +2159,28 @@
       const s = n.settings || {}, a = [];
       const put = (p, v, suf = "") => {
         v = app.lbResolveToken(v);
-        if (v !== "" && v != null) a.push(p + ":" + app.esc(v) + suf);
+        if (v !== "" && v != null) {
+          v = String(v);
+          if (suf && /[^0-9.\s-]/.test(v)) suf = "";
+          a.push(p + ":" + app.esc(v) + suf);
+        }
+      };
+      const paintBg = (bg) => {
+        if (!bg) return;
+        if (typeof bg === "string") {
+          put("background", bg);
+          return;
+        }
+        if (typeof bg === "object" && typeof app.lbCompileBackground === "function") {
+          const c = app.lbCompileBackground(bg, s) || {};
+          Object.keys(c).forEach((p) => put(p, c[p]));
+        }
       };
       if (n.type === "container" || n.type === "inner_section" || n.type === "grid") {
         put("width", app.resp(s.width));
-        put("min-height", app.resp(s.min_height));
+        put("min-height", app.resp(s.min_height), "px");
         put("max-width", app.resp(s.max_width));
-        put("background", typeof s.background === "string" ? s.background : "");
+        paintBg(s.background);
         put("padding", app.formatBox(app.resp(s.padding)));
         put("margin", app.formatBox(app.resp(s.margin)));
         if ((n.type === "container" || n.type === "inner_section") && s.layout === "flex") {
@@ -2237,7 +2368,7 @@
     app.bodyHTML = function bodyHTML(n) {
       const s = n.settings || {}, st = app.styleInline(n);
       if (n.type === "container" || n.type === "inner_section" || n.type === "grid") {
-        const inner = n.type === "grid" ? "lb-grid-inner" : "lb-container-inner";
+        const inner = n.type === "grid" ? "lb-grid-inner lb-grid" : "lb-container-inner lb-container";
         return `<div class="${inner}" style="${st}">${(n.children || []).map(app.nodeHTML).join("")}<div class="lb-insert-zone">${app.t("Drop unit here")}</div></div>`;
       }
       if (n.type === "heading") {
@@ -2327,7 +2458,13 @@
         if (/^https?:\/\/\S+$/i.test(raw) && raw.indexOf("<") < 0) return `<div class="lb-html lb-html-embed"><div class="lb-embed-placeholder">${app.esc(raw)} \xB7 ${app.t("plays on the live page")}</div></div>`;
         return `<div class="lb-html">${s.html || ""}</div>`;
       }
-      if (n.type === "shortcode") return `<div class="lb-shortcode">${app.esc(s.shortcode || "[shortcode]")}</div>`;
+      if (n.type === "shortcode") {
+        const code = String(s.shortcode || "").trim();
+        const pack = app.shortcodePreview && app.shortcodePreview[code];
+        if (pack && pack.html) return '<div class="lb-shortcode lb-shortcode-live">' + pack.html + "</div>";
+        if (code) app.queueShortcodePreview(code);
+        return `<div class="lb-shortcode">${app.esc(code || "[shortcode]")}</div>`;
+      }
       if (n.type === "video") {
         if (!s.url) return '<div class="lb-video-placeholder">Add video URL</div>';
         if (/\.(mp4|webm|ogv|ogg|m4v|mov)(\?|#|$)/i.test(String(s.url))) return `<video class="lb-video" src="${app.esc(s.url)}" controls></video>`;
@@ -2555,7 +2692,79 @@
       if (typeof app.lbRunTextPaths === "function") app.lbRunTextPaths(next);
       if (typeof app.syncFrameSelection === "function") app.syncFrameSelection();
       if (r.node.type === "gallery" && typeof window.lbPackGalleries === "function") window.lbPackGalleries();
+      if (r.node.type === "shortcode" && typeof app.hydrateShortcodes === "function") app.hydrateShortcodes();
       return true;
+    };
+    app.shortcodePreview = app.shortcodePreview || {};
+    app.shortcodePreviewPending = app.shortcodePreviewPending || {};
+    app.lbSanitizePreviewHtml = function lbSanitizePreviewHtml(html) {
+      let s = String(html || "");
+      s = s.replace(/<(script|iframe|object|embed)\b[^>]*>[\s\S]*?<\/\1>/gi, "");
+      s = s.replace(/<(script|iframe|object|embed)\b[^>]*\/?>/gi, "");
+      s = s.replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+      s = s.replace(/javascript\s*:|vbscript\s*:/gi, "");
+      return s;
+    };
+    app.installShortcodePreviewStyles = function installShortcodePreviewStyles(fd) {
+      if (!fd || !fd.head) return;
+      const packs = app.shortcodePreview || {};
+      const css = ".lb-shortcode-live{pointer-events:none}\n" + Object.keys(packs).map((key) => packs[key].css || "").join("\n");
+      const links = [];
+      Object.keys(packs).forEach((key) => (packs[key].links || []).forEach((href) => {
+        if (href && links.indexOf(href) === -1) links.push(href);
+      }));
+      fd.querySelectorAll("link[data-lb-shortcode-style]").forEach((el) => {
+        if (links.indexOf(el.getAttribute("href")) === -1) el.remove();
+      });
+      links.forEach((href) => {
+        if (fd.querySelector('link[data-lb-shortcode-style][href="' + String(href).replace(/"/g, "") + '"]')) return;
+        const link = fd.createElement("link");
+        link.rel = "stylesheet";
+        link.href = href;
+        link.setAttribute("data-lb-shortcode-style", "1");
+        fd.head.appendChild(link);
+      });
+      let tag = fd.getElementById("lb-shortcode-preview-css");
+      if (!tag) {
+        tag = fd.createElement("style");
+        tag.id = "lb-shortcode-preview-css";
+      }
+      tag.textContent = css;
+      fd.head.appendChild(tag);
+    };
+    app.queueShortcodePreview = function queueShortcodePreview(code) {
+      const key = String(code || "").trim();
+      if (!key || !/\[[\w-]+/.test(key)) return;
+      if (Object.prototype.hasOwnProperty.call(app.shortcodePreview, key) || app.shortcodePreviewPending[key]) return;
+      const api = String(app.D && app.D.api || "").replace(/\/$/, "");
+      if (!api) return;
+      app.shortcodePreviewPending[key] = true;
+      const post = parseInt(app.D && app.D.postId || 0, 10) || 0;
+      fetch(api + "/shortcode/preview", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D && app.D.nonce || "" }, body: JSON.stringify({ post_id: post, shortcode: key }) }).then((r) => r.ok ? r.json() : null).then((data) => {
+        delete app.shortcodePreviewPending[key];
+        if (!data) return;
+        const html = app.lbSanitizePreviewHtml(data.html || "");
+        app.shortcodePreview[key] = { html, css: String(data.css || ""), links: Array.isArray(data.links) ? data.links.filter(Boolean) : [] };
+        if (html.trim() && typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
+        else if (typeof app.frameDoc === "function") app.installShortcodePreviewStyles(app.frameDoc());
+      }).catch(() => {
+        delete app.shortcodePreviewPending[key];
+      });
+    };
+    app.hydrateShortcodes = function hydrateShortcodes() {
+      const fd = typeof app.frameDoc === "function" ? app.frameDoc() : null;
+      if (fd) app.installShortcodePreviewStyles(fd);
+      const walk = (nodes) => {
+        (nodes || []).forEach((n) => {
+          if (!n) return;
+          if (n.type === "shortcode") app.queueShortcodePreview(n.settings && n.settings.shortcode);
+          if (Array.isArray(n.children)) walk(n.children);
+        });
+      };
+      if (!app.state) return;
+      walk(app.state.root);
+      walk(app.state.header);
+      walk(app.state.footer);
     };
   }
 
@@ -2667,7 +2876,7 @@
             body += html;
           });
         }
-        return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-repeater-index="${i}" data-repeater-id="${app.esc(id)}"><div class="lb-repeater-head"><span class="lb-repeater-handle" title="${app.t("Drag to reorder")}" draggable="true" aria-hidden="true">\u22EE\u22EE</span><button type="button" class="lb-repeater-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(app.lbRepeaterTitle(item, def.title_field, i))}</button><button type="button" class="lb-repeater-dup" title="${app.t("Duplicate")}" aria-label="${app.t("Duplicate")}">\u29C9</button><button type="button" class="lb-repeater-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}"${def.prevent_empty && items.length < 2 ? " disabled" : ""}>\xD7</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
+        return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-repeater-index="${i}" data-repeater-id="${app.esc(id)}"><div class="lb-repeater-head"><span class="lb-repeater-handle" title="${app.t("Drag to reorder")}" draggable="true" aria-hidden="true">\xE2\u2039\xAE\xE2\u2039\xAE</span><button type="button" class="lb-repeater-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(app.lbRepeaterTitle(item, def.title_field, i))}</button><button type="button" class="lb-repeater-dup" title="${app.t("Duplicate")}" aria-label="${app.t("Duplicate")}">\xE2\xA7\u2030</button><button type="button" class="lb-repeater-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}"${def.prevent_empty && items.length < 2 ? " disabled" : ""}>\xC3\u2014</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
       }).join("");
       return `<div class="lb-control lb-repeater" data-repeater-key="${app.esc(k)}" data-prevent-empty="${def.prevent_empty ? "1" : "0"}"><span>${app.esc(label || def.label || k.replace(/_/g, " "))}</span><div class="lb-repeater-items">${rows || '<div class="lb-repeater-empty">No items yet</div>'}</div><button type="button" class="lb-btn lb-repeater-add">+ Add Item</button></div>`;
     };
@@ -2789,7 +2998,7 @@
       if (type === "repeater") return app.lbRepeaterHTML(k, def, v, l);
       if (type === "spacing" || type === "dimensions") return app.boxControl(k, v, l);
       if (type === "box_shadow") return app.shadowControl(k, v, l);
-      if (type === "gradient") return typeof app.lbGradientHTML === "function" ? app.lbGradientHTML(k, v, l) : `<label class="lb-control"><span>${app.esc(l)}</span><input data-setting="${app.esc(k)}" value="${app.esc(app.formatControlValue(v))}" placeholder="${t3("linear-gradient(...)")}" type="text"></label>`;
+      if (type === "gradient") return typeof app.lbGradientHTML === "function" ? app.lbGradientHTML(k, v, l) : `<label class="lb-control"><span>${app.esc(l)}</span><input data-setting="${app.esc(k)}" value="${app.esc(app.formatControlValue(v))}" placeholder="${app.t("linear-gradient(...)")}" type="text"></label>`;
       if (k === "icon" && type === "text") return `<div class="lb-control"><span>${app.esc(l)}</span><button type="button" class="lb-btn lb-icon-picker" data-icon-picker="1">${app.esc(v || "Choose icon")}</button></div>`;
       if (type === "slider") {
         const units = Array.isArray(def.units) ? def.units : ["px"];
@@ -2809,12 +3018,12 @@
         return `<label class="lb-control"><span>${app.esc(l)}</span><select data-setting="${app.esc(k)}">${opts.map((o) => `<option value="${app.esc(o)}" ${String(o) === String(v) ? "selected" : ""}>${app.esc(app.lbCtrlOptLabel(def, k, o))}</option>`).join("")}</select></label>`;
       }
       if (type === "media") {
-        const id = parseInt(v, 10) || 0, urlKey = k.replace(/_id$/, "_url"), st = app.selected && app.locate(app.state.root, app.selected)?.node?.settings || {}, url = app.getPath(st, urlKey) || "", lib = Array.isArray(def.media_types) ? def.media_types.join(",") : def.media_types || "image", video = /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i.test(String(url || "")), label2 = lib === "video" ? t3("Choose video") : String(lib).indexOf("video") >= 0 ? t3("Choose image or video") : t3("Choose image");
-        return `<div class="lb-control lb32-media"><span>${app.esc(l)}</span><div class="lb32-media-row"><button type="button" class="lb32-media-preview lb-media-open" data-media-key="${app.esc(k)}" data-media-library="${app.esc(lib)}" title="${app.esc(label2)}">${id || url ? video ? `<span>${app.esc(t3("Video"))}</span>` : `<img src="${app.esc(url)}" alt="" data-lb28-att="${app.esc(id)}" data-lb28-size="thumbnail">` : "<span>" + app.esc(label2) + "</span>"}</button><input data-setting="${app.esc(k)}" type="hidden" value="${app.esc(id || 0)}">${id || url ? `<button type="button" class="lb-btn lb28-media-clear" data-media-key="${app.esc(k)}">${t3("Remove")}</button>` : ""}</div></div>`;
+        const id = parseInt(v, 10) || 0, urlKey = k.replace(/_id$/, "_url"), st = app.selected && app.locate(app.state.root, app.selected)?.node?.settings || {}, url = app.getPath(st, urlKey) || "", lib = Array.isArray(def.media_types) ? def.media_types.join(",") : def.media_types || "image", video = /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i.test(String(url || "")), label2 = lib === "video" ? app.t("Choose video") : String(lib).indexOf("video") >= 0 ? app.t("Choose image or video") : app.t("Choose image");
+        return `<div class="lb-control lb32-media"><span>${app.esc(l)}</span><div class="lb32-media-row"><button type="button" class="lb32-media-preview lb-media-open" data-media-key="${app.esc(k)}" data-media-library="${app.esc(lib)}" title="${app.esc(label2)}">${id || url ? video ? `<span>${app.esc(app.t("Video"))}</span>` : `<img src="${app.esc(url)}" alt="" data-lb28-att="${app.esc(id)}" data-lb28-size="thumbnail">` : "<span>" + app.esc(label2) + "</span>"}</button><input data-setting="${app.esc(k)}" type="hidden" value="${app.esc(id || 0)}">${id || url ? `<button type="button" class="lb-btn lb28-media-clear" data-media-key="${app.esc(k)}">${app.t("Remove")}</button>` : ""}</div></div>`;
       }
       if (type === "gallery") {
         const ids = String(v || "").split(/[,\s]+/).filter(Boolean), st = app.selected && app.locate(app.state.root, app.selected)?.node?.settings || {};
-        return `<div class="lb-control lb32-gallery"><span>${app.esc(l)}</span><div class="lb32-thumbs lb-gallery-open" role="button" title="${t3("Choose images")}">${ids.map((id) => `<img class="lb32-thumb" src="${app.esc(app.galleryUrlOf(st, id) || app.LB_ATT_PLACEHOLDER)}" data-lb28-att="${app.esc(id)}" data-lb28-size="thumbnail" alt="">`).join("") || '<span class="lb32-thumbs-empty">' + t3("Choose images") + "</span>"}</div><input data-setting="${app.esc(k)}" type="hidden" value="${app.esc(v || "")}"><button type="button" class="lb-btn lb-gallery-open">${t3("Choose images")}</button></div>`;
+        return `<div class="lb-control lb32-gallery"><span>${app.esc(l)}</span><div class="lb32-thumbs lb-gallery-open" role="button" title="${app.t("Choose images")}">${ids.map((id) => `<img class="lb32-thumb" src="${app.esc(app.galleryUrlOf(st, id) || app.LB_ATT_PLACEHOLDER)}" data-lb28-att="${app.esc(id)}" data-lb28-size="thumbnail" alt="">`).join("") || '<span class="lb32-thumbs-empty">' + app.t("Choose images") + "</span>"}</div><input data-setting="${app.esc(k)}" type="hidden" value="${app.esc(v || "")}"><button type="button" class="lb-btn lb-gallery-open">${app.t("Choose images")}</button></div>`;
       }
       if (type === "wysiwyg") return `<label class="lb-control"><span>${app.esc(l)}</span><textarea data-setting="${app.esc(k)}" rows="6"${ph}>${app.esc(v || "")}</textarea></label>`;
       if (type === "textarea") return `<label class="lb-control"><span>${app.esc(l)}</span><textarea data-setting="${app.esc(k)}" rows="4"${ph}>${app.esc(v || "")}</textarea></label>`;
@@ -2850,7 +3059,7 @@
       h += app.lb091Universal(r.node, app.styleTab);
       if (app.styleTab === "advanced") {
         const warn = app.accessibilityWarnings(r.node);
-        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div>`;
+        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\xE2\u0161\xA0 ${app.esc(w)}</div>`).join("") : "<div>\xE2\u0153\u201C No obvious issues detected.</div>"}</div>`;
       }
       h += `<div class="lb-action-grid"><button class="lb-btn" id="lb-duplicate">${app.t("Duplicate")}</button><button class="lb-btn danger" id="lb-delete">${app.t("Delete")}</button></div>`;
       return h;
@@ -2903,15 +3112,15 @@
       return app.unitGroupOrder(Object.keys(groups)).map((c) => {
         const a = groups[c];
         const label = c === "pro" ? "PRO" : c;
-        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>\u2605 " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => (() => {
+        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>\xE2\u02DC\u2026 " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => (() => {
           const locked = app.proUnitLocked(e);
           const hint = locked ? app.t("Canvasly Pro license required") : app.t("Double-click to add");
-          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "\u25A1")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\u2605" : "\u2606"}</b></button>`;
+          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "\xE2\u2013\xA1")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\xE2\u02DC\u2026" : "\xE2\u02DC\u2020"}</b></button>`;
         })()).join("")}</div></div>`;
       }).join("");
     };
     app.modalHTML = function modalHTML(title, body) {
-      return `<div class="lb-modal-backdrop"><div class="lb-modal" role="dialog" aria-modal="true"><div class="lb-modal-head"><strong>${app.esc(title)}</strong><button data-close-modal aria-label="${app.t("Close")}">\xD7</button></div><div class="lb-modal-body">${body}</div></div></div>`;
+      return `<div class="lb-modal-backdrop"><div class="lb-modal" role="dialog" aria-modal="true"><div class="lb-modal-head"><strong>${app.esc(title)}</strong><button data-close-modal aria-label="${app.t("Close")}">\xC3\u2014</button></div><div class="lb-modal-body">${body}</div></div></div>`;
     };
     app.showModal = function showModal(title, body, after) {
       app.closeModal();
@@ -2931,7 +3140,7 @@
     };
     app.openIconLibrary = function openIconLibrary() {
       const icons = app.D.icons || [];
-      app.showModal(app.t("Canvasly Icon Manager"), `<input class="lb-modal-search" id="lb-icon-search" placeholder="${app.t("Search icons\u2026")}"><div class="lb-form-row"><input id="lb-icon-id" placeholder="${app.t("ID")}"><input id="lb-icon-title" placeholder="${app.t("Title")}"><input id="lb-icon-category" placeholder="${app.t("Category")}" value="Custom"><textarea id="lb-icon-svg" rows="2" placeholder="<svg viewBox=...>...</svg>"></textarea><button class="lb-btn primary" id="lb-icon-add">${app.t("Add SVG")}</button></div><div class="lb-icon-grid">${icons.map((i) => `<button class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" title="${app.esc(i.title)}"><span>${i.svg}</span><small>${app.esc(i.title)}</small></button>`).join("")}</div>`, () => {
+      app.showModal(app.t("Canvasly Icon Manager"), `<input class="lb-modal-search" id="lb-icon-search" placeholder="${app.t("Search icons\xE2\u20AC\xA6")}"><div class="lb-form-row"><input id="lb-icon-id" placeholder="${app.t("ID")}"><input id="lb-icon-title" placeholder="${app.t("Title")}"><input id="lb-icon-category" placeholder="${app.t("Category")}" value="Custom"><textarea id="lb-icon-svg" rows="2" placeholder="<svg viewBox=...>...</svg>"></textarea><button class="lb-btn primary" id="lb-icon-add">${app.t("Add SVG")}</button></div><div class="lb-icon-grid">${icons.map((i) => `<button class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" title="${app.esc(i.title)}"><span>${i.svg}</span><small>${app.esc(i.title)}</small></button>`).join("")}</div>`, () => {
         app.$("#lb-icon-search")?.addEventListener("input", (e) => {
           app.$$(".lb-icon-choice").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
         });
@@ -2950,9 +3159,9 @@
     app.openTemplateLibrary = async function openTemplateLibrary() {
       try {
         const items = await (await fetch(`${app.D.api}/templates`, { headers: { "X-WP-Nonce": app.D.nonce } })).json();
-        app.showModal(app.t("Template Library"), `<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates\u2026")}"><div class="lb-library-list">${items.length ? items.map((i) => {
+        app.showModal(app.t("Template Library"), `<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates\xE2\u20AC\xA6")}"><div class="lb-library-list">${items.length ? items.map((i) => {
           const count = (i.document?.root || []).length;
-          return `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type || "page")} \xB7 ${count} root unit(s)</span><button class="lb-btn" data-template-id="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-template-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-template-del="${i.id}">${app.t("Delete")}</button></div>`;
+          return `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type || "page")} \xC2\xB7 ${count} root unit(s)</span><button class="lb-btn" data-template-id="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-template-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-template-del="${i.id}">${app.t("Delete")}</button></div>`;
         }).join("") : "<p>" + app.t("No templates saved yet.") + "</p>"}</div>`, () => {
           app.$("#lb-template-search")?.addEventListener("input", (e) => {
             app.$$(".lb-library-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
@@ -3030,7 +3239,7 @@
     };
     app.openNavigation = function openNavigation() {
       const items = app.D.navigation || [];
-      app.showModal(app.t("Site Navigation"), `<input class="lb-modal-search" id="lb-nav-search" placeholder="${app.t("Search pages and posts\u2026")}"><div class="lb-library-list">${items.map((i) => `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type)} \xB7 ${app.esc(i.status)}</span><button class="lb-btn" data-nav-id="${i.id}">${app.t("Open")}</button></div>`).join("")}</div>`, () => app.$("#lb-nav-search")?.addEventListener("input", (e) => {
+      app.showModal(app.t("Site Navigation"), `<input class="lb-modal-search" id="lb-nav-search" placeholder="${app.t("Search pages and posts\xE2\u20AC\xA6")}"><div class="lb-library-list">${items.map((i) => `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type)} \xC2\xB7 ${app.esc(i.status)}</span><button class="lb-btn" data-nav-id="${i.id}">${app.t("Open")}</button></div>`).join("")}</div>`, () => app.$("#lb-nav-search")?.addEventListener("input", (e) => {
         app.$$(".lb-library-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
       }));
     };
@@ -3038,7 +3247,7 @@
       const s = app.state.settings || {};
       const tpl = app.pageTemplate();
       const opts = [["default", app.t("Default")], ["full_width", app.t("Full Width")], ["canvas", app.t("Canvas")]].map(([v, l]) => `<option value="${v}" ${tpl === v ? "selected" : ""}>${l}</option>`).join("");
-      app.showModal(app.t("Page Settings"), `<label class="lb-control"><span>${app.t("Page template")}</span><select id="lb-page-template">${opts}</select></label><p class="lb-muted">${app.t("Default uses the theme layout. Full Width keeps the header and footer. Canvas inherits the theme header and footer when the theme has them, and is a blank document otherwise.")}</p>${app.themeChromeScopeHTML()}<label class="lb-control"><span>${app.t("Page title")}</span><input id="lb-page-title" value="${app.esc(s.title || "")}"></label><label class="lb-control"><span>${app.t("Body class")}</span><input id="lb-body-class" value="${app.esc(s.body_class || "")}"></label><label class="lb-control"><span>${app.t("Content width")}</span><input id="lb-page-width" value="${app.esc(s.page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "1180px")}"></label><label class="lb-control lb-code-editor"><span>${app.t("Page custom CSS")}</span><textarea id="lb-page-css" class="lb-code-textarea" data-lb-code="css" rows="8">${app.esc(s.custom_css || "")}</textarea></label><button type="button" class="lb-btn primary" id="lb-page-save">${app.t("Save")}</button>`);
+      app.showModal(app.t("Page Settings"), `<label class="lb-control"><span>${app.t("Page template")}</span><select id="lb-page-template">${opts}</select></label><p class="lb-muted">${app.t("Default uses the theme layout. Full Width keeps the header and footer. Canvas inherits the theme header and footer when the theme has them, and is a blank document otherwise.")}</p>${app.themeChromeScopeHTML()}${app.pageStatusHTML()}<label class="lb-control"><span>${app.t("Page title")}</span><input id="lb-page-title" value="${app.esc(s.title || "")}"></label><label class="lb-control"><span>${app.t("Body class")}</span><input id="lb-body-class" value="${app.esc(s.body_class || "")}"></label><label class="lb-control"><span>${app.t("Content width")}</span><input id="lb-page-width" value="${app.esc(s.page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "1180px")}"></label><label class="lb-control lb-code-editor"><span>${app.t("Page custom CSS")}</span><textarea id="lb-page-css" class="lb-code-textarea" data-lb-code="css" rows="8">${app.esc(s.custom_css || "")}</textarea></label><button type="button" class="lb-btn primary" id="lb-page-save">${app.t("Save")}</button>`);
       const readSettings = () => {
         const next = Object.assign({}, app.state.settings || {}, {
           title: app.$("#lb-page-title")?.value || "",
@@ -3072,12 +3281,30 @@
       }));
       app.$("#lb-page-width")?.addEventListener("input", preview);
       app.$("#lb-body-class")?.addEventListener("input", preview);
+      app.$("#lb-page-status")?.addEventListener("change", (e) => {
+        const v = String(e.target.value || "");
+        app.statusIntent = v || null;
+        if (typeof app.refreshSaveButton === "function") app.refreshSaveButton();
+      });
       app.$("#lb-page-save")?.addEventListener("click", () => {
         app.commit(app.t("Edited page settings"));
         app.state.settings = readSettings();
         app.closeModal();
         app.render();
       });
+    };
+    app.pageStatusHTML = function pageStatusHTML() {
+      if (typeof app.isPublishablePost !== "function" || !app.isPublishablePost()) return "";
+      const current = app.postStatus();
+      const selected = app.statusIntent || (typeof app.publishTarget === "function" ? app.publishTarget() : current) || current || "draft";
+      const canPublish = !!(app.D && app.D.canPublish);
+      const opts = [["draft", app.t("Draft")], ["pending", app.t("Pending review")], ["publish", app.t("Published")], ["private", app.t("Private")]];
+      if (current && !opts.some((o) => o[0] === current)) opts.unshift([current, current]);
+      const html = opts.map(([v, l]) => {
+        const locked = (v === "publish" || v === "private") && !canPublish && v !== current;
+        return `<option value="${app.esc(v)}"${selected === v ? " selected" : ""}${locked ? " disabled" : ""}>${app.esc(l)}</option>`;
+      }).join("");
+      return `<label class="lb-control"><span>${app.t("Status")}</span><select id="lb-page-status">${html}</select></label><p class="lb-muted">${app.t("Drafts are only visible to logged-in editors. Publish applies when you save.")}</p>`;
     };
     app.pageTemplate = function pageTemplate() {
       const t3 = String((app.state.settings || {}).template || "default");
@@ -3102,13 +3329,92 @@
       if (kind && kind !== "page") return false;
       return !app.pageInheritsThemeChrome();
     };
+    app.lbDropStrayClosers = function lbDropStrayClosers(html) {
+      html = String(html || "");
+      if (html.indexOf("</") === -1) return html;
+      const voids = { area: 1, base: 1, br: 1, col: 1, embed: 1, hr: 1, img: 1, input: 1, link: 1, meta: 1, param: 1, source: 1, track: 1, wbr: 1 };
+      const stack = [];
+      return html.replace(/<!--[\s\S]*?-->|<(style|textarea|title)\b[^>]*>[\s\S]*?<\/\1\s*>|<(\/?)([a-zA-Z][a-zA-Z0-9:-]*)\b[^>]*>/g, (all, raw, close, tag) => {
+        if (!tag) return all;
+        const name = tag.toLowerCase();
+        if (close !== "/") {
+          if (!voids[name] && all.slice(-2) !== "/>") stack.push(name);
+          return all;
+        }
+        const at = stack.lastIndexOf(name);
+        if (at === -1) return "";
+        stack.length = at;
+        return all;
+      });
+    };
+    app.lbIsolateThemeChrome = function lbIsolateThemeChrome(html) {
+      html = app.lbDropStrayClosers(html);
+      if (!html || typeof DOMParser === "undefined") return html;
+      const doc = new DOMParser().parseFromString('<div id="lb-chrome-root">' + html + "</div>", "text/html");
+      const root = doc.getElementById("lb-chrome-root");
+      if (!root) return html;
+      doc.head.querySelectorAll("link,style").forEach((el) => root.insertBefore(el, root.firstChild));
+      const unwrap = (el) => {
+        const parent = el.parentNode;
+        if (!parent) return;
+        while (el.firstChild) parent.insertBefore(el.firstChild, el);
+        el.remove();
+      };
+      const chromeLandmark = (el) => {
+        if (!el || !el.tagName) return false;
+        const tag = el.tagName;
+        if (tag === "HEADER" || tag === "FOOTER" || tag === "NAV") return true;
+        const id = String(el.id || "").toLowerCase();
+        if (["colophon", "masthead", "site-header", "site-footer", "header", "footer"].indexOf(id) !== -1) return true;
+        const role = String(el.getAttribute("role") || "").toLowerCase();
+        if (role === "contentinfo" || role === "banner") return true;
+        const type = String(el.getAttribute("data-elementor-type") || "").toLowerCase();
+        if (type === "header" || type === "footer") return true;
+        const tokens = String(el.getAttribute("class") || "").toLowerCase().split(/\s+/);
+        if (id) tokens.push(id);
+        return tokens.some((token) => /(^|-)(footer|colophon)($|-)/.test(token) || /(^|-)(header|masthead)($|-)/.test(token) && token.indexOf("content") === -1);
+      };
+      root.querySelectorAll("#preloader,.preloader,.page-loader,.site-loader,.loader-wrapper,.loading-screen,.preloader-wrap").forEach((el) => el.remove());
+      root.querySelectorAll("[style]").forEach((el) => {
+        if (!el.parentNode || chromeLandmark(el)) return;
+        const style = String(el.getAttribute("style") || "").toLowerCase();
+        if (!/position\s*:\s*fixed/.test(style)) return;
+        if (/(?:inset\s*:\s*0|height\s*:\s*100(?:%|vh)|bottom\s*:\s*0)/.test(style) && /(?:width\s*:\s*100%|left\s*:\s*0|inset\s*:\s*0)/.test(style)) el.remove();
+      });
+      root.querySelectorAll("#content,#primary,#main,main,.site-content,.content-area,.site-main,.content-wrap").forEach((el) => {
+        if (!el.parentNode) return;
+        const tag = el.tagName;
+        if (tag === "HEADER" || tag === "FOOTER") return;
+        if (el.querySelector("header,footer,nav") || Array.prototype.some.call(el.querySelectorAll("*"), chromeLandmark)) {
+          unwrap(el);
+          return;
+        }
+        if ((el.textContent || "").trim() || el.querySelector("img,svg,video,picture")) {
+          unwrap(el);
+          return;
+        }
+        el.remove();
+      });
+      root.querySelectorAll("#page,#wrapper,#wrap,.hfeed,div").forEach((el) => {
+        if (!el.parentNode) return;
+        const tag = el.tagName;
+        if (tag === "HEADER" || tag === "FOOTER" || tag === "NAV") return;
+        const id = String(el.id || "").toLowerCase();
+        const tokens = String(el.getAttribute("class") || "").toLowerCase().split(/\s+/).filter(Boolean);
+        const shell = id === "page" || id === "wrapper" || id === "wrap" || tokens.indexOf("site") !== -1 || tokens.indexOf("hfeed") !== -1;
+        if (shell) unwrap(el);
+      });
+      return root.innerHTML;
+    };
     app.lbSanitizeThemeChrome = function lbSanitizeThemeChrome(html) {
       let s = String(html || "");
       s = s.replace(/<(script|iframe|object|embed)\b[^>]*>[\s\S]*?<\/\1>/gi, "");
       s = s.replace(/<(script|iframe|object|embed)\b[^>]*\/?>/gi, "");
       s = s.replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
       s = s.replace(/javascript\s*:|vbscript\s*:/gi, "");
-      return s;
+      s = app.lbDropStrayClosers(s);
+      const isolated = app.lbIsolateThemeChrome(s);
+      return app.chromeFragmentVisible(isolated) || !app.chromeFragmentVisible(s) ? isolated : s;
     };
     app.themeChromeScope = app.themeChromeScope || "page";
     app.normChrome = function normChrome(s) {
@@ -3125,11 +3431,24 @@
       const theme = `<label class="lb-check"><input type="radio" name="lb-chrome-scope" value="theme" ${scope === "theme" ? "checked" : ""} ${can ? "" : "disabled"}> ${app.esc(app.t("Entire theme"))}</label>`;
       return `<fieldset class="lb-chrome-scope"><legend>${app.esc(app.t("Theme header and footer"))}</legend><p class="lb-muted">${app.esc(app.t("Click the header or footer on the canvas to edit it. Choose where those edits are saved."))}</p>${page}${theme}</fieldset>`;
     };
-    app.inheritedChromeInner = function inheritedChromeInner(part) {
+    app.chromeFragmentVisible = function chromeFragmentVisible(html) {
+      const raw = app.lbDropStrayClosers(String(html || "").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "").replace(/<link\b[^>]*>/gi, ""));
+      if (!raw.trim()) return false;
+      if (typeof DOMParser === "undefined") return raw.replace(/<[^>]+>/g, "").trim().length > 0;
+      const doc = new DOMParser().parseFromString('<div id="lb-vis">' + raw + "</div>", "text/html");
+      const root = doc.getElementById("lb-vis");
+      if (!root) return false;
+      if (root.querySelector("img,svg,picture,video,canvas")) return true;
+      return (root.textContent || "").replace(/\s+/g, " ").trim().length > 0;
+    };
+    app.inheritedChromePlaceholder = function inheritedChromePlaceholder(part) {
       const label = part === "header" ? app.t("Header") : app.t("Footer");
-      const html = app.themeChromeHtml && app.themeChromeHtml[part];
-      if (html) return app.lbSanitizeThemeChrome(html);
       return '<div class="lb-chrome-empty"><span>' + app.esc(label) + "</span><small>" + app.esc(app.t("Inherited from the theme")) + "</small></div>";
+    };
+    app.inheritedChromeInner = function inheritedChromeInner(part) {
+      const html = app.themeChromeHtml && app.themeChromeHtml[part];
+      if (html && app.chromeFragmentVisible(html)) return app.lbSanitizeThemeChrome(html);
+      return app.inheritedChromePlaceholder(part);
     };
     app.inheritToolbarHTML = function inheritToolbarHTML() {
       const scope = app.themeChromeScope === "theme" ? app.t("Entire theme") : app.t("This page only");
@@ -3173,6 +3492,88 @@
       });
       return { body: body.trim(), links, styles };
     };
+    app.lbRewriteScopeSelectors = function lbRewriteScopeSelectors(css) {
+      let s = String(css || "");
+      const out = [];
+      let i = 0;
+      let quote = "";
+      let comment = false;
+      while (i < s.length) {
+        const ch = s[i];
+        const next = s[i + 1] || "";
+        if (comment) {
+          out.push(ch);
+          if (ch === "*" && next === "/") {
+            out.push(next);
+            i += 2;
+            comment = false;
+            continue;
+          }
+          i++;
+          continue;
+        }
+        if (quote) {
+          out.push(ch);
+          if (ch === "\\" && next) {
+            out.push(next);
+            i += 2;
+            continue;
+          }
+          if (ch === quote) quote = "";
+          i++;
+          continue;
+        }
+        if (ch === "/" && next === "*") {
+          out.push(ch, next);
+          i += 2;
+          comment = true;
+          continue;
+        }
+        if (ch === '"' || ch === "'") {
+          quote = ch;
+          out.push(ch);
+          i++;
+          continue;
+        }
+        if (ch !== "{") {
+          out.push(ch);
+          i++;
+          continue;
+        }
+        let start = out.length - 1;
+        while (start >= 0 && /\s/.test(out[start])) start--;
+        let from = start;
+        while (from >= 0 && out[from] !== "{" && out[from] !== "}") from--;
+        const head = out.slice(from + 1, start + 1).join("");
+        const prelude = /^\s*@/.test(head);
+        if (!prelude && head.trim()) {
+          const rewritten = head.split(",").map(
+            (sel2) => sel2.replace(/:root\b/g, ":scope").replace(/(^|[\s>+~,(])(?:html|body)(?=$|[\s.#:[>+~,),])/g, "$1:scope")
+          ).join(",");
+          out.splice(from + 1, head.length, rewritten);
+        }
+        out.push("{");
+        i++;
+      }
+      return out.join("");
+    };
+    app.lbScopeThemeCss = function lbScopeThemeCss(css, base) {
+      let s = String(css || "").replace(/@charset\s+["'][^"']*["']\s*;/gi, "");
+      if (base) {
+        s = s.replace(/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi, (all, q, raw) => {
+          const u = String(raw || "").trim();
+          if (!u || /^(?:data:|https?:|\/\/|#)/i.test(u)) return all;
+          try {
+            return "url(" + q + new URL(u, base).href + q + ")";
+          } catch (err) {
+            return all;
+          }
+        });
+      }
+      s = app.lbRewriteScopeSelectors(s);
+      return "@scope (.lb-theme-inherit){\n" + s + "\n}";
+    };
+    app.themeChromeFetched = app.themeChromeFetched || {};
     app.installThemeChromeStyles = function installThemeChromeStyles(fd) {
       if (!fd || !fd.head) return;
       const pack = app.themeChromeStyles || { css: "", links: [], home: "" };
@@ -3182,15 +3583,16 @@
         base.setAttribute("data-lb-theme-base", "1");
         fd.head.prepend(base);
       }
+      fd.querySelectorAll("link[data-lb-theme-style]").forEach((link) => link.remove());
       (pack.links || []).forEach((href) => {
-        if (!href) return;
-        const existing = [...fd.querySelectorAll("link[data-lb-theme-style]")].some((link2) => link2.getAttribute("href") === href);
-        if (existing) return;
-        const link = fd.createElement("link");
-        link.rel = "stylesheet";
-        link.href = href;
-        link.setAttribute("data-lb-theme-style", "1");
-        fd.head.appendChild(link);
+        if (!href || Object.prototype.hasOwnProperty.call(app.themeChromeFetched, href)) return;
+        app.themeChromeFetched[href] = "";
+        fetch(href, { credentials: "same-origin" }).then((r) => r.ok ? r.text() : "").then((css) => {
+          app.themeChromeFetched[href] = css ? app.lbScopeThemeCss(css, href) : "";
+          app.installThemeChromeStyles(fd);
+        }).catch(() => {
+          app.themeChromeFetched[href] = "";
+        });
       });
       let tag = fd.getElementById("lb-theme-chrome-css");
       if (!tag) {
@@ -3198,7 +3600,9 @@
         tag.id = "lb-theme-chrome-css";
         fd.head.appendChild(tag);
       }
-      tag.textContent = [pack.css || "", ...app.themeChromeInlineCss || []].join("\n");
+      const fetched = Object.keys(app.themeChromeFetched).map((href) => app.themeChromeFetched[href] || "").join("\n");
+      tag.textContent = app.lbScopeThemeCss([pack.css || "", ...app.themeChromeInlineCss || []].join("\n")) + "\n" + fetched;
+      if (typeof app.ensureFrameStage === "function") app.ensureFrameStage(fd);
     };
     app.adoptChromeAssets = function adoptChromeAssets(fd, split) {
       if (!fd || !split) return;
@@ -3238,7 +3642,7 @@
     };
     app.importChromeUnits = function importChromeUnits(part, html) {
       if (part !== "header" && part !== "footer" || !html || typeof DOMParser === "undefined") return;
-      const doc = new DOMParser().parseFromString('<div id="lb-chrome-import">' + html + "</div>", "text/html");
+      const doc = new DOMParser().parseFromString('<div id="lb-chrome-import">' + app.lbDropStrayClosers(html) + "</div>", "text/html");
       const root = doc.getElementById("lb-chrome-import");
       if (!root) return;
       root.querySelectorAll("[data-lb-unit]").forEach((host) => {
@@ -3275,6 +3679,8 @@
       const body = el.querySelector(":scope > .lb-inherit-body");
       if (!body) return;
       const clone = body.cloneNode(true);
+      clone.querySelectorAll(".lb-chrome-empty").forEach((el2) => el2.remove());
+      if (!String(clone.innerHTML || "").trim()) return;
       clone.querySelectorAll("[data-lb-unit]").forEach((host) => {
         const id = host.getAttribute("data-lb-unit") || "";
         const hit = id && app.locate(app.state.root, id);
@@ -3474,8 +3880,59 @@
         if (link) e.preventDefault();
       }, true);
     };
+    app.applyThemeBodyClass = function applyThemeBodyClass(el) {
+      if (!el || !el.classList) return;
+      String(app.themeChromeBodyClass || "").split(/\s+/).forEach((name) => {
+        if (name && name !== "lb-theme-inherit") el.classList.add(name);
+      });
+    };
+    app.chromeMediaUrl = function chromeMediaUrl(url) {
+      const value = String(url || "").trim();
+      if (!value || /[\s"'<>]/.test(value)) return "";
+      if (/^(?:https?:)?\/\//i.test(value) || value.charAt(0) === "/") return value;
+      return "";
+    };
+    app.revealChromeMedia = function revealChromeMedia(root) {
+      if (!root || !root.querySelectorAll) return;
+      root.querySelectorAll("img").forEach((img) => {
+        const src = img.getAttribute("src") || "";
+        const lazy = img.getAttribute("data-lazy-src") || img.getAttribute("data-ll-src") || img.getAttribute("data-orig-src") || img.getAttribute("data-src") || "";
+        const next = app.chromeMediaUrl(lazy);
+        const placeholder = !src || src === "#" || /^data:/i.test(src) || /^about:blank$/i.test(src) || /placeholder|blank\.(?:gif|png|svg)|1x1|lazy/i.test(src);
+        if (next && placeholder) img.setAttribute("src", next);
+        const set = img.getAttribute("data-lazy-srcset") || img.getAttribute("data-srcset") || "";
+        if (set && placeholder && !/["'<>]/.test(set)) img.setAttribute("srcset", set);
+      });
+      root.querySelectorAll("[data-settings]").forEach((el) => {
+        let data = null;
+        try {
+          data = JSON.parse(el.getAttribute("data-settings") || "");
+        } catch (err) {
+          return;
+        }
+        const url = data && data.background_image && data.background_image.url;
+        const next = app.chromeMediaUrl(url);
+        if (!next) return;
+        const view = el.ownerDocument && el.ownerDocument.defaultView;
+        const painted = view && view.getComputedStyle ? String(view.getComputedStyle(el).backgroundImage || "") : String(el.style.backgroundImage || "");
+        if (painted && painted !== "none") return;
+        el.style.backgroundImage = 'url("' + next.replace(/"/g, "") + '")';
+        if (!el.style.backgroundRepeat) el.style.backgroundRepeat = "no-repeat";
+        if (!el.style.backgroundPosition) el.style.backgroundPosition = "center center";
+        if (!el.style.backgroundSize) el.style.backgroundSize = data.background_size || "contain";
+      });
+    };
+    app.freezeChromeMedia = function freezeChromeMedia(root) {
+      if (!root || !root.querySelectorAll) return;
+      app.revealChromeMedia(root);
+      root.querySelectorAll("img,svg,picture,video").forEach((node) => {
+        node.setAttribute("contenteditable", "false");
+        node.setAttribute("draggable", "false");
+      });
+    };
     app.paintInheritedChrome = function paintInheritedChrome(fd) {
       if (!fd || !app.themeChromeHtml) return;
+      fd.querySelectorAll("[data-lb-theme-inherit]").forEach((el) => app.applyThemeBodyClass(el));
       app.installThemeChromeStyles(fd);
       const typing = fd.activeElement && fd.activeElement.closest && fd.activeElement.closest(".lb-inherit-body");
       fd.querySelectorAll("[data-lb-theme-inherit]").forEach((el) => {
@@ -3483,14 +3940,16 @@
         const html = app.themeChromeHtml[part];
         app.ensureInheritEditor(el);
         const editing = typing && typing.closest("[data-lb-theme-inherit]") === el;
-        if (!editing && html) {
-          const safe = app.lbSanitizeThemeChrome(html);
+        if (!editing) {
+          const safe = html && app.chromeFragmentVisible(html) ? app.lbSanitizeThemeChrome(html) : "";
           const split = app.splitChromeAssets(safe);
           app.adoptChromeAssets(fd, split);
           const body = el.querySelector(":scope > .lb-inherit-body");
-          if (body && body.__lbChromeSrc !== split.body) {
-            body.innerHTML = split.body;
-            body.__lbChromeSrc = split.body;
+          const next = safe ? split.body : app.inheritedChromePlaceholder(part);
+          if (body && body.__lbChromeSrc !== next) {
+            body.innerHTML = next;
+            body.__lbChromeSrc = next;
+            app.freezeChromeMedia(body);
           }
         }
         app.hydrateChromeUnits(el);
@@ -3507,13 +3966,14 @@
       fetch(api + "/theme-chrome?post_id=" + post, { headers: { "X-WP-Nonce": app.D.nonce || "" } }).then((r) => r.ok ? r.json() : null).then((data) => {
         app.themeChromeLoading = false;
         if (!data) return;
-        const header = String(data.header || "");
-        const footer = String(data.footer || "");
+        const header = app.lbDropStrayClosers(String(data.header || ""));
+        const footer = app.lbDropStrayClosers(String(data.footer || ""));
         app.themeChromeHtml = { header, footer };
         app.themeChromeBaseline = { header, footer };
         app.themeChromeLive = { header: String(data.live && data.live.header || ""), footer: String(data.live && data.live.footer || "") };
         const styles = data.styles && typeof data.styles === "object" ? data.styles : {};
         app.themeChromeStyles = { css: String(styles.css || ""), links: Array.isArray(styles.links) ? styles.links.slice() : [], home: String(data.home || "") };
+        app.themeChromeBodyClass = String(data.bodyClass || "");
         app.themeChromeInlineCss = [];
         app.themeChromeAssetHtml = { header: "", footer: "" };
         ["header", "footer"].forEach((part) => {
@@ -3632,7 +4092,7 @@
     };
     app.pageStageStyle = function pageStageStyle(important) {
       const b = important ? "!important" : "";
-      return "body{display:flex" + b + ";flex-direction:column" + b + ";min-height:100%" + b + ";height:auto" + b + ";overflow:visible" + b + ";margin:0" + b + ";padding:0" + b + ";background:#fff" + b + ";box-sizing:border-box" + b + "}.lb-page-stage{display:flex" + b + ";flex-direction:column" + b + ";flex:1 1 auto" + b + ";min-height:100%" + b + ";width:100%" + b + ";box-sizing:border-box" + b + ";background:#fff" + b + "}.lb-theme-bar{flex:0 0 auto" + b + ";display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;min-height:72px;width:100%;background:#f7f8f9;color:#8b939c;font:500 13px/1 system-ui,sans-serif;box-sizing:border-box;pointer-events:auto}.lb-theme-header{border-bottom:1px solid #e6eaee}.lb-theme-footer{border-top:1px solid #e6eaee;min-height:84px}.lb-theme-bar.is-hidden{display:none" + b + "}.lb-theme-inherit{position:relative;display:block" + b + ";flex:0 0 auto" + b + ";background:transparent" + b + ";color:inherit" + b + ";font:inherit" + b + ";min-height:0" + b + ";padding:0" + b + ";margin:0" + b + ";border:0" + b + ";pointer-events:auto" + b + ";cursor:text}.lb-theme-header.lb-theme-inherit,.lb-theme-footer.lb-theme-inherit{border:0" + b + ";min-height:0" + b + "}.lb-theme-inherit:hover{box-shadow:inset 0 0 0 1px #c5ccd4}.lb-theme-inherit.canvas-drop{background:transparent" + b + ";box-shadow:inset 0 0 0 2px #3f7fdf}.lb-theme-inherit .lb-chrome-empty{min-height:48px}.lb-inherit-body{min-height:0;outline:none;cursor:text;font:inherit;color:inherit}.lb-chrome-unit{display:block;flex:0 1 auto;min-width:0;max-width:100%;margin:0}.lb-theme-inherit .lb-chrome-unit>.lb-node{width:auto;max-width:100%;background:transparent}.lb-inherit-toolbar{display:none;align-items:center;gap:4px;position:absolute;top:6px;right:8px;z-index:5;padding:4px;background:#1d2327;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.18)}.lb-theme-inherit.is-editing .lb-inherit-toolbar,.lb-theme-inherit:focus-within .lb-inherit-toolbar{display:flex}.lb-inherit-toolbar button{border:0;background:transparent;color:#fff;font:600 12px/1 system-ui,sans-serif;padding:4px 6px;cursor:pointer;border-radius:4px}.lb-inherit-toolbar button:hover{background:#2c3338}.lb-theme-bar.is-editing{box-shadow:inset 0 0 0 2px #3f7fdf}.lb-site-part{position:relative;outline:1px dashed #3f7fdf;outline-offset:-1px}.lb-chrome-label{display:flex;align-items:center;gap:8px;min-height:22px;padding:0 10px;background:#1d2327;color:#fff;font:600 11px/22px system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;pointer-events:none}.lb-chrome-label small{font-weight:500;letter-spacing:0;text-transform:none;color:#c3c4c7}.lb-theme-bar.canvas-drop{background:#f4f8fd}.lb-chrome-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:72px;width:100%;pointer-events:none}.lb-theme-inherit .lb-inherit-body,.lb-theme-inherit .lb-chrome-empty{pointer-events:auto}.lb-theme-footer .lb-chrome-empty{min-height:84px}.lb-chrome-empty small{font:italic 12px/1.3 system-ui,sans-serif;color:#8e969e}.lb-theme-bar>.lb-node{width:100%;background:#fff}.lb-frame-root{display:flex" + b + ";flex-direction:column" + b + ";flex:1 1 auto" + b + ";box-sizing:border-box" + b + ";width:100%" + b + ";max-width:none" + b + ";margin:0" + b + ";min-height:0" + b + ";height:auto" + b + ";padding:0" + b + ";background:#fff" + b + ";position:relative" + b + ";overflow:visible" + b + "}.lb-frame-root>.lb-node{flex:0 0 auto" + b + "}.lb-hf-placeholder{flex:1 1 auto" + b + ";min-height:180px" + b + ";margin:22px 28px" + b + ";display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1px dashed #c5ccd4;background:#f7f8f9;color:#50575e;pointer-events:none;box-sizing:border-box}.lb-hf-placeholder span{font:600 14px/1.3 system-ui,sans-serif}.lb-hf-placeholder small{font:italic 12px/1.3 system-ui,sans-serif;color:#8e969e}.lb-frame-root>.lb-page-drop,.lb-frame-root>.lb-empty{flex:1 1 auto" + b + ";min-height:160px" + b + ";height:auto" + b + ";margin:22px 28px" + b + ";box-sizing:border-box" + b + ";display:flex;align-items:center;justify-content:center;border:1px dashed #c5ccd4;background:#fff;color:#8b939c}.lb-page-drop-inner{display:flex;flex-direction:column;align-items:center;gap:12px}.lb-page-drop-actions{display:flex;align-items:center;justify-content:center;gap:10px}.lb-page-drop-btn{width:36px;height:36px;padding:0;border:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font:700 18px/1 system-ui,sans-serif}.lb-page-drop-btn.is-plus{background:#e6e8eb;color:#2c3136;font-size:22px;font-weight:500}.lb-page-drop-btn.is-folder{background:#1c1e22}.lb-page-drop-btn.is-brand{background:#2f73d9;font-size:14px;font-weight:800}.lb-page-drop-btn.is-grid{background:#7b5ea7;border-radius:10px}.lb-page-drop-btn:hover{filter:brightness(1.06)}.lb-page-drop-label{margin:0;font:italic 14px/1.3 system-ui,sans-serif;color:#8e969e}.lb-frame-root.canvas-drop>.lb-page-drop{border-color:#3f7fdf;background:#f4f8fd}body.lb-template-full-width .lb-frame-root,body.lb-template-canvas .lb-frame-root,body.lb-template-default .lb-frame-root{padding:0" + b + ";width:100%" + b + ";max-width:none" + b + ";margin:0" + b + ";min-height:0" + b + "}";
+      return "body{display:flex" + b + ";flex-direction:column" + b + ";min-height:100%" + b + ";height:auto" + b + ";overflow:visible" + b + ";margin:0" + b + ";padding:0" + b + ";background:#fff" + b + ";box-sizing:border-box" + b + "}.lb-page-stage{display:flex" + b + ";flex-direction:column" + b + ";flex:1 1 auto" + b + ";min-height:100%" + b + ";width:100%" + b + ";box-sizing:border-box" + b + ";background:#fff" + b + "}.lb-theme-bar{flex:0 0 auto" + b + ";display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;min-height:72px;width:100%;background:#f7f8f9;color:#8b939c;font:500 13px/1 system-ui,sans-serif;box-sizing:border-box;pointer-events:auto}.lb-theme-header{border-bottom:1px solid #e6eaee}.lb-theme-footer{border-top:1px solid #e6eaee;min-height:84px}.lb-theme-bar.is-hidden{display:none" + b + "}.lb-theme-inherit{position:relative;display:block" + b + ";flex:0 0 auto" + b + ";background:transparent" + b + ";color:inherit" + b + ";font:inherit" + b + ";min-height:0" + b + ";height:auto" + b + ";padding:0" + b + ";margin:0" + b + ";border:0" + b + ";pointer-events:auto" + b + ";cursor:text}.lb-theme-inherit #page,.lb-theme-inherit #wrapper,.lb-theme-inherit #wrap,.lb-theme-inherit #content,.lb-theme-inherit #primary,.lb-theme-inherit #main,.lb-theme-inherit .site,.lb-theme-inherit .hfeed,.lb-theme-inherit .site-content,.lb-theme-inherit .content-area,.lb-theme-inherit main,.lb-theme-inherit .elementor-section,.lb-theme-inherit .elementor-top-section,.lb-theme-inherit .elementor-section-height-full,.lb-theme-inherit .elementor-section-height-min-height{min-height:0" + b + ";height:auto" + b + ";max-height:none" + b + ";flex:0 0 auto" + b + "}.lb-theme-inherit #preloader,.lb-theme-inherit .preloader,.lb-theme-inherit .page-loader,.lb-theme-inherit .site-loader,.lb-theme-inherit .loader-wrapper,.lb-theme-inherit .loading-screen{display:none" + b + "}.lb-theme-header.lb-theme-inherit,.lb-theme-footer.lb-theme-inherit{border:0" + b + ";min-height:0" + b + "}.lb-theme-inherit .custom-logo,.lb-theme-inherit .custom-logo-link img,.lb-theme-inherit .site-logo img,.lb-theme-inherit .site-branding img,.lb-theme-inherit .elementor-widget-theme-site-logo img,.lb-theme-inherit .elementor-widget-image .elementor-widget-container img{max-width:100%;height:auto}.lb-theme-header.lb-theme-inherit .elementor-widget-theme-site-logo,.lb-theme-header.lb-theme-inherit .elementor-widget-image,.lb-theme-header.lb-theme-inherit .elementor-widget-hfe-site-logo,.lb-theme-header.lb-theme-inherit .custom-logo-link,.lb-theme-header.lb-theme-inherit .site-logo,.lb-theme-header.lb-theme-inherit .site-branding,.lb-theme-header.lb-theme-inherit .hfe-site-logo,.lb-theme-header.lb-theme-inherit .elementor-widget-theme-site-logo > .elementor-widget-container,.lb-theme-header.lb-theme-inherit .elementor-widget-image > .elementor-widget-container,.lb-theme-header.lb-theme-inherit .elementor-widget-hfe-site-logo > .elementor-widget-container{flex:0 0 auto" + b + ";width:max-content" + b + ";max-width:220px" + b + ";min-width:64px" + b + ";min-height:0" + b + ";overflow:visible" + b + ";align-self:center" + b + "}.lb-theme-header.lb-theme-inherit .e-con:is(:has(> .elementor-widget-theme-site-logo),:has(> .elementor-widget-image),:has(> .elementor-widget-hfe-site-logo),:has(> .e-con-inner > .elementor-widget-theme-site-logo),:has(> .e-con-inner > .elementor-widget-image),:has(> .e-con-inner > .elementor-widget-hfe-site-logo)):not(:has(.elementor-widget-nav-menu,.elementor-nav-menu,.elementor-widget-icon-list,.elementor-widget-social-icons)),.lb-theme-header.lb-theme-inherit .elementor-column:is(:has(> .elementor-widget-wrap > .elementor-widget-theme-site-logo),:has(> .elementor-widget-wrap > .elementor-widget-image),:has(> .elementor-widget-wrap > .elementor-widget-hfe-site-logo)):not(:has(.elementor-nav-menu,.elementor-widget-icon-list,.elementor-widget-social-icons)){flex:0 0 auto" + b + ";width:max-content" + b + ";max-width:240px" + b + ";min-width:64px" + b + ";overflow:visible" + b + "}.lb-theme-header.lb-theme-inherit .custom-logo,.lb-theme-header.lb-theme-inherit .custom-logo-link img,.lb-theme-header.lb-theme-inherit .custom-logo-link svg,.lb-theme-header.lb-theme-inherit .site-logo img,.lb-theme-header.lb-theme-inherit .site-branding img,.lb-theme-header.lb-theme-inherit .site-branding svg,.lb-theme-header.lb-theme-inherit .elementor-widget-theme-site-logo img,.lb-theme-header.lb-theme-inherit .elementor-widget-theme-site-logo svg,.lb-theme-header.lb-theme-inherit .elementor-widget-image img,.lb-theme-header.lb-theme-inherit .elementor-widget-hfe-site-logo img,.lb-theme-header.lb-theme-inherit .hfe-site-logo-img{display:block" + b + ";visibility:visible" + b + ";opacity:1" + b + ";width:auto" + b + ";height:auto" + b + ";max-width:100%" + b + ";max-height:110px" + b + ";min-width:0" + b + ";min-height:0" + b + ";object-fit:contain" + b + "}.lb-theme-footer.lb-theme-inherit:has(.lb-chrome-empty){min-height:84px" + b + "}.lb-theme-inherit:hover{box-shadow:inset 0 0 0 1px #c5ccd4}.lb-theme-inherit.canvas-drop{background:transparent" + b + ";box-shadow:inset 0 0 0 2px #3f7fdf}.lb-theme-inherit .lb-chrome-empty{min-height:48px}.lb-inherit-body{min-height:0;outline:none;cursor:text;font:inherit;color:inherit}.lb-chrome-unit{display:block;flex:0 1 auto;min-width:0;max-width:100%;margin:0}.lb-theme-inherit .lb-chrome-unit>.lb-node{width:auto;max-width:100%;background:transparent}.lb-inherit-toolbar{display:none;align-items:center;gap:4px;position:absolute;top:6px;right:8px;z-index:5;padding:4px;background:#1d2327;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.18)}.lb-theme-inherit.is-editing .lb-inherit-toolbar,.lb-theme-inherit:focus-within .lb-inherit-toolbar{display:flex}.lb-inherit-toolbar button{border:0;background:transparent;color:#fff;font:600 12px/1 system-ui,sans-serif;padding:4px 6px;cursor:pointer;border-radius:4px}.lb-inherit-toolbar button:hover{background:#2c3338}.lb-theme-bar.is-editing{box-shadow:inset 0 0 0 2px #3f7fdf}.lb-site-part{position:relative;outline:1px dashed #3f7fdf;outline-offset:-1px}.lb-chrome-label{display:flex;align-items:center;gap:8px;min-height:22px;padding:0 10px;background:#1d2327;color:#fff;font:600 11px/22px system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;pointer-events:none}.lb-chrome-label small{font-weight:500;letter-spacing:0;text-transform:none;color:#c3c4c7}.lb-theme-bar.canvas-drop{background:#f4f8fd}.lb-chrome-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:72px;width:100%;pointer-events:none}.lb-theme-inherit .lb-inherit-body,.lb-theme-inherit .lb-chrome-empty{pointer-events:auto}.lb-theme-footer .lb-chrome-empty{min-height:84px}.lb-chrome-empty small{font:italic 12px/1.3 system-ui,sans-serif;color:#8e969e}.lb-theme-bar>.lb-node{width:100%;background:#fff}.lb-frame-root{display:flex" + b + ";flex-direction:column" + b + ";flex:1 1 auto" + b + ";box-sizing:border-box" + b + ";width:100%" + b + ";max-width:none" + b + ";margin:0" + b + ";min-height:0" + b + ";height:auto" + b + ";padding:0" + b + ";background:#fff" + b + ";position:relative" + b + ";overflow:visible" + b + "}.lb-frame-root>.lb-node{flex:0 0 auto" + b + "}.lb-hf-placeholder{flex:1 1 auto" + b + ";min-height:180px" + b + ";margin:22px 28px" + b + ";display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1px dashed #c5ccd4;background:#f7f8f9;color:#50575e;pointer-events:none;box-sizing:border-box}.lb-hf-placeholder span{font:600 14px/1.3 system-ui,sans-serif}.lb-hf-placeholder small{font:italic 12px/1.3 system-ui,sans-serif;color:#8e969e}.lb-frame-root>.lb-page-drop,.lb-frame-root>.lb-empty{flex:1 1 auto" + b + ";min-height:160px" + b + ";height:auto" + b + ";margin:22px 28px" + b + ";box-sizing:border-box" + b + ";display:flex;align-items:center;justify-content:center;border:1px dashed #c5ccd4;background:#fff;color:#8b939c}.lb-page-drop-inner{display:flex;flex-direction:column;align-items:center;gap:12px}.lb-page-drop-actions{display:flex;align-items:center;justify-content:center;gap:10px}.lb-page-drop-btn{width:36px;height:36px;padding:0;border:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font:700 18px/1 system-ui,sans-serif}.lb-page-drop-btn.is-plus{background:#e6e8eb;color:#2c3136;font-size:22px;font-weight:500}.lb-page-drop-btn.is-folder{background:#1c1e22}.lb-page-drop-btn.is-brand{background:#2f73d9;font-size:14px;font-weight:800}.lb-page-drop-btn.is-grid{background:#7b5ea7;border-radius:10px}.lb-page-drop-btn:hover{filter:brightness(1.06)}.lb-page-drop-label{margin:0;font:italic 14px/1.3 system-ui,sans-serif;color:#8e969e}.lb-frame-root.canvas-drop>.lb-page-drop{border-color:#3f7fdf;background:#f4f8fd}body.lb-template-full-width .lb-frame-root,body.lb-template-canvas .lb-frame-root,body.lb-template-default .lb-frame-root{padding:0" + b + ";width:100%" + b + ";max-width:none" + b + ";margin:0" + b + ";min-height:0" + b + "}.lb-page-stage>.lb-frame-root{display:flex" + b + ";visibility:visible" + b + ";opacity:1" + b + ";position:relative" + b + ";z-index:1" + b + ";min-height:160px" + b + ";height:auto" + b + ";overflow:visible" + b + "}.lb-frame-root>.lb-node,.lb-frame-root>.lb-page-drop{visibility:visible" + b + ";position:relative" + b + "}.lb-frame-root .lb-interact-fade,.lb-frame-root .lb-interact-slide-up,.lb-frame-root .lb-interact-scale,.lb-frame-root .lb-interact-slide-right,.lb-frame-root .lb-interact-rotate,.lb-frame-root .lb-interact-blur,.lb-frame-root .lb-fx{opacity:1" + b + ";transform:none" + b + ";filter:none" + b + ";animation:none" + b + ";visibility:visible" + b + "}";
     };
     app.ensureFrameStage = function ensureFrameStage(fd) {
       if (!fd || !fd.head) return;
@@ -3643,6 +4103,7 @@
         fd.head.appendChild(st);
       }
       st.textContent = "html{margin:0!important;padding:0!important;height:100%!important;background:#fff!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:scroll!important;scrollbar-gutter:stable!important}html::-webkit-scrollbar{width:12px}html::-webkit-scrollbar-track{background:#eef1f4}html::-webkit-scrollbar-thumb{background:#b7c0ca;border-radius:6px}" + app.pageStageStyle(true);
+      if (fd.head.lastElementChild !== st) fd.head.appendChild(st);
     };
     app.applyPageTemplatePreview = function applyPageTemplatePreview() {
       const fd = app.frameDoc();
@@ -3678,7 +4139,7 @@
       const button = document.getElementById("lb-create-page");
       if (button) {
         button.disabled = true;
-        button.textContent = app.t("Creating\u2026");
+        button.textContent = app.t("Creating\xE2\u20AC\xA6");
       }
       try {
         const r = await fetch(`${app.D.api}/pages`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ title }) });
@@ -3864,8 +4325,8 @@
         ["exit", app.t("Exit to WordPress Dashboard"), app.t("Return to the WordPress dashboard.")]
       ];
       const html = `<div class="lb-main-menu" role="menu" aria-label="${app.t("Canvasly menu")}">
-   <div class="lb-main-menu-head"><strong>Canvasly</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">\xD7</button></div>
-   ${items.map((it, i) => `<button type="button" class="lb-main-menu-item ${it[0] === "exit" ? "is-exit" : ""}" data-main-menu="${it[0]}" role="menuitem"><span class="lb-menu-mark lb-menu-${it[0]}" aria-hidden="true">${i === 0 ? "\u2699" : i === 1 ? "\u25A4" : i === 2 ? "\u25A2" : i === 3 ? "\u25C9" : i === 4 ? "\u2328" : i === 5 ? "?" : i === 6 ? "\u25CE" : "\u21AA"}</span><span><b>${app.esc(it[1])}</b><small>${app.esc(it[2])}</small></span></button>`).join("")}
+   <div class="lb-main-menu-head"><strong>Canvasly</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">\xC3\u2014</button></div>
+   ${items.map((it, i) => `<button type="button" class="lb-main-menu-item ${it[0] === "exit" ? "is-exit" : ""}" data-main-menu="${it[0]}" role="menuitem"><span class="lb-menu-mark lb-menu-${it[0]}" aria-hidden="true">${i === 0 ? "\xE2\u0161\u2122" : i === 1 ? "\xE2\u2013\xA4" : i === 2 ? "\xE2\u2013\xA2" : i === 3 ? "\xE2\u2014\u2030" : i === 4 ? "\xE2\u0152\xA8" : i === 5 ? "?" : i === 6 ? "\xE2\u2014\u017D" : "\xE2\u2020\xAA"}</span><span><b>${app.esc(it[1])}</b><small>${app.esc(it[2])}</small></span></button>`).join("")}
  </div>`;
       app.root.insertAdjacentHTML("beforeend", html);
       app.root.querySelector("[data-menu-close]").onclick = app.closeMainMenu;
@@ -3887,7 +4348,7 @@
         return;
       }
       if (action === "notes") {
-        app.showMenuDialog(app.t("Notes"), '<label class="lb-control"><span>Page notes</span><textarea id="lb-page-notes" rows="8" placeholder="' + app.t("Add private notes for this page\u2026") + '">' + app.esc(app.state.settings?.notes || "") + '</textarea></label><button type="button" class="lb-btn primary" id="lb-save-notes">' + app.t("Save Notes") + "</button>");
+        app.showMenuDialog(app.t("Notes"), '<label class="lb-control"><span>Page notes</span><textarea id="lb-page-notes" rows="8" placeholder="' + app.t("Add private notes for this page\xE2\u20AC\xA6") + '">' + app.esc(app.state.settings?.notes || "") + '</textarea></label><button type="button" class="lb-btn primary" id="lb-save-notes">' + app.t("Save Notes") + "</button>");
         app.$("#lb-save-notes")?.addEventListener("click", () => {
           app.state.settings = app.state.settings || {};
           app.state.settings.notes = app.$("#lb-page-notes")?.value || "";
@@ -3955,21 +4416,22 @@
       work.querySelector(".lb-panel.left")?.classList.toggle("is-collapsed", app.leftHidden);
       work.querySelector(".lb-panel.right")?.classList.toggle("is-collapsed", app.rightHidden);
       const lt = work.querySelector('[data-panel-toggle="left"]'), rt = work.querySelector('[data-panel-toggle="right"]');
-      if (lt) lt.textContent = app.leftHidden ? "\u203A" : "\u2039";
-      if (rt) rt.textContent = app.rightHidden ? "\u2039" : "\u203A";
+      if (lt) lt.textContent = app.leftHidden ? "\xE2\u20AC\xBA" : "\xE2\u20AC\xB9";
+      if (rt) rt.textContent = app.rightHidden ? "\xE2\u20AC\xB9" : "\xE2\u20AC\xBA";
       const status = document.getElementById("lb-status");
       if (status) status.textContent = app.dirty ? app.t("Unsaved") : app.t("Saved");
       if (app.applyCanvasWidth) app.applyCanvasWidth();
       if (app.syncDeviceButtons) app.syncDeviceButtons();
       if (app.refreshRevisionBanner) app.refreshRevisionBanner();
       if (app.historyOpen && app.refreshHistoryPanel) app.refreshHistoryPanel();
+      if (typeof app.hydrateShortcodes === "function") app.hydrateShortcodes();
       return true;
     };
     app.render = function render() {
       app.closeContextMenu();
       if (app.lbPaintCanvas()) return;
       const both = app.leftHidden && app.rightHidden;
-      app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Canvasly</span><small>Core 0.12.28</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">\u21B6</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">\u21B7</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftWidth}px;--lb-right-width:${app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "\u203A" : "\u2039"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units\u2026")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">\xD7</button></div><div class="lb-categories">${app.unitCategories().map((c) => `<button data-cat="${c}" class="${app.category === c ? "active" : ""}">${app.unitCategoryLabel(c)}</button>`).join("")}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Canvasly isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "\u2039" : "\u203A"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
+      app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Canvasly</span><small>Core 0.12.88</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">\xE2\u2020\xB6</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">\xE2\u2020\xB7</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftWidth}px;--lb-right-width:${app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "\xE2\u20AC\xBA" : "\xE2\u20AC\xB9"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units\xE2\u20AC\xA6")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">\xC3\u2014</button></div><div class="lb-categories">${app.unitCategories().map((c) => `<button data-cat="${c}" class="${app.category === c ? "active" : ""}">${app.unitCategoryLabel(c)}</button>`).join("")}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Canvasly isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "\xE2\u20AC\xB9" : "\xE2\u20AC\xBA"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
       app.bind();
       const frame = document.getElementById("lb-editor-frame");
       if (frame) {
@@ -3983,8 +4445,8 @@
         try {
           frame.srcdoc = app.frameHTML();
         } catch (err) {
-          if (window.console) console.error(err);
-          frame.srcdoc = '<!doctype html><html><body style="margin:0;background:#fff"></body></html>';
+          if (window.console) console.error("[Canvasly] canvas render failed", err);
+          frame.srcdoc = '<!doctype html><html><body style="margin:24px;font:14px/1.4 system-ui,sans-serif;color:#1d2327">The canvas could not be drawn. Reload the editor. If this page was just converted, open it again after saving.</body></html>';
         }
         setTimeout(() => {
           if (frame.contentDocument && frame.contentDocument.readyState === "complete") {
@@ -6739,30 +7201,6 @@
           x.style.removeProperty("--lb122-cols");
           x.style.removeProperty("--lb122-rows");
         });
-        return;
-        const r = app.selected && app.locate(app.state.root, app.selected);
-        if (!r) return;
-        let grid = r.node.type === "grid" ? r.node : r.parent?.type === "grid" ? r.parent : null;
-        if (!grid) return;
-        const host = lb122Node(fd, grid.id);
-        if (!host) return;
-        const inner = host.querySelector(".lb-grid-inner");
-        if (!inner) return;
-        const { cols, rows } = lb122Counts(grid);
-        inner.classList.add("lb122-grid-active");
-        inner.style.setProperty("--lb122-cols", cols);
-        inner.style.setProperty("--lb122-rows", rows);
-        const guide = fd.createElement("div");
-        guide.className = "lb122-grid-guide";
-        guide.style.gridTemplateColumns = `repeat(${cols},minmax(0,1fr))`;
-        guide.style.gridTemplateRows = `repeat(${rows},minmax(0,1fr))`;
-        for (let row = 1; row <= rows; row++) for (let col = 1; col <= cols; col++) {
-          const c = fd.createElement("div");
-          c.className = "lb122-grid-cell";
-          c.textContent = `${col}/${row}`;
-          guide.appendChild(c);
-        }
-        inner.appendChild(guide);
       }
       function lb122Delete(e) {
         if (app.lbShortcutOwner) return;
@@ -9623,15 +10061,15 @@
       if (!top) return;
       const title = app.state.settings?.title || app.D.postTitle || app.t("Untitled Page");
       if (top.querySelector(".lb24-top-left")) {
-        const t3 = top.querySelector(".lb24-page-title");
-        if (t3) t3.textContent = title;
+        const pageTitle = top.querySelector(".lb24-page-title");
+        if (pageTitle) pageTitle.textContent = title;
         const status = top.querySelector("#lb-status");
-        if (status) status.textContent = app.dirty ? t3("Unsaved") : t3("Saved");
+        if (status) status.textContent = app.dirty ? app.t("Unsaved") : app.t("Saved");
         if (app.syncDeviceButtons) app.syncDeviceButtons();
         if (app.applyCanvasWidth) app.applyCanvasWidth();
         return;
       }
-      top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Canvasly</span><small>Core 0.12.28</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">\u21B6</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">\u21B7</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">\u2637</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">\u22EE</button></div>`;
+      top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Canvasly</span><small>Core 0.12.88</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">\u21B6</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">\u21B7</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">\u2637</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">\u22EE</button></div>`;
       app.$("#lb-main-menu-button").onclick = (e) => {
         e.stopPropagation();
         app.openMainMenu();
@@ -10553,7 +10991,7 @@
             let html = lb28OldBody(n);
             const layers = containerLayers(s);
             if (!layers) return html;
-            return html.replace(/<div class="lb-container-inner"([^>]*)>/, (m, rest) => `<div class="lb-container-inner lb-has-layers"${rest}>${layers}`);
+            return html.replace(/<div class="lb-container-inner([^"]*)"([^>]*)>/, (m, extra, rest) => `<div class="lb-container-inner${extra} lb-has-layers"${rest}>${layers}`);
           }
         }
         return lb28OldBody(n);
@@ -18656,7 +19094,9 @@
     const SKIP_SIZE = /* @__PURE__ */ new Set(["image", "video", "gallery", "carousel", "audio", "image_box", "soundcloud", "embed", "tinymce_text_editor"]);
     const SIZE_KEYS = /* @__PURE__ */ new Set(["width", "max_width", "height", "min_height"]);
     function cssSafe(value) {
-      return String(value == null ? "" : value).replace(/<\/style/gi, "").replace(/[{}<>]/g, "").replace(/[\r\n]/g, " ");
+      let s = String(value == null ? "" : value);
+      if (typeof app.lbResolveToken === "function") s = String(app.lbResolveToken(s));
+      return s.replace(/<\/style/gi, "").replace(/[{}<>]/g, "").replace(/[\r\n]/g, " ");
     }
     function breakpoint(value) {
       return value && typeof value === "object" && !Array.isArray(value) && ("desktop" in value || "tablet" in value || "mobile" in value) && !("top" in value) && !("left" in value) && !("x" in value);
@@ -18960,6 +19400,19 @@
     installRoleCaps();
     installHeartbeat();
     installCanvasSchema();
+    if (typeof app.nodeHTML === "function" && !app.nodeHTML.__lbSafe) {
+      const paintNode = app.nodeHTML;
+      app.nodeHTML = function nodeHTMLSafe(n) {
+        try {
+          return paintNode(n);
+        } catch (err) {
+          if (window.console) console.error("[Canvasly] unit render failed", n && n.type, err);
+          const title = (app.meta(n && n.type) || {}).title || n && n.type || "Unit";
+          return '<div class="lb-node lb-node-error" data-id="' + app.esc(n && n.id || "") + '" data-type="' + app.esc(n && n.type || "") + '"><div class="lb-embed-placeholder">' + app.esc(title) + "</div></div>";
+        }
+      };
+      app.nodeHTML.__lbSafe = true;
+    }
     const paint = app.lbPaintCanvas;
     if (typeof paint === "function") {
       app.lbPaintCanvas = function lbPaintCanvasWrapped() {
@@ -18975,6 +19428,8 @@
         return ok;
       };
     }
+    if (typeof app.render === "function") app.render();
+    if (typeof app.lbHydrateDocument === "function") app.lbHydrateDocument();
   }
   boot();
 })();

@@ -32,6 +32,18 @@
 	background: #fff;
 	border-bottom: 1px solid #ddd;
 }
+.lb-native-editor-float {
+	position: fixed;
+	top: 72px;
+	right: 24px;
+	z-index: 100000;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.editor-header__settings #lb-native-editor-button,
+.edit-post-header__settings #lb-native-editor-button {
+	margin-inline-start: 0 !important;
+	margin-inline-end: 8px !important;
+}
 #lb-native-editor-button.lb-native-editor-button:hover,
 #lb-native-editor-button.lb-native-editor-button:focus {
 	background: #3a3a3a;

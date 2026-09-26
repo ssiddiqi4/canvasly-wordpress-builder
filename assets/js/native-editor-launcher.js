@@ -74,37 +74,63 @@
 			return btn;
 		}
 
+		function visible(node) {
+			if (!node || !node.isConnected) {
+				return false;
+			}
+			var rect = node.getBoundingClientRect();
+			return rect.width > 0 && rect.height > 0;
+		}
+
 		function toolbarTarget() {
 			var selectors = [
 				'.edit-post-header-toolbar',
 				'.editor-document-tools',
 				'.editor-header__toolbar',
 				'.edit-post-header__toolbar',
+				'.editor-header__left',
 				'.editor-header__settings',
-				'.edit-post-header__settings',
-				'.editor-header__left'
+				'.edit-post-header__settings'
 			];
 			for (var i = 0; i < selectors.length; i++) {
 				var node = document.querySelector(selectors[i]);
-				if (node) {
+				if (visible(node)) {
 					return node;
 				}
 			}
 			return null;
 		}
 
+		function place(btn, target) {
+			if (/(^|\s)(editor-header__settings|edit-post-header__settings)(\s|$)/.test(target.className || '')) {
+				target.insertBefore(btn, target.firstChild);
+			} else {
+				target.appendChild(btn);
+			}
+		}
+
+		function clearFallbacks() {
+			var nodes = document.querySelectorAll('.lb-native-editor-launch, .lb-native-editor-float');
+			for (var i = 0; i < nodes.length; i++) {
+				nodes[i].remove();
+			}
+		}
+
 		function addButton() {
 			var existing = document.getElementById('lb-native-editor-button');
+			if (existing && !visible(existing) && !existing.closest('.lb-native-editor-float')) {
+				existing.remove();
+				existing = null;
+			}
 			var target = toolbarTarget();
 			if (target) {
 				if (existing && existing.parentNode === target) {
 					return;
 				}
-				var stray = document.querySelector('.lb-native-editor-launch');
-				if (stray) {
-					stray.remove();
-				}
-				target.appendChild(existing || makeButton('components-button is-primary lb-native-editor-button'));
+				var btn = existing || makeButton('components-button is-primary lb-native-editor-button');
+				btn.className = 'components-button is-primary lb-native-editor-button';
+				place(btn, target);
+				clearFallbacks();
 				return;
 			}
 			if (existing) {
@@ -116,39 +142,68 @@
 				return;
 			}
 			var canvas = document.querySelector('.editor-visual-editor, .edit-post-visual-editor, .interface-interface-skeleton__content');
-			if (!canvas || !canvas.parentNode) {
+			if (canvas && canvas.parentNode) {
+				var bar = document.createElement('div');
+				bar.className = 'lb-native-editor-launch';
+				bar.appendChild(makeButton('components-button is-primary is-compact lb-native-editor-button'));
+				canvas.parentNode.insertBefore(bar, canvas);
 				return;
 			}
-			var bar = document.createElement('div');
-			bar.className = 'lb-native-editor-launch';
-			bar.appendChild(makeButton('components-button is-primary is-compact lb-native-editor-button'));
-			canvas.parentNode.insertBefore(bar, canvas);
+			if (tries >= 12 && document.body && (document.body.classList.contains('block-editor-page') || document.querySelector('#editor, .block-editor'))) {
+				var float = document.createElement('div');
+				float.className = 'lb-native-editor-float';
+				float.appendChild(makeButton('components-button is-primary lb-native-editor-button'));
+				document.body.appendChild(float);
+			}
 		}
 
-		if (window.wp && wp.domReady) {
-			wp.domReady(addButton);
+		function settled() {
+			var btn = document.getElementById('lb-native-editor-button');
+			if (!btn || !visible(btn)) {
+				return false;
+			}
+			if (btn.closest('.lb-native-editor-launch, .lb-native-editor-float')) {
+				return !toolbarTarget();
+			}
+			return true;
 		}
-		window.addEventListener('load', addButton);
+
+		function refresh() {
+			if (!settled()) {
+				addButton();
+			}
+		}
+
 		var tries = 0;
+		if (window.wp && wp.domReady) {
+			wp.domReady(refresh);
+		}
+		window.addEventListener('load', refresh);
 		var timer = setInterval(function () {
 			tries++;
-			addButton();
-			if (document.getElementById('lb-native-editor-button') || tries > 120) {
+			refresh();
+			if ((settled() && !document.querySelector('.lb-native-editor-launch, .lb-native-editor-float')) || tries > 240) {
 				clearInterval(timer);
 			}
 		}, 250);
 		if (window.MutationObserver && document.body) {
+			var pending = false;
 			var observer = new MutationObserver(function () {
-				if (!document.getElementById('lb-native-editor-button')) {
-					addButton();
+				if (pending) {
+					return;
 				}
+				pending = true;
+				(window.requestAnimationFrame || setTimeout)(function () {
+					pending = false;
+					refresh();
+				});
 			});
 			observer.observe(document.body, { childList: true, subtree: true });
 		}
 		if (window.wp && wp.data && wp.data.subscribe) {
 			wp.data.subscribe(function () {
 				if (!document.getElementById('lb-native-editor-button')) {
-					addButton();
+					refresh();
 				}
 			});
 		}

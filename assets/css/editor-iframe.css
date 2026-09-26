@@ -27,7 +27,9 @@ body.lb-editor-iframe-shell #wpfooter,
 body.lb-editor-iframe-shell #wpbody-content > .notice {
 	display: none !important;
 }
-iframe.lb-editor-frame {
+/* Shell loader only. The canvas preview inside the editor uses the same
+ * class; pinning that iframe to the viewport leaves the center column blank. */
+body.lb-editor-iframe-shell iframe.lb-editor-frame {
 	position: fixed;
 	inset: 0;
 	width: 100%;
