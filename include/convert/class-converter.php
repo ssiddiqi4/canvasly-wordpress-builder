@@ -28,6 +28,8 @@ class Converter {
 	private $report = array();
 	/** @var int */
 	private $seq = 0;
+	/** @var string */
+	private static $decode_warning = '';
 
 	public function __construct() {
 		$this->reset_report();
@@ -58,37 +60,471 @@ class Converter {
 		if ( ! is_string( $raw ) || $raw === '' ) {
 			return array();
 		}
-		$try = function ( $s ) {
-			$d = json_decode( $s, true );
-			return is_array( $d ) ? $d : null;
-		};
-		$d = $try( $raw );
-		if ( $d !== null ) {
-			return $d;
-		}
-		if ( function_exists( 'wp_unslash' ) ) {
-			$d = $try( wp_unslash( $raw ) );
-			if ( $d !== null ) {
-				return $d;
+		// Unslashing is last. stripslashes() drops a backslash before any
+		// character, so running it first turns an invalid escape like \d
+		// into a valid string and silently deletes the backslash.
+		foreach ( array( false, true ) as $unslash ) {
+			foreach ( self::decode_variants( $raw, $unslash ) as $variant ) {
+				$d = self::json_to_array( $variant );
+				if ( $d !== null ) {
+					return $d;
+				}
+			}
+			foreach ( self::decode_variants( $raw, $unslash ) as $variant ) {
+				foreach ( array( false, true ) as $fix_quotes ) {
+					$fixed = self::repair_json_text( $variant, $fix_quotes );
+					if ( ! is_string( $fixed ) ) {
+						continue;
+					}
+					$d = self::json_to_array( $fixed );
+					if ( $d !== null ) {
+						self::note_decode_repair();
+						return $d;
+					}
+				}
 			}
 		}
-		$d = $try( stripslashes( $raw ) );
-		if ( $d !== null ) {
-			return $d;
+		return array();
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function consume_decode_warning() {
+		$warning               = self::$decode_warning;
+		self::$decode_warning = '';
+		return $warning;
+	}
+
+	private static function note_decode_repair() {
+		if ( self::$decode_warning !== '' ) {
+			return;
 		}
-		// Some import/export and migration paths leave `_elementor_data`
-		// HTML-entity-encoded (e.g. "&#8221;" instead of a literal quote),
-		// which breaks json_decode even though the meta value itself is
-		// clearly non-empty. Try decoding entities as a last resort before
-		// giving up.
+		self::$decode_warning = __( 'Stored layout JSON had a syntax error and was repaired before conversion. Review the converted page for missing or altered text.', 'canvasly-lite' );
+	}
+
+	/**
+	 * @param string $raw
+	 * @param bool   $unslash Include slash-stripped copies.
+	 * @return array<int,string>
+	 */
+	private static function decode_variants( $raw, $unslash ) {
+		$raw  = self::strip_bom( $raw );
+		$list = array( $raw );
+		if ( $unslash ) {
+			if ( function_exists( 'wp_unslash' ) ) {
+				$list[] = self::strip_bom( (string) wp_unslash( $raw ) );
+			}
+			$list[] = self::strip_bom( stripslashes( $raw ) );
+		}
 		if ( function_exists( 'wp_specialchars_decode' ) ) {
-			$d = $try( wp_specialchars_decode( $raw, ENT_QUOTES ) );
-			if ( $d !== null ) {
-				return $d;
+			$list[] = self::strip_bom( wp_specialchars_decode( $raw, ENT_QUOTES ) );
+		}
+		$list[] = self::strip_bom( html_entity_decode( $raw, ENT_QUOTES, 'UTF-8' ) );
+		$out    = array();
+		foreach ( $list as $variant ) {
+			if ( is_string( $variant ) && $variant !== '' ) {
+				$out[ $variant ] = $variant;
 			}
 		}
-		$d = $try( html_entity_decode( $raw, ENT_QUOTES ) );
-		return is_array( $d ) ? $d : array();
+		return array_values( $out );
+	}
+
+	/**
+	 * @param string $raw
+	 * @return string
+	 */
+	private static function strip_bom( $raw ) {
+		if ( strncmp( $raw, "\xEF\xBB\xBF", 3 ) === 0 ) {
+			return substr( $raw, 3 );
+		}
+		return $raw;
+	}
+
+	/**
+	 * @param string $raw
+	 * @return array|null
+	 */
+	private static function json_to_array( $raw ) {
+		if ( ! is_string( $raw ) || $raw === '' ) {
+			return null;
+		}
+		$flags = defined( 'JSON_INVALID_UTF8_SUBSTITUTE' ) ? JSON_INVALID_UTF8_SUBSTITUTE : 0;
+		$d     = json_decode( $raw, true, 512, $flags );
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			return null;
+		}
+		if ( is_string( $d ) ) {
+			$inner = json_decode( $d, true, 512, $flags );
+			if ( json_last_error() === JSON_ERROR_NONE && is_array( $inner ) ) {
+				return $inner;
+			}
+			return null;
+		}
+		return is_array( $d ) ? $d : null;
+	}
+
+	/**
+	 * Rewrite JSON text that json_decode rejects. Returns null when the
+	 * text is left unchanged.
+	 *
+	 * @param string $raw
+	 * @param bool   $fix_quotes Escape quotes that cannot be string closers.
+	 * @return string|null
+	 */
+	private static function repair_json_text( $raw, $fix_quotes ) {
+		$len       = strlen( $raw );
+		$out       = '';
+		$stack     = array();
+		$in_string = false;
+		$changed   = false;
+		$i         = 0;
+		while ( $i < $len ) {
+			$c = $raw[ $i ];
+			if ( $in_string ) {
+				if ( $c === '\\' ) {
+					$n = ( $i + 1 < $len ) ? $raw[ $i + 1 ] : '';
+					if ( $n === 'u' ) {
+						$hex = substr( $raw, $i + 2, 4 );
+						if ( strlen( $hex ) === 4 && ctype_xdigit( $hex ) ) {
+							$out .= '\\u' . $hex;
+							$i   += 6;
+							continue;
+						}
+						$out    .= '\\\\';
+						$changed = true;
+						$i++;
+						continue;
+					}
+					if ( $n !== '' && strpos( '"\\/bfnrt', $n ) !== false ) {
+						$out .= '\\' . $n;
+						$i   += 2;
+						continue;
+					}
+					// addslashes() turns an apostrophe into \', which is not
+					// a JSON escape. The character the author typed is '.
+					if ( $n === "'" ) {
+						$out    .= "'";
+						$changed = true;
+						$i      += 2;
+						continue;
+					}
+					$out    .= '\\\\';
+					$changed = true;
+					$i++;
+					continue;
+				}
+				if ( $c === '"' ) {
+					if ( $fix_quotes && ! self::string_may_end( $raw, $i ) ) {
+						$out    .= '\\"';
+						$changed = true;
+						$i++;
+						continue;
+					}
+					$in_string = false;
+					$out      .= $c;
+					$i++;
+					continue;
+				}
+				$ord = ord( $c );
+				if ( $ord < 0x20 ) {
+					$map     = array(
+						"\n" => '\\n',
+						"\r" => '\\r',
+						"\t" => '\\t',
+					);
+					$out    .= isset( $map[ $c ] ) ? $map[ $c ] : sprintf( '\\u%04x', $ord );
+					$changed = true;
+					$i++;
+					continue;
+				}
+				$out .= $c;
+				$i++;
+				continue;
+			}
+			if ( $c === '"' ) {
+				// Elementor stores copy-paste style as a JSON string. When that
+				// string is concatenated instead of encoded, the value looks
+				// like "{"containerPadding":"0px"}" and json_decode stops there.
+				// The clipboard payload is not layout, so blank it.
+				$embedded_end = self::embedded_json_string_end( $raw, $i );
+				if ( $embedded_end !== null ) {
+					$out    .= '""';
+					$changed = true;
+					$i       = $embedded_end;
+					continue;
+				}
+				$in_string = true;
+				$out      .= $c;
+				$i++;
+				continue;
+			}
+			if ( $c === '{' || $c === '[' ) {
+				$stack[] = $c;
+				$out    .= $c;
+				$i++;
+				continue;
+			}
+			if ( $c === '}' || $c === ']' ) {
+				$stripped = self::strip_trailing_commas( $out );
+				if ( $stripped !== $out ) {
+					$out     = $stripped;
+					$changed = true;
+				}
+				if ( $stack ) {
+					array_pop( $stack );
+				}
+				$out .= $c;
+				$i++;
+				continue;
+			}
+			$out .= $c;
+			$i++;
+		}
+		if ( $in_string ) {
+			$out    .= '"';
+			$changed = true;
+		}
+		while ( $stack ) {
+			$open    = array_pop( $stack );
+			$out    .= ( $open === '{' ) ? '}' : ']';
+			$changed = true;
+		}
+		return $changed ? $out : null;
+	}
+
+	/**
+	 * End offset of a string whose contents are raw, unescaped JSON.
+	 *
+	 * Matches `"{"key":"value"}"` and `"["a"]"`. Returns null unless the
+	 * container is followed by the string's closing quote.
+	 *
+	 * @param string $raw
+	 * @param int    $quote_pos Position of the opening quote.
+	 * @return int|null Index just past the closing quote.
+	 */
+	private static function embedded_json_string_end( $raw, $quote_pos ) {
+		$len = strlen( $raw );
+		if ( $quote_pos + 2 >= $len ) {
+			return null;
+		}
+		$open = $raw[ $quote_pos + 1 ];
+		if ( ( $open !== '{' && $open !== '[' ) || $raw[ $quote_pos + 2 ] !== '"' ) {
+			return null;
+		}
+		$end = self::skip_json_container( $raw, $quote_pos + 1 );
+		if ( $end === null || $end >= $len || $raw[ $end ] !== '"' ) {
+			return null;
+		}
+		return $end + 1;
+	}
+
+	/**
+	 * Index just past the container that starts at $start.
+	 *
+	 * @param string $raw
+	 * @param int    $start Position of `{` or `[`.
+	 * @return int|null
+	 */
+	private static function skip_json_container( $raw, $start ) {
+		$len   = strlen( $raw );
+		$depth = 0;
+		$in    = false;
+		for ( $i = $start; $i < $len; $i++ ) {
+			$c = $raw[ $i ];
+			if ( $in ) {
+				if ( $c === '\\' ) {
+					$i++;
+					continue;
+				}
+				if ( $c === '"' ) {
+					$in = false;
+				}
+				continue;
+			}
+			if ( $c === '"' ) {
+				$in = true;
+				continue;
+			}
+			if ( $c === '{' || $c === '[' ) {
+				$depth++;
+				continue;
+			}
+			if ( $c === '}' || $c === ']' ) {
+				$depth--;
+				if ( $depth === 0 ) {
+					return $i + 1;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * A quote ends a JSON string when the next token can legally follow it.
+	 *
+	 * @param string $raw
+	 * @param int    $quote_pos
+	 * @return bool
+	 */
+	private static function string_may_end( $raw, $quote_pos ) {
+		$len = strlen( $raw );
+		$j   = self::skip_ws( $raw, $quote_pos + 1 );
+		if ( $j >= $len ) {
+			return true;
+		}
+		$n = $raw[ $j ];
+		if ( $n === '}' || $n === ']' || $n === ':' ) {
+			return true;
+		}
+		if ( $n !== ',' ) {
+			return false;
+		}
+		$k = self::skip_ws( $raw, $j + 1 );
+		if ( $k >= $len ) {
+			return true;
+		}
+		$m = $raw[ $k ];
+		if ( $m === '"' || $m === '{' || $m === '[' || $m === '-' || ctype_digit( $m ) ) {
+			return true;
+		}
+		return $m === 't' || $m === 'f' || $m === 'n';
+	}
+
+	/**
+	 * @param string $raw
+	 * @param int    $pos
+	 * @return int
+	 */
+	private static function skip_ws( $raw, $pos ) {
+		$len = strlen( $raw );
+		while ( $pos < $len && strpos( " \t\r\n", $raw[ $pos ] ) !== false ) {
+			$pos++;
+		}
+		return $pos;
+	}
+
+	/**
+	 * @param string $out
+	 * @return string
+	 */
+	private static function strip_trailing_commas( $out ) {
+		$j = strlen( $out );
+		while ( $j > 0 && strpos( " \t\r\n", $out[ $j - 1 ] ) !== false ) {
+			$j--;
+		}
+		while ( $j > 0 && $out[ $j - 1 ] === ',' ) {
+			$j--;
+			while ( $j > 0 && strpos( " \t\r\n", $out[ $j - 1 ] ) !== false ) {
+				$j--;
+			}
+		}
+		return substr( $out, 0, $j );
+	}
+
+	/**
+	 * Where a stored value stops being JSON, for the conversion report.
+	 *
+	 * @param string $raw
+	 * @return string
+	 */
+	private static function json_problem_hint( $raw ) {
+		$raw = self::strip_bom( (string) $raw );
+		$len = strlen( $raw );
+		$in  = false;
+		for ( $i = 0; $i < $len; $i++ ) {
+			$c = $raw[ $i ];
+			if ( $in ) {
+				if ( $c === '\\' ) {
+					$n = ( $i + 1 < $len ) ? $raw[ $i + 1 ] : '';
+					if ( $n === '' ) {
+						return self::hint_at( $raw, $i );
+					}
+					if ( $n === 'u' ) {
+						$hex = substr( $raw, $i + 2, 4 );
+						if ( strlen( $hex ) !== 4 || ! ctype_xdigit( $hex ) ) {
+							return self::hint_at( $raw, $i );
+						}
+						$i += 5;
+						continue;
+					}
+					if ( strpos( '"\\/bfnrt', $n ) === false ) {
+						return self::hint_at( $raw, $i );
+					}
+					$i++;
+					continue;
+				}
+				if ( $c === '"' ) {
+					if ( ! self::string_may_end( $raw, $i ) ) {
+						return self::hint_at( $raw, $i );
+					}
+					$in = false;
+					continue;
+				}
+				if ( ord( $c ) < 0x20 ) {
+					return self::hint_at( $raw, $i );
+				}
+				continue;
+			}
+			if ( strpos( " \t\r\n", $c ) !== false ) {
+				continue;
+			}
+			if ( $c === '"' ) {
+				$in = true;
+				continue;
+			}
+			if ( $c === '{' || $c === '[' || $c === ':' || $c === '-' || ctype_digit( $c ) ) {
+				continue;
+			}
+			if ( $c === '}' || $c === ']' ) {
+				$j = $i;
+				while ( $j > 0 && strpos( " \t\r\n", $raw[ $j - 1 ] ) !== false ) {
+					$j--;
+				}
+				if ( $j > 0 && $raw[ $j - 1 ] === ',' ) {
+					return self::hint_at( $raw, $j - 1 );
+				}
+				continue;
+			}
+			if ( $c === ',' ) {
+				continue;
+			}
+			if ( $c === 't' || $c === 'f' || $c === 'n' ) {
+				$word = substr( $raw, $i, $c === 'f' ? 5 : 4 );
+				$ok   = ( $c === 't' && $word === 'true' ) || ( $c === 'f' && $word === 'false' ) || ( $c === 'n' && strncmp( $word, 'null', 4 ) === 0 );
+				if ( ! $ok ) {
+					return self::hint_at( $raw, $i );
+				}
+				$i += strlen( $c === 'f' ? 'false' : ( $c === 't' ? 'true' : 'null' ) ) - 1;
+				continue;
+			}
+			return self::hint_at( $raw, $i );
+		}
+		if ( $in || $raw !== '' ) {
+			return self::hint_at( $raw, max( 0, $len - 1 ) );
+		}
+		return '';
+	}
+
+	/**
+	 * @param string $raw
+	 * @param int    $offset
+	 * @return string
+	 */
+	private static function hint_at( $raw, $offset ) {
+		$offset  = max( 0, (int) $offset );
+		$start   = max( 0, $offset - 24 );
+		$snippet = substr( $raw, $start, 56 );
+		if ( function_exists( 'mb_convert_encoding' ) ) {
+			$snippet = @mb_convert_encoding( $snippet, 'UTF-8', 'UTF-8' );
+		}
+		$snippet = preg_replace( '/[\x00-\x1F\x7F]/', '?', (string) $snippet );
+		return sprintf(
+			/* translators: 1: 1-based byte offset, 2: nearby characters */
+			__( 'Problem near byte %1$d: %2$s', 'canvasly-lite' ),
+			$offset + 1,
+			$snippet
+		);
 	}
 
 	/**
@@ -342,6 +778,33 @@ class Converter {
 		$def      = Map::widget( $src_type );
 		$src      = is_array( $el['settings'] ?? null ) ? $el['settings'] : array();
 		if ( ! $def ) {
+			$text = $this->sniff_text_content( $src_type, $src );
+			if ( '' !== $text ) {
+				$node = array(
+					'id'       => $this->node_id( $el['id'] ?? '' ),
+					'type'     => 'text',
+					'settings' => array( 'text' => $text ),
+				);
+				$children = array();
+				foreach ( $this->child_elements( $el ) as $child ) {
+					$cn = $this->convert_node( $child );
+					if ( $cn ) {
+						$children[] = $cn;
+					}
+				}
+				if ( $children ) {
+					$node['children'] = $children;
+				}
+				$this->report['mapped']++;
+				$this->report['nodes']++;
+				$this->report['warnings'][] = sprintf(
+					/* translators: %s: source widget type slug */
+					__( 'Widget converted as plain text (best effort): %s', 'canvasly-lite' ),
+					$src_type !== '' ? $src_type : 'widget'
+				);
+				$filtered = apply_filters( 'canvasly-lite/convert/node', $node, $el, 'widget' );
+				return is_array( $filtered ) ? $filtered : $node;
+			}
 			$this->note_unmapped( $src_type !== '' ? $src_type : 'widget' );
 			$node = $this->placeholder_html( $src_type !== '' ? $src_type : 'widget', $el );
 			$filtered = apply_filters( 'canvasly-lite/convert/node', $node, $el, 'widget' );
@@ -1078,9 +1541,15 @@ class Converter {
 		if ( $ref === '' ) {
 			return null;
 		}
-		if ( preg_match( '#globals/(colors|typography)\?id=([a-zA-Z0-9_-]+)#', $ref, $m ) ) {
+		if ( preg_match( '#globals\\\\?/(colors|typography)\?id=([a-zA-Z0-9_-]+)#', $ref, $m ) ) {
 			return array(
 				'group' => $m[1],
+				'id'    => sanitize_key( $m[2] ),
+			);
+		}
+		if ( preg_match( '#var\(\s*--e-global-(color|typography)-([a-zA-Z0-9_-]+)\s*\)#', $ref, $m ) ) {
+			return array(
+				'group' => $m[1] === 'color' ? 'colors' : 'typography',
 				'id'    => sanitize_key( $m[2] ),
 			);
 		}
@@ -1196,6 +1665,47 @@ class Converter {
 			$out['custom_css'] = (string) $page['custom_css'];
 		}
 		return $out;
+	}
+
+	/**
+	 * Best-effort recovery for a widget type with no mapping entry at all.
+	 *
+	 * Third-party themes and page-builder add-ons (Total's "Advanced Text
+	 * Block", WPBakery text widgets, etc.) store their own free-form
+	 * `widgetType` slugs. When the slug itself reads as a text/content
+	 * widget, pull the most plausible content field out of its settings so
+	 * the page keeps its copy instead of showing a dead placeholder. Returns
+	 * '' when the widget does not look textual or has nothing to recover.
+	 *
+	 * @param string $src_type Raw, unnormalized widgetType.
+	 * @param array  $src      Raw settings array.
+	 * @return string
+	 */
+	private function sniff_text_content( $src_type, array $src ) {
+		$type = Map::normalize_type( $src_type );
+		$looks_textual = (bool) preg_match( '/(^|[-_])(text|content|html|editor|richtext|wysiwyg|copy|body|message|description)([-_]|$)/', $type )
+			|| false !== strpos( $type, 'text' );
+		if ( ! $looks_textual ) {
+			return '';
+		}
+		$candidates = array( 'content', 'text', 'html', 'editor', 'description', 'body', 'message', 'wysiwyg', 'richtext', 'copy', 'text_content', 'advanced_text', 'adv_text', 'block_content' );
+		foreach ( $candidates as $key ) {
+			if ( isset( $src[ $key ] ) && is_string( $src[ $key ] ) && '' !== trim( wp_strip_all_tags( $src[ $key ] ) ) ) {
+				return (string) $src[ $key ];
+			}
+		}
+		// Last resort: the longest string setting that reads as real prose.
+		$best = '';
+		foreach ( $src as $val ) {
+			if ( ! is_string( $val ) ) {
+				continue;
+			}
+			$plain = trim( wp_strip_all_tags( $val ) );
+			if ( strlen( $plain ) > 20 && strlen( $val ) > strlen( $best ) ) {
+				$best = $val;
+			}
+		}
+		return $best;
 	}
 
 	/**
@@ -1337,20 +1847,27 @@ class Converter {
 					);
 				}
 			}
-			return sprintf(
-				/* translators: 1: byte length, 2: JSON parser error, 3: first characters of the stored value */
-				__( 'Stored value is %1$d bytes but failed to parse as JSON (%2$s). First characters: %3$s', 'canvasly-lite' ),
-				$len,
-				$json_err,
-				$excerpt
-			);
+			return self::parse_failure_message( $len, $json_err, $excerpt, $raw );
 		}
+		return self::parse_failure_message( $len, $json_err, $excerpt, $raw );
+	}
+
+	/**
+	 * @param int    $len
+	 * @param string $json_err
+	 * @param string $excerpt
+	 * @param string $raw
+	 * @return string
+	 */
+	private static function parse_failure_message( $len, $json_err, $excerpt, $raw ) {
+		$hint = self::json_problem_hint( $raw );
 		return sprintf(
-			/* translators: 1: byte length, 2: JSON parser error, 3: first characters of the stored value */
-			__( 'Stored value is %1$d bytes but failed to parse as JSON (%2$s). First characters: %3$s', 'canvasly-lite' ),
+			/* translators: 1: byte length, 2: JSON parser error, 3: first characters of the stored value, 4: optional problem location */
+			__( 'Stored value is %1$d bytes but failed to parse as JSON (%2$s). First characters: %3$s%4$s', 'canvasly-lite' ),
 			$len,
 			$json_err,
-			$excerpt
+			$excerpt,
+			$hint !== '' ? ' ' . $hint : ''
 		);
 	}
 
@@ -1424,8 +1941,10 @@ class Converter {
 		if ( $post_id && function_exists( 'current_user_can' ) && ! current_user_can( 'edit_post', $post_id ) && ! current_user_can( 'manage_options' ) ) {
 			return new \WP_Error( 'forbidden', __( 'You cannot convert this document.', 'canvasly-lite' ) );
 		}
+		self::consume_decode_warning();
 		$source = self::source_data( $post_id );
 		if ( ! $source ) {
+			self::consume_decode_warning();
 			$why = self::source_diagnostic( $post_id );
 			return new \WP_Error(
 				'no_source',
@@ -1438,6 +1957,7 @@ class Converter {
 		$has_lb = (string) get_post_meta( $post_id, $lb_key, true ) !== ''
 			|| (string) get_post_meta( $post_id, self::CONVERTED_META, true ) !== '';
 		if ( $has_lb && ! $force && ! $dry ) {
+			self::consume_decode_warning();
 			return array(
 				'id'       => $post_id,
 				'status'   => 'skipped',
@@ -1447,7 +1967,11 @@ class Converter {
 			);
 		}
 		$page = self::source_page_settings( $post_id );
+		$note = self::consume_decode_warning();
 		$pack = $this->convert_tree( $source, $page );
+		if ( $note !== '' ) {
+			$pack['report']['warnings'][] = $note;
+		}
 		$doc  = $pack['document'];
 		$rep  = $pack['report'];
 		if ( ! $dry ) {
@@ -1466,6 +1990,7 @@ class Converter {
 					'status'      => 'converted',
 					'report'      => $rep,
 					'document'    => $doc,
+					'note'        => $note,
 				);
 			}
 			if ( class_exists( DocumentManager::class ) ) {
@@ -1475,7 +2000,12 @@ class Converter {
 				}
 				$doc = $saved;
 			} else {
-				update_post_meta( $post_id, $lb_key, wp_json_encode( $doc ) );
+				$json = wp_json_encode( $doc );
+				if ( class_exists( DocumentManager::class ) && method_exists( DocumentManager::class, 'write_json_meta' ) ) {
+					DocumentManager::write_json_meta( $post_id, $lb_key, $json );
+				} else {
+					update_post_meta( $post_id, $lb_key, function_exists( 'wp_slash' ) ? wp_slash( $json ) : $json );
+				}
 			}
 			update_post_meta( $post_id, self::CONVERTED_META, 'document' );
 			update_post_meta( $post_id, self::CONVERTED_AT, function_exists( 'current_time' ) ? current_time( 'mysql' ) : gmdate( 'c' ) );
@@ -1487,6 +2017,7 @@ class Converter {
 			'status'   => $dry ? 'preview' : 'converted',
 			'report'   => $rep,
 			'document' => $doc,
+			'note'     => $note,
 		);
 	}
 
@@ -1565,6 +2096,7 @@ class Converter {
 				$agg['errors']++;
 				$items[] = array(
 					'id'     => $id,
+					'title'  => function_exists( 'get_the_title' ) ? get_the_title( $id ) : '',
 					'status' => 'error',
 					'error'  => $one->get_error_message(),
 				);
@@ -1599,6 +2131,7 @@ class Converter {
 				'mapped'      => (int) ( $rep['mapped'] ?? 0 ),
 				'nodes'       => (int) ( $rep['nodes'] ?? 0 ),
 				'unmapped'    => $rep['unmapped'] ?? array(),
+				'note'        => (string) ( $one['note'] ?? '' ),
 			);
 		}
 		$agg['warnings'] = array_values( array_unique( $agg['warnings'] ) );

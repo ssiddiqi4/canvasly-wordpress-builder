@@ -48,7 +48,9 @@ class Revisions {
 		if ( $raw === '' || $raw === false ) {
 			return;
 		}
-		update_post_meta( (int) $revision_id, DocumentManager::META, $raw );
+		// Slash-safe write: a plain update_post_meta() unslashes the JSON and
+		// strips the \" escapes, so the revision would no longer decode.
+		DocumentManager::write_json_meta( (int) $revision_id, DocumentManager::META, $raw );
 		$version = get_post_meta( $parent, DocumentManager::VERSION, true );
 		if ( $version ) {
 			update_post_meta( (int) $revision_id, DocumentManager::VERSION, $version );
@@ -222,7 +224,7 @@ class Revisions {
 		}
 		self::record( $post_id, __( 'Before restore', 'canvasly-lite' ) );
 		$clean = DocumentManager::sanitize( $doc );
-		update_post_meta( $post_id, DocumentManager::META, wp_json_encode( $clean ) );
+		DocumentManager::write_json_meta( $post_id, DocumentManager::META, wp_json_encode( $clean ) );
 		update_post_meta( $post_id, DocumentManager::VERSION, CANVASLY_LITE_VERSION );
 		update_post_meta( $post_id, DocumentManager::UPDATED, current_time( 'mysql' ) );
 		delete_post_meta( $post_id, DocumentManager::CSS_CACHE );
@@ -257,7 +259,7 @@ class Revisions {
 			if ( is_string( $prev ) && $prev === $json ) {
 				return true;
 			}
-			update_post_meta( $auto_id, DocumentManager::META, $json );
+			DocumentManager::write_json_meta( $auto_id, DocumentManager::META, $json );
 			update_post_meta( $auto_id, self::LABEL_META, __( 'Autosave', 'canvasly-lite' ) );
 			delete_post_meta( $post_id, self::AUTOSAVE );
 			return true;
@@ -276,7 +278,7 @@ class Revisions {
 			}
 		}
 		if ( $auto_id ) {
-			update_post_meta( $auto_id, DocumentManager::META, $json );
+			DocumentManager::write_json_meta( $auto_id, DocumentManager::META, $json );
 			update_post_meta( $auto_id, self::LABEL_META, __( 'Autosave', 'canvasly-lite' ) );
 			delete_post_meta( $post_id, self::AUTOSAVE );
 			return true;
@@ -409,7 +411,7 @@ class Revisions {
 		if ( is_wp_error( $id ) || ! $id ) {
 			return 0;
 		}
-		update_post_meta( (int) $id, DocumentManager::META, wp_json_encode( $clean ) );
+		DocumentManager::write_json_meta( (int) $id, DocumentManager::META, wp_json_encode( $clean ) );
 		update_post_meta( (int) $id, self::LABEL_META, __( 'Migrated revision', 'canvasly-lite' ) );
 		return (int) $id;
 	}
@@ -456,7 +458,20 @@ class Revisions {
 			return null;
 		}
 		$d = json_decode( $raw, true );
-		return is_array( $d ) ? $d : null;
+		if ( is_array( $d ) ) {
+			return $d;
+		}
+		// Revisions written before the slash-safe copy may hold over-unslashed JSON.
+		if ( class_exists( '\\CanvaslyLite\\Compatibility\\Meta' ) ) {
+			$fixed = \CanvaslyLite\Compatibility\Meta::repair_json( $raw );
+			if ( is_string( $fixed ) && $fixed !== $raw ) {
+				$d = json_decode( $fixed, true );
+				if ( is_array( $d ) ) {
+					return $d;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

@@ -33,6 +33,40 @@ class DocumentManager {
   }
   return !empty($raw);
  }
+ /**
+  * Document shown in the editor.
+  *
+  * A page that was built in Elementor and has no Canvasly nodes yet — missing
+  * meta, or an empty document left by a blank canvas — would otherwise open
+  * under the theme header with nothing in the middle. Preview the conversion
+  * without writing until the user saves.
+  *
+  * @param int $id
+  * @return array
+  */
+ public static function for_editor($id){
+  $id=absint($id);
+  $doc=self::get($id);
+  if(self::has_nodes($doc))return $doc;
+  // An empty Canvasly document (the editor autosaved a blank canvas, or a
+  // conversion was only previewed) must not hide a layout that can still be
+  // read from the source builder. Preview it without writing.
+  if(!class_exists('\\CanvaslyLite\\Convert\\Converter'))return $doc;
+  if(!\CanvaslyLite\Convert\Converter::has_source($id))return $doc;
+  $conv=new \CanvaslyLite\Convert\Converter();
+  $preview=$conv->convert_post($id,array('dry_run'=>true));
+  if(is_wp_error($preview)||empty($preview['document'])||!is_array($preview['document']))return $doc;
+  $next=$preview['document'];
+  if(!self::has_nodes($next))return $doc;
+  return $next;
+ }
+ private static function has_nodes($doc){
+  if(!is_array($doc))return false;
+  foreach(array('root','header','footer') as $part){
+   if(!empty($doc[$part])&&is_array($doc[$part]))return true;
+  }
+  return false;
+ }
  public static function get($id){
   $id=absint($id);
   if(!$id)return self::empty();
@@ -42,8 +76,43 @@ class DocumentManager {
    $raw=get_post_meta($id,'_lb_template_data',true);
   }
   if(!$raw)return self::$loaded[$id]=self::empty();
-  $d=class_exists(JsonCache::class)?JsonCache::decode($raw,null):((is_array($raw)?$raw:json_decode((string)$raw,true)));
+  $d=self::decode_stored($raw);
   return self::$loaded[$id]=is_array($d)?self::migrate($d):self::empty();
+ }
+ /**
+  * Decode document JSON. A value WordPress stored after unslashing \" sequences
+  * is repaired when that still yields an array; otherwise the caller treats it
+  * as empty and the editor can preview the source layout again.
+  *
+  * @param mixed $raw
+  * @return array|null
+  */
+ private static function decode_stored($raw){
+  if(is_array($raw))return $raw;
+  $d=class_exists(JsonCache::class)?JsonCache::decode($raw,null):(is_string($raw)?json_decode($raw,true):null);
+  if(is_array($d))return $d;
+  if(!is_string($raw)||$raw===''||!class_exists('\\CanvaslyLite\\Compatibility\\Meta'))return null;
+  $fixed=\CanvaslyLite\Compatibility\Meta::repair_json($raw);
+  if(!is_string($fixed)||$fixed===$raw)return null;
+  $d=class_exists(JsonCache::class)?JsonCache::decode($fixed,null):json_decode($fixed,true);
+  return is_array($d)?$d:null;
+ }
+ /**
+  * Store a JSON string. update_post_meta() runs wp_unslash(), which turns
+  * \" inside document JSON into a bare quote and makes the next read fail.
+  * The editor then previews the Elementor source again, so units added after
+  * import never reappear.
+  *
+  * @param int    $id
+  * @param string $key
+  * @param mixed  $value JSON string or array.
+  * @return bool
+  */
+ public static function write_json_meta($id,$key,$value){
+  if(is_array($value))$value=function_exists('wp_json_encode')?wp_json_encode($value):json_encode($value);
+  if(class_exists('\\CanvaslyLite\\Compatibility\\Meta'))return \CanvaslyLite\Compatibility\Meta::write($id,$key,$value);
+  if(is_string($value)&&function_exists('wp_slash'))$value=wp_slash($value);
+  return (bool) update_post_meta($id,$key,$value);
  }
  public static function migrate($d){
   $v=(string)($d['version']??'1.0');
@@ -182,8 +251,9 @@ class DocumentManager {
   if(is_array($filtered))$data=$filtered;
   $clean=self::sanitize_tree($data);
   $old=self::get($id);
-  update_post_meta($id,self::META,wp_json_encode($clean));
-  if(function_exists('get_post_type')&&get_post_type($id)==='lb_template')update_post_meta($id,'_lb_template_data',wp_json_encode($clean));
+  $json=wp_json_encode($clean);
+  self::write_json_meta($id,self::META,$json);
+  if(function_exists('get_post_type')&&get_post_type($id)==='lb_template')self::write_json_meta($id,'_lb_template_data',$json);
   update_post_meta($id,self::VERSION,CANVASLY_LITE_VERSION);update_post_meta($id,self::UPDATED,current_time('mysql'));delete_post_meta($id,self::CSS_CACHE);delete_post_meta($id,self::AUTOSAVE);
   if(class_exists(Revisions::class)){Revisions::record($id,__('Saved', 'canvasly-lite'));Revisions::delete_autosave($id);}
   elseif(!empty($old['root']))self::record_revision($id,$old);
@@ -318,7 +388,7 @@ class DocumentManager {
  }
  public static function restore_revision($id,$i){
   if(class_exists(Revisions::class))return Revisions::restore($id,(int)$i);
-  if(!current_user_can('edit_post',$id))return new \WP_Error('forbidden',__('You cannot edit this document.', 'canvasly-lite'));$r=get_post_meta($id,self::REVISIONS,true);$r=is_array($r)?$r:[];if(!isset($r[$i]))return new \WP_Error('not_found',__('Revision not found.', 'canvasly-lite'));$clean=self::sanitize_tree($r[$i]['document']);update_post_meta($id,self::META,wp_json_encode($clean));update_post_meta($id,self::VERSION,CANVASLY_LITE_VERSION);delete_post_meta($id,self::CSS_CACHE);self::$loaded[$id]=$clean;return $clean;
+  if(!current_user_can('edit_post',$id))return new \WP_Error('forbidden',__('You cannot edit this document.', 'canvasly-lite'));$r=get_post_meta($id,self::REVISIONS,true);$r=is_array($r)?$r:[];if(!isset($r[$i]))return new \WP_Error('not_found',__('Revision not found.', 'canvasly-lite'));$clean=self::sanitize_tree($r[$i]['document']);self::write_json_meta($id,self::META,wp_json_encode($clean));update_post_meta($id,self::VERSION,CANVASLY_LITE_VERSION);delete_post_meta($id,self::CSS_CACHE);self::$loaded[$id]=$clean;return $clean;
  }
  public static function compiled_css($id){$cached=get_post_meta($id,self::CSS_CACHE,true);if(is_string($cached)&&$cached!=='')return $cached;$d=self::get($id);if(class_exists('\\CanvaslyLite\\Dynamic\\Resolver'))\CanvaslyLite\Dynamic\Resolver::set_context(['post_id'=>absint($id)]);$css=Style::document_css($d); if(class_exists('\\CanvaslyLite\\Dynamic\\Resolver'))\CanvaslyLite\Dynamic\Resolver::set_context([]); if(!empty($d['settings']['custom_css']))$css.=self::sanitize_page_css($d['settings']['custom_css']);if($css)update_post_meta($id,self::CSS_CACHE,$css);return $css;}
  /**

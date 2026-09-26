@@ -69,23 +69,29 @@ class Tool {
 		}
 		$title  = ( $src->post_title !== '' ? $src->post_title : __( '(no title)', 'canvasly-lite' ) );
 		$title .= ' - ' . __( 'Canvasly', 'canvasly-lite' );
-		$new_id = wp_insert_post(
-			array(
-				'post_type'      => $src->post_type,
-				// Always a draft: this is a copy for review, not a second
-				// live page, whatever the source page's own status is.
-				'post_status'    => 'draft',
-				'post_title'     => $title,
-				'post_content'   => $src->post_content,
-				'post_excerpt'   => $src->post_excerpt,
-				'post_author'    => $src->post_author,
-				'post_parent'    => $src->post_parent,
-				'menu_order'     => $src->menu_order,
-				'comment_status' => $src->comment_status,
-				'ping_status'    => $src->ping_status,
-			),
-			true
+		$status = sanitize_key( (string) ( $src->post_status ?? '' ) );
+		if ( ! in_array( $status, array( 'publish', 'private', 'pending', 'future', 'draft' ), true ) ) {
+			$status = 'draft';
+		}
+		$insert = array(
+			'post_type'      => $src->post_type,
+			// Keep the source status. A published Elementor page stays
+			// published on the copy; drafts stay drafts.
+			'post_status'    => $status,
+			'post_title'     => $title,
+			'post_content'   => $src->post_content,
+			'post_excerpt'   => $src->post_excerpt,
+			'post_author'    => $src->post_author,
+			'post_parent'    => $src->post_parent,
+			'menu_order'     => $src->menu_order,
+			'comment_status' => $src->comment_status,
+			'ping_status'    => $src->ping_status,
 		);
+		if ( 'future' === $status ) {
+			$insert['post_date']     = $src->post_date ?? '';
+			$insert['post_date_gmt'] = $src->post_date_gmt ?? ( $src->post_date ?? '' );
+		}
+		$new_id = wp_insert_post( $insert, true );
 		if ( is_wp_error( $new_id ) || ! $new_id ) {
 			return 0;
 		}
@@ -244,7 +250,7 @@ class Tool {
 				$count
 			);
 			if ( $save_copy ) {
-				$message .= ' ' . __( 'Saved as new draft copies (original pages left untouched).', 'canvasly-lite' );
+				$message .= ' ' . __( 'Saved as new copies with the original status (original pages left untouched).', 'canvasly-lite' );
 			}
 			if ( $copy_failed ) {
 				$message .= ' ' . sprintf(
@@ -361,7 +367,7 @@ class Tool {
 		echo '<tr><th>' . esc_html__( 'Options', 'canvasly-lite' ) . '</th><td>';
 		echo '<label style="display:block;"><input type="checkbox" name="force" value="1"> ' . esc_html__( 'Overwrite existing Canvasly documents', 'canvasly-lite' ) . '</label>';
 		echo '<label style="display:block;margin-top:6px;"><input type="checkbox" name="save_as_copy" value="1"> ' . esc_html__( 'Save as a new copy instead of converting in place (title gets " - Canvasly" appended; original page and its Elementor data are left completely untouched)', 'canvasly-lite' ) . '</label>';
-		echo '<p class="description" style="margin-top:4px;">' . esc_html__( 'The copy is created as a draft. This option only applies to Commit — a Dry Run always previews against the original page, since previews never write anything.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description" style="margin-top:4px;">' . esc_html__( 'The copy keeps the original page status (a published page stays published). This option only applies to Commit — a Dry Run always previews against the original page, since previews never write anything.', 'canvasly-lite' ) . '</p>';
 		echo '</td></tr></tbody></table>';
 		echo '<p>';
 		echo '<button class="button" type="submit" name="mode" value="preview">' . esc_html__( 'Dry Run', 'canvasly-lite' ) . '</button> ';
@@ -411,6 +417,14 @@ class Tool {
 			);
 		}
 		echo '</p>';
+		$warnings = array_values( array_filter( (array) ( $report['warnings'] ?? array() ) ) );
+		if ( $warnings ) {
+			echo '<ul style="max-width:720px">';
+			foreach ( $warnings as $warning ) {
+				echo '<li>' . esc_html( (string) $warning ) . '</li>';
+			}
+			echo '</ul>';
+		}
 
 		$unmapped = (array) ( $report['unmapped'] ?? array() );
 		if ( $unmapped ) {
@@ -446,7 +460,14 @@ class Tool {
 				echo '<td>' . esc_html( (string) ( $row['status'] ?? '' ) ) . '</td>';
 				echo '<td>' . esc_html( (string) (int) ( $row['mapped'] ?? 0 ) ) . '</td>';
 				echo '<td>' . esc_html( $ul ? implode( ', ', $ul ) : '—' ) . '</td>';
-				echo '<td>' . esc_html( (string) ( $row['error'] ?? ( $row['reason'] ?? '' ) ) ) . '</td>';
+				$note = (string) ( $row['error'] ?? '' );
+				if ( $note === '' ) {
+					$note = (string) ( $row['reason'] ?? '' );
+				}
+				if ( $note === '' ) {
+					$note = (string) ( $row['note'] ?? '' );
+				}
+				echo '<td>' . esc_html( $note ) . '</td>';
 				echo '</tr>';
 			}
 			echo '</tbody></table>';

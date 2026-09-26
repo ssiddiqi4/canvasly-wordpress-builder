@@ -9,9 +9,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * (CodeMirror) in the panel. Language is taken from the schema `language` key, the
  * sibling `language` setting, or inferred from the setting name (`html`, `custom_css`).
  *
- * HTML values (`html` key or language html) are kses'd. CSS is stripped of tags and
- * expressions. JS/PHP/JSON/text keep the source (null bytes / invalid UTF-8 removed)
- * because they are escaped on output by the Code widget.
+ * HTML values (`html` key) keep layout markup, including style and form controls,
+ * and drop scripts and inline handlers so the canvas and the saved page match.
+ * CSS is stripped of tags and expressions. JS/PHP/JSON/text keep the source
+ * (null bytes / invalid UTF-8 removed) because they are escaped on output by the Code widget.
  */
 class Code {
 	const LANGUAGES = array( 'html', 'css', 'javascript', 'json', 'php', 'text' );
@@ -74,13 +75,29 @@ class Code {
 	 */
 	public static function sanitize( $value, $key = '', array $settings = array(), array $def = array() ) {
 		if ( 'html' === $key ) {
-			return function_exists( 'wp_kses_post' ) ? wp_kses_post( (string) $value ) : (string) $value;
+			return self::sanitize_html( $value );
 		}
 		$lang = self::language_of( $key, $settings, $def );
 		if ( 'css' === $lang && 'code' !== $key ) {
 			return self::sanitize_css( $value );
 		}
 		return self::sanitize_source( $value );
+	}
+
+	/**
+	 * Keep the HTML an author sees on the canvas. Post kses drops style tags and
+	 * form controls, so a form that is laid out in the editor collapses after save.
+	 *
+	 * @param mixed $value
+	 * @return string
+	 */
+	public static function sanitize_html( $value ) {
+		$html = self::sanitize_source( $value );
+		$html = preg_replace( '#<(script|iframe|object|embed)\b[^>]*>.*?</\1>#is', '', $html );
+		$html = preg_replace( '#<(script|iframe|object|embed)\b[^>]*\/?>#i', '', (string) $html );
+		$html = preg_replace( '#\son[a-z]+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)#i', '', (string) $html );
+		$html = preg_replace( '#(?:javascript|vbscript)\s*:#i', '', (string) $html );
+		return (string) $html;
 	}
 
 	/**

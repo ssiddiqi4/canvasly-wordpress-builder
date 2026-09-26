@@ -10,9 +10,10 @@ use CanvaslyLite\Design\SiteNavigation;
 if(!defined('ABSPATH')) exit;
 class Rest {
  public static function register_routes(){
-  register_rest_route('canvasly-lite/v1','/document/(?P<id>\d+)/autosave',['methods'=>['GET','POST'],'callback'=>function($r){$id=absint($r['id']);if($r->get_method()==='POST'){return rest_ensure_response(['success'=>DocumentManager::autosave($id,(array)$r->get_json_params())]);}return rest_ensure_response(DocumentManager::get_autosave($id)?:['document'=>null]);},'permission_callback'=>[__CLASS__,'can_edit']]);
+  register_rest_route('canvasly-lite/v1','/document/(?P<id>\d+)/autosave',['methods'=>['GET','POST'],'callback'=>function($r){$id=absint($r['id']);if($r->get_method()==='POST'){$d=$r->get_json_params();if(!self::is_document_payload($d))return self::invalid_document_error();return rest_ensure_response(['success'=>DocumentManager::autosave($id,$d)]);}return rest_ensure_response(DocumentManager::get_autosave($id)?:['document'=>null]);},'permission_callback'=>[__CLASS__,'can_edit']]);
   register_rest_route('canvasly-lite/v1','/document/(?P<id>\d+)/export',['methods'=>'GET','callback'=>function($r){$id=absint($r['id']);return rest_ensure_response(DocumentManager::get($id));},'permission_callback'=>[__CLASS__,'can_edit']]);
-  register_rest_route('canvasly-lite/v1','/document/(?P<id>\d+)/import',['methods'=>'POST','callback'=>function($r){$id=absint($r['id']);$d=$r->get_json_params();$saved=DocumentManager::save($id,is_array($d)?$d:[]);return is_wp_error($saved)?$saved:rest_ensure_response(['success'=>true,'document'=>$saved]);},'permission_callback'=>[__CLASS__,'can_edit']]);
+  register_rest_route('canvasly-lite/v1','/document/(?P<id>\d+)/import',['methods'=>'POST','callback'=>function($r){$id=absint($r['id']);$d=$r->get_json_params();if(!self::is_document_payload($d))return self::invalid_document_error();$saved=DocumentManager::save($id,$d);return is_wp_error($saved)?$saved:rest_ensure_response(['success'=>true,'document'=>$saved]);},'permission_callback'=>[__CLASS__,'can_edit']]);
+  register_rest_route('canvasly-lite/v1','/document/(?P<id>\d+)/status',['methods'=>'POST','callback'=>[__CLASS__,'set_status'],'permission_callback'=>[__CLASS__,'can_edit']]);
   register_rest_route('canvasly-lite/v1','/document/(?P<id>\d+)',[
    ['methods'=>'GET','callback'=>[__CLASS__,'get_document'],'permission_callback'=>[__CLASS__,'can_edit']],
    ['methods'=>'POST','callback'=>[__CLASS__,'save_document'],'permission_callback'=>[__CLASS__,'can_edit']]
@@ -68,6 +69,7 @@ class Rest {
    'terms'=>['required'=>false,'sanitize_callback'=>'sanitize_text_field'],
   ]]);
   register_rest_route('canvasly-lite/v1','/loop/preview',['methods'=>'POST','callback'=>[__CLASS__,'loop_preview'],'permission_callback'=>[__CLASS__,'can_edit_preview']]);
+  register_rest_route('canvasly-lite/v1','/shortcode/preview',['methods'=>'POST','callback'=>[__CLASS__,'preview_shortcode'],'permission_callback'=>[__CLASS__,'can_edit_preview']]);
   /**
    * Fires after core routes are registered. Add-ons register their own routes here; the namespace
    * is passed so they can share it (e.g. `register_rest_route($ns,'/my-route',…)`).
@@ -142,6 +144,13 @@ class Rest {
   $max=max(1,absint($result['max_pages']??1));
   if($limit>0)$max=min($max,$limit);
   return rest_ensure_response(['html'=>$html,'page'=>$page,'max_pages'=>$max,'found'=>absint($result['found']??0),'done'=>$page>=$max]);
+ }
+ public static function preview_shortcode($req){
+  $d=is_array($req->get_json_params())?$req->get_json_params():[];
+  $post_id=absint($d['post_id']??0);
+  $code=isset($d['shortcode'])?$d['shortcode']:'';
+  if(!class_exists('\\CanvaslyLite\\Units\\Shortcode'))return rest_ensure_response(['html'=>'','css'=>'','links'=>[]]);
+  return rest_ensure_response(\CanvaslyLite\Units\Shortcode::preview($code,$post_id));
  }
  public static function loop_preview($req){
   $d=is_array($req->get_json_params())?$req->get_json_params():[];
@@ -237,11 +246,11 @@ class Rest {
  }
  public static function get_document($req){
   $id=absint($req['id']);
-  $doc=DocumentManager::get($id);
+  $doc=DocumentManager::for_editor($id);
   $response=rest_ensure_response($doc);
   if(is_object($response)&&method_exists($response,'header')){
    $updated=(string)get_post_meta($id,DocumentManager::UPDATED,true);
-   $etag='"'.md5($id.'|'.$updated.'|'.DocumentManager::SCHEMA).'"';
+   $etag='"'.md5($id.'|'.$updated.'|'.DocumentManager::SCHEMA.'|'.md5(wp_json_encode($doc))).'"';
    $response->header('ETag',$etag);
    $response->header('Cache-Control','private, no-cache');
    $match='';
@@ -254,7 +263,82 @@ class Rest {
   }
   return $response;
  }
- public static function save_document($req){$id=absint($req['id']);$data=$req->get_json_params();$result=DocumentManager::save($id,is_array($data)?$data:[]);if(is_wp_error($result))return $result;return rest_ensure_response(['success'=>true,'document'=>$result]);}
+ public static function save_document($req){$id=absint($req['id']);$data=$req->get_json_params();if(!self::is_document_payload($data))return self::invalid_document_error();$result=DocumentManager::save($id,$data);if(is_wp_error($result))return $result;return rest_ensure_response(['success'=>true,'document'=>$result,'status'=>(string)get_post_status($id)]);}
+ /**
+  * A save body must be a decoded document object. A missing or unparseable
+  * body (oversized request, proxy that dropped the payload) used to be saved
+  * as an empty document, which wiped the page and made the editor fall back
+  * to previewing the Elementor source again. Refuse it instead.
+  *
+  * @param mixed $data
+  * @return bool
+  */
+ public static function is_document_payload($data){
+  if(!is_array($data))return false;
+  foreach(['root','header','footer','settings','version'] as $key){
+   if(array_key_exists($key,$data))return true;
+  }
+  return false;
+ }
+ private static function invalid_document_error(){
+  return new \WP_Error('invalid_document',__('The document could not be read from the request, so nothing was saved. Reload the editor and try again.', 'canvasly-lite'),['status'=>400]);
+ }
+ /**
+  * Statuses the editor may move a document to.
+  *
+  * @return string[]
+  */
+ public static function editable_statuses(){return ['publish','draft','pending','private'];}
+ /**
+  * Change the WordPress post status of a document from the editor
+  * (Publish / Save Draft). Saved templates are always published and are
+  * left alone.
+  *
+  * @param \WP_REST_Request $req
+  * @return \WP_REST_Response|\WP_Error
+  */
+ public static function set_status($req){
+  $id=absint($req['id']);
+  $post=get_post($id);
+  if(!$post)return new \WP_Error('not_found',__('Document not found.', 'canvasly-lite'),['status'=>404]);
+  $d=$req->get_json_params();
+  $status=sanitize_key((string)((is_array($d)?($d['status']??''):'')));
+  if(!in_array($status,self::editable_statuses(),true))return new \WP_Error('invalid_status',__('Unsupported post status.', 'canvasly-lite'),['status'=>400]);
+  $current=(string)($post->post_status??'');
+  $type=(string)($post->post_type??'');
+  if($type==='lb_template'||$type==='revision')return rest_ensure_response(['success'=>true,'status'=>$current,'permalink'=>'','previewUrl'=>'','changed'=>false]);
+  if(!current_user_can('edit_post',$id))return new \WP_Error('forbidden',__('You cannot edit this document.', 'canvasly-lite'),['status'=>403]);
+  if(in_array($status,['publish','private'],true)&&$current!==$status){
+   $can=current_user_can('publish_post',$id);
+   if(!$can){
+    $obj=function_exists('get_post_type_object')?get_post_type_object($type):null;
+    $cap=$obj&&isset($obj->cap->publish_posts)?(string)$obj->cap->publish_posts:($type==='page'?'publish_pages':'publish_posts');
+    $can=current_user_can($cap);
+   }
+   if(!$can)return new \WP_Error('forbidden',__('You cannot publish this document.', 'canvasly-lite'),['status'=>403]);
+  }
+  $changed=false;
+  if($current!==$status){
+   $args=['ID'=>$id,'post_status'=>$status];
+   // Publishing a page that never had a slug (a draft created by the
+   // editor or a converted copy) lets WordPress build one from the title.
+   if($status==='publish'&&($post->post_name??'')===''&&($post->post_title??'')!=='')$args['post_name']=sanitize_title((string)$post->post_title);
+   $result=wp_update_post($args,true);
+   if(is_wp_error($result))return $result;
+   if(!$result)return new \WP_Error('update_failed',__('WordPress could not update the page status.', 'canvasly-lite'),['status'=>500]);
+   $changed=true;
+   if(class_exists('\\CanvaslyLite\\Compatibility\\Cache'))\CanvaslyLite\Compatibility\Cache::purge($id);
+  }
+  $final=(string)get_post_status($id);
+  return rest_ensure_response([
+   'success'=>true,
+   'status'=>$final,
+   'changed'=>$changed,
+   'permalink'=>function_exists('get_permalink')?esc_url_raw((string)get_permalink($id)):'',
+   'previewUrl'=>function_exists('get_preview_post_link')?esc_url_raw((string)get_preview_post_link($id)):'',
+   'title'=>function_exists('get_the_title')?(string)get_the_title($id):'',
+  ]);
+ }
  public static function get_revisions($req){
   $items=DocumentManager::revisions(absint($req['id']));
   $out=[];

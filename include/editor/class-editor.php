@@ -102,6 +102,8 @@ class Editor {
    'i18n'=>class_exists('\CanvaslyLite\I18n\I18n')?\CanvaslyLite\I18n\I18n::editor_strings():[],
    'isRtl'=>function_exists('is_rtl')&&is_rtl(),
    'postType'=>$post_id?(string)get_post_type($post_id):'',
+   'postStatus'=>$post_id?(string)get_post_status($post_id):'',
+   'canPublish'=>$post_id?self::can_publish($post_id):false,
    'templateTypes'=>class_exists('\\CanvaslyLite\\Templates\\SavedTemplates')?\CanvaslyLite\Templates\SavedTemplates::types():[],
    'templateCategories'=>class_exists('\\CanvaslyLite\\Templates\\SavedTemplates')?\CanvaslyLite\Templates\SavedTemplates::category_names():[],
    'templateType'=>$post_id&&function_exists('get_post_type')&&get_post_type($post_id)==='lb_template'?sanitize_key((string)get_post_meta($post_id,'_lb_template_type',true)?:'page'):'',
@@ -124,6 +126,23 @@ class Editor {
   /** Filter the data passed to the editor as `window.CanvaslyLiteData`. @param array $data @param int $post_id */
   $filtered=apply_filters('canvasly-lite/editor/localize_data',$data,$post_id);
   wp_localize_script('canvasly-lite-editor','CanvaslyLiteData',is_array($filtered)?$filtered:$data);
+ }
+ /**
+  * Whether the current user may publish this document from the editor.
+  * Saved templates are always published, so the editor never offers it.
+  *
+  * @param int $post_id
+  * @return bool
+  */
+ public static function can_publish($post_id){
+  $post_id=absint($post_id);
+  if(!$post_id)return false;
+  $type=(string)get_post_type($post_id);
+  if($type===''||$type==='lb_template'||$type==='revision')return false;
+  if(current_user_can('publish_post',$post_id))return true;
+  $obj=function_exists('get_post_type_object')?get_post_type_object($type):null;
+  $cap=$obj&&isset($obj->cap->publish_posts)?(string)$obj->cap->publish_posts:($type==='page'?'publish_pages':'publish_posts');
+  return current_user_can($cap);
  }
  public static function print_tinymce(){
   if(!class_exists('_WP_Editors',false)) require_once ABSPATH.WPINC.'/class-wp-editor.php';
@@ -234,9 +253,15 @@ class Editor {
   if(!$post || (!$is_template && !Documents::supports($post->post_type)))wp_die(esc_html__('Canvasly is not enabled for this post type.', 'canvasly-lite'));
   if($is_template){if(!current_user_can('edit_post',$post_id)&&!current_user_can('edit_pages'))wp_die(esc_html__('You do not have permission to edit this content.', 'canvasly-lite'));}
   elseif(!current_user_can('edit_post',$post_id))wp_die(esc_html__('You do not have permission to edit this content.', 'canvasly-lite'));
-  $doc=DocumentManager::get($post_id);
+  $doc=DocumentManager::for_editor($post_id);
   if(class_exists(DevMode::class))$doc=DevMode::sanitize_document($doc);
-  echo '<div id="lb-editor-shell" class="lb-admin lb-fullscreen'.(class_exists('\\CanvaslyLite\\Settings\\Roles')&&\CanvaslyLite\Settings\Roles::is_content_only()?' lb-content-only':'').'"'.(function_exists('is_rtl')&&is_rtl()?' dir="rtl"':'').'><div id="lb-editor" data-post-id="'.esc_attr($post_id).'" data-document="'.esc_attr(wp_json_encode($doc)).'"></div></div>';
+  $doc_json=wp_json_encode($doc);
+  if(!is_string($doc_json)||$doc_json==='')$doc_json='{}';
+  /* Keep the payload out of an HTML attribute. Converted pages are large enough
+   * that a truncated attribute parses as nothing and the canvas opens empty. */
+  $doc_json=str_replace(array('<',"\u{2028}","\u{2029}"),array('\u003c','\u2028','\u2029'),$doc_json);
+  echo '<div id="lb-editor-shell" class="lb-admin lb-fullscreen'.(class_exists('\\CanvaslyLite\\Settings\\Roles')&&\CanvaslyLite\Settings\Roles::is_content_only()?' lb-content-only':'').'"'.(function_exists('is_rtl')&&is_rtl()?' dir="rtl"':'').'><div id="lb-editor" data-post-id="'.esc_attr($post_id).'" data-lb-has-document="1"></div></div>';
+  echo '<script type="application/json" id="lb-editor-document">'.$doc_json.'</script>';
   echo '<div id="lb-tinymce-boot-wrap" class="lb-tinymce-boot-wrap" hidden>';
   wp_editor('<p></p>','lb_tinymce_boot',[
    'textarea_rows'=>2,
