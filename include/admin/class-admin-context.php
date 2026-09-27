@@ -121,7 +121,7 @@ class AdminContext {
 	}
 
 	/**
-	 * Canvasly admin.php screens (editor, settings, tools, roles, templates, …).
+	 * Canvasly admin.php screens (editor, settings, tools, roles, templates, ...).
 	 *
 	 * @param string $hook_suffix `admin_enqueue_scripts` argument.
 	 * @return bool
@@ -223,7 +223,7 @@ class AdminContext {
 	}
 
 	/**
-	 * Upgrades, MU-plugin reinstall, one-shot option writes — not dashboard / Gutenberg.
+	 * Upgrades, MU-plugin reinstall, one-shot option writes - not dashboard / Gutenberg.
 	 *
 	 * @return bool
 	 */

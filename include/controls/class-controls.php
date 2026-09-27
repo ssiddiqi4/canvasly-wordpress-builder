@@ -13,7 +13,7 @@ if(!defined('ABSPATH')) exit;
  *   $sanitizer   callable( mixed $value, string $key, array $settings ): mixed    (required for custom types)
  *   $css_handler callable( mixed $value, string $selector, string $key, array $settings, array $node ): string
  *                returns full CSS rules (selector included) or ''. Optional.
- *   $args        ['label' => string, 'default' => mixed, 'editor' => array]  — 'editor' is passed to
+ *   $args        ['label' => string, 'default' => mixed, 'editor' => array]  - 'editor' is passed to
  *                CanvaslyLiteData.controlTypes[type].editor so the JS renderer can read options.
  *
  * Fire order: Plugin::register_units() boots this registry on `init`, which fires

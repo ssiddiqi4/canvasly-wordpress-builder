@@ -80,7 +80,7 @@ class DevMode {
 	 * Used when a document is about to paint on the editor canvas.
 	 *
 	 * @param array $doc
-	 * @param array $context Allowlisted token values (title, excerpt, …).
+	 * @param array $context Allowlisted token values (title, excerpt, ...).
 	 * @return array
 	 */
 	public static function prepare_for_canvas( array $doc, array $context = array() ) {
@@ -486,6 +486,11 @@ class DevMode {
 		}
 		if ( preg_match( '/^\s*(javascript|vbscript|data)\s*:/i', $url ) ) {
 			return '';
+		}
+		// A bare keyword is a select value (e.g. carousel Link = none|file|custom), not a URL.
+		// esc_url_raw() would turn it into "http://none" and break the setting.
+		if ( preg_match( '/^[a-z][a-z0-9_-]*$/i', $url ) ) {
+			return $url;
 		}
 		if ( function_exists( 'esc_url_raw' ) ) {
 			$clean = esc_url_raw( $url );

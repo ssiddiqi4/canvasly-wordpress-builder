@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Mapping table: stored third-party builder JSON → Canvasly types/settings.
+ * Mapping table: stored third-party builder JSON -> Canvasly types/settings.
  *
  * Add-ons extend this via `canvasly-lite/convert/widgets` and
  * `canvasly-lite/convert/common_settings`. Reads stored post meta only;
@@ -18,7 +18,7 @@ class Map {
 	const LAYOUT_CONTAINER = 'container';
 
 	/**
-	 * Responsive suffixes on stored control keys → Canvasly breakpoint names.
+	 * Responsive suffixes on stored control keys -> Canvasly breakpoint names.
 	 *
 	 * @return array<string,string>
 	 */
@@ -46,7 +46,7 @@ class Map {
 	}
 
 	/**
-	 * Page-template values stored on the source post → Canvasly templates.
+	 * Page-template values stored on the source post -> Canvasly templates.
 	 *
 	 * @return array<string,string>
 	 */
@@ -62,7 +62,7 @@ class Map {
 	}
 
 	/**
-	 * Source library template types → Canvasly saved-template types.
+	 * Source library template types -> Canvasly saved-template types.
 	 *
 	 * @return array<string,string>
 	 */
@@ -124,7 +124,7 @@ class Map {
 	}
 
 	/**
-	 * Widget-type table: source `widgetType` → Canvasly type + setting map.
+	 * Widget-type table: source `widgetType` -> Canvasly type + setting map.
 	 *
 	 * @return array<string,array{type:string,settings?:array}>
 	 */
@@ -354,7 +354,7 @@ class Map {
 			),
 			// WPForms' own Elementor widget (registered by the WPForms
 			// plugin) stores only a numeric form_id, not a shortcode
-			// string — the shortcode itself is built in
+			// string - the shortcode itself is built in
 			// Converter::enrich_widget().
 			'wpforms'         => array(
 				'type'     => 'shortcode',

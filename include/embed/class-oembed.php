@@ -28,7 +28,7 @@ class OEmbed {
 	}
 
 	/**
-	 * Hostnames allowed to be fetched. Subdomains match (vimeo.com → player.vimeo.com).
+	 * Hostnames allowed to be fetched. Subdomains match (vimeo.com -> player.vimeo.com).
 	 *
 	 * @return string[]
 	 */

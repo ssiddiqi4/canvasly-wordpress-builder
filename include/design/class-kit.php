@@ -14,10 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Full site kit export/import (Roadmap 2.4).
  *
  * ZIP layout:
- *   manifest.json  — type, schema, counts, include flags
- *   kit.json       — site settings, tokens, theme style, classes, components, templates, content
- *   media.json     — attachment index (id, file, url, mime, title, alt)
- *   media/{file}   — copied attachment files
+ *   manifest.json  - type, schema, counts, include flags
+ *   kit.json       - site settings, tokens, theme style, classes, components, templates, content
+ *   media.json     - attachment index (id, file, url, mime, title, alt)
+ *   media/{file}   - copied attachment files
  */
 class Kit {
 	const SCHEMA      = '1.0';
@@ -1299,8 +1299,8 @@ class Kit {
 		echo '<p class="description">' . esc_html__( 'Accepts a Canvasly kit ZIP or a design-system JSON file.', 'canvasly-lite' ) . '</p>';
 		echo '</td></tr>';
 		echo '<tr><th>' . esc_html__( 'Conflict mode', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="radio" name="mode" value="merge" checked> ' . esc_html__( 'Merge — keep existing tokens and add incoming ones', 'canvasly-lite' ) . '</label><br>';
-		echo '<label><input type="radio" name="mode" value="replace"> ' . esc_html__( 'Replace — overwrite site settings, tokens, classes, components and templates', 'canvasly-lite' ) . '</label>';
+		echo '<label><input type="radio" name="mode" value="merge" checked> ' . esc_html__( "Merge \u{2014} keep existing tokens and add incoming ones", 'canvasly-lite' ) . '</label><br>';
+		echo '<label><input type="radio" name="mode" value="replace"> ' . esc_html__( "Replace \u{2014} overwrite site settings, tokens, classes, components and templates", 'canvasly-lite' ) . '</label>';
 		echo '</td></tr>';
 		echo '<tr><th>' . esc_html__( 'Content', 'canvasly-lite' ) . '</th><td>';
 		echo '<label><input type="checkbox" name="include_content" value="1" checked> ' . esc_html__( 'Import pages included in the kit (as drafts)', 'canvasly-lite' ) . '</label>';
@@ -1317,7 +1317,7 @@ class Kit {
 		echo '<p class="description">' . esc_html__( 'Export or import a site kit: settings, design tokens, templates and optional content with media.', 'canvasly-lite' ) . '</p>';
 		self::render_forms();
 		/**
-		 * Extra Tools sections (CSS print / Regenerate CSS, Replace URL, layout converter, …).
+		 * Extra Tools sections (CSS print / Regenerate CSS, Replace URL, layout converter, ...).
 		 */
 		do_action( 'canvasly-lite/tools/screen' );
 		echo '</div>';

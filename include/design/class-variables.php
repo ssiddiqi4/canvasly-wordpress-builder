@@ -8,13 +8,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Site-wide design tokens: system + custom global colors and typography presets,
  * plus sizes, fonts, effects and arbitrary custom groups. Output as CSS custom
- * properties (`--lb-color-*`, `--lb-typo-*`, …). Color controls bind with
+ * properties (`--lb-color-*`, `--lb-typo-*`, ...). Color controls bind with
  * `{{var:colors.id}}`; typography groups bind with the `typography_global` setting.
  */
 class Variables {
 	const KEY = 'canvasly_lite_variables';
 
-	/** Group name in `{{var:group.name}}` → CSS custom-property prefix. */
+	/** Group name in `{{var:group.name}}` -> CSS custom-property prefix. */
 	const GROUP_PREFIX = array(
 		'colors'      => 'color',
 		'fonts'       => 'font',

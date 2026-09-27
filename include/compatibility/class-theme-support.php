@@ -155,7 +155,7 @@ class ThemeSupport {
 	}
 
 	/**
-	 * Arguments passed to `add_theme_support( 'canvasly-lite', … )`.
+	 * Arguments passed to `add_theme_support( 'canvasly-lite', ... )`.
 	 *
 	 * @return array
 	 */

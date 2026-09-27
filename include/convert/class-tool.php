@@ -52,7 +52,7 @@ class Tool {
 	}
 
 	/**
-	 * Duplicate a post so the Elementor→Canvasly conversion can be written
+	 * Duplicate a post so the Elementor->Canvasly conversion can be written
 	 * to a brand-new draft rather than in place. Copies core post fields
 	 * plus every `_elementor_*` meta key (so the converter finds the same
 	 * source data on the copy) and `_wp_page_template`. Never touches the
@@ -211,7 +211,7 @@ class Tool {
 			$ids = array_values( array_filter( $ids ) );
 		}
 		// Duplicating is itself a write, so it only ever happens on a real
-		// commit — a dry run must stay side-effect free and always previews
+		// commit - a dry run must stay side-effect free and always previews
 		// against the original page.
 		$copy_failed = 0;
 		if ( $save_copy && ! $dry ) {
@@ -353,7 +353,7 @@ class Tool {
 				$meta = __( 'Elementor template', 'canvasly-lite' );
 			}
 			if ( ! empty( $p['has_loom'] ) ) {
-				$meta .= ' · ' . __( 'already has a Canvasly document', 'canvasly-lite' );
+				$meta .= " \u{B7} " . __( 'already has a Canvasly document', 'canvasly-lite' );
 			}
 			echo '<label style="display:flex;align-items:center;gap:6px;margin:4px 0;">';
 			echo '<input type="checkbox" name="ids[]" value="' . esc_attr( (string) ( $p['id'] ?? 0 ) ) . '"> ';
@@ -367,7 +367,7 @@ class Tool {
 		echo '<tr><th>' . esc_html__( 'Options', 'canvasly-lite' ) . '</th><td>';
 		echo '<label style="display:block;"><input type="checkbox" name="force" value="1"> ' . esc_html__( 'Overwrite existing Canvasly documents', 'canvasly-lite' ) . '</label>';
 		echo '<label style="display:block;margin-top:6px;"><input type="checkbox" name="save_as_copy" value="1"> ' . esc_html__( 'Save as a new copy instead of converting in place (title gets " - Canvasly" appended; original page and its Elementor data are left completely untouched)', 'canvasly-lite' ) . '</label>';
-		echo '<p class="description" style="margin-top:4px;">' . esc_html__( 'The copy keeps the original page status (a published page stays published). This option only applies to Commit — a Dry Run always previews against the original page, since previews never write anything.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description" style="margin-top:4px;">' . esc_html__( "The copy keeps the original page status (a published page stays published). This option only applies to Commit \u{2014} a Dry Run always previews against the original page, since previews never write anything.", 'canvasly-lite' ) . '</p>';
 		echo '</td></tr></tbody></table>';
 		echo '<p>';
 		echo '<button class="button" type="submit" name="mode" value="preview">' . esc_html__( 'Dry Run', 'canvasly-lite' ) . '</button> ';
@@ -452,14 +452,14 @@ class Tool {
 				$un = (array) ( $row['unmapped'] ?? array() );
 				$ul = array();
 				foreach ( $un as $t => $n ) {
-					$ul[] = $t . '×' . (int) $n;
+					$ul[] = $t . "\u{D7}" . (int) $n;
 				}
 				echo '<tr>';
 				echo '<td>' . esc_html( (string) (int) ( $row['id'] ?? 0 ) ) . '</td>';
 				echo '<td>' . esc_html( (string) ( $row['title'] ?? '' ) ) . '</td>';
 				echo '<td>' . esc_html( (string) ( $row['status'] ?? '' ) ) . '</td>';
 				echo '<td>' . esc_html( (string) (int) ( $row['mapped'] ?? 0 ) ) . '</td>';
-				echo '<td>' . esc_html( $ul ? implode( ', ', $ul ) : '—' ) . '</td>';
+				echo '<td>' . esc_html( $ul ? implode( ', ', $ul ) : "\u{2014}" ) . '</td>';
 				$note = (string) ( $row['error'] ?? '' );
 				if ( $note === '' ) {
 					$note = (string) ( $row['reason'] ?? '' );

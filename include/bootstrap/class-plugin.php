@@ -16,6 +16,7 @@ class Plugin { private static $instance; public static function instance(){ if(!
   }
   add_action('init',[self::class,'on_init']);
   add_action('rest_api_init',['CanvaslyLite\Api\Rest','register_routes']);
+  add_filter('rest_post_dispatch',['CanvaslyLite\Api\Rest','utf8_content_type'],10,3);
   if(self::is_admin_request()){
    if(class_exists('CanvaslyLite\\Admin\\Dashboard'))\CanvaslyLite\Admin\Dashboard::init();
    add_action('admin_menu',[self::class,'menu']);
@@ -140,7 +141,7 @@ class Plugin { private static $instance; public static function instance(){ if(!
   flush_rewrite_rules();
  } public static function register_units(){ $r=UnitRegistry::instance();$unit_file=CANVASLY_LITE_PATH.'includes/units/class-unit.php';if(is_readable($unit_file)) require_once $unit_file;$files=['container','inner_section','grid','heading','text','image','button','divider','spacer','icon','icon_list','image_box','progress','counter','alert','html','embed','shortcode','video','accordion','toggle','tabs','nested_tabs','nested_accordion','nested_toggle','social','gallery','carousel','star_rating','testimonial','menu_anchor','site_nav','read_more','soundcloud','audio','google_maps','sidebar','wordpress','link_in_bio','rating','icon_box','text_path','code','price_table','flip_box','login','collection_loop','template','component','form','tinymce_text_editor'];$classes=['Container','InnerSection','Grid','Heading','Text','Image','Button','Divider','Spacer','Icon','IconList','ImageBox','Progress','Counter','Alert','Html','Embed','Shortcode','Video','Accordion','Toggle','Tabs','NestedTabs','NestedAccordion','NestedToggle','Social','Gallery','Carousel','StarRating','Testimonial','MenuAnchor','SiteNav','ReadMore','SoundCloud','Audio','GoogleMaps','Sidebar','WordPressWidget','LinkInBio','Rating','IconBox','TextPath','Code','PriceTable','FlipBox','Login','CollectionLoop','Template','Component','Form','TinyMCETextEditor'];foreach($files as $i=>$f){$fq='CanvaslyLite\\Units\\'.$classes[$i];$type=($f==='wordpress')?'wordpress_widget':$f;$r->register_lazy($type,CANVASLY_LITE_PATH.'includes/units/class-'.$f.'.php',$fq);}
   // Extension points: control types first (units may use them), then add-on units.
-  // Require the file directly — do not rely on the autoloader — so a missing/outdated
+  // Require the file directly - do not rely on the autoloader - so a missing/outdated
   // deploy cannot fatal with "Class Controls not found" / "undefined method boot()".
   $controls_file=CANVASLY_LITE_PATH.'includes/controls/class-controls.php';
   if(is_readable($controls_file)) require_once $controls_file;

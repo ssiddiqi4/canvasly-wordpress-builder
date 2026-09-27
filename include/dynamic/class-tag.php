@@ -75,7 +75,7 @@ class Tag {
 
 	/**
 	 * @param array $settings Tag settings (before/after/fallback plus tag-specific keys).
-	 * @param array $context  Resolver context (post_id, post, for_canvas, …).
+	 * @param array $context  Resolver context (post_id, post, for_canvas, ...).
 	 * @return mixed Scalar, or ['id'=>int,'url'=>string] for image tags.
 	 */
 	public function render( array $settings, array $context ) {

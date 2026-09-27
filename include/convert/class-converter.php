@@ -514,7 +514,7 @@ class Converter {
 	private static function hint_at( $raw, $offset ) {
 		$offset  = max( 0, (int) $offset );
 		$start   = max( 0, $offset - 24 );
-		$snippet = substr( $raw, $start, 56 );
+		$snippet = \CanvaslyLite\Utils\Text::cut_bytes( $raw, $start, 56 );
 		if ( function_exists( 'mb_convert_encoding' ) ) {
 			$snippet = @mb_convert_encoding( $snippet, 'UTF-8', 'UTF-8' );
 		}
@@ -1035,7 +1035,7 @@ class Converter {
 	}
 
 	/**
-	 * Apply a source→dest setting map, including responsive suffixes.
+	 * Apply a source->dest setting map, including responsive suffixes.
 	 *
 	 * @param array $src
 	 * @param array $map
@@ -1816,7 +1816,7 @@ class Converter {
 			return __( 'No _elementor_data meta value is stored on this post (empty or missing).', 'canvasly-lite' );
 		}
 		$len     = function_exists( 'mb_strlen' ) ? mb_strlen( $raw, '8bit' ) : strlen( $raw );
-		$excerpt = substr( $raw, 0, 60 );
+		$excerpt = \CanvaslyLite\Utils\Text::cut_bytes( $raw, 0, 60 );
 		if ( function_exists( 'mb_convert_encoding' ) ) {
 			$excerpt = @mb_convert_encoding( $excerpt, 'UTF-8', 'UTF-8' );
 		}

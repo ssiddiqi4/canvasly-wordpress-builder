@@ -211,7 +211,7 @@ class Optimize {
 	}
 
 	/**
-	 * TTL in seconds (1 minute – 7 days).
+	 * TTL in seconds (1 minute - 7 days).
 	 *
 	 * @param mixed $v
 	 * @return int
@@ -1000,7 +1000,7 @@ class Optimize {
 		echo '<label><input type="checkbox" name="lazy_load" value="1"' . ( $lazy ? ' checked' : '' ) . '> ' . esc_html__( 'Lazy-load background images below the first one, fetchpriority=high on the first image, loading=lazy after.', 'canvasly-lite' ) . '</label>';
 		echo '</td></tr>';
 		echo '<tr><th>' . esc_html__( 'Optimized markup', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="optimized_markup" value="1"' . ( $mark ? ' checked' : '' ) . '> ' . esc_html__( 'Remove the extra node wrapper on simple widgets (heading, image, button, …) when safe.', 'canvasly-lite' ) . '</label>';
+		echo '<label><input type="checkbox" name="optimized_markup" value="1"' . ( $mark ? ' checked' : '' ) . '> ' . esc_html__( "Remove the extra node wrapper on simple widgets (heading, image, button, \u{2026}) when safe.", 'canvasly-lite' ) . '</label>';
 		echo '</td></tr>';
 		echo '</tbody></table>';
 		echo '<p><button class="button" type="submit">' . esc_html__( 'Save performance settings', 'canvasly-lite' ) . '</button></p>';

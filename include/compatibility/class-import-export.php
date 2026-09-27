@@ -27,7 +27,7 @@ class ImportExport {
 	}
 
 	/**
-	 * Drop regenerable / session meta from Tools → Export.
+	 * Drop regenerable / session meta from Tools -> Export.
 	 *
 	 * @param bool   $skip
 	 * @param string $meta_key

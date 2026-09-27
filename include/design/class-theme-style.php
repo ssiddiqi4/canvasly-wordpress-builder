@@ -227,7 +227,7 @@ class ThemeStyle {
 		}
 
 		$link = $d['typography']['link'] ?? array();
-		$link_sel = self::sel( ' a:not(.lb-button):not(.lb-tab-button)' );
+		$link_sel = self::sel( ' a:not(.lb-button):not(.lb-tab-button):not(:where(.lb-flip-button)):not(:where(.lb-social-item)):not(:where(.lb-icon-glyph)):not(:where(.lb-heading-link)):not(:where(.lb-site-nav a)):not(:where(.lb-icon-box-title a)):not(:where(.lb-image-box-title a)):not(:where(.lb-icon-list-item>a)):not(:where(.lb-testimonial-name a)):not(:where(.lb-anchor-menu a))' );
 		$out .= self::rule( $link_sel, self::typo_decls( $link ) );
 		$hover = array();
 		$hc    = self::css_val( $link['hover_color'] ?? '' );

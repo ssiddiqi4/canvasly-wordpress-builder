@@ -209,9 +209,7 @@ class Resolver {
 		$s = (string) $v;
 		$s = wp_strip_all_tags( $s );
 		$s = trim( preg_replace( '/\s+/', ' ', $s ) );
-		if ( strlen( $s ) > 140 ) {
-			$s = substr( $s, 0, 137 ) . '...';
-		}
+		$s = \CanvaslyLite\Utils\Text::truncate( $s, 140, '...' );
 		return $s;
 	}
 

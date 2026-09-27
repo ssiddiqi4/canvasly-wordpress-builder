@@ -265,7 +265,7 @@ class Fonts {
 	}
 
 	/**
-	 * Map a CSS weight keyword or number onto 100–900.
+	 * Map a CSS weight keyword or number onto 100-900.
 	 *
 	 * @param mixed $w
 	 * @return int 0 when empty/invalid

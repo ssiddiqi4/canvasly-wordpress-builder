@@ -9,6 +9,20 @@ use CanvaslyLite\Design\Favorites;
 use CanvaslyLite\Design\SiteNavigation;
 if(!defined('ABSPATH')) exit;
 class Rest {
+ /**
+  * Send an explicit UTF-8 charset on every canvasly-lite/v1 response. Rendered widget
+  * HTML (loops, shortcode previews, theme chrome) travels inside these JSON bodies.
+  * @param mixed            $response
+  * @param \WP_REST_Server  $server
+  * @param \WP_REST_Request $request
+  * @return mixed
+  */
+ public static function utf8_content_type($response,$server,$request){
+  if($response instanceof \WP_REST_Response && $request instanceof \WP_REST_Request && strpos((string)$request->get_route(),'/canvasly-lite/v1')===0){
+   $response->header('Content-Type','application/json; charset=UTF-8');
+  }
+  return $response;
+ }
  public static function register_routes(){
   register_rest_route('canvasly-lite/v1','/document/(?P<id>\d+)/autosave',['methods'=>['GET','POST'],'callback'=>function($r){$id=absint($r['id']);if($r->get_method()==='POST'){$d=$r->get_json_params();if(!self::is_document_payload($d))return self::invalid_document_error();return rest_ensure_response(['success'=>DocumentManager::autosave($id,$d)]);}return rest_ensure_response(DocumentManager::get_autosave($id)?:['document'=>null]);},'permission_callback'=>[__CLASS__,'can_edit']]);
   register_rest_route('canvasly-lite/v1','/document/(?P<id>\d+)/export',['methods'=>'GET','callback'=>function($r){$id=absint($r['id']);return rest_ensure_response(DocumentManager::get($id));},'permission_callback'=>[__CLASS__,'can_edit']]);
@@ -72,7 +86,7 @@ class Rest {
   register_rest_route('canvasly-lite/v1','/shortcode/preview',['methods'=>'POST','callback'=>[__CLASS__,'preview_shortcode'],'permission_callback'=>[__CLASS__,'can_edit_preview']]);
   /**
    * Fires after core routes are registered. Add-ons register their own routes here; the namespace
-   * is passed so they can share it (e.g. `register_rest_route($ns,'/my-route',…)`).
+   * is passed so they can share it (e.g. `register_rest_route($ns,'/my-route',...)`).
    * @param string $namespace 'canvasly-lite/v1'
    */
   do_action('canvasly-lite/rest/register_routes','canvasly-lite/v1');

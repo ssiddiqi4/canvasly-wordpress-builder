@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Interactions 2.0 — CSS-only entrance/exit presets, custom keyframes,
+ * Interactions 2.0 - CSS-only entrance/exit presets, custom keyframes,
  * triggers, timing, breakpoint exclusions and reduced-motion handling.
  */
 class Interactions {

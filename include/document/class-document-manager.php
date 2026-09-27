@@ -36,8 +36,8 @@ class DocumentManager {
  /**
   * Document shown in the editor.
   *
-  * A page that was built in Elementor and has no Canvasly nodes yet — missing
-  * meta, or an empty document left by a blank canvas — would otherwise open
+  * A page that was built in Elementor and has no Canvasly nodes yet - missing
+  * meta, or an empty document left by a blank canvas - would otherwise open
   * under the theme header with nothing in the middle. Preview the conversion
   * without writing until the user saves.
   *
@@ -282,7 +282,7 @@ class DocumentManager {
  private static function sanitize_control($t,$v,$key='',array $settings=[]){
   $def=is_array($t)?$t:[];
   if(!is_string($t)){ $t=isset($def['type'])?(string)$def['type']:'text'; }
-  // Responsive schema values keyed by breakpoint name — sanitize each with the same definition.
+  // Responsive schema values keyed by breakpoint name - sanitize each with the same definition.
   if(!empty($def['responsive'])&&is_array($v)&&\CanvaslyLite\Settings\Breakpoints::is_map($v)){
    $o=[];foreach(\CanvaslyLite\Settings\Breakpoints::names() as $bp){if(array_key_exists($bp,$v))$o[$bp]=self::sanitize_control(array_merge($def,['responsive'=>false]),$v[$bp],$key,$settings);}return $o;
   }
@@ -420,6 +420,7 @@ class DocumentManager {
    $has=trim((string)($s['quote']??'').($s['author']??''))!=='';
    $s['items']=$has?[['_id'=>'r_'.wp_generate_uuid4(),'quote'=>(string)($s['quote']??''),'author'=>(string)($s['author']??''),'role'=>(string)($s['role']??''),'image_id'=>absint($s['image_id']??0),'image_url'=>(string)($s['image_url']??''),'link'=>(string)($s['link']??''),'link_target'=>(string)($s['link_target']??'_self')]]:[];
   }
+  if($type==='carousel'&&isset($s['link'])&&is_string($s['link'])&&preg_match('~^https?://(none|file|custom)/?$~i',$s['link'],$lm))$s['link']=strtolower($lm[1]);
   if($type==='carousel'&&!is_array($s['slides']??null)){
    $ids=array_values(array_filter(array_map('absint',preg_split('/[,\s]+/',(string)($s['ids']??'')))));
    $urls=preg_split('/\r?\n/',(string)($s['custom_urls']??''));
@@ -448,7 +449,7 @@ class DocumentManager {
   }
   return $out;
  }
- /** Multi-line "a|b|c" string → repeater items keyed by `$fields`. */
+ /** Multi-line "a|b|c" string -> repeater items keyed by `$fields`. */
  private static function pipe_to_repeater($text,array $fields){
   $keys=array_keys($fields);
   $out=[];

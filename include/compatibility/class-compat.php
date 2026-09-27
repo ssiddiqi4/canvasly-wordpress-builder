@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Roadmap 7.5 — boot multilingual, SEO, cache, Heartbeat locks and theme support.
+ * Roadmap 7.5 - boot multilingual, SEO, cache, Heartbeat locks and theme support.
  *
  * Safe to call more than once and on native Gutenberg screens (SEO analysis
  * runs there). Each submodule has its own `$booted` guard.
