@@ -4,7 +4,7 @@ Tags: page builder, drag-and-drop, landing page, website builder, responsive
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.12.95
+Stable tag: 0.12.96
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -294,6 +294,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 6. **Canvasly Pro** - Theme Builder, popups, shop units, and the annual plans.
 
 == Changelog ==
+
+= 0.12.96 =
+* Fixed: slider value boxes in widget settings (including Site Menu style controls, line height, letter spacing, and text shadow) no longer sit on top of their sliders.
 
 = 0.12.95 =
 * Fixed: an inherited theme header logo (including Header Footer Elementor site-logo widgets) could get clipped off the left edge of the canvas. The logo's column had no width constraint from a local capture, so it rendered at the source image's full size and pushed the header bar past the canvas.

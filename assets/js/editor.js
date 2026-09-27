@@ -4292,7 +4292,7 @@
       document.body.classList.add("lb-resizing");
       const move = (ev) => {
         let w = side === "left" ? start + ev.clientX - sx : start - (ev.clientX - sx);
-        w = Math.max(190, Math.min(520, w));
+        w = Math.max(side === "right" ? 260 : 190, Math.min(560, w));
         if (side === "left") app.leftWidth = w;
         else app.rightWidth = w;
         app.root.querySelector(".lb-work")?.style.setProperty(side === "left" ? "--lb-left-width" : "--lb-right-width", w + "px");
@@ -4747,7 +4747,17 @@
         const b = app.$("#lb-main-menu-button");
         if (b) b.setAttribute("aria-expanded", "true");
       });
-      app.$$(".lb-panel-resizer").forEach((x) => x.onmousedown = (e) => app.startResize(x.dataset.resize, e));
+      app.$$(".lb-panel-resizer").forEach((x) => {
+        x.onmousedown = (e) => app.startResize(x.dataset.resize, e);
+        x.ondblclick = (e) => {
+          e.preventDefault();
+          const side = x.dataset.resize;
+          const def = side === "left" ? 235 : 285;
+          if (side === "left") app.leftWidth = def;
+          else app.rightWidth = def;
+          app.root.querySelector(".lb-work")?.style.setProperty(side === "left" ? "--lb-left-width" : "--lb-right-width", def + "px");
+        };
+      });
       app.$$("[data-panel-toggle]").forEach((b) => b.onclick = () => app.togglePanel(b.dataset.panelToggle));
       const search = app.$("#lb-unit-search");
       if (search) search.oninput = () => {
@@ -4971,7 +4981,7 @@
       const unit = unitless ? "" : units.includes(p.unit) ? p.unit : units[0], size = p.size;
       const smax = unit === "%" ? 100 : max, sval = size === "" ? min : Math.max(min, Math.min(smax, parseFloat(size) || min));
       const unitSel = unitless ? "" : `<select class="lb-slider-unit">${units.map((u) => `<option value="${app.esc(u)}" ${u === unit ? "selected" : ""}>${app.esc(u)}</option>`).join("")}</select>`;
-      return `<div class="lb-control lb-slider${unitless ? " lb-slider-unitless" : ""}" data-slider-key="${app.esc(k)}" data-slider-max="${max}" data-slider-unitless="${unitless ? "1" : "0"}"><span>${app.esc(label)}</span><div class="lb-slider-row"><input class="lb-slider-range" type="range" min="${min}" max="${smax}" step="${step}" value="${app.esc(sval)}" ${unit === "auto" ? "disabled" : ""}><input class="lb-slider-num" type="number" min="${min}" max="${smax}" step="${step}" value="${app.esc(size)}" placeholder="\u2014" ${unit === "auto" ? "disabled" : ""}>${unitSel}</div></div>`;
+      return `<div class="lb-control lb-slider${unitless ? " lb-slider-unitless" : ""}" data-slider-key="${app.esc(k)}" data-slider-max="${max}" data-slider-unitless="${unitless ? "1" : "0"}"><span>${app.esc(label)}</span><div class="lb-slider-row"><input class="lb-slider-range" type="range" min="${min}" max="${smax}" step="${step}" value="${app.esc(sval)}" ${unit === "auto" ? "disabled" : ""}><input class="lb-slider-num" type="number" size="5" min="${min}" max="${smax}" step="${step}" value="${app.esc(size)}" placeholder="\u2014" ${unit === "auto" ? "disabled" : ""}>${unitSel}</div></div>`;
     };
     app.lb09LayoutSliders = function lb09LayoutSliders(s) {
       return app.lb09Section(app.t("Layout"), app.lbSlider("width", "Width", s.width || "", { units: ["%", "px", "vw", "em"], min: 0, max: 1e3 }) + app.lbSlider("max_width", "Max Width", s.max_width || "", { units: ["px", "%", "vw", "em"], min: 0, max: 2e3 }) + app.lbSlider("height", "Height", s.height || "", { units: ["px", "%", "vh", "em", "auto"], min: 0, max: 2e3 }) + app.lbSlider("min_height", "Min Height", s.min_height || "", { units: ["px", "%", "vh", "em"], min: 0, max: 2e3 }), true);
@@ -11040,6 +11050,16 @@
         const region = typeof app.regionOf === "function" ? app.regionOf(n && n.id) : "root";
         return region === "header" || region === "footer" || region === "root" || region == null;
       };
+      function navRadius(v) {
+        if (v && typeof v === "object") v = v.size ?? v.desktop ?? "";
+        const s = String(v ?? "").trim();
+        const m = s.match(/^(-?\d*\.?\d+)\s*(px)?$/i);
+        if (!m) return "";
+        let n = parseFloat(m[1]);
+        if (!Number.isFinite(n)) return "";
+        n = Math.max(0, Math.min(48, n));
+        return String(n) + "px";
+      }
       function siteNavPreview(s) {
         const layout = s.layout === "vertical" ? "vertical" : s.layout === "dropdown" ? "dropdown" : "horizontal";
         const raw = s.breakpoint && typeof s.breakpoint === "object" ? s.breakpoint.size ?? s.breakpoint.desktop ?? 782 : s.breakpoint;
@@ -11065,11 +11085,12 @@
         const custom = bp === 782 ? "" : " lb-site-nav--custom-bp";
         const device = app.device || "desktop";
         const previewOpen = layout === "dropdown" || device === "mobile" || device === "mobile_extra";
-        const vars2 = ["--lb-nav-color:" + (s.color || ""), "--lb-nav-hover:" + (s.hover_color || ""), "--lb-nav-bg:" + (s.background || "")].filter((bit) => !bit.endsWith(":"));
+        const radius = navRadius(s.radius);
+        const vars2 = ["--lb-nav-color:" + (s.color || ""), "--lb-nav-hover:" + (s.hover_color || ""), "--lb-nav-bg:" + (s.background || ""), "--lb-nav-radius:" + radius].filter((bit) => !bit.endsWith(":"));
         const style2 = vars2.length ? ` style="${vars2.map((bit) => app.esc(bit)).join(";")}"` : "";
         const inner = `<button type="button" class="lb-site-nav__toggle" aria-expanded="${previewOpen ? "true" : "false"}" aria-controls="lb-site-nav-preview" tabindex="-1"><span class="lb-site-nav__burger" aria-hidden="true"></span><span class="lb-site-nav__toggle-text">${app.esc(toggle)}</span><span class="lb-site-nav__caret" aria-hidden="true">\u25BE</span></button>${list}`;
         const body = layout === "dropdown" ? `<div class="lb-site-nav__drop">${inner}</div>` : inner;
-        return `<nav class="lb-site-nav lb-site-nav--${layout}${custom}${previewOpen ? " is-open" : ""}" data-breakpoint="${bp}" aria-label="${app.esc(label)}"${style2}>${body}</nav>`;
+        return `<nav class="lb-site-nav lb-site-nav--${layout}${custom}${previewOpen ? " is-open" : ""}" data-breakpoint="${bp}" aria-label="${app.esc(toggle)}"${style2}>${body}</nav>`;
       }
       app.menuAnchorSelect = function menuAnchorSelect(k, label, v) {
         const menus = Array.isArray(app.D.menus) ? app.D.menus : [];
@@ -12074,7 +12095,7 @@
         shortcode: { content: [["Shortcode", ["shortcode"]]] },
         code: { content: [["Code", ["code", "language"]]] },
         menu_anchor: { content: [["Menu Anchor", ["menu", "anchor"]]] },
-        site_nav: { content: [["Site Menu", ["menu", "display_name", "layout", "breakpoint", "label"]]], style: [["Site Menu", ["color", "hover_color", "background"]]] },
+        site_nav: { content: [["Site Menu", ["menu", "display_name", "layout", "breakpoint"]]], style: [["Site Menu", ["color", "hover_color", "background", "radius"]]] },
         read_more: { content: [["Read More", ["text", "url", "target"]]] },
         sidebar: { content: [["Sidebar", ["sidebar"]]] },
         wordpress: { content: [["WordPress Widget", ["widget", "title", "widget_options", "sidebar"]]] },
@@ -12937,13 +12958,13 @@
 .lb-site-nav--dropdown{display:inline-block;align-self:flex-start;width:fit-content!important;max-width:100%;height:fit-content;vertical-align:top;background:transparent}
 .lb-site-nav__drop{position:relative;display:inline-block;width:max-content;max-width:100%;vertical-align:top}
 .lb-site-nav--dropdown:not(.is-open)>.lb-site-nav__list,.lb-site-nav--dropdown:not(.is-open)>.lb-site-nav__drop>.lb-site-nav__list{display:none}
-.lb-site-nav--dropdown.is-open>.lb-site-nav__list,.lb-site-nav--dropdown.is-open>.lb-site-nav__drop>.lb-site-nav__list{display:flex!important;flex-direction:column;position:absolute!important;z-index:30;top:100%;left:0;width:auto!important;min-width:14rem;margin:.35rem 0 0!important;padding:.35rem 0;list-style:none!important;background:#fff;color:#1d2327;border:1px solid #dcdcde;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.lb-site-nav--dropdown.is-open>.lb-site-nav__list,.lb-site-nav--dropdown.is-open>.lb-site-nav__drop>.lb-site-nav__list{display:flex!important;flex-direction:column;position:absolute!important;z-index:30;top:100%;left:0;width:auto!important;min-width:14rem;margin:.35rem 0 0!important;padding:.35rem 0;list-style:none!important;background:#fff;color:#1d2327;border:1px solid #dcdcde;border-radius:var(--lb-nav-radius,4px);overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .lb-site-nav--dropdown.is-open .lb-site-nav__sub{display:block;position:static;padding-left:.75rem}
 .lb-node-site_nav,.lb-node-nav_menu,.lb-node-post_navigation{overflow:visible!important;height:auto!important;max-height:none!important}
 .lb-node-site_nav>.lb-site-nav--dropdown{width:auto!important;flex:0 0 auto!important}
-.lb-site-nav.is-open:not(.lb-site-nav--dropdown)>.lb-site-nav__list{display:flex!important;position:static!important;flex-direction:column!important;align-items:stretch;width:100%;min-width:0;margin-top:.35rem;padding:.35rem 0;background:#fff;border:1px solid #dcdcde;opacity:1;visibility:visible;transform:none;box-shadow:none}
+.lb-site-nav.is-open:not(.lb-site-nav--dropdown)>.lb-site-nav__list{display:flex!important;position:static!important;flex-direction:column!important;align-items:stretch;width:100%;min-width:0;margin-top:.35rem;padding:.35rem 0;background:#fff;border:1px solid #dcdcde;border-radius:var(--lb-nav-radius,4px);overflow:hidden;opacity:1;visibility:visible;transform:none;box-shadow:none}
 .lb-site-nav.is-open:not(.lb-site-nav--dropdown) .lb-site-nav__sub{display:block;position:static;opacity:1;visibility:visible}
-.lb-site-nav__toggle{display:none;align-items:center;justify-content:center;width:auto;min-width:2.75rem;height:2.75rem;padding:0;border:1px solid currentColor;border-radius:4px;background-color:var(--lb-nav-bg,transparent);color:inherit;cursor:pointer}
+.lb-site-nav__toggle{display:none;align-items:center;justify-content:center;width:auto;min-width:2.75rem;height:2.75rem;padding:0;border:1px solid currentColor;border-radius:var(--lb-nav-radius,4px);background-color:var(--lb-nav-bg,transparent);color:inherit;cursor:pointer}
 .lb-site-nav__burger{display:block;width:1.1rem;height:2px;background:currentColor;box-shadow:0 -6px 0 currentColor,0 6px 0 currentColor}
 .lb-site-nav__toggle-text,.lb-site-nav__caret{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 .lb-site-nav--dropdown:not(.is-mobile) .lb-site-nav__toggle{display:inline-flex;width:auto;height:auto;min-height:0;gap:.5rem;padding:.45rem .75rem}

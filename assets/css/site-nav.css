@@ -9,7 +9,7 @@
 	--lb-nav-pad: 0.65rem 0.9rem;
 	--lb-nav-gap: 0.15rem;
 	--lb-nav-sub-bg: #fff;
-	--lb-nav-radius: 2px;
+	--lb-nav-radius: 4px;
 }
 
 .lb-site-nav {
@@ -126,7 +126,9 @@
 	padding: 0.35rem 0;
 	list-style: none;
 	background: var(--lb-nav-sub-bg);
+	border-radius: var(--lb-nav-radius);
 	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+	overflow: hidden;
 }
 
 .lb-site-nav__toggle {
