@@ -44,7 +44,7 @@
 .lb-box-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.lb-shadow-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.lb-form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.lb-form-grid label{display:grid;gap:5px;font-size:11px;color:#5f6670}.lb-selection-id{font-size:9px;color:#8c949e;max-width:120px;overflow:hidden;text-overflow:ellipsis}.lb-unit-card{position:relative}.lb-unit-card .lb-fav{position:absolute;right:4px;top:3px;font-size:10px;color:#8a929c}.lb-unit-card.is-favorite{border-color:#b8c9e5}.lb-unit-group h4{display:flex;justify-content:space-between}.lb-gallery-caption{display:block;padding:5px;font-size:10px}.lb-map-placeholder{min-height:130px;display:flex;align-items:center;justify-content:center;border:1px dashed #cfd5dc;background:#f5f7f9;color:#7b838d}.lb-hover-zoom:hover img{transform:scale(1.04)}.lb-hover-lift:hover{transform:translateY(-3px)}.lb-hover-fade:hover{opacity:.72}.lb-gallery-item img{transition:transform .2s ease,opacity .2s ease}.lb-btn{cursor:pointer}.lb-btn:disabled{opacity:.55;cursor:wait}
 
 
-/* Canvasly Lite 0.8.1 — full-screen editor workspace */
+/* Canvasly Lite 0.8.1 - full-screen editor workspace */
 html.lb-editor-fullscreen,
 body.toplevel_page_canvasly-lite,
 body.toplevel_page_canvasly-lite #wpbody,
@@ -131,7 +131,7 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-top .lb-device butt
 }
 
 
-/* Canvasly Lite 0.8.2 — application menu */
+/* Canvasly Lite 0.8.2 - application menu */
 .lb-brand-button{position:relative;display:flex;align-items:center;gap:9px;border:0;background:transparent;color:#fff;cursor:pointer;padding:4px 8px 4px 2px;border-radius:7px;font:inherit}
 .lb-brand-button:hover,.lb-brand-button:focus-visible{background:#272b31;outline:none}
 .lb-brand-mark{width:34px;height:34px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#17191d;font-size:12px;font-weight:800;letter-spacing:-.5px;box-shadow:0 1px 2px rgba(0,0,0,.15)}
@@ -144,8 +144,8 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-top .lb-device butt
 @media(max-width:700px){.lb-main-menu{left:8px;width:min(292px,calc(100vw - 16px))}.lb-brand-text{display:none}.lb-brand-button small{display:none}}
 
 /* Canvasly Lite 0.9.0 controls */
-.lb-control-section{border:1px solid #e0e3e7;border-radius:7px;margin:8px 10px;background:#fff}.lb-control-section>summary{cursor:pointer;padding:10px 11px;font-weight:700;font-size:12px;list-style:none}.lb-control-section>summary::-webkit-details-marker{display:none}.lb-control-section>summary:before{content:'▸';display:inline-block;margin-right:7px}.lb-control-section[open]>summary:before{content:'▾'}.lb-section-body{padding:4px 10px 10px}.lb-responsive-3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.lb-responsive-3 input{min-width:0}.lb-box-grid-labeled input{min-width:0}.lb-responsive-actions{display:flex;flex-wrap:wrap;gap:8px;font-size:11px}.lb-responsive-actions label{display:flex;align-items:center;gap:4px}.lb-selection-head{padding:12px 10px 4px;display:flex;justify-content:space-between;align-items:center}.lb-selection-id{font:9px monospace;color:#9097a0}.lb-grid-outline{outline:2px dashed rgba(48,120,220,.55);outline-offset:-2px;background-image:linear-gradient(to right,rgba(48,120,220,.16) 1px,transparent 1px),linear-gradient(to bottom,rgba(48,120,220,.16) 1px,transparent 1px);background-size:25px 25px}.lb-image-preview{margin:0;max-width:100%}.lb-image-preview .lb-image-img{display:block;max-width:100%}.lb-image-preview figcaption{font-size:11px;color:#6d737b;margin-top:6px}.lb-top #lb-export,.lb-top #lb-import{margin-left:0}
-/* Canvasly Lite 0.9.1 — isolated editor canvas */
+.lb-control-section{border:1px solid #e0e3e7;border-radius:7px;margin:8px 10px;background:#fff}.lb-control-section>summary{cursor:pointer;padding:10px 11px;font-weight:700;font-size:12px;list-style:none}.lb-control-section>summary::-webkit-details-marker{display:none}.lb-control-section>summary:before{content:'\25B8';display:inline-block;margin-right:7px}.lb-control-section[open]>summary:before{content:'\25BE'}.lb-section-body{padding:4px 10px 10px}.lb-responsive-3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.lb-responsive-3 input{min-width:0}.lb-box-grid-labeled input{min-width:0}.lb-responsive-actions{display:flex;flex-wrap:wrap;gap:8px;font-size:11px}.lb-responsive-actions label{display:flex;align-items:center;gap:4px}.lb-selection-head{padding:12px 10px 4px;display:flex;justify-content:space-between;align-items:center}.lb-selection-id{font:9px monospace;color:#9097a0}.lb-grid-outline{outline:2px dashed rgba(48,120,220,.55);outline-offset:-2px;background-image:linear-gradient(to right,rgba(48,120,220,.16) 1px,transparent 1px),linear-gradient(to bottom,rgba(48,120,220,.16) 1px,transparent 1px);background-size:25px 25px}.lb-image-preview{margin:0;max-width:100%}.lb-image-preview .lb-image-img{display:block;max-width:100%}.lb-image-preview figcaption{font-size:11px;color:#6d737b;margin-top:6px}.lb-top #lb-export,.lb-top #lb-import{margin-left:0}
+/* Canvasly Lite 0.9.1 - isolated editor canvas */
 .lb-editor-frame{display:block;width:var(--lb-canvas-width,100%);height:100%;min-height:0;border:0;background:#dfe3e8;max-width:100%;transition:width .18s ease}.lb-canvas-device{height:auto;min-height:0;display:flex;justify-content:center}.lb-canvas-device.desktop .lb-editor-frame{width:var(--lb-canvas-width,100%)}.lb-canvas-device.tablet .lb-editor-frame{width:var(--lb-canvas-width,min(1024px,100%))}.lb-canvas-device.mobile .lb-editor-frame{width:var(--lb-canvas-width,min(390px,100%))}
 .lb-responsive-n{display:grid;grid-template-columns:repeat(var(--lb-rcols,3),minmax(0,1fr));gap:4px}.lb-responsive-n input{min-width:0}
 .lb-bp-table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0 14px}.lb-bp-table th,.lb-bp-table td{padding:6px 8px;text-align:left;border-bottom:1px solid #e4e7eb}.lb-bp-table input[type="number"]{width:88px}.lb-device{flex-wrap:wrap}
@@ -170,7 +170,7 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-top .lb-device butt
 .lb-canvas-wrap{background:#dfe3e8!important}
 .lb-editor-frame{background:#dfe3e8!important;color-scheme:light;}
 
-/* Canvasly Lite 0.9.8 — context menus */
+/* Canvasly Lite 0.9.8 - context menus */
 .lb-context-menu{
     position:absolute;
     z-index:1000000;
@@ -210,7 +210,7 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-top .lb-device butt
 .lb-context-separator{height:1px;background:#e5e8ec;margin:5px 2px}
 
 
-/* Canvasly Lite 0.9.9 — context-menu contrast hardening.
+/* Canvasly Lite 0.9.9 - context-menu contrast hardening.
  * WordPress/admin themes may apply broad button/span color rules. Keep the
  * editor context menu self-contained and readable in every admin theme.
  */
@@ -271,7 +271,7 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-top .lb-device butt
 }
 
 
-/* Canvasly Lite 0.9.10 — pointer-anchored context menu. The menu is appended
+/* Canvasly Lite 0.9.10 - pointer-anchored context menu. The menu is appended
  * to document.body and positioned in viewport coordinates so right-clicking
  * any canvas unit or Units-panel card opens it at the actual pointer. */
 .lb-context-menu{
@@ -293,7 +293,7 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-top .lb-device butt
 .lb-font-family-control select.lb-font-family-select option{font-family:inherit;color:#20252b;background:#fff;}
 .lb-panel.right select.lb-font-family-select{display:block!important;visibility:visible!important;opacity:1!important;color:#20252b!important;background:#fff!important;min-height:44px!important;} .lb-panel.right select.lb-font-family-select option:first-child{color:#20252b!important;}
 
-/* Canvasly Lite 0.10.6 — TinyMCE Text Editor */
+/* Canvasly Lite 0.10.6 - TinyMCE Text Editor */
 .lb-tinymce-dialog-intro{margin:0 0 12px;color:#505a64}
 .lb-tinymce-toolbar-row{display:flex;gap:8px;margin:0 0 10px}
 .lb-tinymce-editor-wrap{background:#fff;border:1px solid #d9dee5;border-radius:6px;overflow:visible}
@@ -309,7 +309,7 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-top .lb-device butt
 .lb-admin .mce-edit-area iframe{min-height:280px;width:100%!important;background:#fff}
 .mce-floatpanel,.mce-popover,.mce-menu,.mce-window,.mce-tooltip,.mce-tinymce-inline,#wp-link-wrap,#wp-link-backdrop{z-index:130000!important}
 
-/* Canvasly Lite 0.12.39 — visual TinyMCE dialog lives on document.body */
+/* Canvasly Lite 0.12.39 - visual TinyMCE dialog lives on document.body */
 .lb-tinymce-boot-wrap{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important}
 .lb-rte-overlay{position:fixed;inset:0;z-index:120000;background:rgba(15,18,22,.55);display:flex;align-items:center;justify-content:center;padding:24px;pointer-events:auto}
 .lb-rte-dialog{width:min(920px,96vw);max-height:90vh;background:#fff;border-radius:10px;box-shadow:0 24px 80px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;pointer-events:auto}
@@ -333,12 +333,12 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-top .lb-device butt
 .lb-rte-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px 16px;border-top:1px solid #e3e6ea;background:#fafbfc}
 .lb-rte-overlay .lb-btn{color:#1f252b;background:#fff;border:1px solid #cfd5dc}
 .lb-rte-overlay .lb-btn.primary{background:#2f73d9;border-color:#2f73d9;color:#fff}
-/* Canvasly Lite 0.11.0 — Atomic Design System UI */
+/* Canvasly Lite 0.11.0 - Atomic Design System UI */
 .lb-ds-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}.lb-ds-overview>div{border:1px solid #dfe4ea;border-radius:8px;padding:12px;background:#f8fafc}.lb-ds-overview strong,.lb-ds-overview span{display:block}.lb-ds-overview span{font-size:22px;font-weight:700;margin-top:5px}.lb-ds-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.lb-ds-toolbar{display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:12px;align-items:center}.lb-ds-class-row{grid-template-columns:minmax(0,1.5fr) minmax(100px,1fr) auto auto}.lb-ds-meta{display:block;font-size:10px;color:#7b858f;margin-top:4px}.lb-ds-editor{display:grid;gap:12px}.lb-ds-state-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.lb-ds-state-grid label{display:grid;gap:5px;font-size:11px;color:#5f6872}.lb-ds-state-grid textarea{min-height:90px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}.lb-ds-parent-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px}.lb-ds-parent-list label{border:1px solid #dfe4ea;border-radius:5px;padding:6px 8px;background:#fafbfd;font-size:11px}.lb-ds-class-assign{display:grid;gap:6px;max-height:220px;overflow:auto;margin:8px 0 10px}.lb-ds-check{display:grid;grid-template-columns:auto 1fr;gap:6px;align-items:start;padding:7px;border:1px solid #e1e5e9;border-radius:5px;background:#fff;font-size:11px}.lb-ds-check small{display:block;color:#7b858f;grid-column:2}.lb-ds-variable-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.lb-ds-variable-group{border:1px solid #dfe4ea;border-radius:8px;padding:10px;margin-bottom:12px}.lb-ds-variable-group h4{margin:0 0 9px;text-transform:capitalize}.lb-ds-variable-group label{display:grid;grid-template-columns:110px 1fr;gap:8px;align-items:center;margin:6px 0;font-size:11px}.lb-ds-variable-group input{min-width:0}.lb-ds-exposed-list{display:grid;gap:5px;max-height:420px;overflow:auto;border:1px solid #e0e5ea;padding:8px;border-radius:6px}.lb-ds-exposed-row{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;padding:7px;border-bottom:1px solid #edf0f3}.lb-ds-exposed-row:last-child{border-bottom:0}.lb-ds-exposed-row strong,.lb-ds-exposed-row small{display:block}.lb-ds-exposed-row small{color:#7b858f;margin-top:2px}.lb-component-edit-badge{display:inline-block;margin-left:8px;padding:3px 7px;border-radius:10px;background:#eaf3ff;color:#2467c5;font-size:10px;vertical-align:middle}.lb-component-instance{position:relative}.lb-component-node{position:relative}
 @media(max-width:700px){.lb-ds-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.lb-ds-state-grid,.lb-ds-variable-grid{grid-template-columns:1fr}.lb-ds-toolbar{grid-template-columns:1fr}.lb-ds-class-row{grid-template-columns:1fr}.lb-ds-variable-group label{grid-template-columns:90px 1fr}}
 
 
-/* Canvasly Lite 0.11.2 — TinyMCE action-button contrast hardening.
+/* Canvasly Lite 0.11.2 - TinyMCE action-button contrast hardening.
  * These controls live inside the light Settings panel, so they must not inherit
  * the dark top-toolbar button treatment. Keep all labels explicitly readable.
  */
@@ -403,7 +403,7 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-top .lb-device butt
 .lb-page-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 4px}
 .lb-page-actions .lb-btn{min-height:46px}
 
-/* Canvasly Lite 0.12.3 — Grid 2.0 visual editor */
+/* Canvasly Lite 0.12.3 - Grid 2.0 visual editor */
 .lb20-grid-editor{margin:10px;border:1px solid #dfe4ea;border-radius:8px;background:#fbfcfd;overflow:hidden}
 .lb20-grid-editor-head{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;background:#f4f7fa;border-bottom:1px solid #e0e5ea;font-size:12px}
 .lb20-grid-editor-head span{font-size:10px;color:#68717c}
@@ -424,7 +424,7 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-top .lb-device butt
 .lb-grid-item-active{outline:2px solid #2d72d9!important;outline-offset:2px!important}
 @media(max-width:700px){.lb20-track-grid{grid-template-columns:1fr}.lb20-grid-matrix{grid-template-rows:repeat(var(--lb20-rows),20px)}}
 
-/* Canvasly Lite 0.12.23 — Elementor-inspired compact editor chrome. */
+/* Canvasly Lite 0.12.23 - Elementor-inspired compact editor chrome. */
 .lb-top{height:56px!important;padding:0 14px!important;gap:0!important;display:flex!important;justify-content:space-between!important;overflow:visible!important}
 .lb23-top-left,.lb23-top-center,.lb23-top-right{display:flex;align-items:center;min-width:0;height:100%;gap:7px}
 .lb23-top-left{flex:0 0 auto}.lb23-top-center{flex:1 1 auto;justify-content:center;gap:16px}.lb23-top-right{flex:0 0 auto;justify-content:flex-end}
@@ -603,16 +603,16 @@ body.toplevel_page_canvasly-lite .lb-admin.lb-fullscreen .lb-top .lb-device butt
 .lb-hover-pop:hover{transform:scale(1.12)}
 .lb-hover-grow-rotate:hover{transform:scale(1.08) rotate(4deg)}
 
-/* Canvasly Lite 0.12.40 — media containment in the editor chrome (iframe still gets CELL_CSS) */
+/* Canvasly Lite 0.12.40 - media containment in the editor chrome (iframe still gets CELL_CSS) */
 .lb-node.lb-node-image.lb-img-align-left{align-items:flex-start;text-align:left}
 .lb-node.lb-node-image.lb-img-align-center{align-items:center;text-align:center}
 .lb-node.lb-node-image.lb-img-align-right{align-items:flex-end;text-align:right}
 
-/* Roadmap 0.2 — schema control chrome */
+/* Roadmap 0.2 - schema control chrome */
 .lb-control-desc{margin:-6px 0 12px;font-size:11px;line-height:1.45;color:#8b929b}
 .lb-control-separator{border:0;border-top:1px solid #e4e7eb;margin:12px 0}
 
-/* Roadmap 0.3 — repeater control */
+/* Roadmap 0.3 - repeater control */
 .lb-repeater{display:grid;gap:8px}
 .lb-repeater>span{font-size:11px;font-weight:600;color:#5f6670}
 .lb-repeater-items{display:grid;gap:6px}
@@ -638,13 +638,13 @@ body.lb-template-default .lb-frame-root,
 body.lb-template-full-width .lb-frame-root,
 body.lb-template-canvas .lb-frame-root{padding:0;width:100%;max-width:none;margin:0;min-height:100%}
 
-/* Roadmap 1.3 — nested tabs / accordion slots */
+/* Roadmap 1.3 - nested tabs / accordion slots */
 .lb-tree-slot{font-size:11px;font-weight:600;color:#6b7280;padding:4px 8px}
 .lb-tree-slot-group{border-left:2px solid #e4e7eb;margin:2px 0 2px 10px}
 .lb-slot-drop{min-height:44px}
 .lb-slot-drop.is-over{border-color:#2f73d9;background:#eef3fa;color:#2463b4}
 
-/* Roadmap 2.1 — global colors / typography picker and Site Settings panel */
+/* Roadmap 2.1 - global colors / typography picker and Site Settings panel */
 .lb-control-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}
 .lb-control-head>span{margin-bottom:0}
 .lb-globals-btn{flex:0 0 auto;width:26px;height:26px;padding:0;border:1px solid #d5dae1;background:#fff;border-radius:4px;color:#5f6670;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
@@ -699,7 +699,7 @@ body.lb-template-canvas .lb-frame-root{padding:0;width:100%;max-width:none;margi
 .lb-modal .lb-code-editor .CodeMirror,.lb-ds-editor .lb-code-editor .CodeMirror,.lb-ds-state-grid .CodeMirror{height:160px}
 .lb-ds-state-grid .CodeMirror{border:1px solid #cfd5dc;border-radius:4px;font-size:12px;direction:ltr;text-align:left}
 
-/* Roadmap 3.3 — keyboard shortcuts cheat sheet + Finder */
+/* Roadmap 3.3 - keyboard shortcuts cheat sheet + Finder */
 .lb-shortcut-sheet{display:grid;gap:16px}
 .lb-shortcut-group h4{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#6b7280}
 .lb-shortcut-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid #eef1f4;font-size:12px}
@@ -721,7 +721,7 @@ body.lb-template-canvas .lb-frame-root{padding:0;width:100%;max-width:none;margi
 .lb-finder-empty{padding:28px 16px;text-align:center;color:#8a919a;font-size:13px}
 .lb-preference-list #lb-pref-shortcuts{margin-top:4px;justify-self:start}
 
-/* Roadmap 3.5 — action-level History panel + revision preview */
+/* Roadmap 3.5 - action-level History panel + revision preview */
 .lb-history-backdrop{position:fixed;inset:0;z-index:115000;background:rgba(15,18,22,.28)}
 .lb-history-panel{position:fixed;inset-block:0;inset-inline-end:0;z-index:115001;width:min(380px,100vw);background:#fff;color:#30343a;box-shadow:-12px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column}
 .lb-history-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e4e7eb;background:#17191d;color:#f7f7f7}
@@ -741,7 +741,7 @@ body.lb-template-canvas .lb-frame-root{padding:0;width:100%;max-width:none;margi
 .lb-revision-banner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px;background:#fff7e6;border:1px solid #efd59a;color:#6b4f00;font-size:12px;border-radius:6px;margin:8px 8px 0}
 .lb-revision-banner .lb-btn{padding:5px 8px;font-size:11px}
 
-/* Roadmap 3.6 — user preferences, UI theme, eyedropper, editor lightbox */
+/* Roadmap 3.6 - user preferences, UI theme, eyedropper, editor lightbox */
 .lb-eyedropper{width:28px;height:28px;padding:0;border:1px solid #d5dae1;background:#fff;border-radius:4px;color:#5f6670;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
 .lb-eyedropper:hover{border-color:#2f73d9;color:#2f73d9;background:#eef4fd}
 .lb-color-control.is-global .lb-eyedropper{display:none}
@@ -835,7 +835,7 @@ html.lb-ui-auto.lb-ui-scheme-dark .lb-history-tabs button{background:#1f2228;col
 html.lb-ui-dark .lb-history-tabs button.active,
 html.lb-ui-auto.lb-ui-scheme-dark .lb-history-tabs button.active{background:#23262c;color:#8cb4f0}
 
-/* Roadmap 3.7 — inline editing toolbar */
+/* Roadmap 3.7 - inline editing toolbar */
 .lb-inline-toolbar{position:fixed;z-index:10050;transform:translateX(-50%);background:#17191d;color:#f3f5f7;border:1px solid #30343a;border-radius:8px;padding:4px;box-shadow:0 10px 28px rgba(0,0,0,.28);font:12px/1.2 Inter,system-ui,sans-serif;min-width:0}
 .lb-inline-toolbar[hidden]{display:none!important}
 .lb-inline-toolbar-row{display:flex;align-items:center;gap:2px}
@@ -854,7 +854,7 @@ html.lb-ui-auto.lb-ui-scheme-dark .lb-history-tabs button.active{background:#232
 .lb-node.is-inline-editing{outline:2px dashed #3f7fdf}
 .lb-node [contenteditable=true].is-inline-editing,.lb-node [contenteditable=true]{outline:2px dashed #3f7fdf;background:rgba(63,127,223,.06)}
 
-/* Roadmap 3.8 — dynamic tags */
+/* Roadmap 3.8 - dynamic tags */
 .lb-dyn{position:relative;padding-inline-end:30px}
 .lb-dyn-toggle{position:absolute;top:0;inset-inline-end:0;width:26px;height:26px;padding:0;border:1px solid #d5dae1;background:#fff;border-radius:4px;color:#5f6670;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:12px;line-height:1;z-index:2}
 .lb-dyn-toggle:hover,.lb-dyn-toggle.is-on{border-color:#2f73d9;color:#2f73d9;background:#eef4fd}
@@ -880,7 +880,7 @@ html.lb-ui-dark .lb-dyn-popover,html.lb-ui-auto.lb-ui-scheme-dark .lb-dyn-popove
 html.lb-ui-dark .lb-dyn-item,html.lb-ui-auto.lb-ui-scheme-dark .lb-dyn-item{color:#e8eaed}
 html.lb-ui-dark .lb-dyn-item:hover,html.lb-ui-dark .lb-dyn-item.is-active,html.lb-ui-auto.lb-ui-scheme-dark .lb-dyn-item:hover,html.lb-ui-auto.lb-ui-scheme-dark .lb-dyn-item.is-active{background:#1a2740;color:#8cb4f0}
 
-/* Roadmap 4.4 — Interactions 2.0 panel */
+/* Roadmap 4.4 - Interactions 2.0 panel */
 .lb-fx-panel{display:grid;gap:8px}
 .lb-fx-exclude{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .lb-fx-preview-btn{justify-self:start}
@@ -892,7 +892,7 @@ html.lb-ui-dark .lb-dyn-item:hover,html.lb-ui-dark .lb-dyn-item.is-active,html.l
 .lb-fx-kf-del:hover{color:#30343a}
 html.lb-ui-dark .lb-fx-kf-head,html.lb-ui-auto.lb-ui-scheme-dark .lb-fx-kf-head{color:#8a919a}
 
-/* Roadmap 5.1 — Saved Templates library */
+/* Roadmap 5.1 - Saved Templates library */
 .lb-template-toolbar{display:grid;gap:10px;margin-bottom:12px}
 .lb-template-filters{display:flex;flex-wrap:wrap;gap:6px}
 .lb-chip{border:1px solid #d7dce4;background:#f6f8fa;border-radius:999px;padding:4px 10px;font-size:11px;cursor:pointer;color:#3d4652}
@@ -927,14 +927,14 @@ html.lb-ui-dark .lb-fx-kf-head,html.lb-ui-auto.lb-ui-scheme-dark .lb-fx-kf-head{
 .lb-icon-choice .lb-fa-icon,.lb-icon-picker-preview .lb-fa-icon{width:28px!important;height:28px!important;max-width:none!important;flex:0 0 auto}
 .lb-icon-glyph .lb-fa-icon,.lb-flip-graphic .lb-fa-icon{width:1em!important;height:1em!important;max-width:none!important}
 
-/* Roadmap 7.2 — content-only Role Manager access */
+/* Roadmap 7.2 - content-only Role Manager access */
 .lb-content-only [data-style-tab="style"],
 .lb-content-only [data-style-tab="advanced"]{display:none!important}
 .lb-content-only #lb-class-manager,
 .lb-content-only #lb-variable-manager{display:none!important}
 .lb-content-only [data-main-menu="site-settings"]{display:none!important}
 
-/* Roadmap 7.5 — WordPress Heartbeat post lock */
+/* Roadmap 7.5 - WordPress Heartbeat post lock */
 .lb-lock-banner{display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 14px;background:#8a4b08;color:#fff;font-size:13px;z-index:90}
 .lb-lock-banner .lb-btn{background:#fff;color:#8a4b08;border-color:#fff}
 #lb-lock.is-locked{background:#8a4b08;border-color:#8a4b08;color:#fff}

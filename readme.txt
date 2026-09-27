@@ -4,7 +4,7 @@ Tags: page builder, drag-and-drop, landing page, website builder, responsive
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.12.96
+Stable tag: 0.12.107
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -295,6 +295,57 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 0.12.107 =
+* Changed: A unit border with a Border Style but no Border Color now defaults to white instead of the text colour (which drew a thick dark box). Set Border Color to choose another colour. The Button unit keeps its existing behaviour.
+
+= 0.12.106 =
+* Added: Site Menu > Style > Menu Button: Text, Border, Hover Text, Hover Background and Hover Border for the menu (dropdown / hamburger) button. Blank hover values fall back to the menu Hover colour and the button Background.
+* Added: Style > Button and Button Hover colours (text, background, border) for Form, Login and Link in Bio buttons, and Hover Color / Hover Background / Hover Border for Collection Loop pagination and Load More. Themes can no longer recolour these buttons on hover.
+* Fixed: Sliders showed a value of 0 at the far-left (minimum) position. On Text Shadow X/Y and similar sliders that start at -50, the thumb sat at -50 while the value was 0, so a small nudge saved -50 by accident (this caused a faded duplicate of Site Menu text). A 0 value now sits at 0.
+
+= 0.12.105 =
+* Fixed: Site Menu button turned the theme's button colour (for example red) on hover and after a click, instead of keeping its Background colour and switching the text to the Hover colour. Themes that style every button on hover/focus no longer override it, in the editor or on the saved page.
+* Fixed: The same theme override affected other Canvasly buttons on hover/focus: Tabs and Nested Tabs titles, the Alert close button, the Video play button, Image Carousel arrows and dots, and Loop Grid arrows and dots. They now keep their own colours.
+
+= 0.12.104 =
+* Fixed: Hover colours did not show in the editor canvas for Button, Heading, Text Editor, Price Table and other units. The canvas draws these units with inline colours, which outranked every :hover rule. Hover and focus rules now win in the canvas; the saved page was not affected.
+* Fixed: Site Menu "Hover" colour now also applies to the menu button (the "My Menu" dropdown button and the mobile hamburger), in the editor and on the saved page.
+* Fixed: Social Icons "Hover Background" had no effect on the saved page or in the editor; a more specific base rule kept the normal background.
+* Fixed: When a container or unit was selected in the editor, its resize strips sat on top of the content along its edges (menu links, an open dropdown, child units) and blocked hover there. The strips now let the pointer through while it is over content; the outer half of each strip and the corner squares still resize.
+
+= 0.12.103 =
+* Fixed: Site Menu "Hover" colour (Style > Site Menu > Hover) had no effect in the editor canvas or on the saved page; links always used the Site Settings link hover colour (e.g. red). The global link colour rule outranked the Site Menu's own rules. Site Menu, Icon, Icon Box and Image Box titles, Icon List, Heading links, Testimonial names and Menu Anchor links now keep their own colours, and a chosen Hover/Text colour is applied with node-level priority. Plain links in text still use the Site Settings link colours.
+* Fixed: Site Menu "Text" colour did not reach its links, and the open dropdown list in the editor ignored it.
+* Fixed: Site Menu colours given as rgba() or a global colour were dropped from the saved page.
+* Fixed: Heading "Text Color" now also colours a linked heading; Icon List "Text Color/Hover" now reach linked items; Testimonial name colour reaches a linked name.
+
+= 0.12.102 =
+* Fixed: "Reset to Default" in Effects sections worked only once. After the first reset the button stayed greyed out and could not be clicked again until the page was saved and reloaded, because the button state was set when the panel was drawn and editing a value does not redraw the panel. The button is now always active, and its "modified" look updates live as you change any Effects value. Reset can be used any number of times, and each reset is its own undo step.
+
+= 0.12.101 =
+* New: every Effects section in a unit's settings (Advanced > Effects, Motion Effects, Transform, Layout & Effects, Border & Effects) has a "Reset to Default" button in its header. It returns only that section's settings to the unit's defaults, for all devices, in one undoable step. The button is greyed out while the section is already at its defaults.
+
+= 0.12.100 =
+* Fixed: Advanced > Effects settings (Transform: Translate, Rotate, Scale, Skew, Origin; CSS Filter; Transition; Blend Mode) now update the canvas live while you drag or type. Previously they only appeared on the page after saving.
+* Fixed: Effects are painted on the unit wrapper in the canvas, the same element the live page styles, so the canvas matches the published page. Opacity is no longer applied twice in the canvas.
+* Fixed: a Translate value typed without a unit is read as px in the canvas, as on the live page.
+
+= 0.12.99 =
+* Fixed: corrupted symbols in the editor. Icons such as the repeater drag handle, duplicate and remove buttons, and the close button on the A11y, Assets, Lock, Breakpoints and other popups showed mojibake (garbled letters instead of the close "x"). The editor bundle had stored these symbols in a double-encoded form. All 30 affected symbols are restored and stored as ASCII-safe escape codes.
+* Fixed: text encoding hardening. Every PHP, JS and CSS file stores symbols as ASCII-safe escape codes or HTML entities, so no layer that guesses the wrong encoding can corrupt them. Canvas and maintenance templates and all Canvasly REST responses send an explicit UTF-8 charset. Text shortening uses UTF-8 aware helpers so accented and non-Latin characters are never cut in half. A documentation image that was saved in the wrong encoding is fixed.
+* Fixed: Image Carousel canvas preview is now WYSIWYG. Arrows, dots, autoplay, the Slide and Fade effects, animation speed, infinite loop and right-to-left direction all work in the editor canvas, just as on the published page. Autoplay pauses while the pointer is over the carousel so it can be edited.
+* Fixed: Image Carousel showed only part of the first image, with the next slide bleeding in. The carousel wrapper used the same CSS class as each slide, so it picked up slide sizing.
+* Fixed: after adding an image to the Image Carousel, the canvas now moves to the new slide so it is visible right away.
+* Fixed: Image Carousel slides show the saved image immediately in the canvas instead of a grey placeholder.
+* Fixed: on sites using Plain permalinks, the editor could not load media details (image previews stayed grey) and some other editor requests failed with 404, because query strings were added with a second "?".
+* Fixed: the Image Carousel Link option (None, Media File, Custom URL) was saved as a web address such as "http://none", so Media File links, the lightbox and custom slide links never worked. Pages saved with the old value are repaired automatically.
+* Fixed: Image Carousel dots no longer cover the captions. With captions, the dots sit below them.
+* Fixed: carousel images further along the slide track now preload once the carousel is on screen, so the next slide never appears blank. The slide offset is re-measured when images finish loading.
+* Fixed: with "Pause on Hover" and "Pause on Interaction" both on, autoplay no longer restarts when the pointer leaves after you used the arrows or dots.
+* Fixed: the Fade effect shows the first slide immediately on page load instead of starting blank.
+* Fixed: the editor's brand menu shows the installed plugin version instead of a fixed old number.
+* Slide position labels ("1 of 3") are translatable.
+
 = 0.12.96 =
 * Fixed: slider value boxes in widget settings (including Site Menu style controls, line height, letter spacing, and text shadow) no longer sit on top of their sliders.
 
@@ -561,6 +612,33 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * Added accessibility helpers and performance-conscious frontend asset handling.
 
 == Upgrade Notice ==
+
+= 0.12.107 =
+Borders with a style but no colour now default to white instead of a dark box.
+
+= 0.12.106 =
+Adds button hover colours to Site Menu, Form, Login, Link in Bio and Collection Loop, and fixes sliders that showed 0 at the minimum position.
+
+= 0.12.105 =
+Stops themes from recolouring the Site Menu button and other Canvasly buttons on hover (for example turning them red).
+
+= 0.12.104 =
+Fixes Hover colours not showing in the editor canvas, adds Hover to the Site Menu button, and fixes Social Icons hover background.
+
+= 0.12.103 =
+Fixes Site Menu Hover/Text colours being overridden by the global link colour, and the same bug in other units with links.
+
+= 0.12.102 =
+Fixes "Reset to Default" in Effects sections so it can be used repeatedly without saving and reloading.
+
+= 0.12.101 =
+Adds a "Reset to Default" button to the Effects settings of every unit.
+
+= 0.12.100 =
+Effects settings (Transform, CSS Filter, Transition, Blend Mode) now preview live in the canvas.
+
+= 0.12.99 =
+Fixes corrupted symbols in the editor and makes the Image Carousel work in the canvas: arrows, dots, effects and autoplay. Also fixes Link and Lightbox saving.
 
 = 0.12.74 =
 Menu Anchor now shows its jump target on the canvas and supports a scroll offset for sticky headers.

@@ -58,6 +58,12 @@
 	color: var(--lb-nav-hover);
 }
 
+/* The menu button follows the Hover color too (text, caret, burger and border). */
+.lb-site-nav__toggle:hover,
+.lb-site-nav__toggle:focus-visible {
+	color: var(--lb-nav-hover);
+}
+
 .lb-site-nav__sub {
 	position: absolute;
 	z-index: 20;
@@ -144,6 +150,34 @@
 	background-color: var(--lb-nav-bg, transparent);
 	color: inherit;
 	cursor: pointer;
+}
+
+/*
+ * Theme guard: many themes style every button on hover/focus
+ * (e.g. `button:hover, [type=button]:hover { background:#c36; color:#fff }`).
+ * Those rules out-rank `.lb-site-nav__toggle`, so the menu button turned the
+ * theme's red on hover instead of keeping the widget's Background and using
+ * its Hover color. Doubled class + parent raises specificity above them.
+ */
+.lb-site-nav .lb-site-nav__toggle.lb-site-nav__toggle,
+.lb-site-nav .lb-site-nav__toggle.lb-site-nav__toggle:focus,
+.lb-site-nav .lb-site-nav__toggle.lb-site-nav__toggle:active {
+	background-color: var(--lb-nav-bg, transparent);
+	background-image: none;
+	border-color: var(--lb-nav-btn-border, currentColor);
+	color: var(--lb-nav-btn-color, currentColor);
+	box-shadow: none;
+	text-decoration: none;
+}
+
+/* Menu Button > Hover Text / Hover Background / Hover Border. Blank values fall back
+ * to the menu Hover colour and the normal button Background. */
+.lb-site-nav .lb-site-nav__toggle.lb-site-nav__toggle:hover,
+.lb-site-nav .lb-site-nav__toggle.lb-site-nav__toggle:focus-visible {
+	background-color: var(--lb-nav-btn-hover-bg, var(--lb-nav-bg, transparent));
+	background-image: none;
+	border-color: var(--lb-nav-btn-hover-border, currentColor);
+	color: var(--lb-nav-btn-hover-color, var(--lb-nav-hover, currentColor));
 }
 
 .lb-site-nav__burger {

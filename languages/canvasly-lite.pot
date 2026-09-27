@@ -3736,3 +3736,7 @@ msgstr ""
 msgid "Remove link"
 msgstr ""
 
+#: includes/units/class-carousel.php
+#. translators: 1: slide number, 2: total slides
+msgid "%1$d of %2$d"
+msgstr ""

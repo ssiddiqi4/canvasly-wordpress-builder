@@ -38,12 +38,12 @@
 /* 0.10.1 icon rendering */
 .lb-fa-icon{display:inline-block;width:1em;height:1em;max-width:none;flex:0 0 auto;vertical-align:-.125em;fill:currentColor;overflow:visible}.lb-icon-glyph .lb-fa-icon,.lb-icon-box-icon .lb-fa-icon,.lb-icon-list .lb-fa-icon,.lb-button-icon .lb-fa-icon{width:1em;height:1em}.lb-button-icon{display:inline-flex;align-items:center;justify-content:center;margin-right:.45em;vertical-align:middle}.lb-icon-list li{display:flex;align-items:center;gap:.45em}.lb-icon-list li .lb-fa-icon{flex:0 0 auto}
 
-/* Canvasly Lite 0.10.6 — TinyMCE Text Editor output */
+/* Canvasly Lite 0.10.6 - TinyMCE Text Editor output */
 .lb-tinymce-text-editor,.lb-tinymce-preview{box-sizing:border-box}.lb-tinymce-text-editor p:first-child,.lb-tinymce-preview p:first-child{margin-top:0}.lb-tinymce-text-editor p:last-child,.lb-tinymce-preview p:last-child{margin-bottom:0}
 .lb-node.lb-node-tinymce_text_editor{display:flex;flex-direction:column;align-items:flex-start;min-width:0;max-width:100%;box-sizing:border-box}
 .lb-node.lb-node-tinymce_text_editor .lb-tinymce-text-editor,.lb-node.lb-node-tinymce_text_editor .lb-tinymce-preview{width:var(--lb-tiny-w,100%);max-width:min(100%,var(--lb-tiny-max-w,100%));height:var(--lb-tiny-h,auto);min-height:var(--lb-tiny-min-h,0);box-sizing:border-box;overflow:auto;min-width:0}
 
-/* Canvasly Lite 0.12.28 — widget depth: hover motion, icon views, collapse, tabs, alert, video, counter, progress, divider, lists, social, rating, testimonial, container layers */
+/* Canvasly Lite 0.12.28 - widget depth: hover motion, icon views, collapse, tabs, alert, video, counter, progress, divider, lists, social, rating, testimonial, container layers */
 .lb-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .lb-embed-placeholder,.lb-video-placeholder,.lb-image-placeholder,.lb-gallery-placeholder,.lb-carousel-placeholder{display:block;padding:24px;text-align:center;color:#6b7280;background:#f3f4f6;border:1px dashed #cbd2da;border-radius:6px;font-size:14px}
 /* hover motion (shared `hover_animation` control) */
@@ -148,14 +148,14 @@
 .lb-icon-list-divided .lb-icon-list-item+.lb-icon-list-item{position:relative;padding-top:var(--lb-list-gap,10px);margin-top:calc(var(--lb-list-gap,10px) * -1 + 0px)}
 .lb-icon-list-divided:not(.lb-icon-list-inline) .lb-icon-list-item+.lb-icon-list-item::before{content:"";position:absolute;top:0;left:0;width:var(--lb-list-divider-width,100%);border-top:var(--lb-list-divider-weight,1px) var(--lb-list-divider-style,solid) var(--lb-list-divider-color,#ddd)}
 .lb-icon-list-divided.lb-icon-list-inline .lb-icon-list-item+.lb-icon-list-item{padding-top:0;margin-top:0;padding-left:var(--lb-list-gap,10px);margin-left:0}.lb-icon-list-divided.lb-icon-list-inline .lb-icon-list-item+.lb-icon-list-item::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);height:var(--lb-list-divider-width,1em);border-left:var(--lb-list-divider-weight,1px) var(--lb-list-divider-style,solid) var(--lb-list-divider-color,#ddd)}
-/* social links — square brand buttons that scale with Size, like Elementor */
+/* social links - square brand buttons that scale with Size, like Elementor */
 .lb-social{display:flex;flex-wrap:wrap;align-items:center;align-content:flex-start;width:100%;max-width:100%;flex:0 0 auto;height:auto;min-height:0;line-height:1;gap:var(--lb-social-row-gap,var(--lb-social-gap,5px)) var(--lb-social-gap,5px)}
 .lb-node-social>.lb-social{flex:0 0 auto;align-self:stretch;width:100%;height:auto;min-height:0}
 .lb-social-grid{display:grid;grid-template-columns:repeat(var(--lb-social-cols,4),max-content);justify-items:center;align-items:center;align-content:start}
 .lb-social a.lb-social-item{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;align-self:center;box-sizing:border-box;width:calc(var(--lb-social-size,25px) + (2 * var(--lb-social-padding,.3em)));height:calc(var(--lb-social-size,25px) + (2 * var(--lb-social-padding,.3em)));padding:0;font-size:var(--lb-social-size,25px);line-height:0;color:var(--lb-social-color,#fff);background-color:var(--lb-social-bg,var(--lb-social-brand,#818a91));text-decoration:none;transition:background-color .3s,color .3s,opacity .3s,transform .3s}
 .lb-social-item .lb-fa-icon{display:block;width:1em;height:1em;max-width:none;max-height:none;flex:0 0 auto;margin:auto;align-self:center;vertical-align:middle;overflow:hidden;fill:currentColor}
 .lb-social-square .lb-social-item{border-radius:var(--lb-social-radius,0)}.lb-social-rounded .lb-social-item{border-radius:var(--lb-social-radius,22%)}.lb-social-circle .lb-social-item{border-radius:var(--lb-social-radius,50%)}
-.lb-social-item:hover{background-color:var(--lb-social-hover-bg,var(--lb-social-bg,var(--lb-social-brand,#818a91)));color:var(--lb-social-hover-color,var(--lb-social-color,#fff));opacity:.9}
+.lb-social-item:hover,.lb-social a.lb-social-item:hover,.lb-social a.lb-social-item:focus-visible{background-color:var(--lb-social-hover-bg,var(--lb-social-bg,var(--lb-social-brand,#818a91)));color:var(--lb-social-hover-color,var(--lb-social-color,#fff));opacity:.9}
 .lb-social-official .lb-social-instagram{background-color:#d62976;background-image:linear-gradient(120deg,#feda75 0%,#fa7e1e 18%,#d62976 48%,#962fbf 72%,#4f5bd5 100%)}
 .lb-social-official a.lb-social-snapchat,.lb-social-official a.lb-social-snapchat:hover{color:var(--lb-social-hover-color,#111)}
 .lb-social-official a.lb-social-snapchat{color:#111}
@@ -265,7 +265,7 @@
 .lb-gallery.is-masonry .lb-gallery-item[hidden],.lb-gallery.is-justified .lb-gallery-item[hidden],.lb-gallery.is-grid .lb-gallery-item[hidden],
 .lb-gallery.is-masonry .lb-gallery-item.is-lb-out,.lb-gallery.is-justified .lb-gallery-item.is-lb-out,.lb-gallery.is-grid .lb-gallery-item.is-lb-out{display:none!important;visibility:hidden!important;width:0!important;height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}
 
-/* Canvasly Lite 0.12.40 — keep media widgets inside grid cells */
+/* Canvasly Lite 0.12.40 - keep media widgets inside grid cells */
 .lb-grid>.lb-node,.lb-layout-grid>.lb-node{min-width:0;max-width:100%;height:auto;max-height:none;overflow:visible;box-sizing:border-box}
 .lb-node-image,.lb-node-video,.lb-node-carousel,.lb-node-audio,.lb-node-image_box,.lb-node-gallery,.lb-node-soundcloud,.lb-node-embed{min-width:0;max-width:100%;overflow:hidden;box-sizing:border-box}
 .lb-node-image{display:flex;flex-direction:column;align-items:var(--lb-media-items,stretch)}
@@ -274,7 +274,7 @@
 .lb-node-video .lb-video,.lb-node-carousel .lb-carousel,.lb-node-image_box .lb-image-box{width:var(--lb-img-w,100%);max-width:100%;overflow:hidden}
 .lb-node-video video,.lb-node-video .lb-video-media,.lb-node-carousel img,.lb-node-image_box img{max-width:100%;object-fit:var(--lb-object-fit,cover);object-position:var(--lb-object-position,center)}
 
-/* Roadmap 1.1 — page templates */
+/* Roadmap 1.1 - page templates */
 .lb-page{width:100%;box-sizing:border-box;max-width:var(--lb-page-width,none);margin-inline:auto}
 .lb-site-header,.lb-site-footer{width:100%;box-sizing:border-box}
 body.lb-template-full-width .lb-page,
@@ -285,17 +285,17 @@ body.lb-template-canvas{margin:0}
 
 .lb-slot-panel{min-width:0}
 
-/* Roadmap 2.2 — Theme Style inheritance (unset kit vars fall back to inherit so empty defaults do not restyle existing sites) */
+/* Roadmap 2.2 - Theme Style inheritance (unset kit vars fall back to inherit so empty defaults do not restyle existing sites) */
 .lb-page,.lb-frame-root{color:var(--lb-theme-body-color,inherit);font-family:var(--lb-theme-body-font-family,inherit);font-size:var(--lb-theme-body-font-size,inherit);font-weight:var(--lb-theme-body-font-weight,inherit);line-height:var(--lb-theme-body-line-height,inherit);letter-spacing:var(--lb-theme-body-letter-spacing,inherit)}
 .lb-text p,.lb-text-content p{margin:0 0 var(--lb-paragraph-spacing,1em)}
-.lb-page a:not(.lb-button):not(.lb-tab-button):not(.lb-flip-button):not(.lb-social-item),.lb-frame-root a:not(.lb-button):not(.lb-tab-button):not(.lb-flip-button):not(.lb-social-item){color:var(--lb-link-color,inherit)}
-.lb-page a:not(.lb-button):not(.lb-tab-button):not(.lb-flip-button):not(.lb-social-item):hover,.lb-frame-root a:not(.lb-button):not(.lb-tab-button):not(.lb-flip-button):not(.lb-social-item):hover{color:var(--lb-link-hover,var(--lb-link-color,inherit))}
+.lb-page a:not(.lb-button):not(.lb-tab-button):not(.lb-flip-button):not(.lb-social-item):not(:where(.lb-icon-glyph)):not(:where(.lb-heading-link)):not(:where(.lb-site-nav a)):not(:where(.lb-icon-box-title a)):not(:where(.lb-image-box-title a)):not(:where(.lb-icon-list-item>a)):not(:where(.lb-testimonial-name a)):not(:where(.lb-anchor-menu a)),.lb-frame-root a:not(.lb-button):not(.lb-tab-button):not(.lb-flip-button):not(.lb-social-item):not(:where(.lb-icon-glyph)):not(:where(.lb-heading-link)):not(:where(.lb-site-nav a)):not(:where(.lb-icon-box-title a)):not(:where(.lb-image-box-title a)):not(:where(.lb-icon-list-item>a)):not(:where(.lb-testimonial-name a)):not(:where(.lb-anchor-menu a)){color:var(--lb-link-color,inherit)}
+.lb-page a:not(.lb-button):not(.lb-tab-button):not(.lb-flip-button):not(.lb-social-item):not(:where(.lb-icon-glyph)):not(:where(.lb-heading-link)):not(:where(.lb-site-nav a)):not(:where(.lb-icon-box-title a)):not(:where(.lb-image-box-title a)):not(:where(.lb-icon-list-item>a)):not(:where(.lb-testimonial-name a)):not(:where(.lb-anchor-menu a)):hover,.lb-frame-root a:not(.lb-button):not(.lb-tab-button):not(.lb-flip-button):not(.lb-social-item):not(:where(.lb-icon-glyph)):not(:where(.lb-heading-link)):not(:where(.lb-site-nav a)):not(:where(.lb-icon-box-title a)):not(:where(.lb-image-box-title a)):not(:where(.lb-icon-list-item>a)):not(:where(.lb-testimonial-name a)):not(:where(.lb-anchor-menu a)):hover{color:var(--lb-link-hover,var(--lb-link-color,inherit))}
 .lb-image-img,.lb-node-image img{border-radius:var(--lb-theme-image-border-radius,inherit);opacity:var(--lb-theme-image-opacity,inherit);box-shadow:var(--lb-theme-image-shadow,inherit)}
 .lb-image figcaption{color:var(--lb-theme-image-caption-color,inherit);margin-top:var(--lb-theme-image-caption-spacing,inherit)}
 
-/* Roadmap 4.1 — Flip Box
+/* Roadmap 4.1 - Flip Box
    overflow:hidden on a 3D face kills backface-visibility (Chrome/Edge), so the
-   front — including the white back-side button — leaks through when flipped.
+   front - including the white back-side button - leaks through when flipped.
    Slide/push must clip the off-canvas face and react to hover on the box itself. */
 .lb-node-flip_box{overflow:visible;display:flex;flex-direction:column;width:var(--lb-el-w,100%);max-width:min(100%,var(--lb-el-max-w,100%));height:var(--lb-el-h,auto);min-height:var(--lb-el-min-h,var(--lb-flip-height,280px));align-self:stretch;justify-self:stretch}
 .lb-grid>.lb-node-flip_box,.lb-layout-grid>.lb-node-flip_box{overflow:visible}
@@ -426,7 +426,7 @@ html{scroll-behavior:smooth}
 .lb-anchor-menu a{color:inherit;text-decoration:none}
 .lb-anchor-menu-sub,.lb-anchor-menu .sub-menu{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
 
-/* Roadmap 6.3 — lazy backgrounds (image applied in view via data-lb-bg) */
+/* Roadmap 6.3 - lazy backgrounds (image applied in view via data-lb-bg) */
 .lb-lazy-bg:not(.is-bg-loaded){background-image:none}
 .lb-lazy-bg:not(.is-bg-loaded)>.lb-container{background-image:none}
 .lb-node.lb-opt,.lb-node.lb-heading,.lb-node.lb-text,.lb-node.lb-image,.lb-node.lb-button-wrap,.lb-node.lb-icon-wrap,.lb-node.lb-spacer,.lb-node.lb-divider{max-width:100%;min-width:0;box-sizing:border-box}
@@ -473,3 +473,21 @@ html{scroll-behavior:smooth}
 
 
 
+
+/* Image Carousel: with captions, dots sit below the caption instead of covering it. */
+.lb-carousel-has-caption .lb-carousel-dots{position:static;transform:none;justify-content:center;margin:8px 0 0}
+.lb-carousel-has-caption .lb-carousel-dots button{background:var(--lb-carousel-dot-color,#9aa3ab)}
+
+/* Theme guard: themes that style every `button:hover` / `[type=button]:focus`
+ * (background + color) were overriding Canvasly's own button colors on hover.
+ * Re-assert each unit's own colors with higher specificity. */
+.lb-tabs-nav .lb-tab-button.lb-tab-button:hover,.lb-tabs-nav .lb-tab-button.lb-tab-button:focus,.lb-tabs-nav .lb-tab-button.lb-tab-button:active{background:var(--lb-tab-bg,#f7f8fa);color:var(--lb-tab-color,inherit);border-color:var(--lb-tab-border-color,#d7dce2);box-shadow:none}
+.lb-tabs-nav .lb-tab-button.lb-tab-button.is-active:hover,.lb-tabs-nav .lb-tab-button.lb-tab-button.is-active:focus,.lb-tabs-nav .lb-tab-button.lb-tab-button.is-active:active{background:var(--lb-tab-active-bg,#fff);color:var(--lb-tab-active-color,inherit)}
+.lb-alert .lb-alert-dismiss.lb-alert-dismiss:hover,.lb-alert .lb-alert-dismiss.lb-alert-dismiss:focus,.lb-alert .lb-alert-dismiss.lb-alert-dismiss:active{background:transparent;color:var(--lb-alert-dismiss,inherit);box-shadow:none}
+.lb-video-play.lb-video-play:hover,.lb-video-play.lb-video-play:focus,.lb-video-play.lb-video-play:active{background:transparent;color:var(--lb-play-color,#fff);box-shadow:none}
+.lb-carousel-prev.lb-carousel-prev:hover,.lb-carousel-next.lb-carousel-next:hover,.lb-carousel-prev.lb-carousel-prev:focus,.lb-carousel-next.lb-carousel-next:focus{background:linear-gradient(165deg,#fff 0%,#e4e8ec 22%,#9aa3ab 58%,#6b747d 100%);color:transparent}
+.lb-carousel-dots.lb-carousel-dots button:hover,.lb-carousel-dots.lb-carousel-dots button:focus,.lb-carousel-dots.lb-carousel-dots button:active{background:var(--lb-carousel-dot-color,#fff)}
+.lb-carousel-has-caption .lb-carousel-dots.lb-carousel-dots button:hover,.lb-carousel-has-caption .lb-carousel-dots.lb-carousel-dots button:focus{background:var(--lb-carousel-dot-color,#9aa3ab)}
+.lb-loop-arrow.lb-loop-arrow:hover,.lb-loop-arrow.lb-loop-arrow:focus,.lb-loop-arrow.lb-loop-arrow:active{background:#fff;color:inherit}
+.lb-loop-dot.lb-loop-dot:hover,.lb-loop-dot.lb-loop-dot:focus{background:#c3c4c7}
+.lb-loop-dot.lb-loop-dot.is-active:hover,.lb-loop-dot.lb-loop-dot.is-active:focus{background:#1d2327}

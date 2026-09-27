@@ -1,5 +1,24 @@
 /* Canvasly Lite editor bundle. Source: src/editor/. Rebuild with `npm run build`. */
 (() => {
+  // Plain permalinks: REST base is "index.php?rest_route=/ns/v1", so code that appends
+  // "?param=" produces a second "?" and a 404. Normalize those URLs before fetch() runs.
+  (function lbRestUrlFix() {
+    const orig = window.fetch;
+    if (typeof orig !== "function" || orig.__lbRestFix) return;
+    const fix = (url) => {
+      if (typeof url !== "string" || url.indexOf("rest_route=") < 0) return url;
+      const first = url.indexOf("?");
+      if (first < 0) return url;
+      return url.slice(0, first + 1) + url.slice(first + 1).replace(/\?/g, "&");
+    };
+    const wrapped = function(input, init) {
+      if (typeof input === "string") input = fix(input);
+      else if (input && typeof URL !== "undefined" && input instanceof URL) input = fix(input.href);
+      return orig.call(this, input, init);
+    };
+    wrapped.__lbRestFix = true;
+    window.fetch = wrapped;
+  })();
   // src/editor/app.js
   var app = {};
 
@@ -2489,6 +2508,7 @@
       const key = String(path || "");
       if (!key) return false;
       if (/(^|\.)(type|mode|gallery_layout|look|graphic|orientation|box_layout|list_layout|flip_effect|show_button)$/.test(key)) return true;
+      if (/(^|\.)([a-zA-Z0-9]+_)?icon$/.test(key)) return true;
       const r = app.selected && app.locate(app.state.root, app.selected);
       if (!r) return false;
       const controls = app.meta(r.node.type).controls || {};
@@ -2879,7 +2899,7 @@
             body += html;
           });
         }
-        return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-repeater-index="${i}" data-repeater-id="${app.esc(id)}"><div class="lb-repeater-head"><span class="lb-repeater-handle" title="${app.t("Drag to reorder")}" draggable="true" aria-hidden="true">\xE2\u2039\xAE\xE2\u2039\xAE</span><button type="button" class="lb-repeater-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(app.lbRepeaterTitle(item, def.title_field, i))}</button><button type="button" class="lb-repeater-dup" title="${app.t("Duplicate")}" aria-label="${app.t("Duplicate")}">\xE2\xA7\u2030</button><button type="button" class="lb-repeater-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}"${def.prevent_empty && items.length < 2 ? " disabled" : ""}>\xC3\u2014</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
+        return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-repeater-index="${i}" data-repeater-id="${app.esc(id)}"><div class="lb-repeater-head"><span class="lb-repeater-handle" title="${app.t("Drag to reorder")}" draggable="true" aria-hidden="true">\u22EE\u22EE</span><button type="button" class="lb-repeater-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(app.lbRepeaterTitle(item, def.title_field, i))}</button><button type="button" class="lb-repeater-dup" title="${app.t("Duplicate")}" aria-label="${app.t("Duplicate")}">\u29C9</button><button type="button" class="lb-repeater-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}"${def.prevent_empty && items.length < 2 ? " disabled" : ""}>\u00D7</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
       }).join("");
       return `<div class="lb-control lb-repeater" data-repeater-key="${app.esc(k)}" data-prevent-empty="${def.prevent_empty ? "1" : "0"}"><span>${app.esc(label || def.label || k.replace(/_/g, " "))}</span><div class="lb-repeater-items">${rows || '<div class="lb-repeater-empty">No items yet</div>'}</div><button type="button" class="lb-btn lb-repeater-add">+ Add Item</button></div>`;
     };
@@ -3062,7 +3082,7 @@
       h += app.lb091Universal(r.node, app.styleTab);
       if (app.styleTab === "advanced") {
         const warn = app.accessibilityWarnings(r.node);
-        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\xE2\u0161\xA0 ${app.esc(w)}</div>`).join("") : "<div>\xE2\u0153\u201C No obvious issues detected.</div>"}</div>`;
+        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div>`;
       }
       h += `<div class="lb-action-grid"><button class="lb-btn" id="lb-duplicate">${app.t("Duplicate")}</button><button class="lb-btn danger" id="lb-delete">${app.t("Delete")}</button></div>`;
       return h;
@@ -3115,15 +3135,15 @@
       return app.unitGroupOrder(Object.keys(groups)).map((c) => {
         const a = groups[c];
         const label = c === "pro" ? "PRO" : c;
-        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>\xE2\u02DC\u2026 " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => (() => {
+        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>\u2605 " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => (() => {
           const locked = app.proUnitLocked(e);
           const hint = locked ? app.t("Canvasly Pro license required") : app.t("Double-click to add");
-          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "\xE2\u2013\xA1")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\xE2\u02DC\u2026" : "\xE2\u02DC\u2020"}</b></button>`;
+          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "\u25A1")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\u2605" : "\u2606"}</b></button>`;
         })()).join("")}</div></div>`;
       }).join("");
     };
     app.modalHTML = function modalHTML(title, body) {
-      return `<div class="lb-modal-backdrop"><div class="lb-modal" role="dialog" aria-modal="true"><div class="lb-modal-head"><strong>${app.esc(title)}</strong><button data-close-modal aria-label="${app.t("Close")}">\xC3\u2014</button></div><div class="lb-modal-body">${body}</div></div></div>`;
+      return `<div class="lb-modal-backdrop"><div class="lb-modal" role="dialog" aria-modal="true"><div class="lb-modal-head"><strong>${app.esc(title)}</strong><button data-close-modal aria-label="${app.t("Close")}">\u00D7</button></div><div class="lb-modal-body">${body}</div></div></div>`;
     };
     app.showModal = function showModal(title, body, after) {
       app.closeModal();
@@ -3143,7 +3163,7 @@
     };
     app.openIconLibrary = function openIconLibrary() {
       const icons = app.D.icons || [];
-      app.showModal(app.t("Canvasly Icon Manager"), `<input class="lb-modal-search" id="lb-icon-search" placeholder="${app.t("Search icons\xE2\u20AC\xA6")}"><div class="lb-form-row"><input id="lb-icon-id" placeholder="${app.t("ID")}"><input id="lb-icon-title" placeholder="${app.t("Title")}"><input id="lb-icon-category" placeholder="${app.t("Category")}" value="Custom"><textarea id="lb-icon-svg" rows="2" placeholder="<svg viewBox=...>...</svg>"></textarea><button class="lb-btn primary" id="lb-icon-add">${app.t("Add SVG")}</button></div><div class="lb-icon-grid">${icons.map((i) => `<button class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" title="${app.esc(i.title)}"><span>${i.svg}</span><small>${app.esc(i.title)}</small></button>`).join("")}</div>`, () => {
+      app.showModal(app.t("Canvasly Icon Manager"), `<input class="lb-modal-search" id="lb-icon-search" placeholder="${app.t("Search icons\u2026")}"><div class="lb-form-row"><input id="lb-icon-id" placeholder="${app.t("ID")}"><input id="lb-icon-title" placeholder="${app.t("Title")}"><input id="lb-icon-category" placeholder="${app.t("Category")}" value="Custom"><textarea id="lb-icon-svg" rows="2" placeholder="<svg viewBox=...>...</svg>"></textarea><button class="lb-btn primary" id="lb-icon-add">${app.t("Add SVG")}</button></div><div class="lb-icon-grid">${icons.map((i) => `<button class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" title="${app.esc(i.title)}"><span>${i.svg}</span><small>${app.esc(i.title)}</small></button>`).join("")}</div>`, () => {
         app.$("#lb-icon-search")?.addEventListener("input", (e) => {
           app.$$(".lb-icon-choice").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
         });
@@ -3162,9 +3182,9 @@
     app.openTemplateLibrary = async function openTemplateLibrary() {
       try {
         const items = await (await fetch(`${app.D.api}/templates`, { headers: { "X-WP-Nonce": app.D.nonce } })).json();
-        app.showModal(app.t("Template Library"), `<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates\xE2\u20AC\xA6")}"><div class="lb-library-list">${items.length ? items.map((i) => {
+        app.showModal(app.t("Template Library"), `<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates\u2026")}"><div class="lb-library-list">${items.length ? items.map((i) => {
           const count = (i.document?.root || []).length;
-          return `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type || "page")} \xC2\xB7 ${count} root unit(s)</span><button class="lb-btn" data-template-id="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-template-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-template-del="${i.id}">${app.t("Delete")}</button></div>`;
+          return `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type || "page")} \u00B7 ${count} root unit(s)</span><button class="lb-btn" data-template-id="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-template-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-template-del="${i.id}">${app.t("Delete")}</button></div>`;
         }).join("") : "<p>" + app.t("No templates saved yet.") + "</p>"}</div>`, () => {
           app.$("#lb-template-search")?.addEventListener("input", (e) => {
             app.$$(".lb-library-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
@@ -3242,7 +3262,7 @@
     };
     app.openNavigation = function openNavigation() {
       const items = app.D.navigation || [];
-      app.showModal(app.t("Site Navigation"), `<input class="lb-modal-search" id="lb-nav-search" placeholder="${app.t("Search pages and posts\xE2\u20AC\xA6")}"><div class="lb-library-list">${items.map((i) => `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type)} \xC2\xB7 ${app.esc(i.status)}</span><button class="lb-btn" data-nav-id="${i.id}">${app.t("Open")}</button></div>`).join("")}</div>`, () => app.$("#lb-nav-search")?.addEventListener("input", (e) => {
+      app.showModal(app.t("Site Navigation"), `<input class="lb-modal-search" id="lb-nav-search" placeholder="${app.t("Search pages and posts\u2026")}"><div class="lb-library-list">${items.map((i) => `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type)} \u00B7 ${app.esc(i.status)}</span><button class="lb-btn" data-nav-id="${i.id}">${app.t("Open")}</button></div>`).join("")}</div>`, () => app.$("#lb-nav-search")?.addEventListener("input", (e) => {
         app.$$(".lb-library-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
       }));
     };
@@ -4142,7 +4162,7 @@
       const button = document.getElementById("lb-create-page");
       if (button) {
         button.disabled = true;
-        button.textContent = app.t("Creating\xE2\u20AC\xA6");
+        button.textContent = app.t("Creating\u2026");
       }
       try {
         const r = await fetch(`${app.D.api}/pages`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ title }) });
@@ -4334,8 +4354,8 @@
         ["exit", app.t("Exit to WordPress Dashboard"), app.t("Return to the WordPress dashboard.")]
       ];
       const html = `<div class="lb-main-menu" role="menu" aria-label="${app.t("Canvasly menu")}">
-   <div class="lb-main-menu-head"><strong>Canvasly</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">\xC3\u2014</button></div>
-   ${items.map((it, i) => `<button type="button" class="lb-main-menu-item ${it[0] === "exit" ? "is-exit" : ""}" data-main-menu="${it[0]}" role="menuitem"><span class="lb-menu-mark lb-menu-${it[0]}" aria-hidden="true">${i === 0 ? "\xE2\u0161\u2122" : i === 1 ? "\xE2\u2013\xA4" : i === 2 ? "\xE2\u2013\xA2" : i === 3 ? "\xE2\u2014\u2030" : i === 4 ? "\xE2\u0152\xA8" : i === 5 ? "?" : i === 6 ? "\xE2\u2014\u017D" : "\xE2\u2020\xAA"}</span><span><b>${app.esc(it[1])}</b><small>${app.esc(it[2])}</small></span></button>`).join("")}
+   <div class="lb-main-menu-head"><strong>Canvasly</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">\u00D7</button></div>
+   ${items.map((it, i) => `<button type="button" class="lb-main-menu-item ${it[0] === "exit" ? "is-exit" : ""}" data-main-menu="${it[0]}" role="menuitem"><span class="lb-menu-mark lb-menu-${it[0]}" aria-hidden="true">${i === 0 ? "\u2699" : i === 1 ? "\u25A4" : i === 2 ? "\u25A2" : i === 3 ? "\u25C9" : i === 4 ? "\u2328" : i === 5 ? "?" : i === 6 ? "\u25CE" : "\u21AA"}</span><span><b>${app.esc(it[1])}</b><small>${app.esc(it[2])}</small></span></button>`).join("")}
  </div>`;
       app.root.insertAdjacentHTML("beforeend", html);
       app.root.querySelector("[data-menu-close]").onclick = app.closeMainMenu;
@@ -4357,7 +4377,7 @@
         return;
       }
       if (action === "notes") {
-        app.showMenuDialog(app.t("Notes"), '<label class="lb-control"><span>Page notes</span><textarea id="lb-page-notes" rows="8" placeholder="' + app.t("Add private notes for this page\xE2\u20AC\xA6") + '">' + app.esc(app.state.settings?.notes || "") + '</textarea></label><button type="button" class="lb-btn primary" id="lb-save-notes">' + app.t("Save Notes") + "</button>");
+        app.showMenuDialog(app.t("Notes"), '<label class="lb-control"><span>Page notes</span><textarea id="lb-page-notes" rows="8" placeholder="' + app.t("Add private notes for this page\u2026") + '">' + app.esc(app.state.settings?.notes || "") + '</textarea></label><button type="button" class="lb-btn primary" id="lb-save-notes">' + app.t("Save Notes") + "</button>");
         app.$("#lb-save-notes")?.addEventListener("click", () => {
           app.state.settings = app.state.settings || {};
           app.state.settings.notes = app.$("#lb-page-notes")?.value || "";
@@ -4441,7 +4461,7 @@
       app.closeContextMenu();
       if (app.lbPaintCanvas()) return;
       const both = app.leftHidden && app.rightHidden;
-      app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Canvasly</span><small>Core 0.12.88</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">\xE2\u2020\xB6</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">\xE2\u2020\xB7</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftHidden ? 0 : app.leftWidth}px;--lb-right-width:${app.rightHidden ? 0 : app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "\u203A" : "\u2039"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units\xE2\u20AC\xA6")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">\xC3\u2014</button></div><div class="lb-categories">${app.unitCategories().map((c) => `<button data-cat="${c}" class="${app.category === c ? "active" : ""}">${app.unitCategoryLabel(c)}</button>`).join("")}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Canvasly isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "\u2039" : "\u203A"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
+      app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">\u21B6</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">\u21B7</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftHidden ? 0 : app.leftWidth}px;--lb-right-width:${app.rightHidden ? 0 : app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "\u203A" : "\u2039"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units\u2026")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">\u00D7</button></div><div class="lb-categories">${app.unitCategories().map((c) => `<button data-cat="${c}" class="${app.category === c ? "active" : ""}">${app.unitCategoryLabel(c)}</button>`).join("")}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Canvasly isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "\u2039" : "\u203A"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
       app.bind();
       const frame = document.getElementById("lb-editor-frame");
       if (frame) {
@@ -4979,7 +4999,7 @@
       const raw = String(app.resp(v) ?? "").trim();
       const p = unitless ? { size: raw === "" ? "" : String(parseFloat(raw)), unit: "" } : app.lbParseSize(v);
       const unit = unitless ? "" : units.includes(p.unit) ? p.unit : units[0], size = p.size;
-      const smax = unit === "%" ? 100 : max, sval = size === "" ? min : Math.max(min, Math.min(smax, parseFloat(size) || min));
+      const smax = unit === "%" ? 100 : max, snum = parseFloat(size), srest = min <= 0 && smax >= 0 ? 0 : min, sval = size === "" || !Number.isFinite(snum) ? srest : Math.max(min, Math.min(smax, snum));
       const unitSel = unitless ? "" : `<select class="lb-slider-unit">${units.map((u) => `<option value="${app.esc(u)}" ${u === unit ? "selected" : ""}>${app.esc(u)}</option>`).join("")}</select>`;
       return `<div class="lb-control lb-slider${unitless ? " lb-slider-unitless" : ""}" data-slider-key="${app.esc(k)}" data-slider-max="${max}" data-slider-unitless="${unitless ? "1" : "0"}"><span>${app.esc(label)}</span><div class="lb-slider-row"><input class="lb-slider-range" type="range" min="${min}" max="${smax}" step="${step}" value="${app.esc(sval)}" ${unit === "auto" ? "disabled" : ""}><input class="lb-slider-num" type="number" size="5" min="${min}" max="${smax}" step="${step}" value="${app.esc(size)}" placeholder="\u2014" ${unit === "auto" ? "disabled" : ""}>${unitSel}</div></div>`;
     };
@@ -5320,7 +5340,7 @@
       }
       put("border-width", app.formatBox(app.resp(s.border_width)));
       put("border-style", s.border_style);
-      put("border-color", s.border_color);
+      put("border-color", s.border_color || (n.type !== "button" && ["solid", "dashed", "dotted", "double", "groove", "ridge", "inset", "outset"].indexOf(s.border_style) !== -1 ? "#ffffff" : ""));
       put("border-radius", app.formatBox(app.resp(s.border_radius)) || s.radius);
       if (s.shadow && typeof s.shadow === "object") {
         const sh = s.shadow;
@@ -7557,9 +7577,51 @@
           h.style.height = Math.round(L.height) + "px";
         });
       }
+      // Edge grab strips straddle the border, so their inner half sits on top of the
+      // unit's content (a child widget, a menu link, an open dropdown). That blocked
+      // :hover there. While the pointer is over such content, let it fall through;
+      // the outer half of the strip and the corner squares still resize.
+      function lb123BindHandlePassThrough(fd) {
+        if (!fd || fd.__lb123PassThrough) return;
+        fd.__lb123PassThrough = true;
+        const INTERACTIVE = "a,button,input,select,textarea,summary,label,[role=button],[tabindex]:not(.lb-node)";
+        fd.addEventListener("pointermove", (e) => {
+          if (fd.body && fd.body.classList.contains("lb123-resizing")) return;
+          const strips = fd.querySelectorAll(".lb123-box-handle.n,.lb123-box-handle.s,.lb123-box-handle.e,.lb123-box-handle.w");
+          if (!strips.length) return;
+          const x = e.clientX, y = e.clientY;
+          let under = null, looked = false;
+          strips.forEach((h) => {
+            if (h.classList.contains("is-dragging")) return;
+            const r = h.getBoundingClientRect();
+            const inside = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+            let pass = false;
+            if (inside) {
+              if (!looked) {
+                looked = true;
+                const stack = typeof fd.elementsFromPoint === "function" ? fd.elementsFromPoint(x, y) : [];
+                under = stack.find((el) => !el.closest("#lb123-handle-layer")) || null;
+              }
+              const sel = fd.querySelector(".lb-node.lb123-resize-active");
+              if (under && sel && sel.contains(under) && under !== sel) {
+                const child = under.closest(".lb-node");
+                pass = !!(child && child !== sel) || !!under.closest(INTERACTIVE);
+              }
+            }
+            if (pass && !h.__lbPass) {
+              h.style.setProperty("pointer-events", "none", "important");
+              h.__lbPass = true;
+            } else if (!pass && h.__lbPass) {
+              h.style.removeProperty("pointer-events");
+              h.__lbPass = false;
+            }
+          });
+        }, true);
+      }
       function lb123AddBoxHandles(fd, node) {
         if (!node) return;
         lb123ResizeCSS(fd);
+        lb123BindHandlePassThrough(fd);
         node.classList.add("lb123-resize-active");
         const layer = lb123HandleLayer(fd) || fd.body;
         const titles = { n: "Resize top", s: "Resize bottom", e: "Resize right", w: "Resize left", nw: "Resize top-left", ne: "Resize top-right", sw: "Resize bottom-left", se: "Resize bottom-right" };
@@ -10089,7 +10151,7 @@
         if (app.applyCanvasWidth) app.applyCanvasWidth();
         return;
       }
-      top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Canvasly</span><small>Core 0.12.88</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">\u21B6</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">\u21B7</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">\u2637</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">\u22EE</button></div>`;
+      top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">\u21B6</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">\u21B7</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">\u2637</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">\u22EE</button></div>`;
       app.$("#lb-main-menu-button").onclick = (e) => {
         e.stopPropagation();
         app.openMainMenu();
@@ -10789,6 +10851,7 @@
           if (n.type === "testimonial" && !Array.isArray(s.items) && (s.quote || s.author || s.image_id)) {
             s.items = [{ _id: "r_" + Math.random().toString(36).slice(2, 10), quote: s.quote || "", author: s.author || "", role: s.role || "", image_id: s.image_id || 0, image_url: s.image_url || "", link: s.link || "", link_target: s.link_target || "_self" }];
           }
+          if (n.type === "carousel" && typeof s.link === "string" && /^https?:\/\/(none|file|custom)\/?$/i.test(s.link)) s.link = s.link.replace(/^https?:\/\/|\/$/gi, "").toLowerCase();
           if (n.type === "carousel" && !Array.isArray(s.slides)) {
             const ids = String(s.ids || "").split(/[,\s]+/).filter(Boolean), urls = String(s.custom_urls || "").split(/\r?\n/);
             s.slides = ids.map((id, i) => ({ _id: "r_sl" + i, image_id: parseInt(id, 10) || 0, caption: "", link: String(urls[i] || "").trim(), alt: "" }));
@@ -10937,14 +11000,21 @@
             const ready = rows2.filter((x) => x && (x.image_id || x.image_url));
             if (!ready.length) return '<div class="lb-carousel-placeholder">' + app.t("Choose images for the carousel") + "</div>";
             const show = Math.max(1, Math.min(10, parseInt(s.slides_to_show, 10) || 1)), effect = s.effect === "fade" && show === 1 ? "fade" : "slide", dir = s.slide_direction === "rtl" ? "rtl" : "ltr", capAlign = pick(s.caption_align, LCR, "center"), nav = pick(s.navigation, ["both", "arrows", "dots", "none"], "both");
+            let anyCap = false;
             const slides = ready.map((row, i) => {
-              const id = row.image_id, file = row.image_url || "", video = /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i.test(String(file)), cap = row.caption || (s.caption && s.caption !== "none" && id ? captionOf(id, s.caption) : ""), media = video ? `<video class="lb-carousel-video" src="${app.esc(file)}" controls playsinline muted></video>` : id ? attImg(id, s.image_size || "large", "", "") : file ? `<img src="${app.esc(file)}" alt="">` : "";
+              const id = row.image_id, file = row.image_url || "", video = /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i.test(String(file)), cap = row.caption || (s.caption && s.caption !== "none" && id ? captionOf(id, s.caption) : "");
+              let media = video ? `<video class="lb-carousel-video" src="${app.esc(file)}" controls playsinline muted></video>` : id ? attImg(id, s.image_size || "large", "", row.alt || "") : file ? `<img src="${app.esc(file)}" alt="${app.esc(row.alt || "")}">` : "";
+              if (cap) anyCap = true;
+              if (id && file && !video && media.indexOf("lb28-att-loading") >= 0) media = media.replace(/src="[^"]*"/, `src="${app.esc(file)}"`);
               return `<figure class="lb-carousel-slide${effect === "fade" && i === 0 ? " is-active" : ""}" role="group">${media}${cap ? `<figcaption class="lb-carousel-caption">${app.esc(cap)}</figcaption>` : ""}</figure>`;
             }).join("");
-            const arrows = ["both", "arrows"].includes(nav) ? '<button type="button" class="lb-carousel-prev" tabindex="-1">\u2039</button><button type="button" class="lb-carousel-next" tabindex="-1">\u203A</button>' : "";
-            const pages = Math.max(1, Math.ceil((ready.length - show) / Math.max(1, parseInt(s.slides_to_scroll, 10) || 1)) + 1);
+            const arrows = ["both", "arrows"].includes(nav) ? '<button type="button" class="lb-carousel-prev" tabindex="-1" aria-label="${app.esc(app.t("Previous slide"))}">${dir === "rtl" ? "\u203A" : "\u2039"}</button><button type="button" class="lb-carousel-next" tabindex="-1" aria-label="${app.esc(app.t("Next slide"))}">${dir === "rtl" ? "\u2039" : "\u203A"}</button>' : "";
+            const scroll = Math.max(1, Math.min(show, parseInt(s.slides_to_scroll, 10) || 1));
+            const pages = Math.max(1, Math.ceil((ready.length - show) / scroll) + 1);
+            const on = (v, d) => v === void 0 || v === null || v === "" ? d : !(v === false || v === 0 || v === "0" || v === "false");
+            const dataAttrs = ` data-lb-carousel data-show="${show}" data-scroll="${scroll}" data-effect="${effect}" data-direction="${dir}" data-autoplay="${on(s.autoplay, true) ? 1 : 0}" data-interval="${Math.max(500, parseInt(s.interval, 10) || 5e3)}" data-loop="${on(s.loop, true) ? 1 : 0}" data-arrows="${["both", "arrows"].includes(nav) ? 1 : 0}" data-dots="${["both", "dots"].includes(nav) ? 1 : 0}" data-pause-hover="${on(s.pause_on_hover, true) ? 1 : 0}" data-pause-interaction="${on(s.pause_on_interaction, true) ? 1 : 0}"`;
             const dots = ["both", "dots"].includes(nav) && pages > 1 ? `<div class="lb-carousel-dots">${Array.from({ length: pages }, (_, i) => `<button type="button" tabindex="-1" class="${i === 0 ? "is-active" : ""}"></button>`).join("")}</div>` : "";
-            return `<div class="lb-carousel lb-carousel-${effect} lb-carousel-${dir}${s.image_stretch ? " lb-carousel-stretch" : ""} lb-carousel-caption-${capAlign}" dir="${dir}"${styleAttr({ "--lb-carousel-show": show, "--lb-carousel-spacing": unit(s.image_spacing), "--lb-carousel-radius": unit(s.image_radius), "--lb-carousel-height": unit(val(s.height)), "--lb-carousel-arrow-size": unit(s.arrows_size), "--lb-carousel-arrow-color": s.arrows_color || "", "--lb-carousel-dot-size": unit(s.dots_size), "--lb-carousel-dot-color": s.dots_color || "", "--lb-carousel-caption-color": s.caption_color || "" })}><div class="lb-carousel-track">${slides}</div>${arrows}${dots}</div>`;
+            return `<div class="lb-carousel lb-carousel-effect-${effect}${effect === "fade" ? " lb-carousel-fade" : ""} lb-carousel-${dir}${s.image_stretch ? " lb-carousel-stretch" : ""}${anyCap ? " lb-carousel-has-caption" : ""} lb-carousel-caption-${capAlign}" dir="${dir}"${dataAttrs}${styleAttr({ "--lb-carousel-show": show, "--lb-carousel-speed": Math.max(0, parseInt(s.speed, 10) || 500) + "ms", "--lb-carousel-spacing": unit(s.image_spacing), "--lb-carousel-radius": unit(s.image_radius), "--lb-carousel-height": unit(val(s.height)), "--lb-carousel-arrow-size": unit(s.arrows_size), "--lb-carousel-arrow-color": s.arrows_color || "", "--lb-carousel-dot-size": unit(s.dots_size), "--lb-carousel-dot-color": s.dots_color || "", "--lb-carousel-caption-color": s.caption_color || "" })}><div class="lb-carousel-track">${slides}</div>${arrows}${dots}</div>`;
           }
           case "soundcloud": {
             if (!s.url) return '<div class="lb-embed-placeholder">Add a SoundCloud track or playlist URL</div>';
@@ -11086,7 +11156,7 @@
         const device = app.device || "desktop";
         const previewOpen = layout === "dropdown" || device === "mobile" || device === "mobile_extra";
         const radius = navRadius(s.radius);
-        const vars2 = ["--lb-nav-color:" + (s.color || ""), "--lb-nav-hover:" + (s.hover_color || ""), "--lb-nav-bg:" + (s.background || ""), "--lb-nav-radius:" + radius].filter((bit) => !bit.endsWith(":"));
+        const vars2 = ["--lb-nav-color:" + (s.color || ""), "--lb-nav-hover:" + (s.hover_color || ""), "--lb-nav-bg:" + (s.background || ""),"--lb-nav-btn-color:" + (s.button_color || ""), "--lb-nav-btn-border:" + (s.button_border_color || ""), "--lb-nav-btn-hover-color:" + (s.button_hover_color || ""), "--lb-nav-btn-hover-bg:" + (s.button_hover_background || ""), "--lb-nav-btn-hover-border:" + (s.button_hover_border || ""),  "--lb-nav-radius:" + radius].filter((bit) => !bit.endsWith(":"));
         const style2 = vars2.length ? ` style="${vars2.map((bit) => app.esc(bit)).join(";")}"` : "";
         const inner = `<button type="button" class="lb-site-nav__toggle" aria-expanded="${previewOpen ? "true" : "false"}" aria-controls="lb-site-nav-preview" tabindex="-1"><span class="lb-site-nav__burger" aria-hidden="true"></span><span class="lb-site-nav__toggle-text">${app.esc(toggle)}</span><span class="lb-site-nav__caret" aria-hidden="true">\u25BE</span></button>${list}`;
         const body = layout === "dropdown" ? `<div class="lb-site-nav__drop">${inner}</div>` : inner;
@@ -12095,7 +12165,7 @@
         shortcode: { content: [["Shortcode", ["shortcode"]]] },
         code: { content: [["Code", ["code", "language"]]] },
         menu_anchor: { content: [["Menu Anchor", ["menu", "anchor"]]] },
-        site_nav: { content: [["Site Menu", ["menu", "display_name", "layout", "breakpoint"]]], style: [["Site Menu", ["color", "hover_color", "background", "radius"]]] },
+        site_nav: { content: [["Site Menu", ["menu", "display_name", "layout", "breakpoint"]]], style: [["Site Menu", ["color", "hover_color", "background", "radius"]], ["Menu Button", ["button_color", "button_border_color", "button_hover_color", "button_hover_background", "button_hover_border"]]] },
         read_more: { content: [["Read More", ["text", "url", "target"]]] },
         sidebar: { content: [["Sidebar", ["sidebar"]]] },
         wordpress: { content: [["WordPress Widget", ["widget", "title", "widget_options", "sidebar"]]] },
@@ -12948,7 +13018,12 @@
     (function() {
       const CSS2 = `
 .lb-site-nav{position:relative;max-width:100%;background:transparent;color:var(--lb-nav-color,inherit)}
-.lb-site-nav a:hover,.lb-site-nav a:focus-visible{color:var(--lb-nav-hover,inherit)}
+.lb-site-nav a:hover,.lb-site-nav a:focus-visible,.lb-site-nav__item--current>a{color:var(--lb-nav-hover,inherit)}
+.lb-site-nav__toggle:hover,.lb-site-nav__toggle:focus-visible{color:var(--lb-nav-hover,inherit)}
+.lb-site-nav .lb-site-nav__toggle.lb-site-nav__toggle,.lb-site-nav .lb-site-nav__toggle.lb-site-nav__toggle:focus,.lb-site-nav .lb-site-nav__toggle.lb-site-nav__toggle:active{background-color:var(--lb-nav-bg,transparent);background-image:none;border-color:var(--lb-nav-btn-border,currentColor);color:var(--lb-nav-btn-color,currentColor);box-shadow:none}
+.lb-site-nav .lb-site-nav__toggle.lb-site-nav__toggle:hover,.lb-site-nav .lb-site-nav__toggle.lb-site-nav__toggle:focus-visible{background-color:var(--lb-nav-btn-hover-bg,var(--lb-nav-bg,transparent));background-image:none;border-color:var(--lb-nav-btn-hover-border,currentColor);color:var(--lb-nav-btn-hover-color,var(--lb-nav-hover,currentColor))}
+.lb-heading-wrap[style*="--lb-heading-hover"]:hover>*,.lb-heading-wrap[style*="--lb-heading-hover"]:hover a{color:var(--lb-heading-hover)!important}
+.lb-text-wrap[style*="--lb-text-hover"]:hover .lb-text-content{color:var(--lb-text-hover)!important}
 .lb-site-nav__list,.lb-site-nav__sub{list-style:none;margin:0;padding:0}
 .lb-site-nav--horizontal>.lb-site-nav__list{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem 1rem}
 .lb-site-nav--vertical>.lb-site-nav__list{display:flex;flex-direction:column;align-items:stretch}
@@ -12958,7 +13033,7 @@
 .lb-site-nav--dropdown{display:inline-block;align-self:flex-start;width:fit-content!important;max-width:100%;height:fit-content;vertical-align:top;background:transparent}
 .lb-site-nav__drop{position:relative;display:inline-block;width:max-content;max-width:100%;vertical-align:top}
 .lb-site-nav--dropdown:not(.is-open)>.lb-site-nav__list,.lb-site-nav--dropdown:not(.is-open)>.lb-site-nav__drop>.lb-site-nav__list{display:none}
-.lb-site-nav--dropdown.is-open>.lb-site-nav__list,.lb-site-nav--dropdown.is-open>.lb-site-nav__drop>.lb-site-nav__list{display:flex!important;flex-direction:column;position:absolute!important;z-index:30;top:100%;left:0;width:auto!important;min-width:14rem;margin:.35rem 0 0!important;padding:.35rem 0;list-style:none!important;background:#fff;color:#1d2327;border:1px solid #dcdcde;border-radius:var(--lb-nav-radius,4px);overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.lb-site-nav--dropdown.is-open>.lb-site-nav__list,.lb-site-nav--dropdown.is-open>.lb-site-nav__drop>.lb-site-nav__list{display:flex!important;flex-direction:column;position:absolute!important;z-index:30;top:100%;left:0;width:auto!important;min-width:14rem;margin:.35rem 0 0!important;padding:.35rem 0;list-style:none!important;background:#fff;color:var(--lb-nav-color,#1d2327);border:1px solid #dcdcde;border-radius:var(--lb-nav-radius,4px);overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .lb-site-nav--dropdown.is-open .lb-site-nav__sub{display:block;position:static;padding-left:.75rem}
 .lb-node-site_nav,.lb-node-nav_menu,.lb-node-post_navigation{overflow:visible!important;height:auto!important;max-height:none!important}
 .lb-node-site_nav>.lb-site-nav--dropdown{width:auto!important;flex:0 0 auto!important}
@@ -14295,7 +14370,7 @@
         collectVars(vars, tag, item);
       });
       const link = d.typography.link || {};
-      const linkSel = sel2(" a:not(.lb-button):not(.lb-tab-button)");
+      const linkSel = sel2(" a:not(.lb-button):not(.lb-tab-button):not(:where(.lb-flip-button)):not(:where(.lb-social-item)):not(:where(.lb-icon-glyph)):not(:where(.lb-heading-link)):not(:where(.lb-site-nav a)):not(:where(.lb-icon-box-title a)):not(:where(.lb-image-box-title a)):not(:where(.lb-icon-list-item>a)):not(:where(.lb-testimonial-name a)):not(:where(.lb-anchor-menu a))");
       out += rule(linkSel, typoDecls(link));
       const linkHover = [];
       const hc = cssVal(link.hover_color);
@@ -15443,7 +15518,11 @@
     app.lbCompileTransform = function lbCompileTransform(v) {
       if (!v || typeof v !== "object") return typeof v === "string" ? v : "";
       const parts = [];
-      if (v.translate_x || v.translate_y) parts.push("translate(" + (v.translate_x || "0") + ", " + (v.translate_y || "0") + ")");
+      const len = (x) => {
+        const t3 = String(x == null ? "" : x).trim();
+        return t3 === "" ? "0" : /^-?\d*\.?\d+$/.test(t3) ? t3 + "px" : t3;
+      };
+      if (v.translate_x || v.translate_y) parts.push("translate(" + len(v.translate_x) + ", " + len(v.translate_y) + ")");
       if (v.rotate && parseFloat(v.rotate)) parts.push("rotate(" + v.rotate + (String(v.rotate).match(/deg/i) ? "" : "deg") + ")");
       if (v.scale_x !== "" && v.scale_x != null && Number(v.scale_x) !== 1 || v.scale_y !== "" && v.scale_y != null && Number(v.scale_y) !== 1) parts.push("scale(" + (v.scale_x || "1") + ", " + (v.scale_y || "1") + ")");
       if (v.skew_x && parseFloat(v.skew_x)) parts.push("skewX(" + v.skew_x + (String(v.skew_x).match(/deg/i) ? "" : "deg") + ")");
@@ -16694,6 +16773,7 @@
     if (node.type === "testimonial" && !Array.isArray(s.items) && (s.quote || s.author || s.image_id)) {
       s.items = [{ _id: "r_" + Math.random().toString(36).slice(2, 10), quote: s.quote || "", author: s.author || "", role: s.role || "", image_id: s.image_id || 0, image_url: s.image_url || "", link: s.link || "", link_target: s.link_target || "_self" }];
     }
+    if (node.type === "carousel" && typeof s.link === "string" && /^https?:\/\/(none|file|custom)\/?$/i.test(s.link)) s.link = s.link.replace(/^https?:\/\/|\/$/gi, "").toLowerCase();
     if (node.type === "carousel" && !Array.isArray(s.slides)) {
       const ids = String(s.ids || "").split(/[,\s]+/).filter(Boolean);
       const urls = String(s.custom_urls || "").split(/\r?\n/);
@@ -19268,6 +19348,17 @@
       if (def && def.map && Object.prototype.hasOwnProperty.call(def.map, str)) css = String(def.map[str]);
       return { VALUE: css, RAW: str, SIZE: size, UNIT: unit };
     }
+    // The canvas renders many units with inline style="color:..;background:.." on the inner
+    // element (button link, heading tag, text box). Inline styles beat any :hover rule in a
+    // stylesheet, so Hover colors never showed in the editor. Mark hover/focus declarations
+    // !important here (canvas only; the front end has no inline colors to fight).
+    function hoverImportant(rule) {
+      return rule.split(";").map(function(d) {
+        const t = d.trim();
+        if (!t || t.indexOf(":") < 1 || /^--/.test(t) || /!important\s*$/i.test(t)) return t;
+        return t + " !important";
+      }).filter(Boolean).join(";") + ";";
+    }
     function rules(def, raw, wrapper) {
       const tok = tokens(def, current(def, raw));
       if (!tok.VALUE && !tok.SIZE && !tok.RAW) return "";
@@ -19281,6 +19372,7 @@
         let rule = decl.replace(/\{\{VALUE\}\}/g, cssSafe(value)).replace(/\{\{RAW\}\}/g, cssSafe(tok.RAW)).replace(/\{\{SIZE\}\}/g, cssSafe(tok.SIZE)).replace(/\{\{UNIT\}\}/g, cssSafe(tok.UNIT)).trim();
         if (!rule) return;
         if (rule.slice(-1) !== ";") rule += ";";
+        if (/:(hover|focus|focus-visible|focus-within)\b/.test(sel2)) rule = hoverImportant(rule);
         out += sel2 + "{" + rule + "}";
       });
       return out;
@@ -19306,8 +19398,17 @@
       if (!selectorKeys.has("border_width") && s.border_style) put("border-width", boxOf(s.border_width));
       if (!selectorKeys.has("border_style") && s.border_style) put("border-style", s.border_style);
       if (!selectorKeys.has("border_color") && s.border_color) put("border-color", s.border_color);
+      else if (!selectorKeys.has("border_color") && node.type !== "button" && ["solid", "dashed", "dotted", "double", "groove", "ridge", "inset", "outset"].indexOf(s.border_style) !== -1) put("border-color", "#ffffff");
       if (!selectorKeys.has("border_radius")) put("border-radius", boxOf(s.border_radius));
       if (!selectorKeys.has("opacity") && s.opacity != null && s.opacity !== "") put("opacity", String(app.resp(s.opacity)));
+      if (!selectorKeys.has("filter") && s.filter) put("filter", typeof app.lbCompileFilter === "function" ? app.lbCompileFilter(s.filter) : typeof s.filter === "string" ? s.filter : "");
+      if (!selectorKeys.has("transform") && s.transform) {
+        const tv = typeof app.lbCompileTransform === "function" ? app.lbCompileTransform(s.transform) : typeof s.transform === "string" ? s.transform : "";
+        put("transform", tv);
+        if (tv && typeof s.transform === "object" && s.transform.origin) put("transform-origin", s.transform.origin);
+      }
+      if (!selectorKeys.has("transition") && s.transition) put("transition", typeof app.lbCompileTransition === "function" ? app.lbCompileTransition(s.transition) : typeof s.transition === "string" ? s.transition : "");
+      if (!selectorKeys.has("mix_blend_mode") && s.mix_blend_mode) put("mix-blend-mode", s.mix_blend_mode);
       if (!selectorKeys.has("shadow")) put("box-shadow", shadowOf(s.shadow || s.box_shadow));
       if (!selectorKeys.has("background") && s.background && typeof app.lbCompileBackground === "function") {
         const compiled = app.lbCompileBackground(s.background, s) || {};
@@ -19371,6 +19472,18 @@
       const css = app.lbSchemaCanvasCss();
       if (style.textContent !== css) style.textContent = css;
     };
+    const EFFECT_PROPS = /^(opacity|transform|transform-origin|filter|mix-blend-mode|transition)$/i;
+    const prevStyleInline = app.styleInline;
+    if (typeof prevStyleInline === "function" && !prevStyleInline.__lbEffectsOnWrapper) {
+      app.styleInline = function styleInlineEffectsOnWrapper(n) {
+        const css = prevStyleInline.apply(this, arguments);
+        if (!css) return css;
+        return String(css).split(";").filter(function(d) {
+          return !EFFECT_PROPS.test(d.split(":")[0].trim());
+        }).join(";");
+      };
+      app.styleInline.__lbEffectsOnWrapper = true;
+    }
     const prevPaint = app.lbPaintCanvas;
     if (typeof prevPaint === "function") {
       app.lbPaintCanvas = function lbPaintCanvasWithSchema() {
@@ -19397,8 +19510,279 @@
     }
   }
 
+  // Effects sections: "Reset to Default" button in every widget's settings panel.
+  // Wraps app.lb09Section (the single source of <details class="lb-control-section">),
+  // so it covers schema units, legacy units, containers and grids alike.
+  function installEffectsReset() {
+    if (app.__lbEffectsReset) return;
+    app.__lbEffectsReset = true;
+    const TITLES = ["Effects", "Motion Effects", "Layout & Effects", "Border & Effects", "Transform"];
+    const isEffectsTitle = (title) => {
+      const t = String(title || "").trim();
+      if (!t) return false;
+      if (/effects/i.test(t)) return true;
+      return TITLES.some((x) => t === x || t === app.t(x));
+    };
+    const clone = (v) => v === void 0 ? void 0 : JSON.parse(JSON.stringify(v));
+    const same = (a, b) => JSON.stringify(a === void 0 ? null : a) === JSON.stringify(b === void 0 ? null : b);
+    const findNode = (id) => {
+      if (!id || !app.state) return null;
+      const roots = [app.state.root, app.state.header, app.state.footer];
+      for (const root of roots) {
+        if (!root) continue;
+        const r = app.locate(root, id);
+        if (r && r.node) return r.node;
+      }
+      return null;
+    };
+    const defaultsFor = (type) => {
+      try {
+        return typeof app.defaults === "function" ? app.defaults(type) || {} : {};
+      } catch (e) {
+        return {};
+      }
+    };
+    const keysIn = (body) => {
+      const out = [];
+      String(body || "").replace(/data-setting="([^"]+)"/g, (_m, k) => {
+        const root = String(k).split(".")[0];
+        if (root && out.indexOf(root) < 0) out.push(root);
+        return _m;
+      });
+      return out;
+    };
+    const isChanged = (node, keys) => {
+      if (!node) return true;
+      const s = node.settings || {}, d = defaultsFor(node.type);
+      return keys.some((k) => s[k] !== void 0 && s[k] !== "" && !same(s[k], d[k]));
+    };
+    const wouldReset = (node, keys) => {
+      if (!node) return false;
+      const s = node.settings || {}, d = defaultsFor(node.type);
+      return keys.some((k) => {
+        const has = Object.prototype.hasOwnProperty.call(d, k);
+        if (has) return !same(s[k], d[k]);
+        return Object.prototype.hasOwnProperty.call(s, k);
+      });
+    };
+    const keysOf = (btn) => String(btn.getAttribute("data-lb-reset-keys") || "").split(",").filter(Boolean);
+    const prevSection = app.lb09Section;
+    if (typeof prevSection !== "function") return;
+    app.lb09Section = function lb09SectionWithReset(title, body, open) {
+      const html = prevSection.apply(this, arguments);
+      if (!isEffectsTitle(title) || !app.selected) return html;
+      const keys = keysIn(body);
+      if (!keys.length) return html;
+      const node = findNode(app.selected);
+      const changed = isChanged(node, keys);
+      const label = app.t("Reset to Default");
+      const btn = `<button type="button" class="lb-section-reset-btn${changed ? "" : " is-default"}" data-lb-reset-keys="${app.esc(keys.join(","))}" title="${app.esc(label)}" aria-label="${app.esc(label + ": " + title)}"><span aria-hidden="true">↺</span> ${app.esc(label)}</button>`;
+      return html.replace(/(<summary[^>]*>)([\s\S]*?)(<\/summary>)/, (_m, a, b, c) => a + b + btn + c);
+    };
+    app.lbRefreshResetButtons = function lbRefreshResetButtons() {
+      const root = app.root || document;
+      const btns = root.querySelectorAll ? root.querySelectorAll(".lb-section-reset-btn") : [];
+      if (!btns.length) return;
+      const node = findNode(app.selected);
+      btns.forEach((btn) => {
+        btn.disabled = false;
+        btn.removeAttribute("disabled");
+        btn.classList.toggle("is-default", !isChanged(node, keysOf(btn)));
+      });
+    };
+    app.lbResetSection = function lbResetSection(keys, id) {
+      const target = id || app.selected;
+      const node = findNode(target);
+      if (!node || !keys || !keys.length) return false;
+      node.settings = node.settings || {};
+      if (!wouldReset(node, keys)) {
+        app.lbRefreshResetButtons();
+        return false;
+      }
+      const d = defaultsFor(node.type);
+      app.commit(app.t("Reset to Default"), target);
+      keys.forEach((k) => {
+        if (Object.prototype.hasOwnProperty.call(d, k)) node.settings[k] = clone(d[k]);
+        else delete node.settings[k];
+      });
+      app.dirty = true;
+      if (typeof app.scheduleSave === "function") app.scheduleSave();
+      app.selected = target;
+      app.render();
+      return true;
+    };
+    const onClick = (e) => {
+      const btn = e.target && e.target.closest ? e.target.closest(".lb-section-reset-btn") : null;
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const keys = keysOf(btn);
+      const sec = btn.closest("details.lb-control-section");
+      const title = sec && sec.querySelector(":scope > summary") ? sec.querySelector(":scope > summary").firstChild : null;
+      const titleText = title && title.nodeType === 3 ? title.textContent.trim() : "";
+      if (app.lbResetSection(keys)) {
+        const root = app.root || document;
+        root.querySelectorAll("details.lb-control-section > summary").forEach((s) => {
+          const t = s.firstChild && s.firstChild.nodeType === 3 ? s.firstChild.textContent.trim() : "";
+          if (titleText && t === titleText && s.querySelector(".lb-section-reset-btn")) s.parentElement.open = true;
+        });
+      }
+      app.lbRefreshResetButtons();
+    };
+    document.addEventListener("click", onClick, true);
+    let pending = 0;
+    const onEdit = () => {
+      if (pending) return;
+      pending = setTimeout(() => {
+        pending = 0;
+        app.lbRefreshResetButtons();
+      }, 0);
+    };
+    document.addEventListener("input", onEdit, false);
+    document.addEventListener("change", onEdit, false);
+    document.addEventListener("pointerup", onEdit, false);
+    const css = document.createElement("style");
+    css.id = "lb-section-reset-css";
+    css.textContent = ".lb-control-section>summary{display:flex;align-items:center;gap:8px}.lb-section-reset-btn{margin-inline-start:auto;display:inline-flex;align-items:center;gap:4px;border:1px solid #d6dae0;background:#fff;color:#3a4048;border-radius:5px;padding:2px 7px;font:600 10.5px/1.6 inherit;cursor:pointer;white-space:nowrap}.lb-section-reset-btn:hover{border-color:#e2498a;color:#e2498a}.lb-section-reset-btn.is-default{opacity:.6}.lb-section-reset-btn.is-default:hover{opacity:1}.lb-section-reset-btn span{font-size:12px}.lb-control-section>summary .lb-globals-btn+.lb-section-reset-btn{margin-inline-start:0}";
+    if (!document.getElementById(css.id)) document.head.appendChild(css);
+  }
+
   // src/editor/index.js
   installHooks();
+  // Image Carousel: live canvas preview. Mirrors assets/js/frontend.js so the canvas is
+  // WYSIWYG: arrows, dots, autoplay, slide/fade effect, speed, loop and RTL all work here.
+  function installImageCarouselPreview() {
+    const memory = app.lbCarouselMemory || (app.lbCarouselMemory = {});
+    const int = (v, min, max, d) => {
+      const n = parseInt(v, 10);
+      return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : d;
+    };
+    function controller(c) {
+      const node = c.closest(".lb-node");
+      const id = node && node.dataset.id || "";
+      const win = c.ownerDocument.defaultView;
+      const track = c.querySelector(".lb-carousel-track");
+      const slides = track ? Array.from(track.children).filter((el) => el.classList.contains("lb-carousel-slide")) : [];
+      if (!slides.length || !win) return null;
+      const show = int(c.dataset.show, 1, 10, 1), step = int(c.dataset.scroll, 1, show, 1);
+      const fade = c.dataset.effect === "fade", loop = c.dataset.loop === "1", rtl = c.dataset.direction === "rtl";
+      const pages = Math.max(1, Math.ceil((slides.length - show) / step) + 1);
+      const mem = memory[id] || (memory[id] = { page: 0, count: slides.length });
+      if (slides.length > mem.count) mem.page = pages - 1;
+      mem.count = slides.length;
+      let page = Math.max(0, Math.min(pages - 1, mem.page)), timer = null, hover = false;
+      const dots = Array.from(c.querySelectorAll(".lb-carousel-dots button"));
+      const prev = c.querySelector(".lb-carousel-prev"), next = c.querySelector(".lb-carousel-next");
+      const gap = () => parseFloat(win.getComputedStyle(c).getPropertyValue("--lb-carousel-spacing")) || 10;
+      function apply(animate) {
+        if (!animate && track) {
+          track.style.transition = "none";
+          slides.forEach((s) => s.style.transition = "none");
+        }
+        if (fade) {
+          slides.forEach((s, k) => s.classList.toggle("is-active", k === page));
+        } else if (track) {
+          const start = Math.min(page * step, Math.max(0, slides.length - show));
+          const w = slides[0].getBoundingClientRect().width + gap();
+          track.style.transform = "translateX(" + (rtl ? start * w : -start * w) + "px)";
+        }
+        dots.forEach((d, k) => d.classList.toggle("is-active", k === page));
+        if (prev) prev.disabled = !loop && page === 0;
+        if (next) next.disabled = !loop && page >= pages - 1;
+        mem.page = page;
+        if (!animate && track) {
+          track.getBoundingClientRect();
+          win.requestAnimationFrame(() => {
+            track.style.transition = "";
+            slides.forEach((s) => s.style.transition = "");
+          });
+        }
+      }
+      function go(n) {
+        if (loop) n = (n + pages) % pages;
+        page = Math.max(0, Math.min(pages - 1, n));
+        apply(true);
+      }
+      function stop() {
+        if (timer) win.clearInterval(timer);
+        timer = null;
+      }
+      function start() {
+        stop();
+        const reduce = win.matchMedia && win.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (c.dataset.autoplay !== "1" || pages < 2 || reduce) return;
+        timer = win.setInterval(() => {
+          if (!c.isConnected) return stop();
+          // In the editor, autoplay always rests while the pointer is over the carousel so it can be edited.
+          if (hover || win.document.hidden) return;
+          if (!loop && page >= pages - 1) return stop();
+          go(page + 1);
+        }, int(c.dataset.interval, 500, 6e4, 5e3));
+      }
+      c.addEventListener("mouseenter", () => { hover = true; });
+      c.addEventListener("mouseleave", () => { hover = false; });
+      const ctl = {
+        prev: () => { rtl ? go(page + 1) : go(page - 1); if (c.dataset.pauseInteraction === "1") stop(); },
+        next: () => { rtl ? go(page - 1) : go(page + 1); if (c.dataset.pauseInteraction === "1") stop(); },
+        to: (n) => { go(n); if (c.dataset.pauseInteraction === "1") stop(); },
+        relayout: () => apply(false),
+        stop
+      };
+      apply(false);
+      start();
+      return ctl;
+    }
+    function initAll(fd) {
+      if (!fd || !fd.body) return;
+      fd.querySelectorAll(".lb-node-carousel .lb-carousel[data-lb-carousel]").forEach((c) => {
+        if (!c.__lbCanvasCarousel) c.__lbCanvasCarousel = controller(c) || { relayout() {}, stop() {} };
+      });
+      const win = fd.defaultView;
+      if (!win || win.__lbCarouselBound) return;
+      win.__lbCarouselBound = true;
+      // Window-level capture runs before the editor's document-level selection handlers.
+      const hit = (e) => {
+        const t = e.target && e.target.closest ? e.target.closest(".lb-carousel-prev,.lb-carousel-next,.lb-carousel-dots button") : null;
+        const c = t && t.closest(".lb-node-carousel .lb-carousel[data-lb-carousel]");
+        return c && c.__lbCanvasCarousel && c.__lbCanvasCarousel.to ? { t, c } : null;
+      };
+      win.addEventListener("mousedown", (e) => { if (hit(e)) { e.preventDefault(); e.stopPropagation(); } }, true);
+      win.addEventListener("click", (e) => {
+        const h = hit(e);
+        if (!h) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        const ctl = h.c.__lbCanvasCarousel;
+        if (h.t.classList.contains("lb-carousel-prev")) ctl.prev();
+        else if (h.t.classList.contains("lb-carousel-next")) ctl.next();
+        else ctl.to(Array.from(h.t.parentNode.children).indexOf(h.t));
+      }, true);
+      win.addEventListener("resize", () => {
+        fd.querySelectorAll(".lb-node-carousel .lb-carousel[data-lb-carousel]").forEach((c) => c.__lbCanvasCarousel && c.__lbCanvasCarousel.relayout());
+      });
+      // Re-renders replace nodes without always calling bindFrame; watch for new carousels.
+      if (win.MutationObserver) {
+        let queued = false;
+        new win.MutationObserver(() => {
+          if (queued) return;
+          queued = true;
+          win.requestAnimationFrame(() => { queued = false; initAll(fd); });
+        }).observe(fd.body, { childList: true, subtree: true });
+      }
+      // Images that finish loading change slide width; re-measure the slide offset.
+      fd.addEventListener("load", (e) => {
+        const c = e.target && e.target.closest && e.target.closest(".lb-node-carousel .lb-carousel[data-lb-carousel]");
+        if (c && c.__lbCanvasCarousel) c.__lbCanvasCarousel.relayout();
+      }, true);
+    }
+    const prevBind = app.bindFrame;
+    app.bindFrame = function bindFrame() {
+      const out = typeof prevBind === "function" ? prevBind.apply(this, arguments) : void 0;
+      try { initAll(app.frameDoc()); } catch (err) { if (window.console) console.error("[Canvasly] carousel preview", err); }
+      return out;
+    };
+  }
   function boot() {
     if (installState() === false) return;
     installBreakpoints();
@@ -19459,6 +19843,8 @@
         return ok;
       };
     }
+    installImageCarouselPreview();
+    installEffectsReset();
     if (typeof app.render === "function") app.render();
     if (typeof app.lbHydrateDocument === "function") app.lbHydrateDocument();
   }
