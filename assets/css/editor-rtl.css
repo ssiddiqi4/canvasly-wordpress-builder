@@ -7,9 +7,13 @@
 /* Canvasly Lite 0.6.1 panel controls */
 .lb-work{grid-template-columns:var(--lb-left-width,235px) minmax(0,1fr) var(--lb-right-width,285px);transition:grid-template-columns .15s ease}
 .lb-panel{position:relative;min-width:0}
-.lb-panel.is-collapsed{width:0;min-width:0;overflow:visible;border:0}
+.lb-panel.is-collapsed{width:0;min-width:0;max-width:0;overflow:visible;border:0;background:transparent;padding:0;z-index:40}
 .lb-panel.is-collapsed>*:not(.lb-panel-title){display:none}
-.lb-panel.is-collapsed .lb-panel-title{position:absolute;top:0;z-index:50;width:28px;height:42px;padding:0;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #d8dce1;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.lb-panel.is-collapsed .lb-panel-title{position:absolute;top:0;z-index:50;width:28px;height:42px;padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #d8dce1;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.lb-panel.is-collapsed .lb-panel-title>span{display:none}
+.lb-work:has(.lb-panel.left.is-collapsed):not(:has(.lb-panel.right.is-collapsed)){grid-template-columns:0 minmax(0,1fr) var(--lb-right-width,285px)!important}
+.lb-work:has(.lb-panel.right.is-collapsed):not(:has(.lb-panel.left.is-collapsed)){grid-template-columns:var(--lb-left-width,235px) minmax(0,1fr) 0!important}
+.lb-work:has(.lb-panel.left.is-collapsed):has(.lb-panel.right.is-collapsed){grid-template-columns:0 minmax(0,1fr) 0!important}
 .lb-panel.left.is-collapsed .lb-panel-title{left:-28px;border-right:0;border-radius:5px 0 0 5px}
 .lb-panel.right.is-collapsed .lb-panel-title{right:-28px;border-left:0;border-radius:0 5px 5px 0}
 .lb-panel-title{display:flex;align-items:center;justify-content:space-between}
