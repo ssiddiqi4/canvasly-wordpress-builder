@@ -11,7 +11,7 @@
  * -------------
  * Registered automatically from Plugin::register_units() as type `site_nav`
  * ("Site Menu" in the unit inserter). Drop it in a header container or a
- * sidebar column and pick a menu from Appearance → Menus.
+ * sidebar column and pick a menu from Appearance -> Menus.
  *
  * Theme (functions.php + header.php / sidebar.php)
  * ------------------------------------------------
@@ -81,7 +81,7 @@ class SiteNav extends Unit {
 	}
 
 	public function icon() {
-		return '☰';
+		return "\u{2630}";
 	}
 
 	public function category() {
@@ -102,11 +102,17 @@ class SiteNav extends Unit {
 			'color'        => '',
 			'hover_color'  => '',
 			'background'   => '',
+			'button_color'            => '',
+			'button_border_color'     => '',
+			'button_hover_color'      => '',
+			'button_hover_background' => '',
+			'button_hover_border'     => '',
 		);
 	}
 
 	public function controls() {
 		$section = __( 'Site Menu', 'canvasly-lite' );
+		$button  = __( 'Menu Button', 'canvasly-lite' );
 		return array(
 			'menu'         => $this->ctrl(
 				'select',
@@ -114,7 +120,7 @@ class SiteNav extends Unit {
 				'content',
 				$section,
 				array(
-					'description' => __( 'Classic menus from Appearance → Menus, or a theme location slug.', 'canvasly-lite' ),
+					'description' => __( "Classic menus from Appearance \u{2192} Menus, or a theme location slug.", 'canvasly-lite' ),
 				)
 			),
 			'display_name' => $this->ctrl(
@@ -185,6 +191,7 @@ class SiteNav extends Unit {
 				array(
 					'selectors' => array(
 						'{{WRAPPER}}' => '--lb-nav-color: {{VALUE}};',
+						'{{WRAPPER}} .lb-site-nav' => 'color: {{VALUE}};',
 					),
 				)
 			),
@@ -196,6 +203,7 @@ class SiteNav extends Unit {
 				array(
 					'selectors' => array(
 						'{{WRAPPER}}' => '--lb-nav-hover: {{VALUE}};',
+						'{{WRAPPER}} .lb-site-nav a:hover,{{WRAPPER}} .lb-site-nav a:focus-visible,{{WRAPPER}} .lb-site-nav .lb-site-nav__item--current > a' => 'color: {{VALUE}};',
 					),
 				)
 			),
@@ -208,6 +216,66 @@ class SiteNav extends Unit {
 					'description' => __( 'Colors the menu button only.', 'canvasly-lite' ),
 					'selectors'   => array(
 						'{{WRAPPER}}' => '--lb-nav-bg: {{VALUE}};',
+					),
+				)
+			),
+			'button_color' => $this->ctrl(
+				'color',
+				__( 'Text', 'canvasly-lite' ),
+				'style',
+				$button,
+				array(
+					'description' => __( 'Menu button text. Blank uses the menu Text colour.', 'canvasly-lite' ),
+					'selectors'   => array(
+						'{{WRAPPER}}' => '--lb-nav-btn-color: {{VALUE}};',
+					),
+				)
+			),
+			'button_border_color' => $this->ctrl(
+				'color',
+				__( 'Border', 'canvasly-lite' ),
+				'style',
+				$button,
+				array(
+					'description' => __( 'Menu button border. Blank follows the button text colour.', 'canvasly-lite' ),
+					'selectors'   => array(
+						'{{WRAPPER}}' => '--lb-nav-btn-border: {{VALUE}};',
+					),
+				)
+			),
+			'button_hover_color' => $this->ctrl(
+				'color',
+				__( 'Hover Text', 'canvasly-lite' ),
+				'style',
+				$button,
+				array(
+					'description' => __( 'Blank uses the menu Hover colour.', 'canvasly-lite' ),
+					'selectors'   => array(
+						'{{WRAPPER}}' => '--lb-nav-btn-hover-color: {{VALUE}};',
+					),
+				)
+			),
+			'button_hover_background' => $this->ctrl(
+				'color',
+				__( 'Hover Background', 'canvasly-lite' ),
+				'style',
+				$button,
+				array(
+					'description' => __( 'Blank keeps the button Background on hover.', 'canvasly-lite' ),
+					'selectors'   => array(
+						'{{WRAPPER}}' => '--lb-nav-btn-hover-bg: {{VALUE}};',
+					),
+				)
+			),
+			'button_hover_border' => $this->ctrl(
+				'color',
+				__( 'Hover Border', 'canvasly-lite' ),
+				'style',
+				$button,
+				array(
+					'description' => __( 'Blank follows the hover text colour.', 'canvasly-lite' ),
+					'selectors'   => array(
+						'{{WRAPPER}}' => '--lb-nav-btn-hover-border: {{VALUE}};',
 					),
 				)
 			),
@@ -345,6 +413,11 @@ class SiteNav extends Unit {
 				'color'          => $s['color'] ?? '',
 				'hover_color'    => $s['hover_color'] ?? '',
 				'background'     => $s['background'] ?? '',
+				'button_color'            => $s['button_color'] ?? '',
+				'button_border_color'     => $s['button_border_color'] ?? '',
+				'button_hover_color'      => $s['button_hover_color'] ?? '',
+				'button_hover_background' => $s['button_hover_background'] ?? '',
+				'button_hover_border'     => $s['button_hover_border'] ?? '',
 				'class'          => $this->cls( $s ),
 				'echo'           => false,
 			)
@@ -360,6 +433,9 @@ class SiteNav extends Unit {
 	 * - layout (string)            `horizontal`, `vertical`, or `dropdown`.
 	 * - breakpoint (int)           Collapse width in pixels. Default 782.
 	 * - display_name (string)      Button text and the nav accessible name. Blank uses the menu name.
+	 * - color, hover_color, background, radius (string)  Menu colours and corner radius.
+	 * - button_color, button_border_color, button_hover_color,
+	 *   button_hover_background, button_hover_border (string)  Menu button colours. Blank falls back.
 	 * - echo (bool)                True prints the markup. Default true for the template tag.
 	 *
 	 * @param array<string,mixed> $args
@@ -453,7 +529,7 @@ class SiteNav extends Unit {
 
 	/**
 	 * @param array<string,mixed> $args
-	 * @return array{menu:int|string,theme_location:string,layout:string,breakpoint:int,display_name:string,color:string,hover_color:string,background:string,class:string,menu_id:string,echo:bool}
+	 * @return array{menu:int|string,theme_location:string,layout:string,breakpoint:int,display_name:string,color:string,hover_color:string,background:string,button_color:string,button_border_color:string,button_hover_color:string,button_hover_background:string,button_hover_border:string,class:string,menu_id:string,echo:bool}
 	 */
 	private static function args( $args ) {
 		$args = is_array( $args ) ? $args : array();
@@ -479,6 +555,11 @@ class SiteNav extends Unit {
 			'color'          => self::color_of( $args['color'] ?? '' ),
 			'hover_color'    => self::color_of( $args['hover_color'] ?? '' ),
 			'background'     => self::color_of( $args['background'] ?? '' ),
+			'button_color'            => self::color_of( $args['button_color'] ?? '' ),
+			'button_border_color'     => self::color_of( $args['button_border_color'] ?? '' ),
+			'button_hover_color'      => self::color_of( $args['button_hover_color'] ?? '' ),
+			'button_hover_background' => self::color_of( $args['button_hover_background'] ?? '' ),
+			'button_hover_border'     => self::color_of( $args['button_hover_border'] ?? '' ),
 			'class'          => self::extra_class( $args['class'] ?? '' ),
 			'menu_id'        => $id . '-list',
 			'nav_id'         => $id,
@@ -557,11 +638,13 @@ class SiteNav extends Unit {
 		if ( '' === $value ) {
 			return '';
 		}
-		if ( function_exists( 'sanitize_hex_color' ) ) {
-			$hex = sanitize_hex_color( $value );
-			return is_string( $hex ) ? $hex : '';
+		if ( preg_match( '/^#([A-Fa-f0-9]{3,4}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$/', $value ) ) {
+			return $value;
 		}
-		return preg_match( '/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', $value ) ? $value : '';
+		if ( preg_match( '/^(rgba?|hsla?)\(\s*[0-9.%,\s\/-]+\)$/i', $value ) || preg_match( '/^var\(--[a-zA-Z0-9_-]+\)$/', $value ) ) {
+			return $value;
+		}
+		return '';
 	}
 
 	/**
@@ -647,7 +730,7 @@ class SiteNav extends Unit {
 		$html .= '<button type="button" class="lb-site-nav__toggle" aria-expanded="false" aria-controls="' . esc_attr( $list_id ) . '">';
 		$html .= '<span class="lb-site-nav__burger" aria-hidden="true"></span>';
 		$html .= '<span class="lb-site-nav__toggle-text">' . esc_html( $toggle ) . '</span>';
-		$html .= '<span class="lb-site-nav__caret" aria-hidden="true">▾</span>';
+		$html .= '<span class="lb-site-nav__caret" aria-hidden="true">&#9662;</span>';
 		$html .= '</button>';
 		if ( trim( $list ) === '' ) {
 			$html .= '<p class="lb-embed-placeholder">' . esc_html__( 'Choose a menu', 'canvasly-lite' ) . '</p>';
@@ -671,6 +754,11 @@ class SiteNav extends Unit {
 			'hover_color' => '--lb-nav-hover',
 			'background'  => '--lb-nav-bg',
 			'radius'      => '--lb-nav-radius',
+			'button_color'            => '--lb-nav-btn-color',
+			'button_border_color'     => '--lb-nav-btn-border',
+			'button_hover_color'      => '--lb-nav-btn-hover-color',
+			'button_hover_background' => '--lb-nav-btn-hover-bg',
+			'button_hover_border'     => '--lb-nav-btn-hover-border',
 		);
 		$bits = array();
 		foreach ( $map as $key => $var ) {
@@ -806,7 +894,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Site_Nav_Walker', false ) && class_exist
 	/**
 	 * Strips the default menu-item wrapper classes and container divs.
 	 * wp_nav_menu() is called with `container => false`; this walker emits
-	 * `<li class="lb-site-nav__item"><a>…</a>` and `<ul class="lb-site-nav__sub">`.
+	 * `<li class="lb-site-nav__item"><a>...</a>` and `<ul class="lb-site-nav__sub">`.
 	 */
 	class Site_Nav_Walker extends \Walker_Nav_Menu {
 		/**

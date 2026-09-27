@@ -377,7 +377,7 @@ class Roles {
 		echo '<div class="wrap lb-settings-wrap lb-role-manager">';
 		echo '<h1>' . esc_html__( 'Role Manager', 'canvasly-lite' ) . '</h1>';
 		settings_errors( 'canvasly_lite_roles' );
-		echo '<p class="description">' . esc_html__( 'Choose who can open Canvasly. Content only hides Style and Advanced tabs. Full access is not limited to administrators — it uses a dedicated design capability.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( "Choose who can open Canvasly. Content only hides Style and Advanced tabs. Full access is not limited to administrators \u{2014} it uses a dedicated design capability.", 'canvasly-lite' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE ) ) . '">';
 		wp_nonce_field( self::NONCE );
 		echo '<table class="widefat striped lb-roles-table"><thead><tr>';

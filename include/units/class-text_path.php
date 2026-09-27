@@ -7,7 +7,7 @@ namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 class TextPath extends Unit {
  public function type(){return 'text_path';}
  public function title(){return __('Text Path', 'canvasly-lite');}
- public function icon(){return '◌';}
+ public function icon(){return "\u{25CC}";}
  public function keywords(){return ['text path','svg','curve','wave','marquee'];}
  public function defaults(){
   return [

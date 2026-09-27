@@ -1,8 +1,8 @@
 <?php
 namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 class Form extends Unit {
- public function type(){return 'form';} public function title(){return __('Form', 'canvasly-lite');} public function icon(){return '▤';} public function category(){return 'content';}
- public function uses_button(){return true;}
+ public function type(){return 'form';} public function title(){return __('Form', 'canvasly-lite');} public function icon(){return "\u{25A4}";} public function category(){return 'content';}
+ public function uses_button(){return true;} public function button_style_selector(){return '.lb-form button';}
  public function keywords(){return ['form','contact','fields','email'];}
  public function scripts($s=[]){
   $h=$this->frontend_scripts();
@@ -66,7 +66,7 @@ class Form extends Unit {
    if($input===''){
     if($type==='textarea')$input='<textarea name="'.esc_attr($name).'"'.$reqAttr.$phAttr.'></textarea>';
     elseif($type==='select'){
-     $opts='<option value="">'.esc_html__('Select…', 'canvasly-lite').'</option>';
+     $opts='<option value="">'.esc_html__("Select\u{2026}", 'canvasly-lite').'</option>';
      foreach(preg_split('/\r?\n/',(string)($row['options']??'')) as $opt){ $opt=trim($opt); if($opt==='')continue; $opts.='<option value="'.esc_attr($opt).'">'.esc_html($opt).'</option>'; }
      $input='<select name="'.esc_attr($name).'"'.$reqAttr.'>'.$opts.'</select>';
     }

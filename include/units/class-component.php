@@ -4,7 +4,7 @@ use CanvaslyLite\Design\Components;
 use CanvaslyLite\Units\UnitRegistry;
 if(!defined('ABSPATH')) exit;
 class Component extends Unit {
- public function type(){return 'component';} public function title(){return __('Component', 'canvasly-lite');} public function icon(){return '◇';} public function category(){return 'advanced';}
+ public function type(){return 'component';} public function title(){return __('Component', 'canvasly-lite');} public function icon(){return "\u{25C7}";} public function category(){return 'advanced';}
  public function defaults(){return ['component_id'=>0,'css_class'=>'','overrides'=>[]];}
  public function controls(){return ['component_id'=>'number','css_class'=>'text','overrides'=>'textarea'];}
  public function render($s,$children=''){ $id=absint($s['component_id']??0);foreach(Components::all() as $c)if((int)$c['id']===$id&&is_array($c['document']??null)){$doc=$c['document'];if(!empty($s['overrides'])&&is_array($s['overrides']))$doc=Components::apply_overrides($doc,$s['overrides'],$c['exposed']??[]);return '<div class="'.$this->cls($s).' lb-component-instance" data-lb-component="'.$id.'" data-lb-component-version="'.esc_attr($c['version']??1).'">'.self::render_doc($doc).'</div>';}return '<div class="'.$this->cls($s).' lb-component-placeholder">'.sprintf(

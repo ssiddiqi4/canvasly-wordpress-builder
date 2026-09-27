@@ -4,7 +4,7 @@ namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 class NestedToggle extends NestedAccordion {
  public function type(){return 'nested_toggle';}
  public function title(){return __('Nested Toggle', 'canvasly-lite');}
- public function icon(){return '⊞';}
+ public function icon(){return "\u{229E}";}
  public function category(){return 'basic';}
  public function keywords(){return ['toggle','nested','collapse','expand','panel','slot'];}
  protected function single_open(){return false;}

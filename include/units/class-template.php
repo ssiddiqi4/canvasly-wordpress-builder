@@ -19,7 +19,7 @@ class Template extends Unit {
 		return __( 'Template', 'canvasly-lite' );
 	}
 	public function icon() {
-		return '▣';
+		return "\u{25A3}";
 	}
 	public function category() {
 		return 'advanced';

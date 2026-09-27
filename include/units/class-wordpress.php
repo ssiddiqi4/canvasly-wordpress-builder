@@ -3,7 +3,7 @@ namespace CanvaslyLite\Units;
 if(!defined('ABSPATH')) exit;
 /**
  * WordPress Widget: renders any widget registered with the widget factory
- * (Recent Posts, Categories, Search, Calendar, Tag Cloud, custom plugin widgets…)
+ * (Recent Posts, Categories, Search, Calendar, Tag Cloud, custom plugin widgets...)
  * with an optional title and free-form settings. Falls back to a whole sidebar.
  */
 class WordPressWidget extends Unit {

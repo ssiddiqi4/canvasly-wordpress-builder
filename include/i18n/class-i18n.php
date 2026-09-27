@@ -536,10 +536,10 @@ class I18n {
 			'Merge' => __( 'Merge', 'canvasly-lite' ),
 			'Replace' => __( 'Replace', 'canvasly-lite' ),
 			'Import pages included in the kit (as drafts)' => __( 'Import pages included in the kit (as drafts)', 'canvasly-lite' ),
-			'Exporting kit…' => __( 'Exporting kit…', 'canvasly-lite' ),
+			"Exporting kit\u{2026}" => __( "Exporting kit\u{2026}", 'canvasly-lite' ),
 			'Could not export kit.' => __( 'Could not export kit.', 'canvasly-lite' ),
 			'Kit download started.' => __( 'Kit download started.', 'canvasly-lite' ),
-			'Importing kit…' => __( 'Importing kit…', 'canvasly-lite' ),
+			"Importing kit\u{2026}" => __( "Importing kit\u{2026}", 'canvasly-lite' ),
 			'Could not import kit.' => __( 'Could not import kit.', 'canvasly-lite' ),
 			'Kit imported successfully.' => __( 'Kit imported successfully.', 'canvasly-lite' ),
 			'Link sides' => __( 'Link sides', 'canvasly-lite' ),
@@ -595,7 +595,7 @@ class I18n {
 			'HTML' => __( 'HTML', 'canvasly-lite' ),
 			'Language' => __( 'Language', 'canvasly-lite' ),
 			'Finder' => __( 'Finder', 'canvasly-lite' ),
-			'Search pages, templates, components, classes, settings and actions…' => __( 'Search pages, templates, components, classes, settings and actions…', 'canvasly-lite' ),
+			"Search pages, templates, components, classes, settings and actions\u{2026}" => __( "Search pages, templates, components, classes, settings and actions\u{2026}", 'canvasly-lite' ),
 			'No matching results.' => __( 'No matching results.', 'canvasly-lite' ),
 			'Actions' => __( 'Actions', 'canvasly-lite' ),
 			'Pages' => __( 'Pages', 'canvasly-lite' ),
@@ -611,8 +611,9 @@ class I18n {
 			'Customize keyboard shortcuts' => __( 'Customize keyboard shortcuts', 'canvasly-lite' ),
 			'Change' => __( 'Change', 'canvasly-lite' ),
 			'Cancel' => __( 'Cancel', 'canvasly-lite' ),
-			'Press new keys…' => __( 'Press new keys…', 'canvasly-lite' ),
+			"Press new keys\u{2026}" => __( "Press new keys\u{2026}", 'canvasly-lite' ),
 			'Reset to default' => __( 'Reset to default', 'canvasly-lite' ),
+			'Reset to Default' => __( 'Reset to Default', 'canvasly-lite' ),
 			/* translators: %s: interpolated value */
 			'This shortcut is already used by %s. Replace it?' => __( 'This shortcut is already used by %s. Replace it?', 'canvasly-lite' ),
 			'Restore default shortcuts? Custom bindings will be lost.' => __( 'Restore default shortcuts? Custom bindings will be lost.', 'canvasly-lite' ),
@@ -661,12 +662,12 @@ class I18n {
 			'No tags for this control.' => __( 'No tags for this control.', 'canvasly-lite' ),
 			'Use the lightning button on a control to insert post, site, or user data.' => __( 'Use the lightning button on a control to insert post, site, or user data.', 'canvasly-lite' ),
 			'Drop item template here' => __( 'Drop item template here', 'canvasly-lite' ),
-			'Collection Loop — items repeat on the frontend' => __( 'Collection Loop — items repeat on the frontend', 'canvasly-lite' ),
+			"Collection Loop \u{2014} items repeat on the frontend" => __( "Collection Loop \u{2014} items repeat on the frontend", 'canvasly-lite' ),
 			/* translators: %s: interpolated value */
 			'Using saved template: %s' => __( 'Using saved template: %s', 'canvasly-lite' ),
 			'None selected' => __( 'None selected', 'canvasly-lite' ),
 			'Select a saved template' => __( 'Select a saved template', 'canvasly-lite' ),
-			'Template — rendered on the frontend' => __( 'Template — rendered on the frontend', 'canvasly-lite' ),
+			"Template \u{2014} rendered on the frontend" => __( "Template \u{2014} rendered on the frontend", 'canvasly-lite' ),
 			'Add an item template' => __( 'Add an item template', 'canvasly-lite' ),
 			/* translators: %s: interpolated value */
 			'Will show %s items' => __( 'Will show %s items', 'canvasly-lite' ),
@@ -717,7 +718,7 @@ class I18n {
 			'Menus' => __( 'Menus', 'canvasly-lite' ),
 			'Navigation' => __( 'Navigation', 'canvasly-lite' ),
 			'Missing menu' => __( 'Missing menu', 'canvasly-lite' ),
-			'Classic menus (Appearance → Menus) and Navigation (Appearance → Editor).' => __( 'Classic menus (Appearance → Menus) and Navigation (Appearance → Editor).', 'canvasly-lite' ),
+			"Classic menus (Appearance \u{2192} Menus) and Navigation (Appearance \u{2192} Editor)." => __( "Classic menus (Appearance \u{2192} Menus) and Navigation (Appearance \u{2192} Editor).", 'canvasly-lite' ),
 		);
 	}
 

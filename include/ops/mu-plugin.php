@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Canvasly Safe Mode
- * Description: Restricts other plugins and the theme while a Canvasly Safe Mode session is active. Managed by Canvasly — do not edit.
+ * Description: Restricts other plugins and the theme while a Canvasly Safe Mode session is active. Managed by Canvasly - do not edit.
  * Version: 1.0
  */
 if ( ! defined( 'ABSPATH' ) ) {

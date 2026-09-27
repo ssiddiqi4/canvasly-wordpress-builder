@@ -2,11 +2,11 @@
 namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 /**
  * Gallery: a single image set, or several named collections with a filter bar.
- * Layouts: justified rows, equal grid, and masonry columns — plus order,
+ * Layouts: justified rows, equal grid, and masonry columns - plus order,
  * spacing, file/attachment links, lightbox, captions and hover animation.
  */
 class Gallery extends Unit {
- public function type(){return 'gallery';} public function title(){return __('Gallery', 'canvasly-lite');} public function icon(){return '▦';} public function category(){return 'media';}
+ public function type(){return 'gallery';} public function title(){return __('Gallery', 'canvasly-lite');} public function icon(){return "\u{25A6}";} public function category(){return 'media';}
  public function keywords(){return ['gallery','images','grid','photos','lightbox','filter','albums','collections','justified','masonry'];}
  public function scripts($s=[]){return $this->frontend_scripts();}
  public function defaults(){return ['mode'=>'single','ids'=>'','collections'=>[],'media_urls'=>[],'media_ratios'=>[],'order_by'=>'default','show_all'=>true,'all_label'=>'All','columns'=>4,'gap'=>10,'gallery_layout'=>'justified','image_ratio'=>'1:1','row_height'=>220,'last_row'=>'auto','lazy_load'=>true,'link'=>'file','size'=>'medium','lightbox'=>true,'caption'=>'none','image_radius'=>'','hover_animation'=>'','caption_align'=>'center','caption_color'=>'','caption_size'=>''];}

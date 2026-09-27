@@ -371,7 +371,7 @@ class ThemeChromeEdits {
 		$html = preg_replace( '/\sspellcheck\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', (string) $html );
 		$html = (string) $html;
 		if ( strlen( $html ) > ThemeChrome::MAX_HTML ) {
-			$html = substr( $html, 0, ThemeChrome::MAX_HTML );
+			$html = \CanvaslyLite\Utils\Text::cut_bytes( $html, 0, ThemeChrome::MAX_HTML );
 		}
 		return trim( $html );
 	}

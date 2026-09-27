@@ -108,7 +108,7 @@ class Shortcode extends Unit {
   $code = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $code );
   $code = trim( (string) $code );
   if ( strlen( $code ) > 4000 ) {
-   $code = substr( $code, 0, 4000 );
+   $code = \CanvaslyLite\Utils\Text::cut_bytes( $code, 0, 4000 );
   }
   if ( ! preg_match( '/\[[\w-]+/', $code ) ) {
    return '';

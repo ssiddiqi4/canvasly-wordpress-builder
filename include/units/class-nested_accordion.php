@@ -7,7 +7,7 @@ namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 class NestedAccordion extends Unit {
  public function type(){return 'nested_accordion';}
  public function title(){return __('Nested Accordion', 'canvasly-lite');}
- public function icon(){return '☰';}
+ public function icon(){return "\u{2630}";}
  public function category(){return 'basic';}
  public function keywords(){return ['accordion','nested','collapse','faq','panel','slot'];}
  public function scripts($s=[]){return $this->frontend_scripts();}

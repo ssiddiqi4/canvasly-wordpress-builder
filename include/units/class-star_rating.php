@@ -2,7 +2,7 @@
 namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 /** Star Rating: SVG stars on a 5 or 10 point scale with fractional fills, solid or outline unmarked stars, a title and alignment. */
 class StarRating extends Unit {
- public function type(){return 'star_rating';} public function title(){return __('Star Rating', 'canvasly-lite');} public function icon(){return '★';} public function category(){return 'basic';}
+ public function type(){return 'star_rating';} public function title(){return __('Star Rating', 'canvasly-lite');} public function icon(){return "\u{2605}";} public function category(){return 'basic';}
  public function keywords(){return ['star','rating','review','score','stars'];}
  const STAR='M12 1 L14.76 8.2 L22.46 8.6 L16.47 13.45 L18.47 20.9 L12 16.7 L5.53 20.9 L7.53 13.45 L1.54 8.6 L9.24 8.2 Z';
  public function defaults(){return ['scale'=>'5','rating'=>5,'unmarked_style'=>'solid','title'=>'','align'=>'left','title_color'=>'','title_gap'=>10,'size'=>22,'star_gap'=>2,'color'=>'#f0ad4e','unmarked_color'=>'#cccccc'];}

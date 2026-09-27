@@ -730,7 +730,7 @@ class ThemeChrome {
 			return false;
 		}
 		$text = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( $html ) ) );
-		return strlen( $text ) > 12;
+		return \CanvaslyLite\Utils\Text::length( $text ) > 12;
 	}
 
 	/**
@@ -989,7 +989,7 @@ class ThemeChrome {
 		}
 		$out = self::safe_html( $assets . $dom->saveHTML( $node ) );
 		if ( strlen( $out ) > self::MAX_HTML ) {
-			$out = substr( $out, 0, self::MAX_HTML );
+			$out = \CanvaslyLite\Utils\Text::cut_bytes( $out, 0, self::MAX_HTML );
 		}
 		return trim( $out );
 	}
@@ -1058,7 +1058,7 @@ class ThemeChrome {
 			// sites and can otherwise out-rank the genuine footer just by
 			// appearing later in the document. Score by visible content
 			// instead of position so the real, fullest landmark wins.
-			$len = strlen( trim( preg_replace( '/\s+/', ' ', (string) $el->textContent ) ) );
+			$len = \CanvaslyLite\Utils\Text::length( trim( preg_replace( '/\s+/', ' ', (string) $el->textContent ) ) );
 			if ( $len > $loose_best_len ) {
 				$loose_best     = $el;
 				$loose_best_len = $len;
@@ -1137,7 +1137,7 @@ class ThemeChrome {
 		$html = self::drop_stray_closers( $html );
 		$html = self::isolate( $html );
 		if ( strlen( $html ) > self::MAX_HTML ) {
-			$html = substr( $html, 0, self::MAX_HTML );
+			$html = \CanvaslyLite\Utils\Text::cut_bytes( $html, 0, self::MAX_HTML );
 		}
 		return trim( $html );
 	}

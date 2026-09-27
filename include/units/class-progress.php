@@ -2,7 +2,7 @@
 namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 /** Progress Bar: titled bar with preset colour styles, an optional percentage label and inner text. The fill animates when scrolled into view. */
 class Progress extends Unit {
- public function type(){return 'progress';} public function title(){return __('Progress Bar', 'canvasly-lite');} public function icon(){return '▭';} public function category(){return 'basic';}
+ public function type(){return 'progress';} public function title(){return __('Progress Bar', 'canvasly-lite');} public function icon(){return "\u{25AD}";} public function category(){return 'basic';}
  public function keywords(){return ['progress','bar','skill','percentage','meter'];}
  public function scripts($s=[]){return $this->frontend_scripts();}
  public function defaults(){return ['label'=>__('My Skill', 'canvasly-lite'),'title_tag'=>'span','value'=>70,'bar_style'=>'default','show_percentage'=>true,'inner_text'=>'','color'=>'','background'=>'','bar_height'=>'','bar_radius'=>'','inner_color'=>'','title_color'=>''];}

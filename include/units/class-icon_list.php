@@ -5,7 +5,7 @@ namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
  * Legacy "Text|icon|url" rows are migrated on load.
  */
 class IconList extends Unit {
- public function type(){return 'icon_list';} public function title(){return __('Icon List', 'canvasly-lite');} public function icon(){return '☰';} public function category(){return 'basic';}
+ public function type(){return 'icon_list';} public function title(){return __('Icon List', 'canvasly-lite');} public function icon(){return "\u{2630}";} public function category(){return 'basic';}
  public function keywords(){return ['icon list','list','bullets','features','checklist'];}
  public function defaults(){return [
   'items'=>[
@@ -35,8 +35,8 @@ class IconList extends Unit {
    'icon_size'=>$this->ctrl('number',__('Icon Size', 'canvasly-lite'),'style',$style),
    'icon_color'=>$this->ctrl('color',__('Icon Color', 'canvasly-lite'),'style',$style),
    'icon_hover_color'=>$this->ctrl('color',__('Icon Hover', 'canvasly-lite'),'style',$style),
-   'text_color'=>$this->ctrl('color',__('Text Color', 'canvasly-lite'),'style',$style),
-   'text_hover_color'=>$this->ctrl('color',__('Text Hover', 'canvasly-lite'),'style',$style),
+   'text_color'=>$this->ctrl('color',__('Text Color', 'canvasly-lite'),'style',$style,['selectors'=>['{{WRAPPER}} .lb-icon-list-text,{{WRAPPER}} .lb-icon-list-item>a'=>'color: {{VALUE}};']]),
+   'text_hover_color'=>$this->ctrl('color',__('Text Hover', 'canvasly-lite'),'style',$style,['selectors'=>['{{WRAPPER}} .lb-icon-list-item:hover .lb-icon-list-text,{{WRAPPER}} .lb-icon-list-item>a:hover'=>'color: {{VALUE}};']]),
    'text_indent'=>$this->ctrl('number',__('Text Indent', 'canvasly-lite'),'style',$style),
    'divider_style'=>$this->ctrl('select',__('Style', 'canvasly-lite'),'style',$div,['options'=>['solid'=>__('Solid', 'canvasly-lite'),'double'=>__('Double', 'canvasly-lite'),'dotted'=>__('Dotted', 'canvasly-lite'),'dashed'=>__('Dashed', 'canvasly-lite')],'condition'=>['divider'=>true]]),
    'divider_weight'=>$this->ctrl('number',__('Weight', 'canvasly-lite'),'style',$div,['condition'=>['divider'=>true]]),

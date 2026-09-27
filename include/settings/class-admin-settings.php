@@ -987,7 +987,7 @@ class AdminSettings {
 	 * @param array $d
 	 */
 	public static function render_tools( $d ) {
-		echo '<p class="description">' . esc_html__( 'Operational tools. Regenerating CSS, replacing URLs and kit import/export use the same handlers as Canvasly → Tools.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( "Operational tools. Regenerating CSS, replacing URLs and kit import/export use the same handlers as Canvasly \u{2192} Tools.", 'canvasly-lite' ) . '</p>';
 
 		if ( class_exists( CssPrint::class ) && CssPrint::can_manage() ) {
 			$report = function_exists( 'get_transient' ) ? get_transient( 'canvasly_lite_css_report_' . get_current_user_id() ) : null;
@@ -1018,7 +1018,7 @@ class AdminSettings {
 			echo '<hr>';
 			$report = function_exists( 'get_transient' ) ? get_transient( ReplaceUrl::REPORT . '_' . get_current_user_id() ) : null;
 			echo '<h2>' . esc_html__( 'Replace URL', 'canvasly-lite' ) . '</h2>';
-			echo '<p class="description">' . esc_html__( 'Rewrite a site URL inside Canvasly documents and compiled CSS. The change cannot be undone — run a dry run first.', 'canvasly-lite' ) . '</p>';
+			echo '<p class="description">' . esc_html__( "Rewrite a site URL inside Canvasly documents and compiled CSS. The change cannot be undone \u{2014} run a dry run first.", 'canvasly-lite' ) . '</p>';
 			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 			wp_nonce_field( 'lb_replace_url' );
 			echo '<input type="hidden" name="action" value="lb_replace_url">';
@@ -1057,7 +1057,7 @@ class AdminSettings {
 		echo '</td></tr>';
 		echo '<tr><th><label for="lb-maint-tpl">' . esc_html__( 'Template', 'canvasly-lite' ) . '</label></th><td>';
 		echo '<select id="lb-maint-tpl" name="maintenance_template">';
-		echo '<option value="0">' . esc_html__( '— None —', 'canvasly-lite' ) . '</option>';
+		echo '<option value="0">' . esc_html__( "\u{2014} None \u{2014}", 'canvasly-lite' ) . '</option>';
 		foreach ( self::template_choices() as $id => $title ) {
 			echo '<option value="' . esc_attr( (string) $id ) . '"' . ( absint( $d['maintenance_template'] ?? 0 ) === (int) $id ? ' selected' : '' ) . '>' . esc_html( $title ) . '</option>';
 		}

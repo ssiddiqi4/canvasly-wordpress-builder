@@ -2,7 +2,7 @@
 namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 /** Icon: a single SVG glyph with default / stacked / framed views, shapes, colours, link, rotation and hover animation. */
 class Icon extends Unit {
- public function type(){return 'icon';} public function title(){return __('Icon', 'canvasly-lite');} public function icon(){return '✦';} public function category(){return 'basic';}
+ public function type(){return 'icon';} public function title(){return __('Icon', 'canvasly-lite');} public function icon(){return "\u{2726}";} public function category(){return 'basic';}
  public function keywords(){return ['icon','glyph','symbol','svg','stacked','framed'];}
  public function defaults(){return ['icon'=>'star','icon_view'=>'default','shape'=>'circle','size'=>32,'color'=>'#222222','secondary_color'=>'#ffffff','hover_color'=>'','hover_secondary_color'=>'','link'=>'','link_target'=>'_self','rotate'=>0,'align'=>'center','icon_padding'=>'','icon_border_width'=>'','icon_radius'=>'','shadow'=>[],'hover_shadow'=>[],'hover_animation'=>''];}
  public function controls(){

@@ -7,7 +7,7 @@ namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 class NestedTabs extends Unit {
  public function type(){return 'nested_tabs';}
  public function title(){return __('Nested Tabs', 'canvasly-lite');}
- public function icon(){return '⧉';}
+ public function icon(){return "\u{29C9}";}
  public function category(){return 'basic';}
  public function keywords(){return ['tabs','nested','panel','slot','tab'];}
  public function scripts($s=[]){return $this->frontend_scripts();}

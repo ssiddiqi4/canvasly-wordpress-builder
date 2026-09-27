@@ -5,7 +5,7 @@ namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
  * `ids` plus `custom_urls` lines are migrated on load.
  */
 class Carousel extends Unit {
- public function type(){return 'carousel';} public function title(){return __('Image Carousel', 'canvasly-lite');} public function icon(){return '⧉';} public function category(){return 'media';}
+ public function type(){return 'carousel';} public function title(){return __('Image Carousel', 'canvasly-lite');} public function icon(){return "\u{29C9}";} public function category(){return 'media';}
  public function keywords(){return ['carousel','slider','slideshow','images','gallery'];}
  public function scripts($s=[]){return $this->frontend_scripts();}
  public function defaults(){return ['slides'=>[],'ids'=>'','image_size'=>'large','slides_to_show'=>1,'slides_to_scroll'=>1,'image_stretch'=>false,'navigation'=>'both','link'=>'none','custom_urls'=>'','lightbox'=>true,'caption'=>'none','lazyload'=>true,'autoplay'=>true,'pause_on_hover'=>true,'pause_on_interaction'=>true,'interval'=>5000,'loop'=>true,'effect'=>'slide','speed'=>500,'slide_direction'=>'ltr','height'=>'','image_spacing'=>10,'image_radius'=>'','arrows_size'=>'','arrows_color'=>'','dots_size'=>'','dots_color'=>'','caption_align'=>'center','caption_color'=>''];}
@@ -72,7 +72,9 @@ class Carousel extends Unit {
   if(!$slides)return '<div class="'.$this->cls($s).' lb-carousel-placeholder">'.esc_html__('Choose images for the carousel', 'canvasly-lite').'</div>';
   $show=max(1,min(10,absint($s['slides_to_show']??1)));$scroll=max(1,min($show,absint($s['slides_to_scroll']??1)));
   $nav=in_array($s['navigation']??'both',['both','arrows','dots','none'],true)?$s['navigation']:'both';
-  $linkMode=in_array($s['link']??'none',['none','file','custom'],true)?$s['link']:'none';
+  $linkRaw=is_string($s['link']??null)?$s['link']:'none';
+  if(preg_match('~^https?://(none|file|custom)/?$~i',$linkRaw,$lm))$linkRaw=strtolower($lm[1]); // repair values saved as "http://none" by older builds
+  $linkMode=in_array($linkRaw,['none','file','custom'],true)?$linkRaw:'none';
   $effect=($s['effect']??'slide')==='fade'&&$show===1?'fade':'slide';
   $dir=($s['slide_direction']??'ltr')==='rtl'?'rtl':'ltr';
   $capMode=in_array($s['caption']??'none',['none','title','caption','description'],true)?$s['caption']:'none';
@@ -81,8 +83,9 @@ class Carousel extends Unit {
   $height=$this->scalar($s['height']??'');
   $vars=$this->style_attr(['--lb-carousel-show'=>$show,'--lb-carousel-spacing'=>$this->unit($s['image_spacing']??''),'--lb-carousel-radius'=>$this->unit($s['image_radius']??''),'--lb-carousel-height'=>$height!==''?$this->unit($height):'','--lb-carousel-speed'=>max(0,absint($s['speed']??500)).'ms','--lb-carousel-arrow-size'=>$this->unit($s['arrows_size']??''),'--lb-carousel-arrow-color'=>$s['arrows_color']??'','--lb-carousel-dot-size'=>$this->unit($s['dots_size']??''),'--lb-carousel-dot-color'=>$s['dots_color']??'','--lb-carousel-caption-color'=>$s['caption_color']??'']);
   $data=' data-lb-carousel data-show="'.$show.'" data-scroll="'.$scroll.'" data-effect="'.$effect.'" data-direction="'.$dir.'" data-autoplay="'.(!empty($s['autoplay'])?'1':'0').'" data-interval="'.max(500,absint($s['interval']??5000)).'" data-loop="'.(!empty($s['loop'])?'1':'0').'" data-arrows="'.(in_array($nav,['both','arrows'],true)?'1':'0').'" data-dots="'.(in_array($nav,['both','dots'],true)?'1':'0').'" data-pause-hover="'.(!empty($s['pause_on_hover'])?'1':'0').'" data-pause-interaction="'.(!empty($s['pause_on_interaction'])?'1':'0').'" data-lightbox="'.(!empty($s['lightbox'])&&$linkMode==='file'?'1':'0').'"';
-  $classes=$this->cls($s).' lb-carousel lb-carousel-'.$effect.' lb-carousel-'.$dir.(!empty($s['image_stretch'])?' lb-carousel-stretch':'').' lb-carousel-caption-'.$capAlign;
-  $out='<div class="'.esc_attr($classes).'" dir="'.$dir.'" aria-roledescription="carousel"'.$data.$vars.'><div class="lb-carousel-track">';
+  $classes=$this->cls($s).' lb-carousel lb-carousel-effect-'.$effect.($effect==='fade'?' lb-carousel-fade':'').' lb-carousel-'.$dir.(!empty($s['image_stretch'])?' lb-carousel-stretch':'').' lb-carousel-caption-'.$capAlign;
+  $out='';
+  $anyCap=false;
   $total=count($slides);
   foreach($slides as $i=>$slide){
    $id=absint($slide['image_id']??0);
@@ -106,8 +109,11 @@ class Carousel extends Unit {
     }
     $img='<a class="lb-carousel-link" href="'.esc_url($href).'"'.$lb.'>'.$img.'</a>';
    }
-   $out.='<figure class="lb-carousel-slide" role="group" aria-roledescription="slide" aria-label="'.esc_attr(($i+1).' of '.$total).'">'.$img.($cap!==''?'<figcaption class="lb-carousel-caption">'.esc_html($cap).'</figcaption>':'').'</figure>';
+   if($cap!=='')$anyCap=true;
+   $out.='<figure class="lb-carousel-slide'.($effect==='fade'&&$out===''?' is-active':'').'" role="group" aria-roledescription="slide" aria-label="'.esc_attr(sprintf(/* translators: 1: slide number, 2: total slides */__('%1$d of %2$d', 'canvasly-lite'),$i+1,$total)).'">'.$img.($cap!==''?'<figcaption class="lb-carousel-caption">'.esc_html($cap).'</figcaption>':'').'</figure>';
   }
-  return $out.'</div></div>';
+  if($out==='')return '<div class="'.$this->cls($s).' lb-carousel-placeholder">'.esc_html__('Choose images for the carousel', 'canvasly-lite').'</div>';
+  if($anyCap)$classes.=' lb-carousel-has-caption';
+  return '<div class="'.esc_attr($classes).'" dir="'.$dir.'" aria-roledescription="carousel"'.$data.$vars.'><div class="lb-carousel-track">'.$out.'</div></div>';
  }
 }

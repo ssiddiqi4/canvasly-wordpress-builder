@@ -24,7 +24,7 @@ class FlipBox extends Unit {
 		return __( 'Flip Box', 'canvasly-lite' );
 	}
 	public function icon() {
-		return '▱';
+		return "\u{25B1}";
 	}
 	public function category() {
 		return 'basic';
@@ -158,7 +158,7 @@ class FlipBox extends Unit {
 		);
 
 		return array(
-			// Content — Front
+			// Content - Front
 			'front_graphic'      => $this->ctrl( 'choose', __( 'Graphic', 'canvasly-lite' ), 'content', $front, array( 'options' => $graphic ) ),
 			'front_icon'         => $this->ctrl( 'icon', __( 'Icon', 'canvasly-lite' ), 'content', $front, array( 'condition' => array( 'front_graphic' => 'icon' ) ) ),
 			'front_icon_view'    => $this->ctrl( 'select', __( 'Icon View', 'canvasly-lite' ), 'content', $front, array( 'options' => $view, 'condition' => array( 'front_graphic' => 'icon' ) ) ),
@@ -170,7 +170,7 @@ class FlipBox extends Unit {
 			'front_title_tag'    => $this->ctrl( 'select', __( 'Title HTML Tag', 'canvasly-lite' ), 'content', $front, array( 'options' => self::opt_title_tags() ) ),
 			'front_text'         => $this->ctrl( 'textarea', __( 'Description', 'canvasly-lite' ), 'content', $front, array( 'dynamic' => true ) ),
 
-			// Content — Back
+			// Content - Back
 			'back_graphic'       => $this->ctrl( 'choose', __( 'Graphic', 'canvasly-lite' ), 'content', $back, array( 'options' => $graphic ) ),
 			'back_icon'          => $this->ctrl( 'icon', __( 'Icon', 'canvasly-lite' ), 'content', $back, array( 'condition' => array( 'back_graphic' => 'icon' ) ) ),
 			'back_icon_view'     => $this->ctrl( 'select', __( 'Icon View', 'canvasly-lite' ), 'content', $back, array( 'options' => $view, 'condition' => array( 'back_graphic' => 'icon' ) ) ),
@@ -188,7 +188,7 @@ class FlipBox extends Unit {
 			'button_background'  => $this->ctrl( 'color', __( 'Button Color', 'canvasly-lite' ), 'content', $back, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-bg: {{VALUE}};' ) ) ),
 			'button_text_color'  => $this->ctrl( 'color', __( 'Button Text Color', 'canvasly-lite' ), 'content', $back, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-color: {{VALUE}};' ) ) ),
 
-			// Content — Settings
+			// Content - Settings
 			'flip_effect'        => $this->ctrl(
 				'choose',
 				__( 'Flip Effect', 'canvasly-lite' ),
@@ -203,11 +203,11 @@ class FlipBox extends Unit {
 						'fade'  => __( 'Fade', 'canvasly-lite' ),
 					),
 					'icons'   => array(
-						'flip'  => '⟳',
-						'slide' => '↔',
-						'push'  => '⇉',
-						'zoom'  => '⤢',
-						'fade'  => '◌',
+						'flip'  => "\u{27F3}",
+						'slide' => "\u{2194}",
+						'push'  => "\u{21C9}",
+						'zoom'  => "\u{2922}",
+						'fade'  => "\u{25CC}",
 					),
 				)
 			),
@@ -278,7 +278,7 @@ class FlipBox extends Unit {
 				)
 			),
 
-			// Style — Front
+			// Style - Front
 			'front_background'   => $this->ctrl( 'background', __( 'Background', 'canvasly-lite' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front' => '{{VALUE}}' ) ) ),
 			'front_align'        => $this->ctrl(
 				'choose',
@@ -389,7 +389,7 @@ class FlipBox extends Unit {
 				)
 			),
 
-			// Style — Back
+			// Style - Back
 			'back_background'    => $this->ctrl( 'background', __( 'Background', 'canvasly-lite' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back' => '{{VALUE}}' ) ) ),
 			'back_align'         => $this->ctrl(
 				'choose',
@@ -500,7 +500,7 @@ class FlipBox extends Unit {
 				)
 			),
 
-			// Style — Button
+			// Style - Button
 			'button_typography'  => $this->ctrl( 'typography', __( 'Typography', 'canvasly-lite' ), 'style', $s_btn, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}} .lb-flip-button' => '{{VALUE}}' ) ) ),
 			'button_hover_background' => $this->ctrl( 'color', __( 'Hover Background', 'canvasly-lite' ), 'style', $s_btn, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-hover-bg: {{VALUE}};' ) ) ),
 			'button_hover_color' => $this->ctrl( 'color', __( 'Hover Text Color', 'canvasly-lite' ), 'style', $s_btn, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-hover-color: {{VALUE}};' ) ) ),

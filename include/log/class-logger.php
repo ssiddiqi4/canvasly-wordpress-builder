@@ -372,7 +372,7 @@ class Logger {
 			return '';
 		}
 		if ( strlen( $json ) > 2048 ) {
-			$json = substr( $json, 0, 2045 ) . '...';
+			$json = ( function_exists( 'mb_strcut' ) ? mb_strcut( $json, 0, 2045, 'UTF-8' ) : substr( $json, 0, 2045 ) ) . '...';
 		}
 		return $json;
 	}

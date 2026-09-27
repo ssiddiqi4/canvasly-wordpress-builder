@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Tools → Replace URL: rewrite site URLs inside document JSON and CSS cache.
+ * Tools -> Replace URL: rewrite site URLs inside document JSON and CSS cache.
  */
 class ReplaceUrl {
 	const NOTICE = 'canvasly_lite_replace_url_notice';
@@ -165,7 +165,7 @@ class ReplaceUrl {
 		}
 
 		echo '<hr><h2>' . esc_html__( 'Replace URL', 'canvasly-lite' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Rewrite a site URL inside Canvasly documents and compiled CSS. Use this after moving from staging to production. The change cannot be undone — run a dry run first.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( "Rewrite a site URL inside Canvasly documents and compiled CSS. Use this after moving from staging to production. The change cannot be undone \u{2014} run a dry run first.", 'canvasly-lite' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		wp_nonce_field( 'lb_replace_url' );
 		echo '<input type="hidden" name="action" value="lb_replace_url">';
@@ -230,7 +230,7 @@ class ReplaceUrl {
 
 		$pairs = self::pairs( $from, $to );
 		/**
-		 * Filter old→new URL pairs (includes escaped/encoded variants).
+		 * Filter old->new URL pairs (includes escaped/encoded variants).
 		 *
 		 * @param array  $pairs
 		 * @param string $from
@@ -346,7 +346,7 @@ class ReplaceUrl {
 	}
 
 	/**
-	 * Old→new map including JSON-escaped slashes and percent-encoding.
+	 * Old->new map including JSON-escaped slashes and percent-encoding.
 	 *
 	 * @param string $from
 	 * @param string $to

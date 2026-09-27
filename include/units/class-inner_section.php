@@ -5,7 +5,7 @@ if(!defined('ABSPATH')) exit;
 class InnerSection extends Container {
  public function type(){return 'inner_section';}
  public function title(){return __('Inner Section', 'canvasly-lite');}
- public function icon(){return '▤';}
+ public function icon(){return "\u{25A4}";}
  public function category(){return 'layout';}
  public function defaults(){return ['layout'=>'flex','direction'=>'row','wrap'=>'nowrap','justify'=>'flex-start','align'=>'stretch','gap'=>16,'columns'=>2,'width'=>'100%','min_height'=>'','max_width'=>'','background'=>'','padding'=>[],'margin'=>[]];}
 }

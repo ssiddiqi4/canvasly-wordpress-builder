@@ -253,7 +253,7 @@ class Style {
   if(!empty($s['background_overlay']))$put('--lb-background-overlay',$s['background_overlay']);
   $put('color',self::resolve_token($s['color']??($s['text_color']??'')));
   if(isset($s['padding']))$put('padding',self::spacing($s['padding'])); if(isset($s['margin']))$put('margin',self::spacing($s['margin']));
-  if(isset($s['border_width']))$put('border-width',self::dimensions($s['border_width']));$put('border-style',$s['border_style']??'');$put('border-color',$s['border_color']??'');
+  if(isset($s['border_width']))$put('border-width',self::dimensions($s['border_width']));$put('border-style',$s['border_style']??'');$bc=$s['border_color']??'';/* A border style with no colour used to fall back to the text colour (a dark box). Default to white instead; the Button unit keeps its currentColor border. */if(($bc===''||$bc===null)&&in_array($s['border_style']??'',['solid','dashed','dotted','double','groove','ridge','inset','outset'],true)&&substr((string)$sel,-11)!==' .lb-button')$bc='#ffffff';$put('border-color',$bc);
   if(isset($s['border_radius']))$put('border-radius',self::dimensions($s['border_radius'])); elseif(isset($s['radius'])&&!is_array($s['radius']))$put('border-radius',floatval($s['radius']).'px');
   if(!empty($s['shadow']))$put('box-shadow',is_array($s['shadow'])&&class_exists(Groups::class)?Groups::compile_box_shadow($s['shadow']):self::shadow($s['shadow']));
   if(!empty($s['box_shadow'])&&empty($s['shadow']))$put('box-shadow',is_array($s['box_shadow'])&&class_exists(Groups::class)?Groups::compile_box_shadow($s['box_shadow']):self::shadow($s['box_shadow']));

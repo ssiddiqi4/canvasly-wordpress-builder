@@ -6,7 +6,7 @@ namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
  * a self-hosted background video.
  */
 class Container extends Unit {
- public function type(){return 'container';} public function title(){return __('Container', 'canvasly-lite');} public function icon(){return '▣';} public function category(){return 'layout';} public function supports_children(){return true;}
+ public function type(){return 'container';} public function title(){return __('Container', 'canvasly-lite');} public function icon(){return "\u{25A3}";} public function category(){return 'layout';} public function supports_children(){return true;}
  public function keywords(){return ['container','section','flex','grid','wrapper','layout','box'];}
  public static function html_tags(){return ['div','section','header','footer','main','article','aside','nav'];}
  public static function shapes(){return ['','wave','tilt','triangle','curve','arrow','zigzag','mountains'];}
@@ -65,7 +65,7 @@ class Container extends Unit {
    'shape_bottom_front'=>$this->ctrl('switch',__('Bring Bottom Shape Front', 'canvasly-lite'),'style',$shape,['condition'=>['shape_bottom!'=>'']]),
   ];
  }
- /** Original Canvasly shape geometry, drawn in a 1000×100 box and filled toward the bottom edge. */
+ /** Original Canvasly shape geometry, drawn in a 1000x100 box and filled toward the bottom edge. */
  public static function shape_path($shape){
   switch($shape){
    case 'wave': return 'M0,60 C150,110 350,10 500,60 C650,110 850,10 1000,60 L1000,100 L0,100 Z';

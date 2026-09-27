@@ -9,6 +9,10 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+// Plugin output is UTF-8; say so explicitly so symbols never render as mojibake.
+if ( ! headers_sent() ) {
+	header( 'Content-Type: text/html; charset=UTF-8' );
+}
 
 $canvasly_lite_inherit_theme = class_exists( '\CanvaslyLite\Templates\ThemeChrome' ) && \CanvaslyLite\Templates\ThemeChrome::provides();
 
@@ -16,7 +20,7 @@ if ( $canvasly_lite_inherit_theme && \CanvaslyLite\Templates\ThemeChrome::is_blo
 	?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<?php wp_head(); ?>
 </head>
@@ -58,7 +62,7 @@ if ( $canvasly_lite_inherit_theme ) {
 	?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<?php wp_head(); ?>
 </head>
@@ -87,7 +91,7 @@ if ( $canvasly_lite_inherit_theme ) {
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<?php wp_head(); ?>
 </head>

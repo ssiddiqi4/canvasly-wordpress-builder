@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Generic oEmbed: paste any allow-listed URL (Twitter, Spotify, TED, …).
+ * Generic oEmbed: paste any allow-listed URL (Twitter, Spotify, TED, ...).
  * YouTube/Vimeo/self-hosted video stay on the Video widget; files stay on Audio.
  */
 class Embed extends Unit {
@@ -19,7 +19,7 @@ class Embed extends Unit {
 		return __( 'Embed', 'canvasly-lite' );
 	}
 	public function icon() {
-		return '⧉';
+		return "\u{29C9}";
 	}
 	public function category() {
 		return 'media';

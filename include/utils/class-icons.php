@@ -23,7 +23,7 @@ class Icons {
  public static function svg($id,$class=''){
   $id=sanitize_key((string)$id); $i=self::all()[$id]??null;
   if(!$i && $id==='spark')$i=self::all()['star']??null;
-  if(!$i)return '<span class="lb-icon-fallback" aria-hidden="true">★</span>';
+  if(!$i)return '<span class="lb-icon-fallback" aria-hidden="true">&#9733;</span>';
   if(!empty($i['svg'])){
    $svg=wp_kses($i['svg'],['svg'=>['viewBox'=>true,'viewbox'=>true,'aria-hidden'=>true,'role'=>true,'xmlns'=>true,'width'=>true,'height'=>true,'class'=>true], 'path'=>['d'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'fill-rule'=>true,'clip-rule'=>true]]);
    return preg_replace('/<svg\b/i','<svg class="'.esc_attr(trim('lb-fa-icon '.$class)).'" width="1em" height="1em"', $svg,1);

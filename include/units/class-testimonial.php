@@ -2,7 +2,7 @@
 namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 /** Testimonial: one or more quotes (repeater) with author image, name, role and optional link. */
 class Testimonial extends Unit {
- public function type(){return 'testimonial';} public function title(){return __('Testimonial', 'canvasly-lite');} public function icon(){return '❝';} public function category(){return 'basic';}
+ public function type(){return 'testimonial';} public function title(){return __('Testimonial', 'canvasly-lite');} public function icon(){return "\u{275D}";} public function category(){return 'basic';}
  public function keywords(){return ['testimonial','quote','review','customer','feedback'];}
  public function defaults(){return [
   'items'=>[[
@@ -32,7 +32,7 @@ class Testimonial extends Unit {
    'quote_color'=>$this->ctrl('color',__('Text Color', 'canvasly-lite'),'style',$content),
    'image_width'=>$this->ctrl('number',__('Size', 'canvasly-lite'),'style',$image),
    'image_radius'=>$this->ctrl('number',__('Radius', 'canvasly-lite'),'style',$image),
-   'name_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$name),
+   'name_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$name,['selectors'=>['{{WRAPPER}} .lb-testimonial-name,{{WRAPPER}} .lb-testimonial-name a'=>'color: {{VALUE}};']]),
    'role_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$role),
   ];
  }

@@ -1,7 +1,7 @@
 <?php
 namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 class Image extends Unit {
- public function type(){return 'image';} public function title(){return __('Image', 'canvasly-lite');} public function icon(){return '▧';} public function category(){return 'media';}
+ public function type(){return 'image';} public function title(){return __('Image', 'canvasly-lite');} public function icon(){return "\u{25A7}";} public function category(){return 'media';}
  public function keywords(){return ['image','photo','picture','lightbox','caption','responsive','media','srcset','alt'];}
  public function scripts($s=[]){
   $s=is_array($s)?$s:[];
@@ -10,7 +10,7 @@ class Image extends Unit {
  }
  public function defaults(){return ['image_id'=>0,'image_url'=>'','image_size'=>'full','alt'=>'','link_to'=>'none','link'=>'','link_target'=>'_self','lightbox'=>false,'caption'=>'','caption_type'=>'none','alignment'=>'left','align_self'=>'start','width'=>'100%','height'=>'','object_fit'=>'cover','object_position'=>'center','hover_animation'=>'','border_width'=>[],'border_style'=>'','border_color'=>'','border_radius'=>[],'radius'=>0,'shadow'=>[],'hover_shadow'=>[],'hover_border_color'=>'','opacity'=>1,'filter'=>'','hover_filter'=>'','image_hover_opacity'=>'','hover_transition'=>'','caption_align'=>'center','caption_color'=>'','caption_spacing'=>'','caption_size'=>'','margin'=>[],'padding'=>[],'position'=>'','z_index'=>0,'css_id'=>'','css_class'=>'','global_class'=>'','custom_css'=>'','loading'=>'lazy','decoding'=>'async','fetchpriority'=>'auto'];}
  public function controls(){
-  $img=__('Image', 'canvasly-lite'); $sizes=['thumbnail'=>'Thumbnail','medium'=>'Medium','medium_large'=>'Medium Large','large'=>'Large','1536x1536'=>'1536×1536','2048x2048'=>'2048×2048','full'=>'Full'];
+  $img=__('Image', 'canvasly-lite'); $sizes=['thumbnail'=>'Thumbnail','medium'=>'Medium','medium_large'=>'Medium Large','large'=>'Large','1536x1536'=>"1536\u{D7}1536",'2048x2048'=>"2048\u{D7}2048",'full'=>'Full'];
   $len=['%','px','vw','em','rem'];
   $hover=__('Hover', 'canvasly-lite'); $border=__('Border', 'canvasly-lite'); $cap=__('Caption', 'canvasly-lite');
   $pic='{{WRAPPER}} .lb-image, {{WRAPPER}} .lb-image-preview';

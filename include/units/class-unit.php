@@ -4,7 +4,7 @@ if ( ! defined('ABSPATH') ) exit;
 abstract class Unit {
  public function type(){return '';}
  public function title(){return '';}
- public function icon(){return '◇';}
+ public function icon(){return "\u{25C7}";}
  public function category(){return 'basic';}
  /** Widget package slug (`lite`, `pro`, or an add-on). Empty lets Units Manager infer it from the class namespace. */
  public function source(){return '';}
@@ -133,11 +133,11 @@ abstract class Unit {
   foreach($this->controls() as $def){ if(is_array($def))return true; }
   return false;
  }
- /** True when the unit renders a clickable button (CTA, submit, read more, …). */
+ /** True when the unit renders a clickable button (CTA, submit, read more, ...). */
  public function uses_button(){return false;}
  /** Descendant selectors for button-like nodes, used by the shared Advanced radius control. */
  public static function button_selector(){
-  return '{{WRAPPER}} .lb-button,{{WRAPPER}} .lb-form button,{{WRAPPER}} .lb-read-more,{{WRAPPER}} .lb-price-table>a,{{WRAPPER}} .lb-login button,{{WRAPPER}} .lb-link-bio-links a,{{WRAPPER}} .lb-flip-button,{{WRAPPER}} .lb-loop-more,{{WRAPPER}} .lb-loop-page,{{WRAPPER}} .cp-cta-button';
+  return '{{WRAPPER}} .lb-button,{{WRAPPER}} .lb-form button,{{WRAPPER}} .lb-read-more,{{WRAPPER}} .lb-price-table>a,{{WRAPPER}} .lb-login button,{{WRAPPER}} .lb-login input[type=submit],{{WRAPPER}} .lb-link-bio-links a,{{WRAPPER}} .lb-flip-button,{{WRAPPER}} .lb-loop-more,{{WRAPPER}} .lb-loop-page,{{WRAPPER}} .cp-cta-button';
  }
  /**
   * Full normalized control schema: unit controls + shared controls, filtered through
@@ -163,9 +163,38 @@ abstract class Unit {
  }
  /** Unfiltered unit + shared controls. Unit definitions win over shared ones with the same key. */
  protected function base_controls(){
-  return $this->controls()+self::shared_controls();
+  return $this->controls()+$this->button_controls()+self::shared_controls();
  }
- /** Compact schema entry: type, label, tab, section, plus any extra keys (options, selectors, condition…). */
+ /**
+  * Selectors (inside the unit, comma separated) for the buttons that get the shared
+  * Style > Button / Button Hover colours. '' = the unit has no such button (or styles its own).
+  */
+ public function button_style_selector(){return '';}
+ /**
+  * Shared Button + Button Hover colour controls for units that declare button_style_selector().
+  * The ID-scoped selectors outrank theme rules such as `button:hover{background:red}`,
+  * so the button keeps its colours on hover unless a Hover colour is set.
+  */
+ protected function button_controls(){
+  $parts=array_values(array_filter(array_map('trim',explode(',',(string)$this->button_style_selector())),'strlen'));
+  if(!$parts)return [];
+  $sel=function(array $states)use($parts){
+   $out=[];
+   foreach($parts as $p){ foreach($states as $st){ $out[]='{{WRAPPER}} '.$p.$st; } }
+   return implode(',',$out);
+  };
+  $n=$sel(['']); $h=$sel([':hover',':focus-visible']);
+  $btn=__('Button', 'canvasly-lite'); $hov=__('Button Hover', 'canvasly-lite');
+  return [
+   'btn_text_color'=>$this->ctrl('color',__('Button Text', 'canvasly-lite'),'style',$btn,['selectors'=>[$n=>'color: {{VALUE}};']]),
+   'btn_background'=>$this->ctrl('color',__('Button Background', 'canvasly-lite'),'style',$btn,['selectors'=>[$n=>'background-color: {{VALUE}}; background-image: none;']]),
+   'btn_border_color'=>$this->ctrl('color',__('Button Border', 'canvasly-lite'),'style',$btn,['selectors'=>[$n=>'border-color: {{VALUE}};']]),
+   'btn_hover_text_color'=>$this->ctrl('color',__('Hover Text', 'canvasly-lite'),'style',$hov,['selectors'=>[$h=>'color: {{VALUE}};']]),
+   'btn_hover_background'=>$this->ctrl('color',__('Hover Background', 'canvasly-lite'),'style',$hov,['selectors'=>[$h=>'background-color: {{VALUE}}; background-image: none;']]),
+   'btn_hover_border_color'=>$this->ctrl('color',__('Hover Border', 'canvasly-lite'),'style',$hov,['selectors'=>[$h=>'border-color: {{VALUE}};']]),
+  ];
+ }
+ /** Compact schema entry: type, label, tab, section, plus any extra keys (options, selectors, condition...). */
  protected function ctrl($type,$label,$tab,$section,array $extra=[]){
   return array_merge(['type'=>$type,'label'=>$label,'tab'=>$tab,'section'=>$section],$extra);
  }
@@ -213,7 +242,7 @@ abstract class Unit {
  }
  /**
   * Normalize a control `dynamic` flag. `true` infers categories from the type; an array may set
-  * `categories`. Content keys (text, title, url, …) default to on when the flag is omitted.
+  * `categories`. Content keys (text, title, url, ...) default to on when the flag is omitted.
   *
   * @param string $key
   * @param string $type
@@ -246,7 +275,7 @@ abstract class Unit {
   $cats=array_values(array_unique(array_filter($cats,function($c)use($allowed){return in_array($c,$allowed,true);})));
   return $cats?array('active'=>true,'categories'=>$cats):false;
  }
- /** "some_key" → "Some Key". */
+ /** "some_key" -> "Some Key". */
  public static function humanize($key){return ucwords(str_replace('_',' ',(string)$key));}
  /** Evaluate a schema `condition` against a settings array. Keys ending in `!` mean "not equal"; array values mean "one of". */
  public static function condition_met($cond,array $s){
@@ -398,7 +427,7 @@ abstract class Unit {
   }
   return $out;
  }
- /** One pipe-delimited line → associative item using `$columns` field names. */
+ /** One pipe-delimited line -> associative item using `$columns` field names. */
  protected function pipe_item($line,array $columns){
   $parts=array_map('trim',explode('|',(string)$line));
   $item=[];

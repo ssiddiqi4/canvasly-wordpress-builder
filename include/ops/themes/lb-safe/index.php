@@ -2,10 +2,13 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+if ( ! headers_sent() ) {
+	header( 'Content-Type: text/html; charset=UTF-8' );
+}
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<?php wp_head(); ?>
 </head>

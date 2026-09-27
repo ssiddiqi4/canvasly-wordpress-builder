@@ -6,7 +6,7 @@ namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
  * are migrated on load. Toggle reuses this markup but allows several panels open.
  */
 class Accordion extends Unit {
- public function type(){return 'accordion';} public function title(){return __('Accordion', 'canvasly-lite');} public function icon(){return '≡';} public function category(){return 'basic';}
+ public function type(){return 'accordion';} public function title(){return __('Accordion', 'canvasly-lite');} public function icon(){return "\u{2261}";} public function category(){return 'basic';}
  public function keywords(){return ['accordion','collapse','faq','panel','toggle'];}
  public function scripts($s=[]){return $this->frontend_scripts();}
  protected function single_open(){return true;}

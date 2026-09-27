@@ -6,7 +6,7 @@ namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
  * overlay with a play icon, a lightbox mode and a fixed aspect ratio box.
  */
 class Video extends Unit {
- public function type(){return 'video';} public function title(){return __('Video', 'canvasly-lite');} public function icon(){return '▶';} public function category(){return 'media';}
+ public function type(){return 'video';} public function title(){return __('Video', 'canvasly-lite');} public function icon(){return "\u{25B6}";} public function category(){return 'media';}
  public function keywords(){return ['video','player','embed','oembed','youtube','vimeo','dailymotion','videopress','mp4','lightbox'];}
  public function scripts($s=[]){
   $s=is_array($s)?$s:[];

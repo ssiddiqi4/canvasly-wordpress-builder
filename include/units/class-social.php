@@ -5,7 +5,7 @@ namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
  * rows are migrated on load.
  */
 class Social extends Unit {
- public function type(){return 'social';} public function title(){return __('Social Icons', 'canvasly-lite');} public function icon(){return '⚭';} public function category(){return 'basic';}
+ public function type(){return 'social';} public function title(){return __('Social Icons', 'canvasly-lite');} public function icon(){return "\u{26AD}";} public function category(){return 'basic';}
  public function keywords(){return ['social','icons','share','facebook','instagram','linkedin','x','youtube','network'];}
  /** network key => [icon id, brand colour] */
  public static function networks(){return [

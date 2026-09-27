@@ -3,7 +3,7 @@
  * Early Safe Mode bootstrapping. Loaded from an mu-plugin so other plugins
  * and the theme never load on Canvasly editor requests for that user.
  *
- * Must stay free of the Canvasly autoloader — it runs before plugins_loaded.
+ * Must stay free of the Canvasly autoloader - it runs before plugins_loaded.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -53,7 +53,7 @@ if ( ! function_exists( 'canvasly_lite_safe_mode_cookie_user' ) ) {
 if ( ! function_exists( 'canvasly_lite_safe_mode_is_target_request' ) ) {
 	/**
 	 * Editor, Canvasly admin screens and Canvasly REST only.
-	 * Never plugins.php / update.php — filtering active_plugins there would
+	 * Never plugins.php / update.php - filtering active_plugins there would
 	 * hide every other plugin on the Plugins screen.
 	 *
 	 * @param array|null $src Optional request snapshot (tests).

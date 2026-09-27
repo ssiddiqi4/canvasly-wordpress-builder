@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Jump target plus an optional site menu.
  *
  * In the header, footer, and canvas the Content tab lists menus from
- * Appearance → Menus and Navigation posts from the Site Editor.
+ * Appearance -> Menus and Navigation posts from the Site Editor.
  */
 class MenuAnchor extends Unit {
 	/**
@@ -40,7 +40,7 @@ class MenuAnchor extends Unit {
 	}
 
 	public function icon() {
-		return '⚑';
+		return "\u{2691}";
 	}
 
 	public function keywords() {
@@ -300,7 +300,7 @@ class MenuAnchor extends Unit {
 	}
 
 	/**
-	 * [canvasly_anchor id="contact-us"]…[/canvasly_anchor]
+	 * [canvasly_anchor id="contact-us"]...[/canvasly_anchor]
 	 *
 	 * @param array|string $atts
 	 * @param string|null  $content

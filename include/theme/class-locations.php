@@ -69,7 +69,7 @@ class Locations {
 	}
 
 	/**
-	 * @param string $id   Location id (`header`, `footer`, …).
+	 * @param string $id   Location id (`header`, `footer`, ...).
 	 * @param array  $args Optional label and flags. Stored, not printed.
 	 * @return bool
 	 */

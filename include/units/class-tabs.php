@@ -2,7 +2,7 @@
 namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
 /** Tabs: repeater of title/content rendered as an accessible tablist. */
 class Tabs extends Unit {
- public function type(){return 'tabs';} public function title(){return __('Tabs', 'canvasly-lite');} public function icon(){return '⊟';} public function category(){return 'basic';}
+ public function type(){return 'tabs';} public function title(){return __('Tabs', 'canvasly-lite');} public function icon(){return "\u{229F}";} public function category(){return 'basic';}
  public function keywords(){return ['tabs','tab','panel','switch','navigation'];}
  public function scripts($s=[]){return $this->frontend_scripts();}
  public function defaults(){return [

@@ -5,7 +5,7 @@ namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
  * weight, spacing and an optional centred text or icon unit.
  */
 class Divider extends Unit {
- public function type(){return 'divider';} public function title(){return __('Divider', 'canvasly-lite');} public function icon(){return '—';} public function category(){return 'basic';}
+ public function type(){return 'divider';} public function title(){return __('Divider', 'canvasly-lite');} public function icon(){return "\u{2014}";} public function category(){return 'basic';}
  public function keywords(){return ['divider','separator','line','hr','rule'];}
  public static function line_styles(){return ['solid','double','dotted','dashed','wavy','zigzag','curly','slashes','squared','multiple'];}
  public function defaults(){return ['style'=>'solid','divider_width'=>'100%','align'=>'center','thickness'=>1,'color'=>'#dddddd','divider_gap'=>15,'pattern_size'=>20,'look'=>'line','text'=>'Divider','text_tag'=>'span','icon'=>'star','unit_align'=>'center','unit_spacing'=>15,'text_color'=>'','icon_color'=>'','icon_size'=>'','icon_view'=>'default'];}

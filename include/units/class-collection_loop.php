@@ -36,7 +36,7 @@ class CollectionLoop extends Unit {
 		return __( 'Collection Loop', 'canvasly-lite' );
 	}
 	public function icon() {
-		return '↻';
+		return "\u{21BB}";
 	}
 	public function category() {
 		return 'advanced';
@@ -206,7 +206,7 @@ class CollectionLoop extends Unit {
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
 			'author'          => $this->ctrl( 'text', __( 'Author', 'canvasly-lite' ), 'content', $query, array(
-				'placeholder' => __( 'User ID or “current”', 'canvasly-lite' ),
+				'placeholder' => __( "User ID or \u{201C}current\u{201D}", 'canvasly-lite' ),
 				'condition'   => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
 			'date'            => $this->ctrl( 'select', __( 'Date', 'canvasly-lite' ), 'content', $query, array(
@@ -413,6 +413,15 @@ class CollectionLoop extends Unit {
 			) ),
 			'pag_background'  => $this->ctrl( 'color', __( 'Background', 'canvasly-lite' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' a,' . $nav . ' span,' . $nav . ' button' => 'background-color: {{VALUE}};' ),
+			) ),
+			'pag_hover_color' => $this->ctrl( 'color', __( 'Hover Color', 'canvasly-lite' ), 'style', $pag, array(
+				'selectors' => array( $nav . ' a:hover,' . $nav . ' a:focus-visible,' . $nav . ' button:hover,' . $nav . ' button:focus-visible' => 'color: {{VALUE}};' ),
+			) ),
+			'pag_hover_background' => $this->ctrl( 'color', __( 'Hover Background', 'canvasly-lite' ), 'style', $pag, array(
+				'selectors' => array( $nav . ' a:hover,' . $nav . ' a:focus-visible,' . $nav . ' button:hover,' . $nav . ' button:focus-visible' => 'background-color: {{VALUE}}; background-image: none;' ),
+			) ),
+			'pag_hover_border' => $this->ctrl( 'color', __( 'Hover Border', 'canvasly-lite' ), 'style', $pag, array(
+				'selectors' => array( $nav . ' a:hover,' . $nav . ' a:focus-visible,' . $nav . ' button:hover,' . $nav . ' button:focus-visible' => 'border-color: {{VALUE}};' ),
 			) ),
 		);
 	}

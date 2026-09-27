@@ -633,7 +633,7 @@ class Upgrades {
 		echo '<tr><th>' . esc_html__( 'Status', 'canvasly-lite' ) . '</th><td>' . esc_html( self::state_label( $state ) ) . '</td></tr>';
 		if ( ! empty( $s['task']['id'] ) ) {
 			echo '<tr><th>' . esc_html__( 'Current task', 'canvasly-lite' ) . '</th><td><code>' . esc_html( (string) $s['task']['id'] ) . '</code>';
-			echo ' — ' . esc_html(
+			echo " \u{2014} " . esc_html(
 				sprintf(
 					/* translators: %d: processed count */
 					__( '%d processed', 'canvasly-lite' ),

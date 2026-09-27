@@ -15,7 +15,7 @@ class Audio extends Unit {
 		return __( 'Audio', 'canvasly-lite' );
 	}
 	public function icon() {
-		return '♫';
+		return "\u{266B}";
 	}
 	public function category() {
 		return 'media';

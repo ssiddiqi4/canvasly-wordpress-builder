@@ -1,6 +1,6 @@
 <?php
 namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
-/** Heading: h1–h6 title with size presets, typography, hover colour/shadow and an optional link. */
+/** Heading: h1-h6 title with size presets, typography, hover colour/shadow and an optional link. */
 class Heading extends Unit {
  public function type(){return 'heading';} public function title(){return __('Heading', 'canvasly-lite');} public function icon(){return 'H';} public function category(){return 'basic';}
  public function keywords(){return ['heading','title','h1','h2','h3','headline'];}
@@ -16,7 +16,7 @@ class Heading extends Unit {
    'link_target'=>$this->ctrl('select',__('Link Target', 'canvasly-lite'),'content',$title,['options'=>self::opt_target(),'condition'=>['link!'=>'']]),
    'size_preset'=>$this->ctrl('select',__('Size', 'canvasly-lite'),'content',$title,['options'=>['default'=>__('Default', 'canvasly-lite'),'small'=>__('Small', 'canvasly-lite'),'medium'=>__('Medium', 'canvasly-lite'),'large'=>__('Large', 'canvasly-lite'),'xl'=>__('XL', 'canvasly-lite'),'xxl'=>__('XXL', 'canvasly-lite')]]),
    'align'=>$this->ctrl('choose',__('Alignment', 'canvasly-lite'),'style',$typo,['responsive'=>true,'options'=>self::opt_align(),'selectors'=>['{{WRAPPER}}'=>'text-align: {{VALUE}};']]),
-   'color'=>$this->ctrl('color',__('Text Color', 'canvasly-lite'),'style',$typo,['selectors'=>[$h=>'color: {{VALUE}};']]),
+   'color'=>$this->ctrl('color',__('Text Color', 'canvasly-lite'),'style',$typo,['selectors'=>[$h=>'color: {{VALUE}};',$h.' .lb-heading-link'=>'color: {{VALUE}};']]),
    'font_family'=>$this->ctrl('font',__('Font Family', 'canvasly-lite'),'style',$typo,['selectors'=>[$h=>'font-family: {{VALUE}};']]),
    'size'=>$this->ctrl('slider',__('Size', 'canvasly-lite'),'style',$typo,['responsive'=>true,'units'=>['px','em','rem'],'range'=>['min'=>8,'max'=>200],'condition'=>['size_preset'=>'default'],'selectors'=>[$h=>'font-size: {{SIZE}}{{UNIT}};']]),
    'weight'=>$this->ctrl('select',__('Weight', 'canvasly-lite'),'style',$typo,['options'=>self::opt_weight(),'selectors'=>[$h=>'font-weight: {{VALUE}};']]),
