@@ -98,10 +98,10 @@ class SiteNav extends Unit {
 			'display_name' => '',
 			'layout'       => 'horizontal',
 			'breakpoint'   => self::DEFAULT_BP,
-			'label'        => '',
-			'color'       => '',
-			'hover_color' => '',
-			'background'  => '',
+			'radius'       => '4px',
+			'color'        => '',
+			'hover_color'  => '',
+			'background'   => '',
 		);
 	}
 
@@ -158,13 +158,23 @@ class SiteNav extends Unit {
 					'description' => __( 'The menu collapses into a hamburger button below this width.', 'canvasly-lite' ),
 				)
 			),
-			'label'       => $this->ctrl(
-				'text',
-				__( 'ARIA label', 'canvasly-lite' ),
-				'content',
+			'radius'      => $this->ctrl(
+				'slider',
+				__( 'Border radius', 'canvasly-lite' ),
+				'style',
 				$section,
 				array(
-					'placeholder' => __( 'Primary', 'canvasly-lite' ),
+					'units'       => array( 'px' ),
+					'range'       => array(
+						'min'  => 0,
+						'max'  => 48,
+						'step' => 1,
+					),
+					'default'     => 4,
+					'description' => __( 'Rounds the menu button and dropdown corners.', 'canvasly-lite' ),
+					'selectors'   => array(
+						'{{WRAPPER}}' => '--lb-nav-radius: {{SIZE}}{{UNIT}};',
+					),
 				)
 			),
 			'color'       => $this->ctrl(
@@ -283,7 +293,7 @@ class SiteNav extends Unit {
 	}
 
 	/**
-	 * [canvasly_nav menu="primary" layout="horizontal" breakpoint="782" label="Primary" display_name="Tickets"]
+	 * [canvasly_nav menu="primary" layout="horizontal" breakpoint="782" display_name="Tickets"]
 	 *
 	 * @param array<string,mixed>|string $atts
 	 * @return string
@@ -294,7 +304,6 @@ class SiteNav extends Unit {
 				'menu'         => '',
 				'layout'       => 'horizontal',
 				'breakpoint'   => self::DEFAULT_BP,
-				'label'        => '',
 				'display_name' => '',
 			),
 			is_array( $atts ) ? $atts : array(),
@@ -308,7 +317,6 @@ class SiteNav extends Unit {
 				'theme_location' => $ref['theme_location'],
 				'layout'         => $atts['layout'],
 				'breakpoint'     => $atts['breakpoint'],
-				'label'          => $atts['label'],
 				'display_name'   => $atts['display_name'],
 				'echo'           => false,
 			)
@@ -320,7 +328,11 @@ class SiteNav extends Unit {
 		$s   = is_array( $s ) ? $s : array();
 		$ref = self::resolve_menu( $s['menu'] ?? '' );
 		if ( '' === $ref['menu'] && '' === $ref['theme_location'] && ! is_array( self::$test_items ) ) {
-			return '<nav class="' . esc_attr( $this->cls( $s ) . ' lb-site-nav' ) . '" aria-label="' . esc_attr( __( 'Menu', 'canvasly-lite' ) ) . '"><p class="lb-embed-placeholder">' . esc_html__( 'Choose a menu', 'canvasly-lite' ) . '</p></nav>';
+			$name = trim( (string) ( $s['display_name'] ?? '' ) );
+			if ( '' === $name ) {
+				$name = __( 'Menu', 'canvasly-lite' );
+			}
+			return '<nav class="' . esc_attr( $this->cls( $s ) . ' lb-site-nav' ) . '" aria-label="' . esc_attr( $name ) . '"><p class="lb-embed-placeholder">' . esc_html__( 'Choose a menu', 'canvasly-lite' ) . '</p></nav>';
 		}
 		return self::render_menu(
 			array(
@@ -328,7 +340,7 @@ class SiteNav extends Unit {
 				'theme_location' => $ref['theme_location'],
 				'layout'         => $s['layout'] ?? 'horizontal',
 				'breakpoint'     => $s['breakpoint'] ?? self::DEFAULT_BP,
-				'label'          => $s['label'] ?? '',
+				'radius'         => $s['radius'] ?? '',
 				'display_name'   => $s['display_name'] ?? '',
 				'color'          => $s['color'] ?? '',
 				'hover_color'    => $s['hover_color'] ?? '',
@@ -347,8 +359,7 @@ class SiteNav extends Unit {
 	 * - theme_location (string)    Registered theme location.
 	 * - layout (string)            `horizontal`, `vertical`, or `dropdown`.
 	 * - breakpoint (int)           Collapse width in pixels. Default 782.
-	 * - label (string)             Accessible name for the <nav>.
-	 * - display_name (string)      Button text. Blank uses the menu name.
+	 * - display_name (string)      Button text and the nav accessible name. Blank uses the menu name.
 	 * - echo (bool)                True prints the markup. Default true for the template tag.
 	 *
 	 * @param array<string,mixed> $args
@@ -442,7 +453,7 @@ class SiteNav extends Unit {
 
 	/**
 	 * @param array<string,mixed> $args
-	 * @return array{menu:int|string,theme_location:string,layout:string,breakpoint:int,label:string,display_name:string,color:string,hover_color:string,background:string,class:string,menu_id:string,echo:bool}
+	 * @return array{menu:int|string,theme_location:string,layout:string,breakpoint:int,display_name:string,color:string,hover_color:string,background:string,class:string,menu_id:string,echo:bool}
 	 */
 	private static function args( $args ) {
 		$args = is_array( $args ) ? $args : array();
@@ -463,7 +474,7 @@ class SiteNav extends Unit {
 			'theme_location' => sanitize_key( (string) ( $args['theme_location'] ?? '' ) ),
 			'layout'         => $layout,
 			'breakpoint'     => $bp,
-			'label'          => sanitize_text_field( (string) ( $args['label'] ?? '' ) ),
+			'radius'         => self::radius_of( $args['radius'] ?? '' ),
 			'display_name'   => sanitize_text_field( (string) ( $args['display_name'] ?? '' ) ),
 			'color'          => self::color_of( $args['color'] ?? '' ),
 			'hover_color'    => self::color_of( $args['hover_color'] ?? '' ),
@@ -473,6 +484,44 @@ class SiteNav extends Unit {
 			'nav_id'         => $id,
 			'echo'           => ! empty( $args['echo'] ),
 		);
+	}
+
+	/**
+	 * Corner radius for the menu button and dropdown. Blank keeps the stylesheet default.
+	 *
+	 * @param mixed $value
+	 * @return string
+	 */
+	public static function radius_of( $value ) {
+		if ( is_array( $value ) ) {
+			if ( isset( $value['size'] ) ) {
+				$unit  = isset( $value['unit'] ) ? $value['unit'] : 'px';
+				$value = $value['size'] . $unit;
+			} elseif ( isset( $value['desktop'] ) ) {
+				$value = $value['desktop'];
+				if ( is_array( $value ) ) {
+					$value = ( $value['size'] ?? '' ) . ( $value['unit'] ?? 'px' );
+				}
+			} else {
+				$value = '';
+			}
+		}
+		$value = trim( (string) $value );
+		if ( '' === $value ) {
+			return '';
+		}
+		if ( ! preg_match( '/^(-?\d*\.?\d+)\s*(px)?$/i', $value, $m ) ) {
+			return '';
+		}
+		$n = (float) $m[1];
+		if ( $n < 0 ) {
+			$n = 0;
+		}
+		if ( $n > 48 ) {
+			$n = 48;
+		}
+		$num = ( floor( $n ) === $n ) ? (string) (int) $n : (string) $n;
+		return $num . 'px';
 	}
 
 	/**
@@ -583,17 +632,6 @@ class SiteNav extends Unit {
 		if ( ! empty( $args['class'] ) ) {
 			$classes[] = (string) $args['class'];
 		}
-		$label = (string) ( $args['label'] ?? '' );
-		if ( '' === $label ) {
-			$label = __( 'Menu', 'canvasly-lite' );
-		}
-		$style = self::inline_vars( $args );
-		$html  = '<nav id="' . esc_attr( $nav_id ) . '" class="' . esc_attr( implode( ' ', $classes ) ) . '" data-breakpoint="' . esc_attr( (string) $bp ) . '"' . $style . ' aria-label="' . esc_attr( $label ) . '">';
-		if ( 'dropdown' === $layout ) {
-			$html .= '<div class="lb-site-nav__drop">';
-		}
-		$html .= '<button type="button" class="lb-site-nav__toggle" aria-expanded="false" aria-controls="' . esc_attr( $list_id ) . '">';
-		$html .= '<span class="lb-site-nav__burger" aria-hidden="true"></span>';
 		$toggle = (string) ( $args['display_name'] ?? '' );
 		if ( '' === $toggle ) {
 			$toggle = self::menu_title( $args );
@@ -601,6 +639,13 @@ class SiteNav extends Unit {
 		if ( '' === $toggle ) {
 			$toggle = __( 'Menu', 'canvasly-lite' );
 		}
+		$style = self::inline_vars( $args );
+		$html  = '<nav id="' . esc_attr( $nav_id ) . '" class="' . esc_attr( implode( ' ', $classes ) ) . '" data-breakpoint="' . esc_attr( (string) $bp ) . '"' . $style . ' aria-label="' . esc_attr( $toggle ) . '">';
+		if ( 'dropdown' === $layout ) {
+			$html .= '<div class="lb-site-nav__drop">';
+		}
+		$html .= '<button type="button" class="lb-site-nav__toggle" aria-expanded="false" aria-controls="' . esc_attr( $list_id ) . '">';
+		$html .= '<span class="lb-site-nav__burger" aria-hidden="true"></span>';
 		$html .= '<span class="lb-site-nav__toggle-text">' . esc_html( $toggle ) . '</span>';
 		$html .= '<span class="lb-site-nav__caret" aria-hidden="true">▾</span>';
 		$html .= '</button>';
@@ -625,6 +670,7 @@ class SiteNav extends Unit {
 			'color'       => '--lb-nav-color',
 			'hover_color' => '--lb-nav-hover',
 			'background'  => '--lb-nav-bg',
+			'radius'      => '--lb-nav-radius',
 		);
 		$bits = array();
 		foreach ( $map as $key => $var ) {
@@ -830,7 +876,7 @@ namespace {
 		 * Pass `'echo' => false` to capture the markup. The plugin registers
 		 * the stylesheet and script; this tag enqueues them.
 		 *
-		 * @param array<string,mixed> $args menu, theme_location, layout, breakpoint, label, echo.
+		 * @param array<string,mixed> $args menu, theme_location, layout, breakpoint, display_name, echo.
 		 * @return string
 		 */
 		function canvasly_lite_nav_menu( $args = array() ) {
