@@ -147,6 +147,54 @@ Canvasly prints CSS for the units a page uses, and it can write that CSS to file
 19. **Nav Menu**: A Pro navigation menu, including a mega menu from a section template.
 20. **Taxonomy Filter**: Filters a Collection Loop by taxonomy.
 21. **Payment Button** and **Payment Form**: Hosted checkout. Tax and fees are under Canvasly → Payments.
+22. **WPForms**: A published WPForms form, with its name and description optional. WPForms renders the form.
+
+**Pro design units**
+
+Each unit loads its own small CSS and JavaScript only on pages that use it.
+
+1. **Dual Button**: Two buttons side by side, with an optional connector badge.
+2. **Styled Text**: Display text with a gradient fill, outline stroke, highlight, or marquee.
+3. **Section Title**: A heading with an eyebrow line, subtitle, and decorative separator.
+4. **Promo Banner**: An image banner with an overlaid heading, text, and link.
+5. **Service Grid**: Service cards with an icon or image, title, text, link, and a hover style.
+6. **Logo Grid**: Client or partner logos as a grid or a continuous ticker.
+7. **Team Grid**: Photo, name, role, short bio, and profile links, with bio alignment, color, and typography.
+8. **Process Steps**: Numbered steps with connectors, in a row or a column.
+9. **Timeline**: A vertical timeline whose entries alternate sides and fade in on scroll.
+10. **Unfold**: Long text clipped to a set height with a fade and a Read more toggle.
+11. **Data Table**: A table from pasted CSV or pipe-separated rows, with optional sorting and search.
+12. **Chart**: Bar, line, and doughnut charts drawn as inline SVG, with an accessible data table.
+13. **Device Mockup**: A screenshot or video framed in a phone, tablet, laptop, or browser window.
+14. **Image Compare**: Before and after images with a draggable, keyboard-accessible handle.
+15. **Layered Images**: Stacked images with offsets, a float animation, and scroll parallax.
+16. **Image Reveal**: An image that wipes or curtains into view, with an optional hover tilt.
+17. **SVG Draw**: Draws the strokes of an SVG on scroll or on load.
+18. **Morphing Blob**: A decorative shape that slowly morphs and can hold an image.
+19. **Shape Divider**: Wave, curve, tilt, triangle, zigzag, or clouds between sections.
+20. **Coupon Reveal**: A coupon code behind a button. A click reveals and copies it.
+
+**Pro interactive units**
+
+1. **Content Switcher**: Toggle between two sets of content, such as monthly and yearly pricing.
+2. **Access Gate**: Shows its content only to logged-in visitors, chosen roles, or visitors with a password. Locked content is never sent to the browser.
+3. **Horizontal Scroll**: Pins its content and moves it sideways as the visitor scrolls.
+4. **Scroll Sequence**: Plays a numbered image sequence as the visitor scrolls.
+5. **Dot Navigation**: Side dots that jump to page sections and highlight the one in view.
+6. **Radial Menu**: A floating round button that fans out a set of links.
+7. **Mobile Bar**: An app-style bottom navigation bar on small screens.
+8. **Custom Cursor**: A dot and trailing ring for the whole page or one container. Touch screens and reduced motion keep the system cursor.
+9. **Page Loader**: A full-screen loading overlay that removes itself after a timeout.
+10. **Filterable Gallery**: An image gallery with category filter buttons, in a grid or masonry layout.
+11. **Audio Playlist**: A styled audio player with a track list.
+12. **Live Search**: A search box that suggests results while typing.
+13. **Login & Register**: Login, registration, and lost-password forms in tabs, handled by WordPress.
+
+**Pro dynamic units**
+
+1. **Post List**: Posts as a grid, a list, or a showcase with one large feature.
+2. **Category Grid**: Taxonomy terms as cards or a list, with post counts and optional images.
+3. **Custom Field**: One custom field of the current or a chosen post, as text, a link, an image, or a date.
 
 **Pro theme units**
 
@@ -175,6 +223,17 @@ These load only while WooCommerce is active.
 4. **Add To Cart**, **Product Related**, and **Product Upsells**
 5. **Shop Notices** and **Menu Cart**
 6. **Cart**, **Checkout**, **My Account**, and **Purchase Summary**
+7. **Wishlist / Compare / Quick View Button** and **Wishlist / Compare Table**: Lists are kept in the visitor's browser, so pages stay cacheable.
+8. **Order Tracking**: WooCommerce's order tracking form.
+
+**More Pro features**
+
+- **Display conditions**: Show or hide any unit by login status, user role, user registration date, post author, categories, tags, page parent, featured image, comment count, publish or modified date, current date, day of week, time of day, or URL parameter. Rules combine with And or Or.
+- **Loop item templates**: Design a Collection Loop item as a template, then filter the loop with the Taxonomy Filter unit.
+- **AI Assistant**: An assistant in the admin bar that uses your own provider key. It can build pages and layouts, change core settings, run Site Health, and manage plugins, themes, custom code, and ACF field groups, post types, and taxonomies. Changes wait for approval.
+- **MCP server and Abilities API**: External agents such as Claude Desktop, Cursor, and VS Code use the same tools through MCP. Canvasly tools are also registered as WordPress abilities.
+- **AI access controls**: An optional read-only server inspector (off by default) and a per-user switch to turn AI access off.
+- **WP-CLI**: `wp canvasly-pro theme list`, `wp canvasly-pro theme clear-cache`, and `wp canvasly-pro submissions export`.
 
 Build the rest of the site with **[Canvasly Pro](https://canvasly.pro/price.html)**.
 
