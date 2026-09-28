@@ -52,6 +52,22 @@ class Tool {
 	}
 
 	/**
+	 * Tags and attributes the source badge markup may contain when printed.
+	 *
+	 * @return array<string,array<string,bool>>
+	 */
+	private static function badge_allowed_html() {
+		return array(
+			'span' => array(
+				'class'       => true,
+				'style'       => true,
+				'title'       => true,
+				'aria-hidden' => true,
+			),
+		);
+	}
+
+	/**
 	 * Duplicate a post so the Elementor->Canvasly conversion can be written
 	 * to a brand-new draft rather than in place. Copies core post fields
 	 * plus every `_elementor_*` meta key (so the converter finds the same
@@ -323,7 +339,7 @@ class Tool {
 		}
 
 		echo '<div id="canvasly-lite-import-elementor" class="card" style="max-width:none;margin-top:24px;padding:16px 20px;">';
-		echo '<h2 style="display:flex;align-items:center;gap:8px;">' . self::elementor_badge( 'lg' ) . esc_html__( 'Import Elementor Pages / Convert Raw Data', 'canvasly-lite' ) . '</h2>';
+		echo '<h2 style="display:flex;align-items:center;gap:8px;">' . wp_kses( self::elementor_badge( 'lg' ), self::badge_allowed_html() ) . esc_html__( 'Import Elementor Pages / Convert Raw Data', 'canvasly-lite' ) . '</h2>';
 		echo '<p class="description">' . esc_html__( 'Reads stored Elementor page/section/widget JSON (and other raw third-party builder data), maps sections and columns to containers, and produces native Canvasly documents. Run a dry run first to see what will map cleanly and what won\'t, then commit when you\'re ready. Source Elementor data is never modified or deleted.', 'canvasly-lite' ) . '</p>';
 
 		if ( ! $candidates ) {
@@ -357,7 +373,7 @@ class Tool {
 			}
 			echo '<label style="display:flex;align-items:center;gap:6px;margin:4px 0;">';
 			echo '<input type="checkbox" name="ids[]" value="' . esc_attr( (string) ( $p['id'] ?? 0 ) ) . '"> ';
-			echo self::elementor_badge( 'sm', $is_elementor );
+			echo wp_kses( self::elementor_badge( 'sm', $is_elementor ), self::badge_allowed_html() );
 			echo esc_html( $label . ' (' . $meta . ')' );
 			echo '</label>';
 		}

@@ -261,7 +261,7 @@ class Editor {
    * that a truncated attribute parses as nothing and the canvas opens empty. */
   $doc_json=str_replace(array('<',"\u{2028}","\u{2029}"),array('\u003c','\u2028','\u2029'),$doc_json);
   echo '<div id="lb-editor-shell" class="lb-admin lb-fullscreen'.(class_exists('\\CanvaslyLite\\Settings\\Roles')&&\CanvaslyLite\Settings\Roles::is_content_only()?' lb-content-only':'').'"'.(function_exists('is_rtl')&&is_rtl()?' dir="rtl"':'').'><div id="lb-editor" data-post-id="'.esc_attr($post_id).'" data-lb-has-document="1"></div></div>';
-  echo '<script type="application/json" id="lb-editor-document">'.$doc_json.'</script>';
+  wp_print_inline_script_tag($doc_json,array('type'=>'application/json','id'=>'lb-editor-document'));
   echo '<div id="lb-tinymce-boot-wrap" class="lb-tinymce-boot-wrap" hidden>';
   wp_editor('<p></p>','lb_tinymce_boot',[
    'textarea_rows'=>2,
