@@ -1,0 +1,89 @@
+<!-- wp:html -->
+<p class="brand"><a href="https://canvasly.pro"><img class="brand-logo" src="https://canvasly.pro/assets/canvasly-logo.png" alt="Canvasly. Design your pages visually." width="400" height="320" style="height:96px;width:auto;border-radius:12px"></a></p>
+<!-- /wp:html -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Two WordPress plugins. Free to start. Pro when you need more.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 1} -->
+<h1 class="wp-block-heading">WordPress tools for pages and video</h1>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "lede"} -->
+<p class="lede">Canvasly is a visual page builder. VidCellar is a video library that plays privately on your own site. Each one ships as a free plugin, and each has an optional Pro add-on that runs only while the free plugin is active.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className": "product-kicker"} -->
+<p class="product-kicker">Page builder</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Canvasly</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Design a page on a canvas, then publish it the usual WordPress way. The editor has a unit library, desktop, tablet, and mobile views, and a design system for colors, type, and reusable parts.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li>Free Canvasly Lite includes nested containers, CSS Grid, templates, and the core unit library.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Canvasly Pro adds theme parts, shop units, popups, forms logging, hosted payments, and an AI connection/MCP for AI assisted web page design.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Pro loads only when Canvasly is active and at least version 0.12.73. WordPress 6.9 or newer and PHP 7.4 or newer are required.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph {"className": "product-actions"} -->
+<p class="product-actions"><button type="button" class="pricing-buy lite-cta">Get Canvasly Lite Free</button>
+          <a class="pricing-buy" href="/canvasly-overview/">Canvasly overview</a>
+          <a href="/canvasly-price/">Canvasly Lite vs Pro and prices</a></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className": "product-kicker"} -->
+<p class="product-kicker">Video library</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">VidCellar</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Host and play videos on your own WordPress site. Lite stores videos on the server and plays them in a responsive player. Visitors can browse categories, search, rate, and watch without a separate video account.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li>Free VidCellar Lite includes the library, categories, thumbnails, trailers, ratings, and resumable uploads.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>VidCellar Pro adds Stripe and PayPal checkout, complimentary coupons, advertisement breaks, sales reports, and cloud storage.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Pro requires VidCellar Lite. WordPress 6.2 or newer and PHP 7.4 or newer are required.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:html -->
+<a class="pricing-buy" href="https://canvasly.pro/vidcellar/index.html">VidCellar Pro</a>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<a class="pricing-buy lite-cta" href="https://canvasly.pro/vidcellar">Get VidCellar Lite Free</a>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">What stays on your site</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Canvasly documents and VidCellar video files live in WordPress. Neither free plugin replaces the other, and neither Pro plugin runs on its own. Choose a product from the menu, or open the Canvasly guide for install, settings, units, shortcodes, and AI connection.</p>
+<!-- /wp:paragraph -->

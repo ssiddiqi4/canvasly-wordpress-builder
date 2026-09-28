@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact Canvasly Support</title>
+  <meta name="description" content="Contact Canvasly support about Canvasly or VidCellar. Send your name, email address, and a message written in English.">
+  <meta name="author" content="Canvasly">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="theme-color" content="#f6f1e7">
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml">
+  <link rel="canonical" href="https://canvasly.pro/support.html">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Canvasly">
+  <meta property="og:title" content="Contact Canvasly Support">
+  <meta property="og:description" content="Contact Canvasly support about Canvasly or VidCellar. Send your name, email address, and a message written in English.">
+  <meta property="og:url" content="https://canvasly.pro/support.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Contact Canvasly Support">
+  <meta name="twitter:description" content="Contact Canvasly support about Canvasly or VidCellar. Send your name, email address, and a message written in English.">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "Contact Canvasly Support",
+  "description": "Contact Canvasly support about Canvasly or VidCellar. Send your name, email address, and a message written in English.",
+  "url": "https://canvasly.pro/support.html",
+  "inLanguage": "en",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Canvasly",
+    "url": "https://canvasly.pro/"
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://canvasly.pro/"},
+      {"@type": "ListItem", "position": 2, "name": "Support", "item": "https://canvasly.pro/support.html"}
+    ]
+  }
+}
+  </script>
+  <link rel="stylesheet" href="assets/style.css?v=20260924">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header">
+    <p class="brand"><a href="https://canvasly.pro"><img class="brand-logo" src="assets/canvasly-logo.png" alt="Canvasly. Design your pages visually." width="400" height="320"></a></p>
+    <nav aria-label="Documentation">
+      <a href="https://canvasly.pro">Home</a>
+      <details class="nav-drop">
+        <summary>Products</summary>
+        <ul>
+          <li><a href="https://canvasly.pro/price.html">Canvasly Pro</a></li>
+          <li><a href="https://canvasly.pro/vidcellar/index.html">VidCellar Pro</a></li>
+        </ul>
+      </details>
+      <details class="nav-drop">
+        <summary>Canvasly</summary>
+        <ul>
+          <li><a href="https://canvasly.pro/overview.html">Overview</a></li>
+          <li><a href="price.html">Price</a></li>
+          <li><a href="installation.html">Install</a></li>
+          <li><a href="settings.html">Settings</a></li>
+          <li><a href="shortcodes.html">Shortcodes</a></li>
+          <li><a href="blocks.html">Units</a></li>
+          <li><a href="ai-connectivity.html">AI &amp; MCP</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </details>
+      <a href="support.html" aria-current="page">Support</a>
+    </nav>
+  </header>
+  <main id="content">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="https://canvasly.pro/">Home</a></li>
+        <li aria-current="page">Support</li>
+      </ol>
+    </nav>
+    <header class="page-intro">
+      <h1>Contact support</h1>
+      <p class="lede">Send a message about Canvasly or VidCellar. Write the message in English. Submit opens your email app with the name, email address, and message filled in so you can send it.</p>
+    </header>
+    <form class="panel support-form" id="support-form" action="#" method="post" novalidate>
+      <p id="support-error" class="form-error" role="alert" hidden></p>
+      <label>Name
+        <input id="support-name" name="name" type="text" autocomplete="name" required maxlength="120">
+      </label>
+      <label>Email address
+        <input id="support-email" name="email" type="email" autocomplete="email" required maxlength="160">
+      </label>
+      <label>Message
+        <textarea id="support-message" name="message" required maxlength="4000" lang="en" spellcheck="true"></textarea>
+      </label>
+      <div class="hp-field" aria-hidden="true">
+        <label>Website
+          <input id="support-url" name="url" type="text" tabindex="-1" autocomplete="off" value="">
+        </label>
+      </div>
+      <input id="support-gate" name="gate" type="hidden" value="">
+      <p><button class="pricing-buy" type="submit">Submit</button></p>
+    </form>
+  </main>
+  <footer class="site-foot">
+    <p>Canvasly Lite and VidCellar Lite are licensed under the GNU General Public License, version 2 or later.</p>
+  </footer>
+  <script>
+(function () {
+  var form = document.getElementById("support-form");
+  var error = document.getElementById("support-error");
+  var opened = Date.now();
+  var english = /^[A-Za-z0-9 \n\r\t.,!?'"():;\-_/&@#%+=]*$/;
+  document.getElementById("support-gate").value = "ready";
+
+  function show(text) {
+    error.hidden = !text;
+    error.textContent = text || "";
+  }
+
+  function inbox() {
+    var codes = [111,114,112,46,121,108,115,97,118,110,97,99,64,116,114,111,112,112,117,115];
+    var text = "";
+    for (var i = codes.length - 1; i >= 0; i--) text += String.fromCharCode(codes[i]);
+    return text;
+  }
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var name = document.getElementById("support-name").value.trim();
+    var mail = document.getElementById("support-email").value.trim();
+    var message = document.getElementById("support-message").value.trim();
+    var trap = document.getElementById("support-url").value;
+    var gate = document.getElementById("support-gate").value;
+    if (trap || gate !== "ready" || Date.now() - opened < 3000) {
+      show("The message could not be sent.");
+      return;
+    }
+    if (!name || !mail || !message) {
+      show("Enter your name, email address, and message.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
+      show("Enter a valid email address.");
+      return;
+    }
+    if (!/[A-Za-z]/.test(message) || !english.test(message)) {
+      show("Write the message in English.");
+      return;
+    }
+    show("");
+    var body = "Name: " + name + "\nEmail address: " + mail + "\n\n" + message;
+    window.location.href = "mailto:" + inbox()
+      + "?subject=" + encodeURIComponent("Support message from " + name)
+      + "&body=" + encodeURIComponent(body);
+  });
+})();
+  </script>
+</body>
+</html>

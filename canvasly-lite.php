@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Canvasly - Visual Page Builder
  * Description: A lightweight, independent visual page builder for WordPress.
- * Version: 0.12.108
+ * Version: 0.12.109
  * Requires at least: 6.9
  * Requires PHP: 7.4
  * Author: Canvasly
@@ -22,7 +22,7 @@ if ( ! defined( 'CANVASLY_LITE_URL' ) ) {
 	define( 'CANVASLY_LITE_URL', plugin_dir_url( __FILE__ ) );
 }
 if ( ! defined( 'CANVASLY_LITE_VERSION' ) ) {
-	define( 'CANVASLY_LITE_VERSION', '0.12.108' );
+	define( 'CANVASLY_LITE_VERSION', '0.12.109' );
 }
 
 /**
@@ -223,7 +223,7 @@ function canvasly_lite_native_editor_launcher() {
     );
 }
 if ( ! defined( 'CANVASLY_LITE_VERSION' ) ) {
-	define( 'CANVASLY_LITE_VERSION', '0.12.108' );
+	define( 'CANVASLY_LITE_VERSION', '0.12.109' );
 }
 if ( ! defined( 'CANVASLY_LITE_FILE' ) ) {
 	define( 'CANVASLY_LITE_FILE', __FILE__ );

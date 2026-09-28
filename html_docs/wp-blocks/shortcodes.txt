@@ -1,0 +1,131 @@
+<!-- wp:html -->
+<p class="brand"><a href="https://canvasly.pro"><img class="brand-logo" src="https://canvasly.pro/assets/canvasly-logo.png" alt="Canvasly. Design your pages visually." width="400" height="320" style="height:96px;width:auto;border-radius:12px"></a></p>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/canvasly-overview/">Canvasly</a></li>
+        <li aria-current="page">Shortcodes</li>
+      </ol>
+    </nav>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level": 1} -->
+<h1 class="wp-block-heading">Canvasly shortcodes</h1>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "lede"} -->
+<p class="lede">A shortcode is a short tag you paste into WordPress content. Canvasly registers three. The Shortcode unit inside the editor is different: it runs any shortcode you type into that unit.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Updated <time datetime="2026-09-22">September 22, 2026</time>. Covers Canvasly 0.12.76 and Canvasly Pro 0.6.3.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 2, "anchor": "canvasly_lite_template"} -->
+<h2 class="wp-block-heading" id="canvasly_lite_template">Saved template</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Prints a published saved Canvasly template, including its styles and scripts. If a template embeds itself, that loop is stopped and nothing extra is printed. You can use the template&#8217;s number or its title. The number wins when both are present.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<table>
+        <thead><tr><th>Attribute</th><th>Default</th><th>What you put here</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>0</td><td>The saved template&#8217;s number. 0, or a missing template, prints nothing.</td></tr>
+          <tr><td><code>title</code></td><td>Empty</td><td>Used only when <code>id</code> is empty. Canvasly looks up a template with this title.</td></tr>
+        </tbody>
+      </table>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>Example with the template number:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<pre class="example">[canvasly_lite_template id="42"]</pre>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>Example with the template title:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<pre class="example">[canvasly_lite_template title="Homepage hero"]</pre>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level": 2, "anchor": "canvasly_anchor"} -->
+<h2 class="wp-block-heading" id="canvasly_anchor">Menu anchor</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Wraps the text inside the shortcode in a section that the page can scroll to. A Menu Anchor unit on the canvas can point at the same kind of id. The plugin can also add matching links into a WordPress menu.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<table>
+        <thead><tr><th>Attribute</th><th>Default</th><th>What you put here</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>Empty</td><td>The anchor name, such as contact-us. Links use <code>#contact-us</code>.</td></tr>
+          <tr><td><code>class</code></td><td>Empty</td><td>Extra class name on the section.</td></tr>
+        </tbody>
+      </table>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>The words between the opening and closing tags are the section content. Shortcodes inside that content are processed.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<pre class="example">[canvasly_anchor id="contact-us" class="visit"]Write or call us.[/canvasly_anchor]</pre>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level": 2, "anchor": "canvasly_nav"} -->
+<h2 class="wp-block-heading" id="canvasly_nav">Site menu</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Prints a WordPress menu. On a narrow screen it becomes a hamburger button. The same choices exist on the Site Menu unit.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<table>
+        <thead><tr><th>Attribute</th><th>Default</th><th>What you put here</th></tr></thead>
+        <tbody>
+          <tr><td><code>menu</code></td><td>Empty</td><td>A classic menu from Appearance &#8594; Menus, or a theme location slug such as primary.</td></tr>
+          <tr><td><code>layout</code></td><td>horizontal</td><td><code>horizontal</code> or <code>vertical</code>.</td></tr>
+          <tr><td><code>breakpoint</code></td><td>782</td><td>Width in pixels. Below this width the menu collapses. The unit allows 320 to 1400.</td></tr>
+          <tr><td><code>label</code></td><td>Empty</td><td>The accessible name of the menu. The placeholder in the unit is Primary.</td></tr>
+        </tbody>
+      </table>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<pre class="example">[canvasly_nav menu="primary" layout="horizontal" breakpoint="782" label="Primary"]</pre>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level": 2, "anchor": "widget"} -->
+<h2 class="wp-block-heading" id="widget">Sidebar widget</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Under Appearance &#8594; Widgets, the <strong>Canvasly Template</strong> widget shows a saved template in a widget area. It is not a shortcode. Its fields are Title (optional) and Saved Template. If no template is chosen, the widget prints nothing.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Related</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li><a href="/canvasly-units/">Canvasly units</a></li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="/canvasly-faq/">Common questions</a></li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
