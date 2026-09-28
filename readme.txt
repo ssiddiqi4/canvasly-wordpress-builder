@@ -1,5 +1,5 @@
 === Canvasly - Visual Page Builder ===
-Contributors: canvasly-lite
+Contributors: ssiddiqi4
 Tags: page builder, drag-and-drop, landing page, website builder, responsive
 Requires at least: 6.9
 Tested up to: 7.1
@@ -12,11 +12,12 @@ A visual WordPress page builder with nested containers, CSS Grid, templates, a d
 
 == Description ==
 
-Canvasly is a visual page builder for WordPress. Design a page on a canvas, then publish it the usual WordPress way. The editor has a unit library, desktop, tablet, and mobile views, and a design system for colors, type, and reusable parts.
+Canvasly is a visual, interactive page builder for WordPress that allows users to design pages directly on a canvas and publish them through the standard WordPress workflow.
 
-Canvasly keeps its own document model, unit API, editor, CSS and JavaScript, icon library, and REST endpoints. It stays out of the normal WordPress block editor except for the Canvasly Template block and an Edit with Canvasly launcher.
+Key Features
+Design & Workflow Library: Features a comprehensive unit library, responsive viewing modes (desktop, tablet, and mobile), and a centralized design system to manage colors, typography, and reusable components.
 
-Start with the Canvasly documentation. Unlock theme parts, shop units, popups, form logging, hosted payments, and AI connectivity with Canvasly Pro.
+Pro Features: Upgrading to Canvasly Pro unlocks theme parts, shop units, popups, form logging, hosted payments, and integrated AI capabilities.
 
 ### Create professional websites
 
