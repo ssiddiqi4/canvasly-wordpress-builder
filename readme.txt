@@ -4,7 +4,7 @@ Tags: page builder, drag-and-drop, landing page, website builder, responsive
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.12.108
+Stable tag: 0.12.109
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,9 +14,9 @@ A visual WordPress page builder with nested containers, CSS Grid, templates, a d
 
 Canvasly is a visual page builder for WordPress. Design a page on a canvas, then publish it the usual WordPress way. The editor has a unit library, desktop, tablet, and mobile views, and a design system for colors, type, and reusable parts.
 
-Canvasly keeps its own document model, unit API, editor, CSS and JavaScript, icon library, and REST endpoints. It stays out of the normal WordPress block editor except for the Canvasly Template block and an **Edit with Canvasly** launcher.
+Canvasly keeps its own document model, unit API, editor, CSS and JavaScript, icon library, and REST endpoints. It stays out of the normal WordPress block editor except for the Canvasly Template block and an Edit with Canvasly launcher.
 
-Start with the [Canvasly documentation](https://canvasly.pro/overview.html). Unlock theme parts, shop units, popups, form logging, hosted payments, and AI connectivity with **[Canvasly Pro](https://canvasly.pro/price.html)**.
+Start with the Canvasly documentation. Unlock theme parts, shop units, popups, form logging, hosted payments, and AI connectivity with Canvasly Pro.
 
 ### Create professional websites
 
@@ -366,6 +366,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 6. **Canvasly Pro** - Theme Builder, popups, shop units, and the annual plans.
 
 == Changelog ==
+
+= 0.12.109 =
+* Removed: Leftover development files (tmp-slider-check.html, tmp-slider-check.png, html_docs/_build_seo.py) from the release package.
 
 = 0.12.108 =
 * Fixed: WordPress Plugin Check errors — editor document JSON is printed with wp_print_inline_script_tag(), Elementor source badges are passed through wp_kses(), shortcode and Elementor frontend stylesheets are printed by core's WP_Styles printer instead of hand-built link tags, and strip_tags() is replaced with wp_strip_all_tags().
