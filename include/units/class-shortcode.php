@@ -42,15 +42,10 @@ class Shortcode extends Unit {
   $assets=self::styles_since($before);
   $forms=self::queued_form_styles($html,$before);
   $links=array_values(array_unique(array_merge($assets['links'],$forms['links'])));
-  $tags='';
-  foreach($links as $href){
-   $href=function_exists('esc_url')?esc_url($href):$href;
-   if($href==='')continue;
-   $tags.='<link rel="stylesheet" href="'.$href.'">';
-  }
+  $tags=self::stylesheet_tags($links,'canvasly-lite-shortcode-style');
   $css=trim((string)($assets['css']??'')."\n".(string)($forms['css']??''));
   if($css!==''){
-   $css=function_exists('wp_strip_all_tags')?wp_strip_all_tags($css):strip_tags($css);
+   $css=wp_strip_all_tags($css);
    if($css!=='')$tags.='<style>'.$css.'</style>';
   }
   return '<div class="lb-shortcode">'.$tags.$html.'</div>';
@@ -119,6 +114,40 @@ class Shortcode extends Unit {
  /**
   * @return string[]
   */
+ /**
+  * Stylesheet tags for the given URLs, printed by WordPress core's style
+  * printer (a private WP_Styles instance) rather than hand-built markup, so
+  * the fragment carries them without touching the page's global queue.
+  *
+  * @param string[] $hrefs
+  * @param string   $prefix Handle prefix.
+  * @return string
+  */
+ private static function stylesheet_tags( $hrefs, $prefix ) {
+  if ( ! class_exists( '\\WP_Styles' ) ) {
+   return '';
+  }
+  static $printer = null;
+  if ( null === $printer ) {
+   $printer = new \WP_Styles();
+  }
+  $tags = '';
+  foreach ( (array) $hrefs as $href ) {
+   $href = esc_url_raw( (string) $href );
+   if ( '' === $href ) {
+    continue;
+   }
+   $handle = $prefix . '-' . substr( md5( $href ), 0, 12 );
+   if ( ! isset( $printer->registered[ $handle ] ) ) {
+    $printer->add( $handle, $href, array(), null );
+   }
+   ob_start();
+   $printer->do_item( $handle );
+   $tags .= (string) ob_get_clean();
+  }
+  return $tags;
+ }
+
  private static function style_handles() {
   if ( ! function_exists( 'wp_styles' ) ) {
    return array();
@@ -234,7 +263,7 @@ class Shortcode extends Unit {
     continue;
    }
    $inline = implode( "\n", $after );
-   $inline = function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( $inline ) : strip_tags( $inline );
+   $inline = wp_strip_all_tags( $inline );
    if ( '' !== trim( $inline ) ) {
     $css .= $inline . "\n";
    }

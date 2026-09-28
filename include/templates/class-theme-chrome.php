@@ -502,7 +502,7 @@ class ThemeChrome {
 	 * @return string
 	 */
 	private static function elementor_frontend_links( $html ) {
-		if ( false !== strpos( $html, 'data-lb-builder-css="frontend"' ) ) {
+		if ( false !== strpos( $html, 'canvasly-lite-builder-frontend-' ) ) {
 			return '';
 		}
 		$files = array();
@@ -516,14 +516,29 @@ class ThemeChrome {
 		}
 		$tags = '';
 		$seen = array();
+		if ( ! class_exists( '\\WP_Styles' ) ) {
+			return '';
+		}
+		// Printed by WordPress core's style printer (a private WP_Styles
+		// instance) so the fragment gets standard stylesheet tags without
+		// adding Elementor's files to the page's global queue.
+		static $printer = null;
+		if ( null === $printer ) {
+			$printer = new \WP_Styles();
+		}
 		foreach ( $files as $file ) {
 			$base = plugin_dir_path( $file[0] ) . $file[1];
 			if ( isset( $seen[ $file[1] ] ) || ! is_readable( $base ) ) {
 				continue;
 			}
 			$seen[ $file[1] ] = true;
-			$url              = plugins_url( $file[1], $file[0] );
-			$tags            .= '<link rel="stylesheet" data-lb-builder-css="frontend" href="' . esc_url( $url ) . '">';
+			$handle           = 'canvasly-lite-builder-frontend-' . sanitize_key( str_replace( array( '/', '.' ), '-', $file[1] ) );
+			if ( ! isset( $printer->registered[ $handle ] ) ) {
+				$printer->add( $handle, plugins_url( $file[1], $file[0] ), array(), null );
+			}
+			ob_start();
+			$printer->do_item( $handle );
+			$tags .= (string) ob_get_clean();
 		}
 		return $tags;
 	}
@@ -1194,7 +1209,7 @@ class ThemeChrome {
 		if ( preg_match( '#<(img|svg|picture|video|canvas)\b#i', (string) $html ) ) {
 			return true;
 		}
-		$text = html_entity_decode( strip_tags( (string) $html ), ENT_QUOTES, 'UTF-8' );
+		$text = html_entity_decode( wp_strip_all_tags( (string) $html ), ENT_QUOTES, 'UTF-8' );
 		return '' !== trim( preg_replace( '/[\s\x{00A0}]+/u', ' ', (string) $text ) );
 	}
 
