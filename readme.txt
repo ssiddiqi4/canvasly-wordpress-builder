@@ -4,7 +4,7 @@ Tags: page builder, drag-and-drop, landing page, website builder, responsive
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.12.107
+Stable tag: 0.12.108
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -280,6 +280,19 @@ Canvasly is the free page builder: the visual editor, the free unit library, the
 
 Under Settings → Advanced, set Editor loader to Iframe. Under Settings → Tools, turn on Safe mode for your account. Safe mode loads the editor without other plugins and without the theme. More answers are in the [FAQ](https://canvasly.pro/faq.html).
 
+Does Canvasly work with other page builders? =
+
+Canvasly is a standalone page builder and does not require any other builder. If Elementor is installed and active on your site, Canvasly can:
+
+* Import pages, posts and library templates that were built with Elementor into new Canvasly documents. The original content is never changed or deleted.
+* Show a theme header or footer built with Elementor correctly in the Canvasly editor, by loading the stylesheets that your installed copy of Elementor already provides.
+
+Canvasly does not include, copy or redistribute any Elementor code, stylesheets or images. It only references the files already installed on your site, and this compatibility only applies while Elementor is active.
+
+= Is Canvasly affiliated with Elementor? =
+
+No. Elementor is a trademark of its respective owner. Canvasly is an independent plugin and is not affiliated with, sponsored by or endorsed by Elementor or its owner. The name is used only to describe compatibility.
+
 = Where do I get help? =
 
 Read the [documentation](https://canvasly.pro/overview.html) or [contact support](https://canvasly.pro/support.html).
@@ -294,6 +307,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 6. **Canvasly Pro** - Theme Builder, popups, shop units, and the annual plans.
 
 == Changelog ==
+
+= 0.12.108 =
+* Fixed: WordPress Plugin Check errors — editor document JSON is printed with wp_print_inline_script_tag(), Elementor source badges are passed through wp_kses(), shortcode and Elementor frontend stylesheets are printed by core's WP_Styles printer instead of hand-built link tags, and strip_tags() is replaced with wp_strip_all_tags().
 
 = 0.12.107 =
 * Changed: A unit border with a Border Style but no Border Color now defaults to white instead of the text colour (which drew a thick dark box). Set Border Color to choose another colour. The Button unit keeps its existing behaviour.

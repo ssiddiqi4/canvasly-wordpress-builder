@@ -1,0 +1,1134 @@
+<!-- wp:html -->
+<p class="brand"><a href="https://canvasly.pro"><img class="brand-logo" src="https://canvasly.pro/assets/canvasly-logo.png" alt="Canvasly. Design your pages visually." width="400" height="320" style="height:96px;width:auto;border-radius:12px"></a></p>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/canvasly-overview/">Canvasly</a></li>
+        <li aria-current="page">Units</li>
+      </ol>
+    </nav>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level": 1} -->
+<h1 class="wp-block-heading">Canvasly units</h1>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "lede"} -->
+<p class="lede">Units are the pieces you drag from the left library onto the canvas. Select a unit to edit it in the right panel. That panel uses Content, Style, and Advanced. Pro units appear in the same library when Canvasly Pro is active. Shop units appear only when WooCommerce is active.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Updated <time datetime="2026-09-22">September 22, 2026</time>. Covers Canvasly 0.12.76 and Canvasly Pro 0.6.3.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<figure>
+      <img src="assets/editor-layout.svg" alt="Editor sketch with the unit library on the left, the page canvas in the center, and Content, Style, and Advanced tabs on the right." width="880" height="420" decoding="async" fetchpriority="high">
+      <figcaption>Pick a unit on the left, drop it on the canvas, then change it on the right.</figcaption>
+    </figure>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level": 2, "anchor": "how-to-add"} -->
+<h2 class="wp-block-heading" id="how-to-add">Add a unit</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list">
+<!-- wp:list-item -->
+<li>Open the page with Edit with Canvasly.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>In the left panel, search or filter by category and click or drag a unit.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Drop it into a Container or a Grid, or onto the page.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Use the right panel to change the text, image, link, or layout.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Save, then publish or update the page in WordPress.</li>
+<!-- /wp:list-item -->
+</ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Right-click a unit in the library to add or remove it from Favorites. Container cannot be disabled in Units Manager. Other units can be hidden there.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 2, "anchor": "grid"} -->
+<h2 class="wp-block-heading" id="grid">Grid</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<figure>
+        <img src="assets/grid.svg" alt="A grid sketch with three columns. The bottom-left cell spans two columns. A side panel reads Placement, Column 1, Row 2, 2 by 1, and notes that dragging an edge resizes and neighboring columns share width." width="880" height="260" decoding="async" loading="lazy">
+        <figcaption>Grid places children in rows and columns. A child can span more than one cell.</figcaption>
+      </figure>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>The Grid unit is a layout that holds other units. Its controls include columns, rows, grid template columns, grid template rows, column gap, row gap, auto flow, align, justify, minimum column and row sizes, auto columns and rows, outline, width, and dense auto-flow. The editor draws a placement grid so you can set column, row, and span. Dragging the left, right, top, or bottom edge resizes the unit, and neighboring columns share the width. A size tip shows while you drag. The Features setting &#8220;Grid container&#8221; is active by default and covers the same kind of layout on a Container.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Usage: add Grid from the layout category, then drop Heading, Image, or Button into the cells. Select a child to set where it sits.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 2, "anchor": "context-menu"} -->
+<h2 class="wp-block-heading" id="context-menu">Right-click menu</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<figure>
+        <img src="assets/context-menu.svg" alt="A white menu listing Edit Heading, Duplicate, Copy, Paste, Copy Style, Paste style, Reset style, Save as Template, and Delete." width="420" height="360" decoding="async" loading="lazy">
+        <figcaption>Right-click a unit on the canvas for these actions. Shortcuts can be changed in the editor.</figcaption>
+      </figure>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>On a unit, the menu offers Edit, Duplicate, Copy, Paste, Copy Style, Paste style, and Reset style. Tabs, Accordion, and Toggle also offer Convert to nested. Container and Grid offer Add New Container and Save as Template. Any unit can be saved as a component. Structure opens the navigator. Delete removes the unit.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>On empty canvas, the menu offers Paste, Paste All Content, Add New Container, Copy All Content, Delete All Content, and Structure. Copy and paste are kept in the browser so they work across pages and tabs.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className": "todo"} -->
+<p class="todo"><strong>TODO:</strong> The plugin source does not name a &#8220;pink tab.&#8221; The right-hand settings use the labels Content, Style, and Advanced. The left side is the unit library. If a pink tab appears in your copy of the editor, its purpose is not described in these files.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 2, "anchor": "wordpress-block"} -->
+<h2 class="wp-block-heading" id="wordpress-block">WordPress block: Canvasly Template</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>This is the one WordPress block the plugin registers. Its name in the editor is Canvasly Lite Template, in the Canvasly category. It inserts a saved Canvasly template. It still shows in the normal WordPress editor, where the rest of Canvasly does not load.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<table>
+        <thead><tr><th>Setting</th><th>Default</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td>Template id</td><td>0</td><td>Which saved template to show. 0 means none is chosen.</td></tr>
+        </tbody>
+      </table>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>The block can be wide or full width, and it supports an HTML anchor and a CSS class. Usage: in the WordPress block editor, add Canvasly Template, then pick the saved template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 2, "anchor": "lite-layout"} -->
+<h2 class="wp-block-heading" id="lite-layout">Layout units</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-container"} -->
+<h3 class="wp-block-heading" id="unit-container">Container</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Library category: layout. Holds other units.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The main box for sections of a page. The readme describes a semantic HTML tag, a link for the whole container, a background overlay, shape dividers, and a self-hosted background video. It cannot be turned off.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Usage: add Container, then drop other units inside it.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-inner-section"} -->
+<h3 class="wp-block-heading" id="unit-inner-section">Inner Section</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Library category: layout.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A nested layout unit registered with Container and Grid.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Usage: add Inner Section inside a Container when you need another grouped region.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-grid"} -->
+<h3 class="wp-block-heading" id="unit-grid">Grid</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Library category: layout. Holds other units.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>See the Grid section above. Defaults are not a single fixed column count in the short control list; the editor&#8217;s grid helper treats three columns when a count is missing.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 2, "anchor": "lite-basic"} -->
+<h2 class="wp-block-heading" id="lite-basic">Basic units</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-heading"} -->
+<h3 class="wp-block-heading" id="unit-heading">Heading</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A title. The readme says it can be linked and can use size presets. Usage: add Heading and type the title in Content.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-text"} -->
+<h3 class="wp-block-heading" id="unit-text">Text Editor</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Body text. The readme mentions a drop cap and columns. Usage: add Text Editor and write in the text control.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-tinymce"} -->
+<h3 class="wp-block-heading" id="unit-tinymce">TinyMCE Text Editor</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Library category: basic.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A text unit that uses the WordPress visual editor. Usage: add it when you want that editor&#8217;s formatting tools.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-button"} -->
+<h3 class="wp-block-heading" id="unit-button">Button</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A link styled as a button. The readme mentions sizes, icon placement, and alignment. Usage: set the label and the link.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-divider"} -->
+<h3 class="wp-block-heading" id="unit-divider">Divider</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A horizontal rule. The readme mentions patterns and optional text or an icon. Usage: drop it between sections.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-spacer"} -->
+<h3 class="wp-block-heading" id="unit-spacer">Spacer</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Empty vertical space. Default height is 40. Usage: set Height.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-icon"} -->
+<h3 class="wp-block-heading" id="unit-icon">Icon</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A single icon from the Canvasly icon library. Usage: pick an icon and, if you want, a link.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-icon-list"} -->
+<h3 class="wp-block-heading" id="unit-icon-list">Icon List</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A list of items that each have an icon. The readme mentions an inline layout and dividers. Usage: add rows in the list control.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-icon-box"} -->
+<h3 class="wp-block-heading" id="unit-icon-box">Icon Box</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>An icon with a title and text. Controls include icon view, shape, title, text, link, layout, alignment, colors, and hover animation. Usage: choose an icon and write the title.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-progress"} -->
+<h3 class="wp-block-heading" id="unit-progress">Progress Bar</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A labeled bar. Controls include label, value, bar style, percentage, inner text, colors, height, and radius. Usage: set the label and the value.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-counter"} -->
+<h3 class="wp-block-heading" id="unit-counter">Counter</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A number that can count up. The readme says the number, prefix, and suffix update on the canvas while you edit. Usage: set the number and optional prefix or suffix.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-alert"} -->
+<h3 class="wp-block-heading" id="unit-alert">Alert</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A notice. The readme says it can be dismissed. Usage: write the message and choose whether visitors can close it.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-accordion"} -->
+<h3 class="wp-block-heading" id="unit-accordion">Accordion</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Stacked panels that open and close. The readme mentions multiple items, icons, and FAQ schema. Usage: add a title and content for each item. Right-click to convert to Nested Accordion.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-toggle"} -->
+<h3 class="wp-block-heading" id="unit-toggle">Toggle</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Similar stacked panels. Usage: add items, or convert to Nested Toggle from the right-click menu.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-tabs"} -->
+<h3 class="wp-block-heading" id="unit-tabs">Tabs</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A row or column of tabs. The readme mentions vertical layout, alignment, and styles. Usage: name each tab and its content. Right-click to convert to Nested Tabs.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-nested-tabs"} -->
+<h3 class="wp-block-heading" id="unit-nested-tabs">Nested Tabs</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Tabs whose panels can hold any unit. Shown when the Nested experiment is active, which it is by default. Usage: add a tab, then drop units into that panel.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-nested-accordion"} -->
+<h3 class="wp-block-heading" id="unit-nested-accordion">Nested Accordion</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>An accordion whose panels hold any unit. Usage: add an item, then drop units inside it.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-nested-toggle"} -->
+<h3 class="wp-block-heading" id="unit-nested-toggle">Nested Toggle</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A toggle whose panels hold any unit. Usage: same as Nested Accordion.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-social"} -->
+<h3 class="wp-block-heading" id="unit-social">Social Icons</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Links to social profiles. The readme mentions brand colors, shapes, and a grid. Usage: add each network and its URL.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-star-rating"} -->
+<h3 class="wp-block-heading" id="unit-star-rating">Star Rating</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Stars, including half stars in the readme. Controls include scale, rating, unmarked style, title, align, size, gap, and colors. Usage: set the rating.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-testimonial"} -->
+<h3 class="wp-block-heading" id="unit-testimonial">Testimonial</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A quote with the person&#8217;s details. Usage: enter the quote and the name.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-price-table"} -->
+<h3 class="wp-block-heading" id="unit-price-table">Price Table</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A pricing box. Usage: set the plan name, price, features, and button.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-text-path"} -->
+<h3 class="wp-block-heading" id="unit-text-path">Text Path</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Text that moves along a path. Defaults are the words &#8220;Canvasly&#8221; and a speed of 20. Usage: change Text and Speed. Speed is kept at 5 or higher.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-shortcode"} -->
+<h3 class="wp-block-heading" id="unit-shortcode">Shortcode</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Runs a WordPress shortcode you type. Default text is empty. Usage: paste a shortcode such as <code>[canvasly_lite_template id="42"]</code> into the Shortcode field.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-html"} -->
+<h3 class="wp-block-heading" id="unit-html">HTML</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Custom HTML, edited with the code editor when that feature is active. Usage: paste the markup into the HTML field.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-code"} -->
+<h3 class="wp-block-heading" id="unit-code">Code</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Shows code in a preformatted block. Defaults are empty code and language &#8220;text&#8221;. Usage: paste the code and choose a language.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 2, "anchor": "lite-media"} -->
+<h2 class="wp-block-heading" id="lite-media">Media units</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-image"} -->
+<h3 class="wp-block-heading" id="unit-image">Image</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Library category: media.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The readme lists image, size, link, lightbox, caption, alt text, object fit, object position, border, radius, shadow, opacity, spacing, position, and responsive settings. Usage: choose an image from the Media Library and fill in alt text.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-image-box"} -->
+<h3 class="wp-block-heading" id="unit-image-box">Image Box</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>An image with a title and text. Controls include image, alt, title, text, link, layout, alignment, width, spacing, radius, opacity, and colors. Usage: choose the image and write the title.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-gallery"} -->
+<h3 class="wp-block-heading" id="unit-gallery">Gallery</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Several images. The readme mentions captions and hover effects. The editor can lay them out as grid, masonry, or justified. Usage: open the gallery control and choose images.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-carousel"} -->
+<h3 class="wp-block-heading" id="unit-carousel">Image Carousel</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A slideshow of images. The readme mentions slides to show, fade, autoplay, and captions. Usage: choose the images and how many show at once.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-video"} -->
+<h3 class="wp-block-heading" id="unit-video">Video</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>YouTube, Vimeo, Dailymotion, VideoPress, or a file you host. The readme mentions overlay, lightbox, and aspect ratio. Usage: paste the video URL.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-audio"} -->
+<h3 class="wp-block-heading" id="unit-audio">Audio</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>An audio player. A hosted file or an allowed oEmbed URL can be used. Usage: set the audio URL.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-soundcloud"} -->
+<h3 class="wp-block-heading" id="unit-soundcloud">SoundCloud</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A SoundCloud player. Controls include URL, visual mode, height, autoplay, buying, liking, download, artwork, sharing, comments, play count, user, and player color. Usage: paste the SoundCloud URL.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 2, "anchor": "lite-content"} -->
+<h2 class="wp-block-heading" id="lite-content">Content units</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-form"} -->
+<h3 class="wp-block-heading" id="unit-form">Form</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Library category: content.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A form on the page. reCAPTCHA runs only when Form reCAPTCHA is active and both keys are saved. With Pro, submissions can be stored under Canvasly &#8594; Submissions. Usage: add fields, set the button label, and choose where the form sends its message.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-read-more"} -->
+<h3 class="wp-block-heading" id="unit-read-more">Read More</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A text link. Defaults are the words &#8220;Read More&#8221;, the URL &#8220;#&#8221;, and the same window. Usage: change Text, URL, and whether the link opens in the same window or a new one.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-rating"} -->
+<h3 class="wp-block-heading" id="unit-rating">Rating</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A rating made of icons. Controls include rating, max, label, icon, empty icon, color, size, and CSS class. Usage: set the score and the maximum.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-link-in-bio"} -->
+<h3 class="wp-block-heading" id="unit-link-in-bio">Link in Bio</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A title, subtitle, avatar, and a list of links. Usage: add the profile image and one link per line or item, depending on the control.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-site-nav"} -->
+<h3 class="wp-block-heading" id="unit-site-nav">Site Menu</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A WordPress menu that collapses under a chosen width. Defaults: no menu selected, horizontal layout, breakpoint 782, empty label. Usage: pick a menu from Appearance &#8594; Menus. The same output is the <code>canvasly_nav</code> shortcode.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-menu-anchor"} -->
+<h3 class="wp-block-heading" id="unit-menu-anchor">Menu Anchor</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A jump target. Default anchor id is <code>section-1</code>. You can also attach a menu. On the canvas the target is shown, and the page scrolls to that id. A sticky header can be cleared with the CSS custom property <code>--lb-anchor-scroll-offset</code>. Usage: set Anchor ID, then link a button or menu item to <code>#section-1</code>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-collection-loop"} -->
+<h3 class="wp-block-heading" id="unit-collection-loop">Collection Loop</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Lists posts, custom types, or terms. The readme describes a query builder, an item layout that is either inline or a saved template, grid or list, and pagination by numbers, previous and next, or load more. Active by default under Features. Usage: choose what to query, then design one item.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 2, "anchor": "lite-advanced"} -->
+<h2 class="wp-block-heading" id="lite-advanced">Advanced units</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-embed"} -->
+<h3 class="wp-block-heading" id="unit-embed">Embed</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Embeds an allowed URL through WordPress oEmbed, with a cache. Usage: paste a single URL the site is allowed to embed.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-google-maps"} -->
+<h3 class="wp-block-heading" id="unit-google-maps">Google Maps</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A map. Defaults are an empty address, zoom 14, and height 320. With an API key and the Maps feature active, it uses the Embed API. Otherwise it uses the public iframe. Usage: type an address.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-sidebar"} -->
+<h3 class="wp-block-heading" id="unit-sidebar">Sidebar</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Prints a registered WordPress widget area. Usage: choose the sidebar.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wp-widget"} -->
+<h3 class="wp-block-heading" id="unit-wp-widget">WordPress Widget</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Prints one registered WordPress widget. Controls include widget, title, widget options, sidebar, and CSS class. Usage: choose the widget from the list.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-template"} -->
+<h3 class="wp-block-heading" id="unit-template">Template</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Embeds a saved Canvasly template inside the page. Usage: pick the template. The same result is the shortcode <code>[canvasly_lite_template id="42"]</code> and the WordPress block.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-component"} -->
+<h3 class="wp-block-heading" id="unit-component">Component</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Inserts a reusable component. Components are saved from the right-click menu and edited as their own items. Usage: insert a component you already saved.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-flip-box"} -->
+<h3 class="wp-block-heading" id="unit-flip-box">Flip Box</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A card with a front and a back. Usage: set the front and back content, then view the page to see the flip.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-login"} -->
+<h3 class="wp-block-heading" id="unit-login">Login</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The WordPress login form. Defaults are the title &#8220;Login&#8221;, the button &#8220;Log In&#8221;, and an empty redirect. Usage: set the title, button label, and where to send the person after login.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 2, "anchor": "pro-units"} -->
+<h2 class="wp-block-heading" id="pro-units">Canvasly Pro units</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>These are in the library when Pro is running. Pro widgets use the content category unless noted. Theme units also use content. Payment Form and Payment Button use basic. Taxonomy Filter uses advanced.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3} -->
+<h3 class="wp-block-heading">Content widgets</h3>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-share-buttons"} -->
+<h3 class="wp-block-heading" id="unit-share-buttons">Share Buttons</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Buttons that share the page. Usage: add the unit and choose which networks to show.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-blockquote"} -->
+<h3 class="wp-block-heading" id="unit-blockquote">Blockquote</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A styled quotation. Usage: enter the quote.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-cta"} -->
+<h3 class="wp-block-heading" id="unit-cta">Call to Action</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A prompt with a button. Usage: write the message and the button link.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-animated-headline"} -->
+<h3 class="wp-block-heading" id="unit-animated-headline">Animated Headline</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A headline that changes. Usage: enter the rotating phrases.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-countdown"} -->
+<h3 class="wp-block-heading" id="unit-countdown">Countdown</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A timer toward a date. Usage: set the end date.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-slides"} -->
+<h3 class="wp-block-heading" id="unit-slides">Slides</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A slide deck. Usage: add slides and their content.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-nested-carousel"} -->
+<h3 class="wp-block-heading" id="unit-nested-carousel">Nested Carousel</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A carousel whose slides can hold other units. Usage: add a slide, then drop units into it.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-media-carousel"} -->
+<h3 class="wp-block-heading" id="unit-media-carousel">Media Carousel</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A carousel of media items. Usage: choose the media.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-toc"} -->
+<h3 class="wp-block-heading" id="unit-toc">Table of Contents</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Links to headings on the page. Usage: place it where the list should appear.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-progress-tracker"} -->
+<h3 class="wp-block-heading" id="unit-progress-tracker">Progress Tracker</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Shows how far the visitor has scrolled or progressed. Usage: place it on a long page.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-hotspot"} -->
+<h3 class="wp-block-heading" id="unit-hotspot">Hotspot</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>An image with clickable points. Usage: set the image and add hotspots.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-price-list"} -->
+<h3 class="wp-block-heading" id="unit-price-list">Price List</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A list of named prices. Usage: add each item, name, and price.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-off-canvas"} -->
+<h3 class="wp-block-heading" id="unit-off-canvas">Off-Canvas</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A panel that sits off the page until it is opened. Usage: put the panel content inside it and set how it opens.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-floating-buttons"} -->
+<h3 class="wp-block-heading" id="unit-floating-buttons">Floating Buttons</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Buttons that stay on the screen. Usage: add each button and its link.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-search"} -->
+<h3 class="wp-block-heading" id="unit-search">Search</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A search box. Usage: place it in a header or sidebar area.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-lottie"} -->
+<h3 class="wp-block-heading" id="unit-lottie">Lottie</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>An animation file. Usage: choose the Lottie file.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-video-playlist"} -->
+<h3 class="wp-block-heading" id="unit-video-playlist">Video Playlist</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Several videos in one list. Usage: add each video URL.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-code-highlight"} -->
+<h3 class="wp-block-heading" id="unit-code-highlight">Code Highlight</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Code with highlighting. Usage: paste the code and choose the language.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-nav-menu"} -->
+<h3 class="wp-block-heading" id="unit-nav-menu">Nav Menu</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Library category: content.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A navigation menu from Pro. Usage: choose the menu to display.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-taxonomy-filter"} -->
+<h3 class="wp-block-heading" id="unit-taxonomy-filter">Taxonomy Filter</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Library category: advanced.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Filters a loop by category or other taxonomy. Usage: place it with a Collection Loop and choose the taxonomy.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-payment-button"} -->
+<h3 class="wp-block-heading" id="unit-payment-button">Payment Button</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Library category: basic.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A hosted PayPal or Stripe button. The readme says these stay hosted payment buttons. Usage: set the amount and the gateway. Site-wide tax and fees are under Canvasly &#8594; Payments.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-payment-form"} -->
+<h3 class="wp-block-heading" id="unit-payment-form">Payment Form</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Library category: basic.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A form that checks out through the payment settings. Turn on Sales Tax, Bank Fee, or both. Each accepts a percent that is calculated and added to the total. Leave a percent blank to use the rate from Canvasly &#8594; Payments. Shipping is a fixed amount added to the total. Gateways offered under Canvasly &#8594; Payments appear as pay buttons at the bottom of the form. Each button uses a Payment Button on the same page with this form key.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3} -->
+<h3 class="wp-block-heading">Theme units</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Use these inside Theme Builder templates so the text comes from the current page, post, or site.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-site-logo"} -->
+<h3 class="wp-block-heading" id="unit-site-logo">Site Logo</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The site logo. Usage: place it in a header template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-site-title"} -->
+<h3 class="wp-block-heading" id="unit-site-title">Site Title</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The WordPress site title. Usage: place it in a header.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-site-tagline"} -->
+<h3 class="wp-block-heading" id="unit-site-tagline">Site Tagline</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The WordPress tagline. Usage: place it near the site title.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-page-title"} -->
+<h3 class="wp-block-heading" id="unit-page-title">Page Title</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The title of the current page. Usage: place it at the top of a single or page template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-post-title"} -->
+<h3 class="wp-block-heading" id="unit-post-title">Post Title</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The title of the current post. Usage: place it in a single template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-post-excerpt"} -->
+<h3 class="wp-block-heading" id="unit-post-excerpt">Post Excerpt</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The excerpt of the current post. Usage: place it under the title.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-post-content"} -->
+<h3 class="wp-block-heading" id="unit-post-content">Post Content</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The body of the current post. Usage: place it where the article should appear.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-post-info"} -->
+<h3 class="wp-block-heading" id="unit-post-info">Post Info</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Meta such as date or author, as the unit&#8217;s controls allow. Usage: place it near the title.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-featured-image"} -->
+<h3 class="wp-block-heading" id="unit-featured-image">Featured Image</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The post&#8217;s featured image. Usage: place it in a single or archive item.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-author-box"} -->
+<h3 class="wp-block-heading" id="unit-author-box">Author Box</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The author&#8217;s name and details. Usage: place it after the post.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-post-navigation"} -->
+<h3 class="wp-block-heading" id="unit-post-navigation">Post Navigation</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Links to the previous and next post. Usage: place it at the end of a single template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-post-comments"} -->
+<h3 class="wp-block-heading" id="unit-post-comments">Comments</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The WordPress comment area. Usage: place it under the post content.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-archive-title"} -->
+<h3 class="wp-block-heading" id="unit-archive-title">Archive Title</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The title of the current archive. Usage: place it at the top of an archive template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-archive-posts"} -->
+<h3 class="wp-block-heading" id="unit-archive-posts">Archive Posts</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The list of posts for the current archive. Usage: place it under the archive title.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-breadcrumbs"} -->
+<h3 class="wp-block-heading" id="unit-breadcrumbs">Breadcrumbs</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A trail of links back to the home page. Usage: place it under the header.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-search-form"} -->
+<h3 class="wp-block-heading" id="unit-search-form">Search Form</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The theme search form. Usage: place it in a header or 404 template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-sitemap"} -->
+<h3 class="wp-block-heading" id="unit-sitemap">Sitemap</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A list of site content. Usage: place it on a sitemap page.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3} -->
+<h3 class="wp-block-heading">Shop units</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>These load only while WooCommerce is active. Product and product-archive templates use the theme locations. Cart, checkout, and My Account render WooCommerce&#8217;s own forms.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-products"} -->
+<h3 class="wp-block-heading" id="unit-wc-products">Products</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A product list. Usage: place it on a shop layout.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-archive"} -->
+<h3 class="wp-block-heading" id="unit-wc-archive">Archive Products</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Products for the current shop archive. Usage: place it in a product archive template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-title"} -->
+<h3 class="wp-block-heading" id="unit-wc-title">Product Title</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The current product&#8217;s name. Usage: place it on a product template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-image"} -->
+<h3 class="wp-block-heading" id="unit-wc-image">Product Image</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The current product&#8217;s image. Usage: place it beside the title.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-price"} -->
+<h3 class="wp-block-heading" id="unit-wc-price">Product Price</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The current product&#8217;s price. Usage: place it under the title.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-rating"} -->
+<h3 class="wp-block-heading" id="unit-wc-rating">Product Rating</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The current product&#8217;s rating. Usage: place it near the price.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-stock"} -->
+<h3 class="wp-block-heading" id="unit-wc-stock">Product Stock</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Whether the product is in stock. Usage: place it near the add-to-cart button.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-meta"} -->
+<h3 class="wp-block-heading" id="unit-wc-meta">Product Meta</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>SKU and categories from WooCommerce. Usage: place it under the product summary.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-short"} -->
+<h3 class="wp-block-heading" id="unit-wc-short">Product Short Description</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The short description. Usage: place it above the full content.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-content"} -->
+<h3 class="wp-block-heading" id="unit-wc-content">Product Content</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The long product description. Usage: place it in the product body.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-tabs"} -->
+<h3 class="wp-block-heading" id="unit-wc-tabs">Product Data Tabs</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>WooCommerce&#8217;s product tabs. Usage: place them under the summary.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-cart"} -->
+<h3 class="wp-block-heading" id="unit-wc-cart">Add To Cart</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The add-to-cart control from WooCommerce. Usage: place it with the price.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-related"} -->
+<h3 class="wp-block-heading" id="unit-wc-related">Product Related</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Related products. Usage: place them after the product.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-upsells"} -->
+<h3 class="wp-block-heading" id="unit-wc-upsells">Product Upsells</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Upsell products. Usage: place them on the product template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-notices"} -->
+<h3 class="wp-block-heading" id="unit-wc-notices">Shop Notices</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>WooCommerce notices such as &#8220;added to cart.&#8221; Usage: place them near the top of a shop template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-menu-cart"} -->
+<h3 class="wp-block-heading" id="unit-wc-menu-cart">Menu Cart</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A cart link for a menu or header. Usage: place it in the header.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-cart-page"} -->
+<h3 class="wp-block-heading" id="unit-wc-cart-page">Cart</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>WooCommerce&#8217;s cart. Usage: place it on the cart template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-checkout"} -->
+<h3 class="wp-block-heading" id="unit-wc-checkout">Checkout</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>WooCommerce&#8217;s checkout. Usage: place it on the checkout template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-account"} -->
+<h3 class="wp-block-heading" id="unit-wc-account">My Account</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>WooCommerce&#8217;s account area. Usage: place it on the account template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3, "anchor": "unit-wc-summary"} -->
+<h3 class="wp-block-heading" id="unit-wc-summary">Purchase Summary</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A summary after purchase. Usage: place it on the thank-you content.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 2, "anchor": "other-surfaces"} -->
+<h2 class="wp-block-heading" id="other-surfaces">Other things visitors and editors see</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li><strong>Popups.</strong> A Popup template from Theme Builder is hidden in the footer and can open on load, scroll, click, exit, or inactivity. How often it shows uses a cookie set by the site. A link action can open a popup. A Canvasly form inside a popup still works.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Editor notes.</strong> With Pro, a logged-in person who can edit the page can leave a note on a unit. Notes are not public comments and are not printed on the site.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Saved templates.</strong> Stored as private content under Canvasly, with categories. Types include Page, Section, Container, Header, Footer, Single, Archive, Loop Item, and Floating Button. Pro adds the Theme Builder types.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Maintenance.</strong> When maintenance or coming soon is on, visitors see the chosen template. Excluded roles still see the live site.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Related</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li><a href="/canvasly-shortcodes/">Canvasly shortcodes</a></li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="/canvasly-settings/">Canvasly settings</a></li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->

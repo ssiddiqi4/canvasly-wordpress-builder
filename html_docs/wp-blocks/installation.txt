@@ -1,0 +1,131 @@
+<!-- wp:html -->
+<p class="brand"><a href="https://canvasly.pro"><img class="brand-logo" src="https://canvasly.pro/assets/canvasly-logo.png" alt="Canvasly. Design your pages visually." width="400" height="320" style="height:96px;width:auto;border-radius:12px"></a></p>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/canvasly-overview/">Canvasly</a></li>
+        <li aria-current="page">Install</li>
+      </ol>
+    </nav>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level": 1} -->
+<h1 class="wp-block-heading">Install Canvasly and start editing</h1>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "lede"} -->
+<p class="lede">Install Canvasly first. Install Canvasly Pro only after Canvasly is active and at least version 0.12.73.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Updated <time datetime="2026-09-22">September 22, 2026</time>. Covers Canvasly 0.12.76 and Canvasly Pro 0.6.3.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<figure>
+      <img src="assets/settings-panel.svg" alt="Sketch of a WordPress admin screen titled Canvasly Settings, with tabs for General, Integrations, Advanced, Performance, Tools, and Features, and a Save Changes button." width="880" height="280" decoding="async" fetchpriority="high">
+      <figcaption>After activation, Canvasly adds its own menu in WordPress admin. Settings is one item in that menu.</figcaption>
+    </figure>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Before you install</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li>WordPress 6.9 or later. The readme says the plugins were tested up to WordPress 7.1.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>PHP 7.4 or later.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Canvasly Pro will not start if Canvasly is missing, switched off, or older than 0.12.73. In those cases WordPress shows an admin notice and Pro does not load.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Shop units appear only while WooCommerce is active. Cart, checkout, and My Account use WooCommerce&#8217;s own forms.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>The plugin files do not name another plugin that Canvasly refuses to run beside. On the normal WordPress block editor screen, Canvasly deliberately stays out of the way except for the Canvasly Template block and an Edit with Canvasly launcher.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Install Canvasly</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list">
+<!-- wp:list-item -->
+<li>In WordPress, go to <strong>Plugins &#8594; Add New &#8594; Upload Plugin</strong> and upload the Canvasly zip, or place the plugin folder in <code>wp-content/plugins/</code>.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Activate <strong>Canvasly</strong> on the Plugins screen.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Open a page or post and choose <strong>Edit with Canvasly</strong>. The same link is in the admin bar on the front of the site and in wp-admin.</li>
+<!-- /wp:list-item -->
+</ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>The Canvasly menu opens on the Dashboard. The visual builder is listed there as <strong>Editor</strong>. From the dashboard you can also start a new page in the editor.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Install Canvasly Pro</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list">
+<!-- wp:list-item -->
+<li>Confirm Canvasly is active.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Upload and activate <strong>Canvasly Pro</strong>.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Open <strong>Canvasly &#8594; License</strong> to enter a license key. The screen shows ACTIVE or INACTIVE, with Activate, Deactivate, and Renew.</li>
+<!-- /wp:list-item -->
+</ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Activating Pro creates a table used to store form submissions. Turning Pro off does not delete that table. The readme says the table is removed only on uninstall.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Pro menu items are added under Canvasly: License, Theme Builder, Motion, Payments, Fonts &amp; Icons, Submissions, Custom Code, and AI Connection. You only see a screen if your WordPress role is allowed to open it.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Edit an existing page</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Posts and Pages can be edited with Canvasly as soon as you activate it. Other public content types stay off until you tick them under <strong>Canvasly &#8594; Settings &#8594; General</strong> or <strong>Canvasly &#8594; Design System</strong>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Choose <strong>Edit with Canvasly</strong> from the list of pages, from the block editor, or from the admin bar. Save in the Canvasly editor, then use WordPress to publish or update the page.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Related</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li><a href="/canvasly-settings/">Canvasly settings</a></li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="/canvasly-faq/">Common questions</a></li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->

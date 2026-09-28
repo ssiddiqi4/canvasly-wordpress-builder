@@ -1,0 +1,299 @@
+<!-- wp:html -->
+<p class="brand"><a href="https://canvasly.pro"><img class="brand-logo" src="https://canvasly.pro/assets/canvasly-logo.png" alt="Canvasly. Design your pages visually." width="400" height="320" style="height:96px;width:auto;border-radius:12px"></a></p>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/canvasly-overview/">Canvasly</a></li>
+        <li aria-current="page">AI and MCP</li>
+      </ol>
+    </nav>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level": 1} -->
+<h1 class="wp-block-heading">Canvasly AI connectivity and MCP</h1>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className": "lede"} -->
+<p class="lede">Canvasly Pro does not call an AI model to build pages. WordPress stores a provider API key and acts as a read-only Model Context Protocol (MCP) server. An outside agent, such as Cursor or Claude, reads layouts through MCP, then writes them back through a separate WordPress address. Canvasly itself never loads this. It exists only while Canvasly Pro is active.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className": "meta"} -->
+<p class="meta">Updated <time datetime="2026-09-22">September 22, 2026</time>. Covers Canvasly 0.12.76 and Canvasly Pro 0.6.3.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<figure>
+      <img src="assets/ai-flow.svg" alt="Four boxes in a row: save a provider key on AI Connection, enable MCP and generate a token, the agent reads the layout from WordPress, then a separate WordPress login saves the layout." width="880" height="220" decoding="async" fetchpriority="high">
+      <figcaption>The key test and the MCP connection are not the save. Saving a page still needs a WordPress user who can edit layouts.</figcaption>
+    </figure>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">What you set up</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Open <strong>Canvasly &#8594; AI Connection</strong>. Only a site administrator can open it. Two stored settings are used:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li><strong>Public connection:</strong> provider, model, Azure address when you use Azure, and whether MCP is on.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Secrets:</strong> the encrypted API key, and a hash of the MCP token. The plain key and the plain token are not kept in the page.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Both are removed if you uninstall Canvasly Pro. The editor never receives the API key. A status check reports only whether a key is stored.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Providers</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Only a provider on this list can be saved. An arbitrary web address is rejected, so this screen cannot be pointed at a private server. Every host must be HTTPS on port 443, with no username or password in the address. Localhost, addresses ending in <code>.local</code> or <code>.internal</code>, raw IP addresses, and lookalike hosts are rejected.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<table>
+        <thead><tr><th>Provider</th><th>Host used for the test</th><th>How the test sends the key</th></tr></thead>
+        <tbody>
+          <tr><td>OpenAI</td><td>api.openai.com/v1</td><td>Bearer token</td></tr>
+          <tr><td>Anthropic</td><td>api.anthropic.com/v1</td><td>x-api-key</td></tr>
+          <tr><td>Gemini</td><td>generativelanguage.googleapis.com/v1beta</td><td>x-goog-api-key</td></tr>
+          <tr><td>Azure</td><td>Your own host under openai.azure.com, cognitiveservices.azure.com, or services.ai.azure.com</td><td>api-key</td></tr>
+          <tr><td>Perplexity</td><td>api.perplexity.ai</td><td>Bearer token</td></tr>
+          <tr><td>Cursor</td><td>api.cursor.com/v1</td><td>Bearer token, and the test calls <code>/me</code></td></tr>
+          <tr><td>Groq</td><td>api.groq.com/openai/v1</td><td>Bearer token</td></tr>
+          <tr><td>Mistral</td><td>api.mistral.ai/v1</td><td>Bearer token</td></tr>
+          <tr><td>DeepSeek</td><td>api.deepseek.com</td><td>Bearer token</td></tr>
+        </tbody>
+      </table>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>An Azure host must be a single name in front of one of those three endings. Add-ons may add providers, and those hosts still have to pass the same HTTPS checks.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">The API key and Test connection</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The key is encrypted before it is stored. A key must be 20 to 256 characters, with no spaces and no web address scheme such as <code>https://</code>. Leave the password field blank when you save if you want to keep the key already stored.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Test connection</strong> is the only time WordPress calls the provider. It checks the provider&#8217;s model list. Cursor is checked at <code>/me</code>. Azure is checked at <code>/openai/models?api-version=2024-10-21</code>. A successful response means the key was accepted. There is no chat, no completion, and no request that generates a layout. The model name you save is not sent to the provider.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Turn on MCP</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>WordPress is the MCP server. It does not forward those requests to OpenAI, Anthropic, or any other provider. The agent connects to your site:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<pre class="example">POST /wp-json/canvasly-lite/v1/mcp</pre>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>The protocol version reported to the client is <code>2024-11-05</code>. The server name is <code>canvasly-lite</code>. This address is hidden from the public REST index.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The address stays closed until both of these are true: <strong>Enable MCP</strong> is checked, and a token exists. If MCP is on and there is no token, the screen warns you, and the address keeps answering with &#8220;forbidden&#8221; (HTTP 403).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level": 3} -->
+<h3 class="wp-block-heading">Token</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A token starts with <code>lbai_</code> and then 48 hexadecimal characters. WordPress stores only a hash of it, a short hint of the first 8 characters, the administrator who created it, and the time. The full token is shown once, for two minutes. Generate a new one to replace it. Revoke deletes it. The person who owns the token must still be an administrator.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Send it on every MCP request in one of these ways:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<pre class="example">Authorization: Bearer lbai_...</pre>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<pre class="example">X-Canvasly-Lite-MCP-Token: lbai_...</pre>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>A person who is already logged in to WordPress and can edit theme options can also call this address without the token. Each accepted call acts as the token&#8217;s owner, and that person must be allowed to edit layouts. After 60 calls in a minute, further calls are refused until the minute passes.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">What the agent can read</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>MCP can list and read layouts. It cannot create, update, or delete them.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<table>
+        <thead><tr><th>Request</th><th>What comes back</th></tr></thead>
+        <tbody>
+          <tr><td>initialize</td><td>Protocol version, server info, and a note that the tools are read-only.</td></tr>
+          <tr><td>ping</td><td>An empty result.</td></tr>
+          <tr><td>tools/list and tools/call</td><td>The three tools below.</td></tr>
+          <tr><td>resources/list</td><td>One entry for each Canvasly page this person can edit.</td></tr>
+          <tr><td>resources/read</td><td>The layout for an address like <code>canvasly-lite://document/123</code>.</td></tr>
+          <tr><td>prompts/list</td><td>Always empty. No prompts are registered.</td></tr>
+        </tbody>
+      </table>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<table>
+        <thead><tr><th>Tool</th><th>What it returns</th></tr></thead>
+        <tbody>
+          <tr><td>list_layout_documents</td><td>Up to 50 posts or pages that store a Canvasly layout and that this person can edit. An optional title search narrows the list.</td></tr>
+          <tr><td>get_layout_document</td><td>One page: its number, title, type, status, and layout.</td></tr>
+          <tr><td>get_layout_schema</td><td>The catalog of units and shared settings, plus the page layout when a page number is set. Compact results are the default. Empty and default settings are left out so the tree stays small. Saving fills those defaults back in.</td></tr>
+        </tbody>
+      </table>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">How the agent saves a page</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Writes do not go through MCP. They use the layout routes below. The MCP token proves who is calling MCP. It does not, by itself, allow the save. The agent also needs a WordPress login, or another WordPress credential, that can edit layouts.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<table>
+        <thead><tr><th>Address</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td>GET /wp-json/canvasly-lite/v1/layout-schema</td><td>The catalog of units. Requires permission to edit theme options.</td></tr>
+          <tr><td>GET /wp-json/canvasly-lite/v1/layout-schema/{id}</td><td>The catalog plus the layout of that page.</td></tr>
+          <tr><td>POST /wp-json/canvasly-lite/v1/layout-schema/{id}</td><td>Checks the layout and saves it. Add <code>render=1</code> to also receive the HTML.</td></tr>
+          <tr><td>POST /wp-json/canvasly-lite/v1/layout-schema/render</td><td>Checks the layout and returns HTML without saving.</td></tr>
+        </tbody>
+      </table>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>The catalog id is <code>canvasly-lite.layout.v1</code>. A layout is a version, page settings, and a list of units. Each unit has an id, a type, settings, children, and an optional slot. The agent is told to:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li>Use only unit types from the catalog. A type that accepts children may contain other units.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>When a type uses slots, set the child&#8217;s slot to the matching item id.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Use only setting names that belong to that unit or to the shared settings. Unknown names are dropped on save.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Apply a global class with <code>global_class</code>, using names that already exist, separated by spaces.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Reuse a saved component with type <code>component</code> and its component id.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Keep existing unit ids. Leave the id off, or start a new one with <code>n_</code>. The save step assigns an id if one is missing.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Send the layout to the save address to keep it, or to the render address to preview HTML. Do not invent the page&#8217;s HTML. Canvasly turns the layout into the page.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>A save can be the full catalog response, an object that contains a <code>document</code>, or an object that has a <code>root</code> list.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">The working loop</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list">
+<!-- wp:list-item -->
+<li>An administrator saves a provider and API key, then uses Test connection. That only proves the provider accepts the key.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>The administrator turns on MCP and generates a token. The token is stored in the agent, not in the page.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>The agent sends JSON-RPC to <code>/wp-json/canvasly-lite/v1/mcp</code> with the bearer token.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>It reads the catalog and, if needed, one page. It edits that layout with whatever model the agent is already using.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>It posts the layout to <code>/wp-json/canvasly-lite/v1/layout-schema/{page number}</code> with WordPress credentials that can edit the page. Canvasly checks it, saves it, and the public page is drawn from that layout.</li>
+<!-- /wp:list-item -->
+</ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>The provider key stored in WordPress is not part of that loop. Pro does not send the layout, the prompt, or the model id to OpenAI, Anthropic, Cursor, or the other listed hosts, except for the model-list check used by Test connection.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Limits that stay in place</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li>Canvasly by itself does not register these addresses. They exist only while the Pro AI module is active.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>The MCP address and the AI Connection addresses are left out of the public REST index.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>MCP tools cannot create, update, or delete layouts.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Reading a page still checks that this person may edit that page.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Saves use the same checks and the same page renderer as the public site.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Provider requests do not follow redirects, require a valid certificate, and refuse any address that is not on the list.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>MCP is limited to 60 calls per person per minute.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Related</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li><a href="/canvasly-settings/">Canvasly settings</a></li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="/canvasly-faq/">Common questions</a></li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
