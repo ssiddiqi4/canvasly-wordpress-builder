@@ -649,13 +649,13 @@ class Style {
 		if ( ! empty( $s['hover_background'] ) || ! empty( $s['hover_text_color'] ) ) {$hd = [];
 			if ( ! empty( $s['hover_background'] ) ) {
 				$hb = is_array($s['hover_background'] ) ? ( $s['hover_background']['desktop'] ?? '' ) :$s['hover_background'];
-				if ( is_string( $hb ) \vert{}\vert{} is_numeric($hb ) ) {
+				if ( is_string( $hb ) || is_numeric($hb ) ) {
 					$hd[] = 'background:' . esc_attr( self::resolve_token( $hb ) ) . ';';
 				}
 			}
 			if ( ! empty( $s['hover_text_color'] ) ) {
 				$htc = is_array($s['hover_text_color'] ) ? ( $s['hover_text_color']['desktop'] ?? '' ) :$s['hover_text_color'];
-				if ( is_string( $htc ) \vert{}\vert{} is_numeric($htc ) ) {
+				if ( is_string( $htc ) || is_numeric($htc ) ) {
 					$hd[] = 'color:' . esc_attr( self::resolve_token( $htc ) ) . ';';
 				}
 			}
@@ -719,7 +719,7 @@ class Style {
 			$put = function ($p, $v,$suffix = '' ) use ( &$d,$dev ) {
 				if ( is_array( $v ) ) {$v = $v[$dev ] ?? ( $v['desktop'] ?? ( reset($v ) ?: '' ) );
 				}
-				if ( is_array( $v ) \vert{}\vert{} ! is_scalar( $v ) ) {
+				if ( is_array( $v ) || ! is_scalar( $v ) ) {
 					return;
 				}
 				if ( $v !== '' &&$v !== null ) {
@@ -764,7 +764,7 @@ class Style {
 
 	private static function state_css( $sel, $styles ) {$out = '';
 		foreach ( [ 'hover' => ':hover', 'focus' => ':focus', 'active' => ':active', 'focus_visible' => ':focus-visible' ] as $state =>$pseudo ) {
-			if ( empty( $styles[ $state ] ) \vert{}\vert{} ! is_array( $styles[ $state ] ) ) { 				continue; 			}$d = '';
+			if ( empty( $styles[ $state ] ) || ! is_array( $styles[ $state ] ) ) { 				continue; 			}$d = '';
 			foreach ( $styles[$state ] as $k =>$v ) {
 				$prop = str_replace( '_', '-', sanitize_key($k ) );
 				if ( is_array( $v ) ) {$v = $v['desktop'] ?? ( reset($v ) ?: '' );
