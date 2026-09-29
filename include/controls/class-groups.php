@@ -1066,6 +1066,11 @@ class Groups {
 		if ( $out['linked'] ) {
 			$out['column'] = $out['row'];
 		}
+		// Unit picked in the Gaps control, kept so an empty field remembers it.
+		$unit = strtolower( (string) ( $v['unit'] ?? '' ) );
+		if ( in_array( $unit, array( 'px', 'em', 'rem', '%', 'vw', 'vh' ), true ) ) {
+			$out['unit'] = $unit;
+		}
 		return $out;
 	}
 

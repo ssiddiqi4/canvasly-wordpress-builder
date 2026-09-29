@@ -242,9 +242,9 @@ class Variables {
 		return $out;
 	}
 
+	/** Global colour value: any literal CSS colour (HEX/HEXA, RGB(A), HSL(A), named). */
 	private static function sanitize_hex( $v ) {
-		$hex = sanitize_hex_color( (string) $v );
-		return $hex ? $hex : '';
+		return self::css_color( $v );
 	}
 
 	private static function normalize_titles( $titles, $colors ) {
@@ -465,8 +465,49 @@ class Variables {
 		if ( preg_match( '/^var\(--lb-color-([a-zA-Z0-9_-]+)\)$/i', $s, $m ) ) {
 			return '{{var:colors.' . sanitize_key( $m[1] ) . '}}';
 		}
-		$hex = sanitize_hex_color( $s );
-		return $hex ? $hex : '';
+		return self::css_color( $s );
+	}
+
+	/**
+	 * Validate a literal CSS colour: #rgb, #rgba, #rrggbb, #rrggbbaa, rgb()/rgba(), hsl()/hsla()
+	 * (comma or space syntax) and CSS named colours such as `tomato` or `transparent`.
+	 * Returns the colour as typed (trimmed, names lower-cased), or '' when it is not a colour.
+	 *
+	 * @param mixed $v
+	 * @return string
+	 */
+	public static function css_color( $v ) {
+		$s = trim( (string) $v );
+		if ( $s === '' || strlen( $s ) > 80 ) {
+			return '';
+		}
+		if ( preg_match( '/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$/', $s ) ) {
+			return $s;
+		}
+		$num   = '[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?';
+		$pct   = $num . '%';
+		$np    = '(?:' . $num . '%?|none)';
+		$angle = '(?:' . $num . '(?:deg|rad|grad|turn)?|none)';
+		$alpha = '(?:' . $num . '%?|none)';
+		$rgb_c = '/^rgba?\(\s*' . $np . '\s*,\s*' . $np . '\s*,\s*' . $np . '\s*(?:,\s*' . $alpha . '\s*)?\)$/i';
+		$rgb_s = '/^rgba?\(\s*' . $np . '\s+' . $np . '\s+' . $np . '\s*(?:\/\s*' . $alpha . '\s*)?\)$/i';
+		$hsl_c = '/^hsla?\(\s*' . $angle . '\s*,\s*' . $pct . '\s*,\s*' . $pct . '\s*(?:,\s*' . $alpha . '\s*)?\)$/i';
+		$hsl_s = '/^hsla?\(\s*' . $angle . '\s+' . $np . '\s+' . $np . '\s*(?:\/\s*' . $alpha . '\s*)?\)$/i';
+		foreach ( array( $rgb_c, $rgb_s, $hsl_c, $hsl_s ) as $re ) {
+			if ( preg_match( $re, $s ) ) {
+				return preg_replace( '/\s+/', ' ', $s );
+			}
+		}
+		$name = strtolower( $s );
+		if ( in_array( $name, self::css_color_names(), true ) ) {
+			return $name;
+		}
+		return '';
+	}
+
+	/** CSS named colours (CSS Color Module Level 4) plus `transparent`. */
+	public static function css_color_names() {
+		return array( 'transparent', 'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen', 'darkgrey', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darksalmon', 'darkseagreen', 'darkslateblue', 'darkslategray', 'darkslategrey', 'darkturquoise', 'darkviolet', 'deeppink', 'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen', 'fuchsia', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'greenyellow', 'grey', 'honeydew', 'hotpink', 'indianred', 'indigo', 'ivory', 'khaki', 'lavender', 'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgreen', 'lightgrey', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow', 'lime', 'limegreen', 'linen', 'magenta', 'maroon', 'mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite', 'navy', 'oldlace', 'olive', 'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue', 'purple', 'rebeccapurple', 'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell', 'sienna', 'silver', 'skyblue', 'slateblue', 'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan', 'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen' );
 	}
 
 	public static function typography_preset( $id ) {
