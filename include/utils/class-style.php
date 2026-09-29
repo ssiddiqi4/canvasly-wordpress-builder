@@ -31,7 +31,7 @@ class Style {
 						$css .= str_replace( '#lb-node-' . $n['id'], $src, $chunk );
 					}
 				}
-				$next = $in_loop || ( ( $n['type'] ?? '' ) === 'collection_loop' );
+				$next = $in_loop || in_array( ( $n['type'] ?? '' ), array( 'collection_loop', 'xe_loop' ), true );
 				$walk( $n['children'] ?? [], $next );
 			}
 		};
@@ -386,10 +386,10 @@ class Style {
 			$v = self::dimensions($raw );
 			return [ 'VALUE' => $v, 'RAW' => '', 'SIZE' => '', 'UNIT' => '' ];
 		}
-		if ( $type === 'box_shadow' ) {$v = class_exists( Groups::class ) ? Groups::compile_box_shadow( $raw ) : self::shadow($raw );
+		if ( $type === 'box_shadow' ) {$v = self::resolve_token( class_exists( Groups::class ) ? Groups::compile_box_shadow( $raw ) : self::shadow($raw ) );
 			return [ 'VALUE' => $v, 'RAW' => '', 'SIZE' => '', 'UNIT' => '' ];
 		}
-		if ( class_exists( Groups::class ) && Groups::handles( $type ) ) {$v = Groups::compile( $type,$raw );
+		if ( class_exists( Groups::class ) && Groups::handles( $type ) ) {$v = self::resolve_token( Groups::compile( $type,$raw ) );
 			return [ 'VALUE' => $v, 'RAW' => '', 'SIZE' => '', 'UNIT' => '' ];
 		}
 		if ( is_array( $raw ) ) {$raw = $raw['desktop'] ?? ( reset($raw ) ?: '' );

@@ -433,7 +433,8 @@ abstract class Unit {
    'css_id'=>$adv('text',__('CSS ID', 'canvasly-lite'),__('Attributes', 'canvasly-lite'),['description'=>__('Same-page jump target. Link a menu item, button, or text link to #this-id (for example #contact-us). Works the same way as a Menu Anchor.', 'canvasly-lite'),'placeholder'=>'contact-us']),
    'css_class'=>$adv('text',__('CSS Classes', 'canvasly-lite'),__('Attributes', 'canvasly-lite')),
    'global_class'=>$adv('text',__('Global Classes', 'canvasly-lite'),__('Attributes', 'canvasly-lite'),['description'=>__('Space separated class names from the Global Classes manager.', 'canvasly-lite')]),
-   'aria_label'=>$adv('text',__('ARIA Label', 'canvasly-lite'),__('Attributes', 'canvasly-lite')),
+   'aria_label'=>$adv('text',__('ARIA Label', 'canvasly-lite'),__('Attributes', 'canvasly-lite'),['description'=>__('Accessible name. It is applied to the unit\'s link, button, field or image; units without one get role="group" so screen readers announce it.', 'canvasly-lite')]),
+   'xe_classes'=>$hidden('xe_classes',['default'=>[]]),
    'role'=>$adv('text',__('Role', 'canvasly-lite'),__('Attributes', 'canvasly-lite')),
    'html_attributes'=>$adv('textarea',__('Custom Attributes', 'canvasly-lite'),__('Attributes', 'canvasly-lite'),['placeholder'=>"title=Example\ndata-key=value",'description'=>__('One attribute per line, as name=value. Only aria-*, data-*, title, rel and download are kept.', 'canvasly-lite')]),
    'custom_css'=>$adv('code',__('Custom CSS', 'canvasly-lite'),__('Custom CSS', 'canvasly-lite'),['language'=>'css','rows'=>10,'description'=>__('Rules are scoped to this unit. Use "selector" to target the wrapper.', 'canvasly-lite')]),
@@ -548,6 +549,8 @@ abstract class Unit {
   $c='lb-unit';
   foreach(preg_split('/\s+/',trim((string)($s['css_class']??''))) as $part){$safe=sanitize_html_class($part);if($safe)$c.=' '.$safe;}
   foreach(preg_split('/[\s,]+/',trim((string)($s['global_class']??''))) as $part){$safe=sanitize_html_class($part);if($safe)$c.=' lb-class-'.$safe;}
+  // XEditor class stacking: every unit may carry utility classes from the XEditor Classes manager.
+  if(!empty($s['xe_classes'])&&class_exists('\\CanvaslyLite\\XEditor\\XEditorClassesManager')){$xe=\CanvaslyLite\XEditor\XEditorClassesManager::class_attr($s['xe_classes']);if($xe!=='')$c.=' '.$xe;}
   return $c;
  }
  /**

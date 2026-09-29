@@ -6,8 +6,17 @@ class Form extends Unit {
  public function keywords(){return ['form','contact','fields','email'];}
  public function scripts($s=[]){
   $h=$this->frontend_scripts();
-  if(class_exists('\\CanvaslyLite\\Settings\\AdminSettings')&&\CanvaslyLite\Settings\AdminSettings::recaptcha_enabled())$h[]='google-recaptcha';
+  $s=is_array($s)?$s:[];
+  if($this->uses_turnstile($s)){foreach(\CanvaslyLite\Integrations\Turnstile::handles() as $t)$h[]=$t;return $h;}
+  if(($s['captcha']??'')!=='none'&&class_exists('\\CanvaslyLite\\Settings\\AdminSettings')&&\CanvaslyLite\Settings\AdminSettings::recaptcha_enabled())$h[]='google-recaptcha';
   return $h;
+ }
+ /** Cloudflare Turnstile protects this form (form setting, or "all Canvasly forms"). */
+ public function uses_turnstile($s){
+  if(!class_exists('\\CanvaslyLite\\Integrations\\Turnstile')||!\CanvaslyLite\Integrations\Turnstile::enabled())return false;
+  $c=(string)($s['captcha']??'auto');
+  if($c==='turnstile')return true;
+  return $c!=='none'&&\CanvaslyLite\Integrations\Turnstile::get()['protect_forms']==='all';
  }
  public function defaults(){return [
   'title'=>__('Contact Us', 'canvasly-lite'),
@@ -37,6 +46,7 @@ class Form extends Unit {
    'success'=>$this->ctrl('textarea',__('Success Message', 'canvasly-lite'),'content',$form),
    'email'=>$this->ctrl('text',__('Send To', 'canvasly-lite'),'content',$form,['placeholder'=>__('Leave empty to use the site admin email', 'canvasly-lite')]),
    'honeypot'=>$this->ctrl('switch',__('Honeypot', 'canvasly-lite'),'content',$form),
+   'captcha'=>$this->ctrl('select',__('Spam protection', 'canvasly-lite'),'content',$form,['options'=>['auto'=>__('Site default', 'canvasly-lite'),'turnstile'=>__('Cloudflare Turnstile', 'canvasly-lite'),'none'=>__('None (honeypot only)', 'canvasly-lite')],'description'=>__('Site default uses reCAPTCHA when it is configured. Turnstile keys live in Settings → Integrations.', 'canvasly-lite')]),
    'layout'=>$this->ctrl('select',__('Layout', 'canvasly-lite'),'content',$form,['options'=>['stack'=>__('Stacked', 'canvasly-lite'),'inline'=>__('Inline', 'canvasly-lite'),'two-column'=>__('Two Columns', 'canvasly-lite')]]),
   ];
  }
@@ -80,7 +90,9 @@ class Form extends Unit {
   $to=!empty($s['email'])?'<input type="hidden" name="_to" value="'.esc_attr($s['email']).'">':'';
   $ok=!empty($s['success'])?'<input type="hidden" name="_success" value="'.esc_attr($s['success']).'">':'';
   $captcha='';
-  if(class_exists('\\CanvaslyLite\\Settings\\AdminSettings')&&\CanvaslyLite\Settings\AdminSettings::recaptcha_enabled()){
+  if($this->uses_turnstile($s)){
+   $captcha=\CanvaslyLite\Integrations\Turnstile::markup(['action'=>'canvasly_form','size'=>'flexible']);
+  }elseif(($s['captcha']??'')!=='none'&&class_exists('\\CanvaslyLite\\Settings\\AdminSettings')&&\CanvaslyLite\Settings\AdminSettings::recaptcha_enabled()){
    $captcha='<div class="lb-recaptcha" data-lb-recaptcha="'.esc_attr(\CanvaslyLite\Settings\AdminSettings::recaptcha_type()).'" data-sitekey="'.esc_attr(\CanvaslyLite\Settings\AdminSettings::recaptcha_site_key()).'"></div>';
   }
   return '<form class="'.$this->cls($s).' lb-form lb-form-'.$layout.'" id="'.esc_attr($id).'" method="post" data-lb-form="1">'.((string)($s['title']??'')!==''?'<h3>'.esc_html($s['title']).'</h3>':'').implode('',$fields).$hp.$to.$ok.$captcha.'<button type="submit">'.esc_html($s['submit']??__('Send Message', 'canvasly-lite')).'</button><div class="lb-form-message" role="status" aria-live="polite"></div></form>';
