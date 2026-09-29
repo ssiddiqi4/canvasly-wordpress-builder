@@ -820,6 +820,13 @@ class Optimize {
 	 * @return bool
 	 */
 	public static function can_flatten( array $n, $el, array $s, $inner ) {
+		// XEditor atomic elements are designed as ONE element: always merge the shell onto the root tag.
+		if ( is_object( $el ) && method_exists( $el, 'single_element' ) && $el->single_element() ) {
+			if ( ! empty( $s['css_id'] ) || ! self::is_single_root( $inner ) ) {
+				return false;
+			}
+			return ! preg_match( '/^(\s*)<[a-zA-Z0-9]+[^>]*\sid\s*=/i', ltrim( (string) $inner ) );
+		}
 		if ( ! self::markup() ) {
 			return false;
 		}

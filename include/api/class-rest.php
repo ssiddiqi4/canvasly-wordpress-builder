@@ -190,7 +190,7 @@ class Rest {
    if(is_wp_error($check))return $check;
   }
   $d=(array)$r->get_params();
-  unset($d['website'],$d['g-recaptcha-response'],$d['recaptcha_token']);
+  unset($d['website'],$d['g-recaptcha-response'],$d['recaptcha_token'],$d['cf-turnstile-response']);
   $to=sanitize_email($d['_to']??get_option('admin_email'));
   $subject=sanitize_text_field($d['_subject']??__('Canvasly Form Submission', 'canvasly-lite'));
   $skip=['_to','_subject','_success','_post_id','_unit_id'];

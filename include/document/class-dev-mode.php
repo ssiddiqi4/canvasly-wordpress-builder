@@ -278,7 +278,8 @@ class DevMode {
 			},
 			$value
 		);
-		$value = preg_replace( '/\{\{(?!var:[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|lb:[a-z0-9_:-]+)[\s\S]*?\}\}/i', '', $value );
+		// Keep XEditor loop tokens ({{post.title}}, {{term.url}}, {{loop.number}}, {{site.name}}); XEditorContext resolves them at render time.
+		$value = preg_replace( '/\{\{(?!var:[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|lb:[a-z0-9_:-]+|\s*(?:post|term|loop|site)\.[a-z_]+(?::[a-zA-Z0-9_-]+)?\s*\}\})[\s\S]*?\}\}/i', '', $value );
 		return $value;
 	}
 

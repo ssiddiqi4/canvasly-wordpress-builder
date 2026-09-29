@@ -291,6 +291,22 @@ class CssPrint {
 	 *
 	 * @return string
 	 */
+	/**
+	 * Turn any `{{var:group.name}}` binding left in compiled CSS into its
+	 * `var(--lb-…)` custom property. Browsers drop a declaration that still
+	 * holds the raw binding (e.g. a container background set to a Global Color).
+	 *
+	 * @param string $css
+	 * @return string
+	 */
+	public static function resolve_tokens( $css ) {
+		$css = (string) $css;
+		if ( strpos( $css, '{{var:' ) === false || ! class_exists( Variables::class ) ) {
+			return $css;
+		}
+		return (string) Variables::resolve_references( $css );
+	}
+
 	public static function global_css() {
 		$css = '';
 		if ( class_exists( Variables::class ) ) {
@@ -308,7 +324,7 @@ class CssPrint {
 		if ( class_exists( Interactions::class ) ) {
 			$css .= Interactions::css();
 		}
-		$css = self::minify( $css );
+		$css = self::minify( self::resolve_tokens( $css ) );
 		/**
 		 * Filter compiled global CSS before it is written or printed.
 		 *
@@ -335,7 +351,7 @@ class CssPrint {
 		} else {
 			$css = (string) get_post_meta( $id, '_lb_css_cache', true );
 		}
-		$css = self::minify( $css );
+		$css = self::minify( self::resolve_tokens( $css ) );
 		/**
 		 * Filter compiled per-post CSS before it is written or printed.
 		 *

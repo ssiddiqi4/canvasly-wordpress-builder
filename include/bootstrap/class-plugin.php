@@ -15,6 +15,11 @@ class Plugin { private static $instance; public static function instance(){ if(!
    return;
   }
   add_action('init',[self::class,'on_init']);
+  // XEditor (atomic elements, classes & variables, loop data model) and integrations.
+  $xe_engine=CANVASLY_LITE_PATH.'includes/xeditor/class-xeditor-engine.php';
+  if(is_readable($xe_engine)){require_once $xe_engine;\CanvaslyLite\XEditor\XEditorEngine::init();}
+  $turnstile=CANVASLY_LITE_PATH.'includes/integrations/class-turnstile.php';
+  if(is_readable($turnstile)){require_once $turnstile;\CanvaslyLite\Integrations\Turnstile::init();}
   add_action('rest_api_init',['CanvaslyLite\Api\Rest','register_routes']);
   add_filter('rest_post_dispatch',['CanvaslyLite\Api\Rest','utf8_content_type'],10,3);
   if(self::is_admin_request()){
