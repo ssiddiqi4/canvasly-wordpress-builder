@@ -21,14 +21,11 @@ class Container extends Unit {
   $flex=['layout'=>'flex']; $grid=['layout'=>'grid'];
   $shape_opts=[''=>'None','wave'=>'Wave','tilt'=>'Tilt','triangle'=>'Triangle','curve'=>'Curve','arrow'=>'Arrow','zigzag'=>'Zigzag','mountains'=>'Mountains'];
   $blend=[''=>'Normal','normal'=>'Normal','multiply'=>'Multiply','screen'=>'Screen','overlay'=>'Overlay','darken'=>'Darken','lighten'=>'Lighten','color-dodge'=>'Color Dodge','color-burn'=>'Color Burn','hard-light'=>'Hard Light','soft-light'=>'Soft Light','difference'=>'Difference','exclusion'=>'Exclusion','hue'=>'Hue','saturation'=>'Saturation','color'=>'Color','luminosity'=>'Luminosity'];
-  return [
+  $c=[
    'layout'=>$this->ctrl('choose',__('Layout', 'canvasly-lite'),'content',$lay,['options'=>['flex'=>__('Flex', 'canvasly-lite'),'grid'=>__('Grid', 'canvasly-lite'),'block'=>__('Block', 'canvasly-lite')],'map'=>['flex'=>'flex','grid'=>'grid','block'=>'block'],'selectors'=>['{{WRAPPER}} .lb-container'=>'display: {{VALUE}};']]),
-   'direction'=>$this->ctrl('select',__('Direction', 'canvasly-lite'),'content',$lay,['options'=>['row'=>__('Row', 'canvasly-lite'),'row-reverse'=>__('Row Reverse', 'canvasly-lite'),'column'=>__('Column', 'canvasly-lite'),'column-reverse'=>__('Column Reverse', 'canvasly-lite')],'condition'=>$flex,'selectors'=>['{{WRAPPER}} .lb-container'=>'flex-direction: {{VALUE}};']]),
-   'wrap'=>$this->ctrl('select',__('Wrap', 'canvasly-lite'),'content',$lay,['options'=>['nowrap'=>__('No Wrap', 'canvasly-lite'),'wrap'=>__('Wrap', 'canvasly-lite'),'wrap-reverse'=>__('Wrap Reverse', 'canvasly-lite')],'condition'=>$flex,'selectors'=>['{{WRAPPER}} .lb-container'=>'flex-wrap: {{VALUE}};']]),
-   'justify'=>$this->ctrl('select',__('Justify', 'canvasly-lite'),'content',$lay,['options'=>['flex-start'=>__('Start', 'canvasly-lite'),'center'=>__('Center', 'canvasly-lite'),'flex-end'=>__('End', 'canvasly-lite'),'space-between'=>__('Space Between', 'canvasly-lite'),'space-around'=>__('Space Around', 'canvasly-lite'),'space-evenly'=>__('Space Evenly', 'canvasly-lite')],'condition'=>$flex,'selectors'=>['{{WRAPPER}} .lb-container'=>'justify-content: {{VALUE}};']]),
-   'align'=>$this->ctrl('select',__('Align', 'canvasly-lite'),'content',$lay,['options'=>['stretch'=>__('Stretch', 'canvasly-lite'),'flex-start'=>__('Start', 'canvasly-lite'),'center'=>__('Center', 'canvasly-lite'),'flex-end'=>__('End', 'canvasly-lite'),'baseline'=>__('Baseline', 'canvasly-lite')],'selectors'=>['{{WRAPPER}} .lb-container'=>'align-items: {{VALUE}};']]),
-   'gap'=>$this->ctrl('slider',__('Gap', 'canvasly-lite'),'content',$lay,['responsive'=>true,'units'=>['px','em','rem','%'],'range'=>['min'=>0,'max'=>80],'selectors'=>['{{WRAPPER}} .lb-container'=>'gap: {{SIZE}}{{UNIT}};']]),
-   'gaps'=>$this->ctrl('gaps',__('Gaps', 'canvasly-lite'),'content',$lay,['condition'=>$grid,'selectors'=>['{{WRAPPER}} .lb-container'=>'gap: {{VALUE}};']]),
+   // Legacy layout keys stay for saved pages; the visible controls live on Style > Items.
+   'gap'=>$this->ctrl('slider',__('Gap', 'canvasly-lite'),'content',$lay,['hidden'=>true,'responsive'=>true,'units'=>['px','em','rem','%'],'range'=>['min'=>0,'max'=>80],'condition'=>$flex,'selectors'=>['{{WRAPPER}} .lb-container'=>'gap: {{SIZE}}{{UNIT}};']]),
+   'gaps'=>$this->ctrl('gaps',__('Gaps', 'canvasly-lite'),'content',$lay,['hidden'=>true,'condition'=>$grid,'selectors'=>['{{WRAPPER}} .lb-container'=>'gap: {{VALUE}};']]),
    'column_gap'=>$this->ctrl('slider',__('Column Gap', 'canvasly-lite'),'content',$lay,['hidden'=>true,'responsive'=>true,'units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>80],'condition'=>$grid,'selectors'=>['{{WRAPPER}} .lb-container'=>'column-gap: {{SIZE}}{{UNIT}};']]),
    'row_gap'=>$this->ctrl('slider',__('Row Gap', 'canvasly-lite'),'content',$lay,['hidden'=>true,'responsive'=>true,'units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>80],'condition'=>$grid,'selectors'=>['{{WRAPPER}} .lb-container'=>'row-gap: {{SIZE}}{{UNIT}};']]),
    'columns'=>$this->ctrl('number',__('Columns', 'canvasly-lite'),'content',$lay,['range'=>['min'=>1,'max'=>12],'condition'=>$grid]),
@@ -64,6 +61,23 @@ class Container extends Unit {
    'shape_bottom_flip'=>$this->ctrl('switch',__('Flip Bottom Shape', 'canvasly-lite'),'style',$shape,['condition'=>['shape_bottom!'=>'']]),
    'shape_bottom_front'=>$this->ctrl('switch',__('Bring Bottom Shape Front', 'canvasly-lite'),'style',$shape,['condition'=>['shape_bottom!'=>'']]),
   ];
+  // Legacy gap keys print first so an Items > Gaps value set later in the list wins; Items opens the Style tab.
+  $legacy=[];
+  foreach(['gap','gaps','column_gap','row_gap'] as $k){ $legacy[$k]=$c[$k]; unset($c[$k]); }
+  return $legacy+self::container_items_controls($flex)+$c;
+ }
+ /**
+  * Style > Items for the container box itself (.lb-container). Direction, Justify and Wrap are
+  * flex-only; Align Items and Gaps also apply to the grid layout. The shared widget-level
+  * Items keys are stubbed out so the container shows one Items section.
+  */
+ protected static function container_items_controls(array $flex){
+  $items=self::flex_items_controls(['direction'=>'direction','justify'=>'justify','align'=>'align','gap'=>'items_gap','wrap'=>'wrap'],'{{WRAPPER}} .lb-container','',[],'column');
+  foreach(['direction','justify','wrap'] as $k)$items[$k]['condition']=$flex;
+  $items['items_gap']['condition']=['layout'=>['flex','grid']];
+  $items['items_gap']['fallback']=['gap','gaps'];
+  foreach(self::items_keys() as $role=>$k){ if($role!=='gap')$items[$k]=['type'=>'choose','tab'=>'style','hidden'=>true]; }
+  return $items;
  }
  /** Original Canvasly shape geometry, drawn in a 1000x100 box and filled toward the bottom edge. */
  public static function shape_path($shape){

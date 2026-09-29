@@ -209,6 +209,62 @@ abstract class Unit {
  protected static function opt_hover(){return [''=>__('None', 'canvasly-lite'),'zoom'=>__('Zoom', 'canvasly-lite'),'grow'=>__('Grow', 'canvasly-lite'),'shrink'=>__('Shrink', 'canvasly-lite'),'lift'=>__('Lift', 'canvasly-lite'),'sink'=>__('Sink', 'canvasly-lite'),'fade'=>__('Fade', 'canvasly-lite'),'rotate'=>__('Rotate', 'canvasly-lite'),'float'=>__('Float', 'canvasly-lite'),'pulse'=>__('Pulse', 'canvasly-lite'),'skew'=>__('Skew', 'canvasly-lite'),'wobble'=>__('Wobble', 'canvasly-lite'),'buzz'=>__('Buzz', 'canvasly-lite')];}
  protected static function opt_title_tags(){return ['h1'=>__('H1', 'canvasly-lite'),'h2'=>__('H2', 'canvasly-lite'),'h3'=>__('H3', 'canvasly-lite'),'h4'=>__('H4', 'canvasly-lite'),'h5'=>__('H5', 'canvasly-lite'),'h6'=>__('H6', 'canvasly-lite'),'div'=>__('div', 'canvasly-lite'),'span'=>__('span', 'canvasly-lite'),'p'=>__('p', 'canvasly-lite')];}
  protected static function opt_weight(){return [''=>__('Default', 'canvasly-lite'),'100'=>'100','200'=>'200','300'=>'300','400'=>'400','500'=>'500','600'=>'600','700'=>'700','800'=>'800','900'=>'900'];}
+ /**
+  * Style > Items controls (Direction, Justify Content, Align Items, Gaps, Wrap), drawn as
+  * Elementor-style icon button groups. `$keys` maps role => setting key, `$target` is the CSS
+  * selector that becomes the flex box, `$lead` is prepended to every declaration
+  * (e.g. `display:flex;` for widget wrappers), and `$extra` is merged into every control.
+  *
+  * @param array  $keys   ['direction'=>..,'justify'=>..,'align'=>..,'gap'=>..,'wrap'=>..]
+  * @param string $target
+  * @param string $lead
+  * @param array  $extra
+  * @param string $axis_default Flex direction the box has when Direction is unset (orients the icons).
+  * @return array
+  */
+ public static function flex_items_controls(array $keys,$target,$lead='',array $extra=[],$axis_default='row'){
+  $sec=__('Items', 'canvasly-lite');
+  $dir_key=$keys['direction'];
+  $mk=function($type,$label,array $more)use($sec,$extra){
+   return array_merge(['type'=>$type,'label'=>$label,'tab'=>'style','section'=>$sec],$extra,$more);
+  };
+  $decl=function($prop)use($target,$lead){return [$target=>$lead.$prop.': {{VALUE}};'];};
+  $out=[];
+  $out[$dir_key]=$mk('choose',__('Direction', 'canvasly-lite'),[
+   'responsive'=>true,'icons_only'=>true,'toggle'=>true,
+   'options'=>['row'=>__('Row - horizontal', 'canvasly-lite'),'column'=>__('Column - vertical', 'canvasly-lite'),'row-reverse'=>__('Row - reversed', 'canvasly-lite'),'column-reverse'=>__('Column - reversed', 'canvasly-lite')],
+   'icons'=>['row'=>'lbi-dir-row','column'=>'lbi-dir-column','row-reverse'=>'lbi-dir-row-reverse','column-reverse'=>'lbi-dir-column-reverse'],
+   'selectors'=>$decl('flex-direction'),
+  ]);
+  $out[$keys['justify']]=$mk('choose',__('Justify Content', 'canvasly-lite'),[
+   'responsive'=>true,'icons_only'=>true,'label_block'=>true,'toggle'=>true,'axis'=>'justify','axis_key'=>$dir_key,'axis_default'=>$axis_default,
+   'options'=>['flex-start'=>__('Start', 'canvasly-lite'),'center'=>__('Center', 'canvasly-lite'),'flex-end'=>__('End', 'canvasly-lite'),'space-between'=>__('Space Between', 'canvasly-lite'),'space-around'=>__('Space Around', 'canvasly-lite'),'space-evenly'=>__('Space Evenly', 'canvasly-lite')],
+   'icons'=>['flex-start'=>'lbi-justify-start','center'=>'lbi-justify-center','flex-end'=>'lbi-justify-end','space-between'=>'lbi-justify-between','space-around'=>'lbi-justify-around','space-evenly'=>'lbi-justify-evenly'],
+   'selectors'=>$decl('justify-content'),
+  ]);
+  $out[$keys['align']]=$mk('choose',__('Align Items', 'canvasly-lite'),[
+   'responsive'=>true,'icons_only'=>true,'toggle'=>true,'axis'=>'align','axis_key'=>$dir_key,'axis_default'=>$axis_default,
+   'options'=>['flex-start'=>__('Start', 'canvasly-lite'),'center'=>__('Center', 'canvasly-lite'),'flex-end'=>__('End', 'canvasly-lite'),'stretch'=>__('Stretch', 'canvasly-lite')],
+   'icons'=>['flex-start'=>'lbi-align-start','center'=>'lbi-align-center','flex-end'=>'lbi-align-end','stretch'=>'lbi-align-stretch'],
+   'selectors'=>$decl('align-items'),
+  ]);
+  $out[$keys['gap']]=$mk('gaps',__('Gaps', 'canvasly-lite'),[
+   'responsive'=>true,'separator'=>'before','units'=>['px','em','rem','%','vw'],
+   'selectors'=>$decl('gap'),
+  ]);
+  $out[$keys['wrap']]=$mk('choose',__('Wrap', 'canvasly-lite'),[
+   'responsive'=>true,'icons_only'=>true,'toggle'=>true,
+   'description'=>__('Items within the container can stay in a single line (No wrap), or break into multiple lines (Wrap).', 'canvasly-lite'),
+   'options'=>['nowrap'=>__('No Wrap', 'canvasly-lite'),'wrap'=>__('Wrap', 'canvasly-lite')],
+   'icons'=>['nowrap'=>'lbi-nowrap','wrap'=>'lbi-wrap'],
+   'selectors'=>$decl('flex-wrap'),
+  ]);
+  return $out;
+ }
+ /** Setting keys of the shared widget-level Style > Items controls. */
+ public static function items_keys(){
+  return ['direction'=>'items_direction','justify'=>'items_justify','align'=>'items_align','gap'=>'items_gap','wrap'=>'items_flex_wrap'];
+ }
  /** Turn a control definition (string shorthand or array) into a complete definition array. */
  public static function normalize_control($key,$def){
   if(is_string($def))$def=['type'=>$def];
@@ -301,7 +357,9 @@ abstract class Unit {
   $sty=function($type,$label,$section,array $extra=[]){return array_merge(['type'=>$type,'label'=>$label,'section'=>$section,'tab'=>'style'],$extra);};
   $hidden=function($type,array $extra=[]){return array_merge(['type'=>$type,'hidden'=>true,'tab'=>'advanced'],$extra);};
   $len=['px','%','em','rem','vw','vh'];
-  $c=[
+  // Style > Items: turns the unit wrapper into a flex box. Shown while Advanced > Display is Default or Flex.
+  $items=self::flex_items_controls(self::items_keys(),'{{WRAPPER}}','display: flex; ',['condition'=>['display'=>['','flex']]]);
+  $c=$items+[
    // Layout
    'width'=>$adv('slider',__('Width', 'canvasly-lite'),__('Layout', 'canvasly-lite'),['responsive'=>true,'units'=>['%','px','vw','em','rem'],'range'=>['min'=>0,'max'=>1000],'selectors'=>['{{WRAPPER}}'=>'--lb-el-w: {{VALUE}}; width: {{VALUE}};']]),
    'max_width'=>$adv('slider',__('Max Width', 'canvasly-lite'),__('Layout', 'canvasly-lite'),['responsive'=>true,'units'=>['px','%','vw','em','rem'],'range'=>['min'=>0,'max'=>2000],'selectors'=>['{{WRAPPER}}'=>'--lb-el-max-w: {{VALUE}}; max-width: {{VALUE}};']]),
