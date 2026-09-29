@@ -696,7 +696,7 @@
         return out == null ? "" : String(out);
       };
       v = v.replace(/\{\{lb:([a-z0-9_:-]+)\}\}/gi, (_, k) => token(k));
-      v = v.replace(/\{\{(?!var:[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|lb:[a-z0-9_:-]+)[\s\S]*?\}\}/gi, "");
+      v = v.replace(/\{\{(?!var:[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|lb:[a-z0-9_:-]+|\s*(?:post|term|loop|site)\.[a-z_]+(?::[a-zA-Z0-9_-]+)?\s*\}\})[\s\S]*?\}\}/gi, "");
       if (app.lbLooksLikeEval(v)) v = v.replace(/\b(?:eval|Function)\s*\([^)]*\)/gi, "");
       return v;
     };
@@ -5695,13 +5695,9 @@
     app.lb09Toolbar = function() {
       app.lb010OldToolbar();
       const top = app.$(".lb-top");
-      if (top && !app.$("#lb-design-system")) top.insertAdjacentHTML("beforeend", '<button class="lb-btn" id="lb-design-system">Design System</button><button class="lb-btn" id="lb-atomic">Atomic</button>');
+      if (top && !app.$("#lb-design-system")) top.insertAdjacentHTML("beforeend", '<button class="lb-btn" id="lb-design-system">Design System</button>');
       app.$("#lb-design-system")?.addEventListener("click", app.lb010OpenDesignSystem);
-      app.$("#lb-atomic")?.addEventListener("click", () => app.showModal(app.t("Atomic Units"), `<div class="lb-atomic-library">${Object.entries(app.D.atomicTypes || {}).map(([k, v]) => `<button class="lb-atomic-card" data-atomic-add="${app.esc(k)}"><strong>${app.esc(v)}</strong><small>${app.esc(k)}</small></button>`).join("")}</div>`));
-      app.root.querySelectorAll("[data-atomic-add]").forEach((b) => b.onclick = () => {
-        const r = app.selected && app.locate(app.state.root, app.selected);
-        app.add(b.dataset.atomicAdd, r && app.acceptsInside(r.node) ? app.selected : null);
-      });
+      /* XEditor: the legacy "Atomic" modal was replaced by the XEditor menu (assets/js/xeditor.js). */
     };
     app.lb010TemplateBtn = document.getElementById("lb-template-load");
     if (app.lb010TemplateBtn) app.lb010TemplateBtn.onclick = app.lb010OpenTemplateManager;
@@ -6626,8 +6622,8 @@
       return app.lb110InjectEditorClasses(n, app.lb110PreviousBody(n));
     };
     app.lb110AtomicSection = function lb110AtomicSection(n) {
-      const isAtomic = !!(app.D.atomicTypes || {})[n.type];
-      return app.lb09Section(app.t("Atomic Architecture"), `<div class="lb-atomic-badge">${isAtomic ? "Atomic unit" : "Classic unit"}</div><p class="lb-muted">Atomic units use the same Classes, Variables and Components design system as the rest of Canvasly.</p><label class="lb-control"><span>Unit Type</span><select id="lb-atomic-type">${Object.entries(app.D.atomicTypes || {}).map(([k, v]) => `<option value="${app.esc(k)}" ${k === n.type ? "selected" : ""}>${app.esc(v)}</option>`).join("")}</select></label><button class="lb-btn" id="lb-convert-atomic">Apply Atomic Type</button><label class="lb-control lb-switch"><input type="checkbox" id="lb-css-first-mode" ${n.settings?.class_mode === "class-first" ? "checked" : ""}><span>CSS-first class styling</span></label>`, false);
+      const isXe = /^xe_/.test(String(n.type || ""));
+      return app.lb09Section(app.t("XEditor"), `<div class="lb-atomic-badge">${isXe ? app.t("XEditor element") : app.t("Classic unit")}</div><p class="lb-muted">${app.esc(isXe ? app.t("This element prints one HTML element. Style it with stacked classes from the XEditor Classes manager; local styles never override a class.") : app.t("Classic units can also stack XEditor classes. Insert XEditor elements from the XEditor menu in the top bar."))}</p><label class="lb-control lb-switch"><input type="checkbox" id="lb-css-first-mode" ${n.settings?.class_mode === "class-first" ? "checked" : ""}><span>${app.t("CSS-first class styling")}</span></label>`, false);
     };
     app.lb010Atomic = app.lb110AtomicSection;
     app.lb110BaseSettings = app.settingsHTML;
@@ -9515,7 +9511,7 @@
       .lb-node{position:relative;}
       body>.lb21-hover-tab,.lb21-hover-tab{position:absolute!important;width:max-content!important;height:25px!important;min-width:88px!important;min-height:0!important;max-height:25px!important;max-width:none!important;margin:0!important;padding:0 6px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;background:#dca6ef!important;border-radius:7px 7px 0 0!important;z-index:2147483000!important;box-shadow:0 1px 3px rgba(0,0,0,.18)!important;white-space:nowrap!important;flex:none!important;pointer-events:auto!important;}
       .lb-grid-inner>.lb-node,.lb-container-inner[style*="display:grid"]>.lb-node,.lb-layout-grid>.lb-node{height:auto!important;max-height:none!important;overflow:visible!important;}
-      .lb-node:not(.lb-node-container):not(.lb-node-grid):not(.lb-node-image):not(.lb-node-tinymce_text_editor):not(.lb-node-social)>:not(.lb-node-toolbar):not(.lb-insert-zone):not(.lb21-hover-tab):not(.lb-flip-box){flex:0 0 auto!important;position:relative!important;height:auto!important;min-height:0!important;}
+      .lb-node:not(.lb-node-container):not(.lb-node-grid):not(.lb-node-image):not(.lb-node-tinymce_text_editor):not(.lb-node-social)>:not(.lb-node-toolbar):not(.lb-insert-zone):not(.lb21-hover-tab):not(.lb-flip-box):not(.xe-el){flex:0 0 auto!important;position:relative!important;height:auto!important;min-height:0!important;}
       .lb-grid-inner>.lb-node.lb-node-flip_box,.lb-container-inner>.lb-node.lb-node-flip_box,.lb-layout-grid>.lb-node.lb-node-flip_box,.lb21-grid-target>.lb-node.lb-node-flip_box,.lb22-grid-host>.lb-node.lb-node-flip_box{position:relative!important;min-height:var(--lb-el-min-h,var(--lb-flip-height,280px))!important;align-self:stretch!important;}
       .lb-node-flip_box>.lb-flip-box{flex:1 1 auto!important;align-self:stretch!important;position:relative!important;display:grid!important;grid-template:minmax(var(--lb-flip-height,280px),1fr)/1fr!important;width:100%!important;height:100%!important;min-height:var(--lb-flip-height,280px)!important;box-sizing:border-box!important;}
       .lb-node-flip_box>.lb-flip-box>.lb-flip-layer{position:relative!important;inset:auto!important;grid-area:1/1!important;width:100%!important;height:100%!important;min-height:100%!important;}

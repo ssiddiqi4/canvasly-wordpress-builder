@@ -664,7 +664,8 @@
    var fd=new FormData(f);
    fd.delete('website');
    if(token)fd.set('g-recaptcha-response',token);
-   fetch((window.CanvaslyLiteFrontend&&CanvaslyLiteFrontend.formEndpoint)||window.canvaslyLiteFormEndpoint||window.location.href,{method:'POST',body:fd,headers:{'X-Canvasly-Lite-Form':'1'}}).then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){if(d&&d.success&&typeof d.redirect==='string'&&/^https?:\/\//i.test(d.redirect)){window.location.assign(d.redirect);return}if(msg)msg.textContent=(d&&d.message)||t('Thank you.');if(d&&d.success)f.reset();if(window.grecaptcha&&grecaptcha.reset){try{grecaptcha.reset()}catch(err){}}}).catch(function(){if(msg)msg.textContent=t('Unable to send the form right now.')});
+   fetch((window.CanvaslyLiteFrontend&&CanvaslyLiteFrontend.formEndpoint)||window.canvaslyLiteFormEndpoint||window.location.href,{method:'POST',body:fd,headers:{'X-Canvasly-Lite-Form':'1'}})
+.then(function(r){return r.json().catch(function(){return {}}).then(function(j){return r.ok?j:Promise.reject(j)})}).then(function(d){if(d&&d.success&&typeof d.redirect==='string'&&/^https?:\/\//i.test(d.redirect)){window.location.assign(d.redirect);return}if(msg)msg.textContent=(d&&d.message)||t('Thank you.');if(d&&d.success)f.reset();if(window.grecaptcha&&grecaptcha.reset){try{grecaptcha.reset()}catch(err){}}if(window.CanvaslyTurnstile)CanvaslyTurnstile.reset()}).catch(function(err){if(msg)msg.textContent=(err&&typeof err.message==='string'&&err.message)||t('Unable to send the form right now.');if(window.CanvaslyTurnstile)CanvaslyTurnstile.reset()});
   });
  });
  function bootRecaptcha(){

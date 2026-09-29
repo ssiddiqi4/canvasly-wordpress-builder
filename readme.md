@@ -5,7 +5,7 @@ Tags: page builder, drag-and-drop, landing page, website builder, responsive
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.12.112
+Stable tag: 0.13.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 ```
@@ -883,6 +883,9 @@ unit, or a sidebar widget.
 ```
 == Changelog ==
 ```
+
+# `= 0.12.113 =` 
+* Fixed: A container (or any group background, border, or shadow) set to a Global Color showed in the editor but not on the live page: the page stylesheet printed the raw binding (`background-color:{{var:colors.primary}}`), which browsers ignore. Global Color bindings are now turned into their CSS variables (`var(--lb-color-primary)`) in group controls and, as a safety net, in the compiled page and global CSS. Existing pages pick up the fix on their next view; no re-save needed. This also brings back shape dividers that were drawn in a contrasting colour on top of that background.
 
 # `= 0.12.112 =` 
 * Changed: Autosave now runs silently in the background. The "An autosave is newer than the last save. Restore it?" browser dialog is gone; when a newer autosave exists, a small bar under the top menu offers Restore or dismiss.
