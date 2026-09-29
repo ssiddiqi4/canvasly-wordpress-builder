@@ -518,6 +518,10 @@ class AdminSettings {
 		$tab  = isset( $_POST['lb_settings_tab'] ) ? sanitize_key( wp_unslash( $_POST['lb_settings_tab'] ) ) : self::current_tab();
 		$raw  = self::from_post( $tab );
 		$save = self::save( $raw, true );
+		if ( $tab === 'integrations' && ! is_wp_error( $save ) ) {
+			/** Save extra integration fields (Cloudflare Turnstile, add-ons). @param array $post Unslashed $_POST. */
+			do_action( 'canvasly-lite/settings/save_integrations', wp_unslash( $_POST ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check_admin_referer() above.
+		}
 		if ( is_wp_error( $save ) ) {
 			add_settings_error( 'canvasly_lite_settings', 'forbidden', $save->get_error_message(), 'error' );
 		} else {
@@ -741,14 +745,26 @@ class AdminSettings {
 	 * @return true|\WP_Error
 	 */
 	public static function verify_form_request( $req ) {
-		if ( ! self::recaptcha_enabled() ) {
-			return true;
-		}
 		$params = array();
 		if ( is_object( $req ) && method_exists( $req, 'get_params' ) ) {
 			$params = (array) $req->get_params();
 		} elseif ( is_array( $req ) ) {
 			$params = $req;
+		}
+		/**
+		 * Extra spam checks for Canvasly form submissions (Cloudflare Turnstile, add-ons).
+		 * Return a WP_Error to reject the submission.
+		 *
+		 * @param true|\WP_Error $ok
+		 * @param array          $params Request parameters.
+		 * @param mixed          $req
+		 */
+		$extra = function_exists( 'apply_filters' ) ? apply_filters( 'canvasly-lite/form/verify', true, $params, $req ) : true;
+		if ( is_wp_error( $extra ) ) {
+			return $extra;
+		}
+		if ( ! self::recaptcha_enabled() ) {
+			return true;
 		}
 		$token = (string) ( $params['g-recaptcha-response'] ?? $params['recaptcha_token'] ?? '' );
 		if ( ! self::verify_recaptcha( $token ) ) {
@@ -891,6 +907,12 @@ class AdminSettings {
 		echo '<input class="regular-text code" id="lb-recaptcha-secret" name="recaptcha_secret_key" type="password" value="' . esc_attr( $secret !== '' ? self::SECRET_MASK : '' ) . '" autocomplete="new-password">';
 		echo '<p class="description">' . esc_html__( 'Leave the masked value unchanged to keep the stored secret. Enable Form reCAPTCHA under Features, then set both keys.', 'canvasly-lite' ) . '</p>';
 		echo '</td></tr></tbody></table>';
+		/**
+		 * Extra integration sections inside the Integrations form (Cloudflare Turnstile, add-ons).
+		 *
+		 * @param array $d Global settings.
+		 */
+		do_action( 'canvasly-lite/settings/integrations', $d );
 	}
 
 	/**

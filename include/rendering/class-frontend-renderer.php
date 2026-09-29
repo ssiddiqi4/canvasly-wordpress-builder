@@ -184,7 +184,9 @@ class FrontendRenderer {
    $children=$slotted?self::slot_html($el,$n,$post_id,$extra_ctx,$id_suffix):(!empty($n['children'])?self::nodes($n['children'],$post_id,$extra_ctx,$id_suffix):'');
    $inner=$el->render($s,$children);
   }
-  $classes='lb-node lb-node-'.sanitize_html_class($n['type']??'');
+  $single=method_exists($el,'single_element')&&$el->single_element();
+  // XEditor elements skip the generic .lb-node layout rules; they are styled by their classes.
+  $classes=$single?'xe-node':'lb-node lb-node-'.sanitize_html_class($n['type']??'');
   if($id_suffix!=='')$classes.=' lb-src-'.sanitize_html_class((string)($n['id']??''));
   if(class_exists(Interactions::class))$classes.=Interactions::classes($n);
   elseif(!empty($s['interaction']))$classes.=' lb-interact-'.sanitize_html_class($s['interaction']);
@@ -206,6 +208,9 @@ class FrontendRenderer {
    if($jump!==''&&strpos($inner,$jump)===false)$inner=$jump.$inner;
   }
   $attrs=$el->attrs($s).$data;
+  if(!(method_exists($el,'handles_aria')&&$el->handles_aria())){
+   list($inner,$attrs)=self::apply_aria($inner,$attrs,$s,$el);
+  }
   if(class_exists('\\CanvaslyLite\\Design\\Optimize')){
    $html=\CanvaslyLite\Design\Optimize::wrap($html_id,$classes,$attrs,$inner,$n,$el,is_array($s)?$s:[]);
   }else{
@@ -213,6 +218,52 @@ class FrontendRenderer {
   }
   if($use_cache)\CanvaslyLite\Design\Optimize::set($n,$post_id,$html);
   return $html;
+ }
+ /**
+  * ARIA Label fix. `aria-label` on the generic wrapper <div> is ignored by assistive
+  * technology (a div has no role that supports naming). Move it to the element that
+  * can carry an accessible name:
+  *  - leaf units with exactly one interactive/named element (a link, button, field,
+  *    form, image, iframe, video, audio, nav): the label goes on that element;
+  *  - anything else (containers, multi-link units): the wrapper keeps the label and
+  *    gets role="group" (unless the user set a Role), which makes the name valid.
+  *
+  * @param string $inner
+  * @param string $attrs
+  * @param array  $s
+  * @param object $el
+  * @return array{0:string,1:string}
+  */
+ public static function apply_aria($inner,$attrs,$s,$el){
+  $label=is_array($s)?trim((string)($s['aria_label']??'')):'';
+  if($label===''||!is_string($inner))return [$inner,$attrs];
+  // The unit already printed this name on its own element (nav menus, figures): keep that one only.
+  if(strpos($inner,'aria-label="'.esc_attr($label).'"')!==false){
+   return [$inner,preg_replace('/\saria-label="[^"]*"/','',$attrs,1)];
+  }
+  $has_role=trim((string)($s['role']??''))!=='';
+  $container=is_object($el)&&((method_exists($el,'supports_children')&&$el->supports_children())||(method_exists($el,'supports_slots')&&$el->supports_slots()));
+  if(!$has_role&&!$container){
+   $pattern='/<(a|button|input|select|textarea|form|img|iframe|video|audio|nav|progress|meter)\b(?![^>]*\btype=["\']?hidden)[^>]*>/i';
+   if(preg_match_all($pattern,$inner,$m,PREG_OFFSET_CAPTURE)){
+    $tags=array_map('strtolower',$m[1]?array_column($m[1],0):[]);
+    $target=null;
+    $form=array_search('form',$tags,true);
+    if(count($tags)===1)$target=0;
+    elseif($form!==false)$target=$form; // search / subscribe forms: name the form landmark.
+    if($target!==null){
+     $open=$m[0][$target][0];$pos=$m[0][$target][1];
+     $clean=preg_replace('/\saria-label=("[^"]*"|\'[^\']*\')/i','',$open);
+     $named=preg_replace('/^<([a-zA-Z0-9]+)/','<$1 aria-label="'.esc_attr($label).'"',$clean,1);
+     if(strtolower($tags[$target])==='form'&&!preg_match('/\srole=/i',$named)&&preg_match('/type=["\']?search/i',$inner))$named=preg_replace('/^<form/i','<form role="search"',$named,1);
+     $inner=substr($inner,0,$pos).$named.substr($inner,$pos+strlen($open));
+     $attrs=preg_replace('/\saria-label="[^"]*"/','',$attrs,1);
+     return [$inner,$attrs];
+    }
+   }
+  }
+  if(!$has_role&&strpos($attrs,' role=')===false)$attrs=' role="group"'.$attrs;
+  return [$inner,$attrs];
  }
  /**
   * Whether this node should be printed. Default true. False skips the wrapper, children, and assets.
