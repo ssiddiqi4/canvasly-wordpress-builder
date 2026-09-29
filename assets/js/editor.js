@@ -1949,9 +1949,43 @@
       banner.querySelector("[data-rev-cancel]").onclick = () => app.cancelRevisionPreview();
       wrap.insertBefore(banner, wrap.firstChild);
     };
+    app.showAutosaveBanner = function showAutosaveBanner(auto, key, time) {
+      const shell = document.getElementById("lb-editor-shell") || app.root;
+      if (!shell || document.getElementById("lb-autosave-banner")) return;
+      const bar = document.createElement("div");
+      bar.id = "lb-autosave-banner";
+      bar.className = "lb-autosave-banner";
+      bar.setAttribute("role", "status");
+      const when = time ? " (" + app.esc(time.slice(11, 16) || time) + ")" : "";
+      bar.innerHTML = "<span>" + app.esc(app.t("A newer autosave of this page is available.")) + when + '</span><button type="button" class="lb-btn" data-lb-autosave="restore">' + app.esc(app.t("Restore")) + '</button><button type="button" class="lb-btn" data-lb-autosave="dismiss" aria-label="' + app.esc(app.t("Dismiss")) + '">\u00D7</button>';
+      const close = () => {
+        bar.remove();
+        try {
+          if (key && window.sessionStorage) sessionStorage.setItem(key, time || "1");
+        } catch (e) {
+        }
+      };
+      bar.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-lb-autosave]");
+        if (!b) return;
+        if (b.getAttribute("data-lb-autosave") === "restore") {
+          app.commit(app.t("Recovered autosave"));
+          app.state = auto.document;
+          app.selected = null;
+          app.dirty = true;
+          app.render(false);
+        }
+        close();
+      });
+      const top = shell.querySelector(".lb-top");
+      if (top && top.parentNode) top.insertAdjacentElement("afterend", bar);
+      else shell.insertBefore(bar, shell.firstChild);
+      setTimeout(() => { if (bar.isConnected) bar.classList.add("is-quiet"); }, 12e3);
+    };
     app.recoverAutosave = async function recoverAutosave() {
       const id = parseInt(app.D.postId || 0, 10);
-      if (!id) return;
+      if (!id || app.__lbAutosaveChecked) return;
+      app.__lbAutosaveChecked = true;
       try {
         const r = await fetch(`${app.D.api}/document/${id}/autosave`, { headers: { "X-WP-Nonce": app.D.nonce } });
         if (!r.ok) return;
@@ -1960,12 +1994,15 @@
         const saved = String(app.D.updated || "");
         const time = String(auto.time || "");
         if (time && saved && time <= saved) return;
-        if (!confirm(app.t("An autosave is newer than the last save. Restore it in the canvas?"))) return;
-        app.commit(app.t("Recovered autosave"));
-        app.state = auto.document;
-        app.selected = null;
-        app.dirty = true;
-        app.render(false);
+        const strip = (doc) => JSON.stringify({ root: doc && doc.root || [], header: doc && doc.header || [], footer: doc && doc.footer || [] });
+        if (strip(auto.document) === strip(app.state)) return;
+        let key = "";
+        try {
+          key = "lb-autosave-dismissed-" + id;
+          if (window.sessionStorage && sessionStorage.getItem(key) === time) return;
+        } catch (e2) {
+        }
+        app.showAutosaveBanner(auto, key, time);
       } catch (e) {
       }
     };
@@ -2207,11 +2244,13 @@
         put("margin", app.formatBox(app.resp(s.margin)));
         if ((n.type === "container" || n.type === "inner_section") && s.layout === "flex") {
           put("display", "flex");
-          put("flex-direction", s.direction);
-          put("flex-wrap", s.wrap);
-          put("justify-content", s.justify);
-          put("align-items", s.align);
-          put("gap", app.resp(s.gap), "px");
+          put("flex-direction", app.resp(s.direction));
+          put("flex-wrap", app.resp(s.wrap));
+          put("justify-content", app.resp(s.justify));
+          put("align-items", app.resp(s.align));
+          const itemsGap = typeof app.lbCompileGaps === "function" ? app.lbCompileGaps(app.lbGapsValue ? app.lbGapsValue(s.items_gap) : "") : "";
+          if (itemsGap) put("gap", itemsGap);
+          else put("gap", app.resp(s.gap), "px");
           put("flex-grow", app.resp(s.flex_grow));
           put("flex-shrink", app.resp(s.flex_shrink));
           put("flex-basis", app.resp(s.flex_basis));
@@ -2229,8 +2268,12 @@
           put("grid-auto-rows", app.resp(s.grid_auto_rows) || "auto");
           put("align-items", app.resp(s.align) || "stretch");
           put("justify-items", app.resp(s.justify) || "stretch");
-          put("column-gap", app.resp(s.column_gap ?? s.gap), "px");
-          put("row-gap", app.resp(s.row_gap ?? s.gap), "px");
+          const itemsGapGrid = typeof app.lbCompileGaps === "function" ? app.lbCompileGaps(app.lbGapsValue ? app.lbGapsValue(s.items_gap) : "") : "";
+          if (itemsGapGrid) put("gap", itemsGapGrid);
+          else {
+            put("column-gap", app.resp(s.column_gap ?? s.gap), "px");
+            put("row-gap", app.resp(s.row_gap ?? s.gap), "px");
+          }
         }
         if (n.type === "grid") {
           put("display", "grid");
@@ -5352,7 +5395,9 @@
       put("transform", typeof app.lbCompileTransform === "function" ? app.lbCompileTransform(s.transform) : s.transform);
       put("transition", typeof app.lbCompileTransition === "function" ? app.lbCompileTransition(s.transition) : typeof s.transition === "string" ? s.transition : "");
       put("text-shadow", typeof app.lbCompileTextShadow === "function" ? app.lbCompileTextShadow(s.text_shadow) : typeof s.text_shadow === "string" ? s.text_shadow : "");
-      if (s.gaps && typeof s.gaps === "object") put("gap", s.gaps.linked || s.gaps.row === s.gaps.column ? s.gaps.row || s.gaps.column || "" : (s.gaps.row || "0") + " " + (s.gaps.column || "0"));
+      const itemsGapNow = s.items_gap && typeof app.lbCompileGaps === "function" ? app.lbCompileGaps(app.lbGapsValue ? app.lbGapsValue(s.items_gap) : "") : "";
+      if (itemsGapNow) put("gap", itemsGapNow);
+      else if (s.gaps && typeof s.gaps === "object") put("gap", s.gaps.linked || s.gaps.row === s.gaps.column ? s.gaps.row || s.gaps.column || "" : (s.gaps.row || "0") + " " + (s.gaps.column || "0"));
       put("mix-blend-mode", s.mix_blend_mode);
       return a.join(";");
     };
@@ -5481,12 +5526,7 @@
       try {
         const r = await fetch(`${app.D.api}/document/${app.D.postId}/autosave`, { headers: { "X-WP-Nonce": app.D.nonce } });
         const a = await r.json();
-        if (a?.document && JSON.stringify(a.document) !== JSON.stringify(app.state) && confirm(app.t("An autosave is newer than the last save. Restore it in the canvas?"))) {
-          app.commit(app.t("Recovered autosave"));
-          app.state = a.document;
-          app.dirty = true;
-          app.render();
-        }
+        if (a?.document && JSON.stringify(a.document) !== JSON.stringify(app.state) && typeof app.showAutosaveBanner === "function") app.showAutosaveBanner(a, "", String(a.time || ""));
       } catch (e) {
       }
     };
@@ -12729,7 +12769,8 @@
             s.grid_template_rows = "repeat(" + (rows + 1) + ", minmax(80px, auto))";
           }
         } else if (axis === "column") {
-          const rowish = s.direction === "row" || s.direction === "row-reverse";
+          const dirNow = app.resp(s.direction);
+          const rowish = dirNow === "row" || dirNow === "row-reverse";
           if (rowish && old.length && old.every((n) => n.type === "container")) {
             old.push(childBox("row"));
             markColumns(old);
@@ -12748,7 +12789,7 @@
           s.grid_template_columns = "";
           s.grid_template_rows = "";
           s.grid_rows = "";
-        } else if ((s.direction === "row" || s.direction === "row-reverse") && old.length) {
+        } else if ((app.resp(s.direction) === "row" || app.resp(s.direction) === "row-reverse") && old.length) {
           const cols = Math.max(1, old.length);
           for (let i = 0; i < cols; i++) old.push(childBox("column"));
           r.node.children = old;
@@ -12815,8 +12856,23 @@
               true
             );
           }
+          if (!schema && n.type !== "container" && n.type !== "inner_section" && !html.includes('data-choose-for="items_direction"')) {
+            const ctrls = (app.meta(n.type) || {}).controls || {};
+            const itemsBody = ["items_direction", "items_justify", "items_align", "items_gap", "items_flex_wrap"].map((key) => {
+              if (!ctrls[key]) return "";
+              const def = app.lbCtrlDef(ctrls[key]);
+              if (def.hidden || !app.lbConditionMet(def.condition, s)) return "";
+              let h = app.control(key, def, s[key] !== void 0 ? s[key] : def.type === "gaps" ? {} : "", def.label);
+              if (!h) return "";
+              if (def.description) h += `<p class="lb-control-desc">${app.esc(def.description)}</p>`;
+              if (def.separator === "before") h = `<hr class="lb-control-separator">` + h;
+              return h;
+            }).join("");
+            if (itemsBody) extra = app.lb09Section(app.t("Items"), itemsBody, false) + extra;
+          }
           if (schema) {
             if (!extra) return html;
+            if (html.includes('<div class="lb-a11y-box"')) return html.replace('<div class="lb-a11y-box"', extra + '<div class="lb-a11y-box"');
             if (html.includes('<div class="lb-action-grid"')) return html.replace('<div class="lb-action-grid"', extra + '<div class="lb-action-grid"');
             return html + extra;
           }
@@ -12849,6 +12905,7 @@
           }
         }
         if (!extra) return html;
+        if (html.includes('<div class="lb-a11y-box"')) return html.replace('<div class="lb-a11y-box"', extra + '<div class="lb-a11y-box"');
         if (html.includes('<div class="lb-action-grid"')) return html.replace('<div class="lb-action-grid"', extra + '<div class="lb-action-grid"');
         return html + extra;
       }
@@ -12920,7 +12977,7 @@
         const parent = r && r.parent;
         let cls = "";
         if (parent && parent.type === "container" && parent.settings && parent.settings.layout !== "grid" && parent.settings.layout !== "block") {
-          const dir = String(parent.settings.direction || "column");
+          const dir = String(app.resp(parent.settings.direction) || "column");
           const grow = Number(s.flex_grow);
           if ((dir === "row" || dir === "row-reverse") && grow > 0) cls = "lb-flex-col";
         }
@@ -13856,8 +13913,10 @@
     app.colorControlHTML = function colorControlHTML(k, v, label) {
       const bound = app.parseColorGlobal(v);
       const hex = bound ? app.globalColorValue(bound) || "#000000" : app.isHexColor(v) ? v : v || "#000000";
-      const display = app.isHexColor(hex) ? hex : "#000000";
-      return `<div class="lb-control lb-color-control${bound ? " is-global" : ""}" data-color-key="${app.esc(k)}" style="--lb-picked:${app.esc(display)}"><div class="lb-control-head"><span>${app.esc(label || k.replace(/_/g, " "))}</span><button type="button" class="lb-globals-btn${bound ? " is-active" : ""}" data-globals-kind="color" data-globals-key="${app.esc(k)}" title="${app.t("Global Colors")}" aria-label="${app.t("Global Colors")}" aria-pressed="${bound ? "true" : "false"}">${GLOBE}</button></div><div class="lb-color-row"><input data-setting="${app.esc(k)}" type="color" value="${app.esc(display)}"${bound ? ' data-global-bound="1" disabled' : ""}><span class="lb-color-hex">${app.esc(bound ? app.globalColorTitle(bound) : display)}</span></div></div>`;
+      const rawColor = bound ? "" : String(v ?? "").trim();
+      const parsed = rawColor && typeof app.lbParseColor === "function" ? app.lbParseColor(rawColor) : null;
+      const display = parsed ? rawColor : app.isHexColor(hex) ? hex : "#000000";
+      return `<div class="lb-control lb-color-control${bound ? " is-global" : ""}" data-color-key="${app.esc(k)}" style="--lb-picked:${app.esc(display)}"><div class="lb-control-head"><span>${app.esc(label || k.replace(/_/g, " "))}</span><button type="button" class="lb-globals-btn${bound ? " is-active" : ""}" data-globals-kind="color" data-globals-key="${app.esc(k)}" title="${app.t("Global Colors")}" aria-label="${app.t("Global Colors")}" aria-pressed="${bound ? "true" : "false"}">${GLOBE}</button></div><div class="lb-color-row"><input data-setting="${app.esc(k)}" type="color" value="${app.esc(display)}" data-lb-color="${app.esc(bound ? display : parsed || !rawColor ? rawColor : display)}"${bound ? ' data-global-bound="1" disabled' : ""}><span class="lb-color-hex">${app.esc(bound ? app.globalColorTitle(bound) : display)}</span></div></div>`;
     };
     const oldControl = app.control;
     app.control = function controlWithGlobals(k, t3, v, label) {
@@ -15306,9 +15365,9 @@
 					<button type="button" class="lb-grad-stop" data-grad-stop="b" style="left:${g.gradient_b_pos}%;background:${app.esc(g.gradient_b)}" title="${app.t("Color B")}" aria-label="${app.t("Color B")}"></button>
 				</div>
 			</div>
-			<label class="lb-control"><span>${app.t("Color A")}</span><input data-setting="${k}.gradient_a" type="color" value="${app.esc(app.lbColorInputValue(g.gradient_a, "#000000"))}"></label>
+			<label class="lb-control"><span>${app.t("Color A")}</span><input data-setting="${k}.gradient_a" type="color" value="${app.esc(app.lbColorInputValue(g.gradient_a, "#000000"))}" data-lb-color="${app.esc(g.gradient_a || "#000000")}"></label>
 			${app.lbSlider(k + ".gradient_a_pos", app.t("Location"), g.gradient_a_pos, { unitless: true, min: 0, max: 100, step: 1 })}
-			<label class="lb-control"><span>${app.t("Color B")}</span><input data-setting="${k}.gradient_b" type="color" value="${app.esc(app.lbColorInputValue(g.gradient_b, "#ffffff"))}"></label>
+			<label class="lb-control"><span>${app.t("Color B")}</span><input data-setting="${k}.gradient_b" type="color" value="${app.esc(app.lbColorInputValue(g.gradient_b, "#ffffff"))}" data-lb-color="${app.esc(g.gradient_b || "#ffffff")}"></label>
 			${app.lbSlider(k + ".gradient_b_pos", app.t("Location"), g.gradient_b_pos, { unitless: true, min: 0, max: 100, step: 1 })}
 			${g.gradient_type === "radial" ? `<label class="lb-control"><span>${app.t("Position")}</span><select data-setting="${k}.gradient_position">${posOpts}</select></label>` : app.lbSlider(k + ".gradient_angle", app.t("Angle"), g.gradient_angle, { unitless: true, min: 0, max: 360, step: 1 })}
 		</div>`;
@@ -15379,17 +15438,91 @@
         custom: ""
       });
     };
+    const SVG_ICONS = (() => {
+      const sv = (body) => `<svg class="lb-ico" viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+      const bar = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx=".6" fill="currentColor" stroke="none"/>`;
+      const hl = (y) => `<path d="M3 ${y}h14"/>`;
+      const vl = (x) => `<path d="M${x} 3v14"/>`;
+      return {
+        "lbi-dir-row": sv('<path d="M3 10h13M11.5 5.5 16 10l-4.5 4.5"/>'),
+        "lbi-dir-column": sv('<path d="M10 3v13M5.5 11.5 10 16l4.5-4.5"/>'),
+        "lbi-dir-row-reverse": sv('<path d="M17 10H4M8.5 5.5 4 10l4.5 4.5"/>'),
+        "lbi-dir-column-reverse": sv('<path d="M10 17V4M5.5 8.5 10 4l4.5 4.5"/>'),
+        "lbi-justify-start": sv(hl(2.75) + bar(6, 5, 8, 2.5) + bar(6, 9.5, 8, 2.5)),
+        "lbi-justify-center": sv(hl(10) + bar(6, 5.5, 8, 2.5) + bar(6, 12, 8, 2.5)),
+        "lbi-justify-end": sv(hl(17.25) + bar(6, 8, 8, 2.5) + bar(6, 12.5, 8, 2.5)),
+        "lbi-justify-between": sv(hl(2.75) + hl(17.25) + bar(6, 4.5, 8, 2.5) + bar(6, 13, 8, 2.5)),
+        "lbi-justify-around": sv(hl(2.75) + hl(17.25) + bar(6, 5.75, 8, 2.5) + bar(6, 11.75, 8, 2.5)),
+        "lbi-justify-evenly": sv(hl(2.75) + hl(17.25) + bar(6, 6.5, 8, 2.5) + bar(6, 11, 8, 2.5)),
+        "lbi-align-start": sv(vl(2.75) + bar(4.5, 5.5, 9, 3) + bar(4.5, 11.5, 6, 3)),
+        "lbi-align-center": sv(vl(10) + bar(5.5, 5.5, 9, 3) + bar(7, 11.5, 6, 3)),
+        "lbi-align-end": sv(vl(17.25) + bar(6.5, 5.5, 9, 3) + bar(9.5, 11.5, 6, 3)),
+        "lbi-align-stretch": sv(vl(2.75) + vl(17.25) + bar(4.5, 5.5, 11, 3) + bar(4.5, 11.5, 11, 3)),
+        "lbi-align-baseline": sv('<path d="M3 13h14"/>' + bar(4.5, 5, 4.5, 8) + bar(11, 8.5, 4.5, 4.5)),
+        "lbi-nowrap": sv('<path d="M3.5 5v10M7 10h9.5M12.5 6l4 4-4 4"/>'),
+        "lbi-wrap": sv('<path d="M3.5 5v10M7 6h6.5a3.25 3.25 0 0 1 0 6.5H8M10.5 10 8 12.5l2.5 2.5"/>'),
+        "lbi-link": sv('<path d="M8.5 11.5a3 3 0 0 0 4.24 0l2.5-2.5a3 3 0 0 0-4.24-4.24l-.9.9M11.5 8.5a3 3 0 0 0-4.24 0l-2.5 2.5a3 3 0 0 0 4.24 4.24l.9-.9"/>'),
+        "lbi-unlink": sv('<path d="M8.5 11.5a3 3 0 0 0 4.24 0l2.5-2.5a3 3 0 0 0-4.24-4.24M11.5 8.5a3 3 0 0 0-4.24 0l-2.5 2.5a3 3 0 0 0 4.24 4.24M4 4l2 2M16 16l-2-2"/>'),
+        "lbi-desktop": sv('<rect x="2.75" y="3.75" width="14.5" height="9.5" rx="1"/><path d="M7.5 16.25h5M10 13.25v3"/>'),
+        "lbi-tablet": sv('<rect x="4.75" y="2.75" width="10.5" height="14.5" rx="1.25"/><path d="M9 14.75h2"/>'),
+        "lbi-mobile": sv('<rect x="6.25" y="2.75" width="7.5" height="14.5" rx="1.25"/><path d="M9.25 14.75h1.5"/>')
+      };
+    })();
+    app.lbSvgIcon = function lbSvgIcon(name) {
+      return SVG_ICONS[name] || "";
+    };
+    /** Device glyph for responsive controls. Clicking it steps the canvas to the next enabled breakpoint. */
+    app.lbRespDeviceHTML = function lbRespDeviceHTML() {
+      const dev = String(app.device || "desktop");
+      const icon = /mobile/.test(dev) ? "lbi-mobile" : /tablet/.test(dev) ? "lbi-tablet" : "lbi-desktop";
+      const bp = typeof app.breakpoint === "function" ? app.breakpoint(dev) : null;
+      const name = bp && bp.label ? app.t(bp.label) || bp.label : dev;
+      return `<button type="button" class="lb-resp-device" data-lb-resp-cycle="1" title="${app.esc(app.t("Responsive") + ": " + name)}" aria-label="${app.esc(app.t("Responsive") + ": " + name)}">${SVG_ICONS[icon]}</button>`;
+    };
+    /** Current flex direction of the node that owns an Items control (drives icon orientation). */
+    app.lbAxisDirection = function lbAxisDirection(def, s) {
+      if (!def || !def.axis_key) return "";
+      if (!s) {
+        const r = app.selected && app.locate(app.state.root, app.selected);
+        s = r && r.node.settings || {};
+      }
+      const raw = s[def.axis_key];
+      const cur = raw && typeof raw === "object" && !Array.isArray(raw) ? app.resp(raw) : raw;
+      return String(cur || def.axis_default || "row");
+    };
+    app.lbAxisClass = function lbAxisClass(kind, dir) {
+      if (kind === "justify") {
+        if (dir === "row") return "lb-axis-t";
+        if (dir === "row-reverse") return "lb-axis-rot";
+        if (dir === "column-reverse") return "lb-axis-flipy";
+        return "";
+      }
+      if (kind === "align") return dir === "row" || dir === "row-reverse" ? "lb-axis-t" : "";
+      return "";
+    };
     app.lbChooseHTML = function lbChooseHTML(k, def, v, label) {
+      def = def || {};
       const opts = app.lbCtrlOpts(def, k);
-      const icons = def && def.icons && typeof def.icons === "object" ? def.icons : ICONS;
-      const responsive = !!(def && def.responsive);
+      const icons = def.icons && typeof def.icons === "object" ? def.icons : ICONS;
+      const responsive = !!def.responsive;
       const setting = responsive ? k + "." + (app.device || "desktop") : k;
-      const current = responsive ? v && typeof v === "object" && !Array.isArray(v) ? v[app.device] ?? v.desktop ?? "" : v : v;
+      const current = responsive ? v && typeof v === "object" && !Array.isArray(v) ? app.resp(v) : v : v;
+      const iconsOnly = !!def.icons_only;
       const buttons = opts.map((o) => {
         const lab = app.lbCtrlOptLabel(def, k, o);
         const ic = icons[o] || "";
-        return `<button type="button" class="lb-choose-btn${String(o) === String(current) ? " is-active" : ""}" data-choose-key="${app.esc(setting)}" data-choose-value="${app.esc(o)}" title="${app.esc(lab)}" aria-pressed="${String(o) === String(current) ? "true" : "false"}">${ic ? `<span aria-hidden="true">${ic}</span>` : ""}<small>${app.esc(lab)}</small></button>`;
+        const svg = ic && SVG_ICONS[ic] ? SVG_ICONS[ic] : "";
+        const on = String(o) === String(current ?? "");
+        const glyph = svg ? `<span class="lb-choose-ico" aria-hidden="true">${svg}</span>` : ic ? `<span aria-hidden="true">${ic}</span>` : "";
+        const text = iconsOnly && glyph ? `<span class="lb-sr">${app.esc(lab)}</span>` : `<small>${app.esc(lab)}</small>`;
+        return `<button type="button" class="lb-choose-btn${on ? " is-active" : ""}" data-choose-key="${app.esc(setting)}" data-choose-value="${app.esc(o)}"${def.toggle ? ' data-choose-toggle="1"' : ""} title="${app.esc(lab)}" aria-pressed="${on ? "true" : "false"}">${glyph}${text}</button>`;
       }).join("");
+      if (iconsOnly) {
+        const axis = def.axis ? app.lbAxisClass(def.axis, app.lbAxisDirection(def)) : "";
+        const axisAttrs = def.axis ? ` data-axis="${app.esc(def.axis)}" data-axis-key="${app.esc(def.axis_key || "")}" data-axis-default="${app.esc(def.axis_default || "row")}"` : "";
+        const block = !!def.label_block;
+        return `<div class="lb-control lb-choose lb-choose-icons${block ? " is-block" : " is-inline"}${axis ? " " + axis : ""}" data-choose-for="${app.esc(k)}"${axisAttrs}><div class="lb-choose-label"><span>${app.esc(label)}</span>${responsive ? app.lbRespDeviceHTML() : ""}</div><div class="lb-choose-row lb-choose-seg" role="group" aria-label="${app.esc(label)}">${buttons}</div></div>`;
+      }
       return `<div class="lb-control lb-choose"><span>${app.esc(label)}${responsive ? " <small>" + app.t("responsive") + "</small>" : ""}</span><div class="lb-choose-row" role="group">${buttons}</div></div>`;
     };
     app.boxControl = function boxControl(k, v, l) {
@@ -15494,13 +15627,69 @@
 			<label class="lb-control"><span>${app.t("Easing")}</span><select data-setting="${k}.easing">${["ease", "ease-in", "ease-out", "ease-in-out", "linear"].map((o) => `<option value="${o}" ${String(o) === String(x.easing || "ease") ? "selected" : ""}>${o}</option>`).join("")}</select></label>
 		</div></div>`;
     };
-    app.lbGapsHTML = function lbGapsHTML(k, v, l) {
-      const x = typeof v === "object" && v ? v : { row: v || "", column: v || "", linked: true };
-      const linked = !!x.linked;
-      return `<div class="lb-control lb-group lb-gaps" data-gaps-key="${app.esc(k)}"><div class="lb-control-head"><span>${app.esc(l)}</span><button type="button" class="lb-link-btn${linked ? " is-active" : ""}" data-link-key="${app.esc(k)}" title="${app.t("Link sides")}" aria-pressed="${linked ? "true" : "false"}">${linked ? "\u{1F517}" : "\u22B6"}</button></div><div class="lb-group-body">
-			${app.lbSlider(k + ".row", app.t("Row"), x.row || "", { units: ["px", "em", "rem", "%"], min: 0, max: 80 })}
-			${linked ? "" : app.lbSlider(k + ".column", app.t("Column"), x.column || "", { units: ["px", "em", "rem", "%"], min: 0, max: 80 })}
-		</div></div>`;
+    /** Split a stored length ("20px", "1.5em", 20) into [number, unit]. */
+    app.lbSplitLength = function lbSplitLength(val) {
+      const m = String(val ?? "").trim().match(/^(-?\d*\.?\d+)\s*([a-z%]*)$/i);
+      return m ? [m[1], (m[2] || "").toLowerCase()] : ["", ""];
+    };
+    /** Gaps value for the canvas device: unwraps a responsive {desktop:{row,column}} map. */
+    app.lbGapsValue = function lbGapsValue(v) {
+      if (!v || typeof v !== "object" || Array.isArray(v)) return v ?? "";
+      if ("row" in v || "column" in v) return v;
+      return app.resp(v);
+    };
+    /** CSS `gap` shorthand (row column) from a Gaps value, mirroring Groups::compile_gaps(). */
+    app.lbCompileGaps = function lbCompileGaps(v) {
+      if (v == null || v === "") return "";
+      if (typeof v !== "object") v = { row: v, column: v, linked: true };
+      const len = (x) => {
+        const t = String(x ?? "").trim();
+        if (t === "") return "";
+        return /^-?\d*\.?\d+$/.test(t) ? t + "px" : t;
+      };
+      const row = len(v.row), col = len(v.linked ? v.row : v.column);
+      if (!row && !col) return "";
+      if (v.linked || row === col) return row || col;
+      return (row || "0") + " " + (col || "0");
+    };
+    app.lbGapsHTML = function lbGapsHTML(k, v, l, def) {
+      def = def || {};
+      const responsive = !!def.responsive;
+      const isMap = v && typeof v === "object" && !Array.isArray(v) && ("desktop" in v || app.device in v) && !("row" in v) && !("column" in v);
+      let x = responsive && isMap ? app.resp(v) : v;
+      if (!x || typeof x !== "object") x = x !== "" && x != null ? { row: x, column: x, linked: true } : {};
+      const empty = (x.row == null || x.row === "") && (x.column == null || x.column === "");
+      const linked = empty && x.linked == null ? true : !!x.linked;
+      const units = Array.isArray(def.units) && def.units.length ? def.units : ["px", "em", "rem", "%", "vw"];
+      const [colNum, colUnit] = app.lbSplitLength(x.column);
+      const [rowNum, rowUnit] = app.lbSplitLength(x.row);
+      const unit = x.unit || colUnit || rowUnit || units[0];
+      let phCol = "", phRow = "";
+      if (empty && Array.isArray(def.fallback)) {
+        const r = app.selected && app.locate(app.state.root, app.selected);
+        const s = r && r.node.settings || {};
+        for (const fk of def.fallback) {
+          const fv = s[fk];
+          if (fv == null || fv === "") continue;
+          if (typeof fv === "object" && ("row" in fv || "column" in fv)) {
+            phRow = app.lbSplitLength(fv.row)[0];
+            phCol = app.lbSplitLength(fv.column)[0];
+          } else {
+            phRow = phCol = app.lbSplitLength(app.resp(fv))[0];
+          }
+          if (phRow !== "" || phCol !== "") break;
+        }
+      }
+      const base = responsive ? k + "." + (app.device || "desktop") : k;
+      const unitOpts = units.map((u) => `<option value="${app.esc(u)}"${u === unit ? " selected" : ""}>${app.esc(u)}</option>`).join("");
+      return `<div class="lb-control lb-gaps lb-gaps-pair${linked ? " is-linked" : ""}" data-gaps-key="${app.esc(k)}" data-gaps-base="${app.esc(base)}">
+			<div class="lb-control-head"><span class="lb-choose-label"><span>${app.esc(l)}</span>${responsive ? app.lbRespDeviceHTML() : ""}</span><select class="lb-gaps-unit" data-gaps-unit="1" aria-label="${app.esc(app.t("Unit"))}">${unitOpts}</select></div>
+			<div class="lb-gaps-fields">
+				<label><input type="number" step="any" data-gaps-part="column" value="${app.esc(colNum)}" placeholder="${app.esc(phCol)}" aria-label="${app.esc(app.t("Column"))}"><small>${app.t("Column")}</small></label>
+				<label><input type="number" step="any" data-gaps-part="row" value="${app.esc(rowNum)}" placeholder="${app.esc(phRow)}" aria-label="${app.esc(app.t("Row"))}"><small>${app.t("Row")}</small></label>
+				<button type="button" class="lb-gaps-link${linked ? " is-active" : ""}" data-gaps-link="1" title="${app.esc(linked ? app.t("Unlink values") : app.t("Link values together"))}" aria-pressed="${linked ? "true" : "false"}">${SVG_ICONS[linked ? "lbi-link" : "lbi-unlink"]}</button>
+			</div>
+		</div>`;
     };
     app.lbCompileFilter = function lbCompileFilter(v) {
       if (!v || typeof v !== "object") return typeof v === "string" ? v : "";
@@ -15676,7 +15865,102 @@
         b.__lbChoose = true;
         b.addEventListener("click", (e) => {
           e.preventDefault();
-          app.update(b.dataset.chooseKey, b.dataset.chooseValue);
+          const active = b.classList.contains("is-active");
+          const value = active && b.dataset.chooseToggle ? "" : b.dataset.chooseValue;
+          const row = b.parentElement;
+          if (row) row.querySelectorAll(".lb-choose-btn").forEach((x) => {
+            const on = x === b && value !== "";
+            x.classList.toggle("is-active", on);
+            x.setAttribute("aria-pressed", on ? "true" : "false");
+          });
+          app.update(b.dataset.chooseKey, value);
+          const key = String(b.dataset.chooseKey || "").split(".")[0];
+          app.root.querySelectorAll('.lb-choose[data-axis-key="' + key + '"]').forEach((ctl) => {
+            const dir = String(value || ctl.dataset.axisDefault || "row");
+            ctl.classList.remove("lb-axis-t", "lb-axis-rot", "lb-axis-flipy");
+            const cls = app.lbAxisClass(ctl.dataset.axis, dir);
+            if (cls) ctl.classList.add(cls);
+          });
+        });
+      });
+      app.root.querySelectorAll("[data-lb-resp-cycle]").forEach((b) => {
+        if (b.__lbRespCycle) return;
+        b.__lbRespCycle = true;
+        b.addEventListener("click", (e) => {
+          e.preventDefault();
+          let list = typeof app.enabledBreakpoints === "function" ? app.enabledBreakpoints().map((x) => x.name) : ["desktop", "tablet", "mobile"];
+          if (list.indexOf("mobile") !== -1 && list.indexOf("desktop") > list.indexOf("mobile")) list = list.slice().reverse();
+          if (!list.length) return;
+          const next = list[(list.indexOf(app.device) + 1) % list.length];
+          const btn = document.querySelector('.lb-device [data-device="' + next + '"]');
+          if (btn) btn.click();
+          else {
+            app.device = next;
+            if (typeof app.applyCanvasWidth === "function") app.applyCanvasWidth();
+            if (typeof app.refreshRightPanel === "function") app.refreshRightPanel();
+          }
+        });
+      });
+      app.root.querySelectorAll(".lb-gaps-pair[data-gaps-base]").forEach((box) => {
+        if (box.__lbGaps) return;
+        box.__lbGaps = true;
+        const base = box.dataset.gapsBase;
+        const inputs = () => ({ column: box.querySelector('[data-gaps-part="column"]'), row: box.querySelector('[data-gaps-part="row"]') });
+        const unitSel = box.querySelector("[data-gaps-unit]");
+        let started = false;
+        const node = () => app.selected && app.locate(app.state.root, app.selected);
+        const write = (patch, repaint) => {
+          if (app.previewingRevision) return;
+          const r = node();
+          if (!r) return;
+          if (!started) {
+            app.commit(app.t("Edited %s", app.meta(r.node.type).title || r.node.type), r.node.id);
+            started = true;
+          }
+          const cur = app.getPath(r.node.settings, base);
+          const next = Object.assign({}, cur && typeof cur === "object" ? cur : {}, patch);
+          app.setPath(r.node.settings, base, next);
+          app.dirty = true;
+          if (app.scheduleSave) app.scheduleSave();
+          if (typeof app.previewSetting === "function") app.previewSetting(box.dataset.gapsKey, r.node.id);
+          else app.render();
+          if (repaint && typeof app.refreshRightPanel === "function") app.refreshRightPanel();
+        };
+        const len = (num) => num === "" || num == null ? "" : String(num) + (unitSel ? unitSel.value : "px");
+        const linked = () => box.classList.contains("is-linked");
+        ["column", "row"].forEach((part) => {
+          const el = inputs()[part];
+          if (!el) return;
+          el.addEventListener("input", () => {
+            const patch = { [part]: len(el.value), unit: unitSel ? unitSel.value : "px", linked: linked() };
+            if (linked()) {
+              const other = inputs()[part === "row" ? "column" : "row"];
+              if (other) other.value = el.value;
+              patch.row = patch.column = patch[part];
+            }
+            write(patch, false);
+          });
+          el.addEventListener("change", () => {
+            started = false;
+          });
+        });
+        if (unitSel) unitSel.addEventListener("change", () => {
+          const f = inputs();
+          write({ column: len(f.column ? f.column.value : ""), row: len(f.row ? f.row.value : ""), unit: unitSel.value, linked: linked() }, false);
+          started = false;
+        });
+        const linkBtn = box.querySelector("[data-gaps-link]");
+        if (linkBtn) linkBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          const f = inputs();
+          const on = !linked();
+          const patch = { linked: on, unit: unitSel ? unitSel.value : "px" };
+          if (on) {
+            const val = f.column && f.column.value !== "" ? f.column.value : f.row ? f.row.value : "";
+            patch.column = patch.row = len(val);
+          }
+          write(patch, true);
+          started = false;
         });
       });
       app.root.querySelectorAll("[data-link-key]").forEach((b) => {
@@ -15775,7 +16059,7 @@
       if (type === "css_filter") return app.lbFilterHTML(k, v, l);
       if (type === "transform") return app.lbTransformHTML(k, v, l);
       if (type === "transition") return app.lbTransitionHTML(k, v, l);
-      if (type === "gaps") return app.lbGapsHTML(k, v, l);
+      if (type === "gaps") return app.lbGapsHTML(k, v, l, def);
       if (type === "box_shadow") return app.shadowControl(k, v, l);
       return oldControl(k, t3, v, label);
     };
@@ -19331,6 +19615,9 @@
       if (type === "border") {
         return { VALUE: borderCss(raw), RAW: "", SIZE: "", UNIT: "" };
       }
+      if (type === "gaps") {
+        return { VALUE: typeof app.lbCompileGaps === "function" ? app.lbCompileGaps(raw) : "", RAW: "", SIZE: "", UNIT: "" };
+      }
       let str = raw;
       if (str && typeof str === "object" && !Array.isArray(str)) str = str.desktop != null ? str.desktop : "";
       if (typeof str === "boolean") str = str ? "1" : "";
@@ -19783,6 +20070,442 @@
       return out;
     };
   }
+  // src/editor/color-picker.js
+  // Elementor-style colour picker. Replaces the browser / OS colour dialog (the Windows one has the
+  // "Define Custom Colors >>" button) for every <input type="color"> in the editor UI. Accepts and
+  // keeps HEX, HEXA, RGB(A), HSL(A) and CSS named colours, with an opacity slider.
+  function installColorPicker() {
+    const NATIVE = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+    const PRESETS = ["#000000", "#ffffff", "#6ec1e4", "#54595f", "#7a7a7a", "#61ce70", "#4054b2", "#23a455", "#e74c3c", "#f39c12", "#f1c40f", "#8e44ad", "transparent"];
+    const recent = [];
+    let probe = null;
+    const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+    const round = (n, d) => {
+      const p = Math.pow(10, d || 0);
+      return Math.round(n * p) / p;
+    };
+    /** Parse any CSS colour the browser understands into {r,g,b,a}; null when invalid. */
+    function parse(str) {
+      const s = String(str == null ? "" : str).trim();
+      if (!s) return null;
+      if (/^\{\{var:/.test(s) || /^var\(/i.test(s)) return null;
+      const hex = s.match(/^#?([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i);
+      if (hex) {
+        let h = hex[1];
+        if (h.length <= 4) h = h.split("").map((c) => c + c).join("");
+        return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16), a: h.length === 8 ? round(parseInt(h.slice(6, 8), 16) / 255, 3) : 1 };
+      }
+      if (typeof CSS !== "undefined" && CSS.supports && !CSS.supports("color", s)) return null;
+      if (/^currentcolor$/i.test(s) || /^(inherit|initial|unset|revert)$/i.test(s)) return null;
+      if (!probe) probe = document.createElement("canvas").getContext("2d");
+      if (!probe) return null;
+      probe.fillStyle = "#010203";
+      probe.fillStyle = s;
+      const out = String(probe.fillStyle);
+      if (out === "#010203" && !/^#?010203$/i.test(s) && !/^rgba?\(\s*1\s*,\s*2\s*,\s*3\s*[,)]/i.test(s)) return null;
+      const m6 = out.match(/^#([0-9a-f]{6})$/i);
+      if (m6) return parse(out);
+      const m = out.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+))?\s*\)/i);
+      if (!m) return null;
+      return { r: +m[1], g: +m[2], b: +m[3], a: m[4] == null ? 1 : +m[4] };
+    }
+    function formatOf(str) {
+      const s = String(str || "").trim().toLowerCase();
+      if (s.startsWith("rgb")) return "rgb";
+      if (s.startsWith("hsl")) return "hsl";
+      if (s.startsWith("#")) return "hex";
+      return /^[a-z]+$/.test(s) ? "name" : "hex";
+    }
+    const hx = (n) => clamp(Math.round(n), 0, 255).toString(16).padStart(2, "0");
+    function hex6(c) {
+      return c ? "#" + hx(c.r) + hx(c.g) + hx(c.b) : "#000000";
+    }
+    function toHsl(c) {
+      const r = c.r / 255, g = c.g / 255, b = c.b / 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0;
+      const l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+        else if (max === g) h = (b - r) / d + 2;
+        else h = (r - g) / d + 4;
+        h *= 60;
+      }
+      return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
+    function format(c, fmt) {
+      if (!c) return "";
+      const a = round(clamp(c.a, 0, 1), 2);
+      if (fmt === "rgb") return a < 1 ? `rgba(${Math.round(c.r)}, ${Math.round(c.g)}, ${Math.round(c.b)}, ${a})` : `rgb(${Math.round(c.r)}, ${Math.round(c.g)}, ${Math.round(c.b)})`;
+      if (fmt === "hsl") {
+        const h = toHsl(c);
+        return a < 1 ? `hsla(${h.h}, ${h.s}%, ${h.l}%, ${a})` : `hsl(${h.h}, ${h.s}%, ${h.l}%)`;
+      }
+      return hex6(c) + (a < 1 ? hx(a * 255) : "");
+    }
+    function rgbToHsv(c) {
+      const r = c.r / 255, g = c.g / 255, b = c.b / 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+      let h = 0;
+      if (d) {
+        if (max === r) h = (g - b) / d % 6;
+        else if (max === g) h = (b - r) / d + 2;
+        else h = (r - g) / d + 4;
+        h *= 60;
+        if (h < 0) h += 360;
+      }
+      return { h, s: max ? d / max : 0, v: max };
+    }
+    function hsvToRgb(h, s, v) {
+      const f = (n) => {
+        const k = (n + h / 60) % 6;
+        return v - v * s * Math.max(0, Math.min(k, 4 - k, 1));
+      };
+      return { r: f(5) * 255, g: f(3) * 255, b: f(1) * 255 };
+    }
+    /** Full colour string behind a color input (the native value only holds #rrggbb). */
+    function fullValue(input) {
+      if (input.__lbFull !== void 0) return input.__lbFull;
+      const cand = input.dataset.lbColor != null ? input.dataset.lbColor : input.getAttribute("value");
+      if (cand && parse(cand)) return cand;
+      if (input.dataset.lbColor === "" || input.dataset.tsEmpty === "1" || input.dataset.kitEmpty === "1") return "";
+      return NATIVE.get.call(input);
+    }
+    /** Make `input.value` carry the full colour string so existing handlers store rgba()/hsl()/names as typed. */
+    function prep(input) {
+      if (!input || input.__lbColorPrep || input.type !== "color") return;
+      const start = fullValue(input);
+      input.__lbColorPrep = true;
+      input.__lbFull = start;
+      Object.defineProperty(input, "value", {
+        configurable: true,
+        get() {
+          return input.__lbFull;
+        },
+        set(v) {
+          input.__lbFull = v == null ? "" : String(v);
+          const c = parse(input.__lbFull);
+          NATIVE.set.call(input, c ? hex6(c) : "#000000");
+          paintSwatch(input);
+        }
+      });
+      input.classList.add("lb-cp-input");
+      input.setAttribute("aria-haspopup", "dialog");
+      paintSwatch(input);
+    }
+    function paintSwatch(input) {
+      const v = input.__lbFull;
+      const c = parse(v);
+      input.style.setProperty("--lb-cp-val", c ? format(c, "rgb") : "transparent");
+      input.classList.toggle("is-empty", !c);
+      input.title = v || app.t("Default");
+    }
+    app.lbColorPrep = function lbColorPrep(root) {
+      (root || document).querySelectorAll('input[type="color"]').forEach(prep);
+    };
+    app.lbParseColor = parse;
+    app.lbFormatColor = format;
+    let pop = null, current = null;
+    function reflect(input, str) {
+      const host = input.closest(".lb-color-control, .lb-control");
+      if (host) {
+        if (str) host.style.setProperty("--lb-picked", str);
+        const label = host.querySelector(".lb-color-hex");
+        if (label && !input.closest(".is-global")) label.textContent = str || app.t("Default");
+      }
+      input.dataset.tsEmpty = str ? "0" : "1";
+      input.dataset.kitEmpty = str ? "0" : "1";
+    }
+    function emit(input, str, kind) {
+      input.value = str;
+      reflect(input, str);
+      input.dispatchEvent(new Event(kind || "input", { bubbles: true }));
+    }
+    function close(commit) {
+      if (!pop) return;
+      const st = current;
+      pop.remove();
+      pop = null;
+      current = null;
+      document.removeEventListener("pointerdown", onOutside, true);
+      document.removeEventListener("keydown", onKey, true);
+      window.removeEventListener("resize", onResize);
+      if (st && st.dirty && commit !== false) {
+        const v = st.input.value;
+        if (v && parse(v)) {
+          const i = recent.indexOf(v);
+          if (i !== -1) recent.splice(i, 1);
+          recent.unshift(v);
+          recent.length = Math.min(recent.length, 8);
+        }
+        st.input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      if (st && st.input && st.input.isConnected) st.input.focus({ preventScroll: true });
+    }
+    function onOutside(e) {
+      if (!pop) return;
+      if (pop.contains(e.target) || current && e.target === current.input) return;
+      close();
+    }
+    function onKey(e) {
+      if (e.key === "Escape" && pop) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (current && current.dirty) {
+          emit(current.input, current.original);
+          current.dirty = true;
+        }
+        close();
+      }
+    }
+    function onResize() {
+      if (current) place(current.input);
+    }
+    function place(input) {
+      const r = input.getBoundingClientRect();
+      const w = pop.offsetWidth || 260, h = pop.offsetHeight || 380;
+      let left = r.left;
+      if (left + w > window.innerWidth - 8) left = window.innerWidth - w - 8;
+      let top = r.bottom + 6;
+      if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 6);
+      pop.style.left = Math.max(8, left) + "px";
+      pop.style.top = top + "px";
+    }
+    function swatchHTML(value, title, extra) {
+      const c = parse(value);
+      return `<button type="button" class="lb-cp-sw${extra ? " " + extra : ""}" data-cp-swatch="${app.esc(value)}" title="${app.esc(title || value)}" aria-label="${app.esc(title || value)}"><i style="background:${app.esc(c ? format(c, "rgb") : "transparent")}"></i></button>`;
+    }
+    function open(input) {
+      if (current && current.input === input) {
+        close();
+        return;
+      }
+      close();
+      prep(input);
+      const original = input.value;
+      const c0 = parse(original) || { r: 0, g: 0, b: 0, a: 1 };
+      const hsv = rgbToHsv(c0);
+      const st = current = { input, original, dirty: false, h: hsv.h, s: hsv.s, v: hsv.v, a: c0.a, fmt: formatOf(original) === "name" ? "hex" : formatOf(original), name: formatOf(original) === "name" ? original : "" };
+      const globals = typeof app.globalColors === "function" ? app.globalColors() : [];
+      pop = document.createElement("div");
+      pop.className = "lb-cp";
+      pop.setAttribute("role", "dialog");
+      pop.setAttribute("aria-label", app.t("Color Picker"));
+      pop.innerHTML = `
+        <div class="lb-cp-sv" tabindex="0" aria-label="${app.esc(app.t("Saturation and brightness"))}"><div class="lb-cp-sv-white"></div><div class="lb-cp-sv-black"></div><span class="lb-cp-knob"></span></div>
+        <div class="lb-cp-mid">
+          <span class="lb-cp-preview"><i></i></span>
+          <div class="lb-cp-bars">
+            <div class="lb-cp-bar lb-cp-hue" tabindex="0" aria-label="${app.esc(app.t("Hue"))}"><span class="lb-cp-thumb"></span></div>
+            <div class="lb-cp-bar lb-cp-alpha" tabindex="0" aria-label="${app.esc(app.t("Opacity"))}"><i></i><span class="lb-cp-thumb"></span></div>
+          </div>
+        </div>
+        <div class="lb-cp-entry">
+          <div class="lb-cp-formats" role="group">${["hex", "rgb", "hsl"].map((f) => `<button type="button" data-cp-fmt="${f}">${f.toUpperCase()}</button>`).join("")}</div>
+          <input type="text" class="lb-cp-text" spellcheck="false" autocomplete="off" aria-label="${app.esc(app.t("Color value"))}" placeholder="#000000, rgb(0,0,0), hsl(0,0%,0%), red">
+        </div>
+        ${globals.length ? `<div class="lb-cp-group"><small>${app.esc(app.t("Global Colors"))}</small><div class="lb-cp-swatches">${globals.map((g) => swatchHTML(g.value, g.title)).join("")}</div></div>` : ""}
+        <div class="lb-cp-group"><small>${app.esc(app.t("Swatches"))}</small><div class="lb-cp-swatches">${PRESETS.map((p) => swatchHTML(p, p === "transparent" ? app.t("Transparent") : p)).join("")}</div></div>
+        ${recent.length ? `<div class="lb-cp-group"><small>${app.esc(app.t("Recent"))}</small><div class="lb-cp-swatches">${recent.map((p) => swatchHTML(p)).join("")}</div></div>` : ""}
+        <div class="lb-cp-actions"><button type="button" class="lb-cp-clear" data-cp-clear>${app.esc(app.t("Clear"))}</button>${window.EyeDropper ? `<button type="button" class="lb-cp-eye" data-cp-eye title="${app.esc(app.t("Pick color"))}">${app.esc(app.t("Eyedropper"))}</button>` : ""}<button type="button" class="lb-cp-done" data-cp-done>${app.esc(app.t("Done"))}</button></div>`;
+      document.body.appendChild(pop);
+      const $ = (s) => pop.querySelector(s);
+      const sv = $(".lb-cp-sv"), knob = $(".lb-cp-knob"), hue = $(".lb-cp-hue"), alpha = $(".lb-cp-alpha"), text = $(".lb-cp-text");
+      const rgb = () => Object.assign(hsvToRgb(st.h, st.s, st.v), { a: st.a });
+      const paint = (skipText) => {
+        const c = rgb();
+        const pure = hsvToRgb(st.h, 1, 1);
+        sv.style.background = format(Object.assign(pure, { a: 1 }), "rgb");
+        knob.style.left = st.s * 100 + "%";
+        knob.style.top = (1 - st.v) * 100 + "%";
+        hue.querySelector(".lb-cp-thumb").style.left = st.h / 360 * 100 + "%";
+        alpha.querySelector("i").style.background = `linear-gradient(to right, ${format(Object.assign({}, c, { a: 0 }), "rgb")}, ${format(Object.assign({}, c, { a: 1 }), "rgb")})`;
+        alpha.querySelector(".lb-cp-thumb").style.left = st.a * 100 + "%";
+        $(".lb-cp-preview i").style.background = format(c, "rgb");
+        pop.querySelectorAll("[data-cp-fmt]").forEach((b) => b.classList.toggle("is-active", b.dataset.cpFmt === st.fmt));
+        if (!skipText) {
+          text.value = st.name || (st.cleared ? "" : format(c, st.fmt));
+          text.classList.remove("is-invalid");
+        }
+      };
+      let raf = 0;
+      const push = () => {
+        st.name = "";
+        st.cleared = false;
+        paint();
+        st.dirty = true;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => emit(input, format(rgb(), st.fmt)));
+      };
+      const drag = (el, fn) => {
+        const move = (e) => {
+          const r = el.getBoundingClientRect();
+          fn(clamp((e.clientX - r.left) / r.width, 0, 1), clamp((e.clientY - r.top) / r.height, 0, 1));
+          push();
+        };
+        el.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          el.setPointerCapture(e.pointerId);
+          el.focus({ preventScroll: true });
+          move(e);
+          const up = () => {
+            el.removeEventListener("pointermove", move);
+            el.removeEventListener("pointerup", up);
+            el.removeEventListener("pointercancel", up);
+          };
+          el.addEventListener("pointermove", move);
+          el.addEventListener("pointerup", up);
+          el.addEventListener("pointercancel", up);
+        });
+      };
+      drag(sv, (x, y) => {
+        st.s = x;
+        st.v = 1 - y;
+      });
+      drag(hue, (x) => {
+        st.h = x * 360;
+      });
+      drag(alpha, (x) => {
+        st.a = round(x, 2);
+      });
+      const keys = (el, fn) => el.addEventListener("keydown", (e) => {
+        const step = e.shiftKey ? 10 : 1;
+        const map = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+        if (!map[e.key]) return;
+        e.preventDefault();
+        fn(map[e.key][0], map[e.key][1]);
+        push();
+      });
+      keys(sv, (dx, dy) => {
+        st.s = clamp(st.s + dx / 100, 0, 1);
+        st.v = clamp(st.v - dy / 100, 0, 1);
+      });
+      keys(hue, (dx, dy) => {
+        st.h = clamp(st.h + (dx || -dy), 0, 360);
+      });
+      keys(alpha, (dx, dy) => {
+        st.a = round(clamp(st.a + (dx || -dy) / 100, 0, 1), 2);
+      });
+      const setFrom = (str, keepText) => {
+        const c = parse(str);
+        if (!c) return false;
+        const h = rgbToHsv(c);
+        if (h.s > 0 && h.v > 0) st.h = h.h;
+        st.s = h.s;
+        st.v = h.v;
+        st.a = c.a;
+        const f = formatOf(str);
+        st.name = f === "name" ? String(str).trim().toLowerCase() : "";
+        if (f !== "name") st.fmt = f;
+        st.cleared = false;
+        paint(keepText);
+        st.dirty = true;
+        emit(input, st.name || String(str).trim());
+        return true;
+      };
+      text.addEventListener("input", () => {
+        const ok = !text.value.trim() || parse(text.value);
+        text.classList.toggle("is-invalid", !ok);
+        if (text.value.trim() && ok) setFrom(text.value, true);
+      });
+      text.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        if (!text.value.trim()) {
+          st.cleared = true;
+          st.dirty = true;
+          emit(input, "");
+          close();
+          return;
+        }
+        if (setFrom(text.value)) close();
+        else text.classList.add("is-invalid");
+      });
+      text.addEventListener("blur", () => {
+        if (text.value.trim() && parse(text.value)) paint();
+      });
+      pop.querySelectorAll("[data-cp-fmt]").forEach((b) => b.addEventListener("click", () => {
+        st.fmt = b.dataset.cpFmt;
+        if (st.cleared) {
+          paint();
+          return;
+        }
+        push();
+      }));
+      pop.querySelectorAll("[data-cp-swatch]").forEach((b) => b.addEventListener("click", () => setFrom(b.dataset.cpSwatch)));
+      $("[data-cp-clear]").addEventListener("click", () => {
+        st.cleared = true;
+        st.dirty = true;
+        emit(input, "");
+        paint();
+        close();
+      });
+      $("[data-cp-done]").addEventListener("click", () => close());
+      const eye = $("[data-cp-eye]");
+      if (eye) eye.addEventListener("click", async () => {
+        try {
+          const res = await new window.EyeDropper().open();
+          if (res && res.sRGBHex) setFrom(res.sRGBHex);
+        } catch (e) {
+        }
+      });
+      paint();
+      place(input);
+      document.addEventListener("pointerdown", onOutside, true);
+      document.addEventListener("keydown", onKey, true);
+      window.addEventListener("resize", onResize);
+      setTimeout(() => text.focus({ preventScroll: true }), 0);
+    }
+    app.lbOpenColorPicker = open;
+    app.lbCloseColorPicker = close;
+    document.addEventListener("click", (e) => {
+      const input = e.target && e.target.closest ? e.target.closest('input[type="color"]') : null;
+      if (!input || input.disabled || input.dataset.nativePicker === "1") return;
+      e.preventDefault();
+      open(input);
+    }, true);
+    document.addEventListener("focusin", (e) => {
+      const t3 = e.target;
+      if (t3 && t3.type === "color") prep(t3);
+    }, true);
+    document.addEventListener("keydown", (e) => {
+      const t3 = e.target;
+      if (!t3 || t3.type !== "color" || t3.disabled) return;
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        open(t3);
+      }
+    }, true);
+    const prepAll = () => app.lbColorPrep(document);
+    const oldRefresh = app.refreshRightPanel;
+    if (typeof oldRefresh === "function") {
+      app.refreshRightPanel = function refreshRightPanelColorPicker() {
+        const out = oldRefresh.apply(this, arguments);
+        prepAll();
+        return out;
+      };
+    }
+    const oldEnhance = app.enhanceEyedropper;
+    app.enhanceEyedropper = function enhanceEyedropperColorPicker() {
+      const out = typeof oldEnhance === "function" ? oldEnhance.apply(this, arguments) : void 0;
+      prepAll();
+      return out;
+    };
+    if (typeof MutationObserver === "function") {
+      let queued = false;
+      new MutationObserver(() => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+          queued = false;
+          prepAll();
+          if (current && !current.input.isConnected) close(false);
+        });
+      }).observe(document.body, { childList: true, subtree: true });
+    }
+  }
   function boot() {
     if (installState() === false) return;
     installBreakpoints();
@@ -19845,6 +20568,7 @@
     }
     installImageCarouselPreview();
     installEffectsReset();
+    installColorPicker();
     if (typeof app.render === "function") app.render();
     if (typeof app.lbHydrateDocument === "function") app.lbHydrateDocument();
   }

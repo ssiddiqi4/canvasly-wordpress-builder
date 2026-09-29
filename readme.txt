@@ -4,7 +4,7 @@ Tags: page builder, drag-and-drop, landing page, website builder, responsive
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.12.109
+Stable tag: 0.12.112
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -367,6 +367,18 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 6. **Canvasly Pro** - Theme Builder, popups, shop units, and the annual plans.
 
 == Changelog ==
+
+= 0.12.112 =
+* Changed: Autosave now runs silently in the background. The "An autosave is newer than the last save. Restore it?" browser dialog is gone; when a newer autosave exists, a small bar under the top menu offers Restore or dismiss, and it is not shown when the autosave matches the page or after you dismiss it in that session.
+
+= 0.12.111 =
+* Added: Canvasly colour picker for every colour control, replacing the browser / Windows colour dialog (the one with the "Define Custom Colors >>" button). It has a saturation area, hue and opacity sliders, HEX / RGB / HSL format switch, a value box, Global Colors, preset and recent swatches, Clear and Eyedropper.
+* Added: Colour values can be typed as HEX (#rgb, #rrggbb, #rrggbbaa), rgb()/rgba(), hsl()/hsla() or CSS colour names (tomato, transparent). The value is saved as typed, and Global Colors accept the same formats.
+
+= 0.12.110 =
+* Added: Style > Items on the Container and on every widget - Direction, Justify Content, Align Items, Gaps (column/row, linked, with unit) and Wrap, drawn as icon button groups like Elementor. All five are responsive; the device icon beside each label steps through breakpoints. Justify and Align icons turn with the chosen direction.
+* Changed: Container Direction, Justify, Align, Wrap and Gap moved from Content > Layout to Style > Items. Saved pages keep their values; a Gaps value set in Items overrides the old Gap.
+* Note: On widgets, Items makes the widget box a flex box and shows while Advanced > Display is Default or Flex.
 
 = 0.12.109 =
 * Removed: Leftover development files (tmp-slider-check.html, tmp-slider-check.png, html_docs/_build_seo.py) from the release package.
