@@ -1,4 +1,15 @@
 === Canvasly - Visual Page Builder: full changelog ===
+= 0.13.3 =
+* Fixed: With WP-Optimize page caching on, visitors kept seeing the old version of a page after it was saved in Canvasly (for example, a newly added Form did not appear). Canvasly now clears that page from the WP-Optimize cache on every save, as it already did for WP Super Cache, W3 Total Cache, WP Rocket, LiteSpeed, SiteGround, Breeze and others.
+
+= 0.13.2 =
+* New: "Require Cloudflare Turnstile" on the Login unit (Security section). The Log In button stays disabled until the visitor completes the Turnstile check, and the login is rejected without a valid token.
+* New: Submit gate for every Turnstile-protected form. The Form unit (Spam protection → Require Cloudflare Turnstile), the Login unit, and the WordPress login and comment forms keep their Submit / Log In button disabled until the check passes, lock it again when the token expires, errors, or is used, and block Enter-key submits while locked.
+* New: Turnstile verification for Canvasly login, register and lost-password forms that post to wp-login.php, used by the Login unit and by Canvasly Pro's Login & Register unit.
+* New: Turnstile widgets inside hidden tabs render when the tab opens.
+* Changed: If Settings → Integrations → WordPress forms → Login form is on, the Login unit now shows the Turnstile check automatically so its logins are not rejected.
+* Docs: readme rewritten with the full feature list, Turnstile setup steps and new FAQ entries.
+
 = 0.13.1 =
 * Plugin Check: documented why the Cloudflare Turnstile script and Siteverify endpoint are loaded from Cloudflare (required by the service, only after keys are entered), marked loop "exclude" settings as editor settings, shortened the readme Description and Changelog (full history now in changelog.txt), and added an "external services" FAQ entry.
 

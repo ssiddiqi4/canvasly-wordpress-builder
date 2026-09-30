@@ -1,36 +1,85 @@
 === Canvasly - Visual Page Builder ===
 Contributors: ssiddiqi4
-Tags: page builder, drag-and-drop, landing page, website builder, responsive
+Tags: page builder, drag and drop, landing page, website builder, turnstile
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.13.1
+Stable tag: 0.13.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A visual WordPress page builder with nested containers, CSS Grid, templates, a design system, and responsive editing.
+Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a design system and spam-safe forms with Cloudflare Turnstile.
 
 == Description ==
 
-Canvasly is a visual page builder for WordPress. Design pages directly on a canvas with nested containers, CSS Grid and responsive controls, then publish them through the normal WordPress workflow.
+**Canvasly is a free visual page builder for WordPress.** Build landing pages, home pages, blog layouts and complete websites on a live canvas with drag and drop, nested containers, CSS Grid and responsive controls, then publish through the normal WordPress workflow. No coding needed, and clean HTML and CSS when you want it.
 
-= Highlights =
+= Why Canvasly? =
 
-* **Visual editor**: drag units from the library into Containers, Grids and XEditor elements, edit text inline, undo and redo, and preview desktop, tablet and mobile.
-* **XEditor (CSS-first)**: atomic Div Block, Flexbox, Grid, Heading, Paragraph, Image and Button elements that print one clean HTML element each.
-* **Classes & Variables**: global variables (`--xe-var-*`) and reusable utility classes (`.xe-class-*`) with states and breakpoints. Stack classes on any unit.
-* **Design system**: global colors, typography, components and site kits.
-* **Layout**: CSS Grid tracks, gaps and spans; flex containers; shape dividers; background video.
-* **Motion**: entrance and exit presets, custom keyframes and scroll triggers.
-* **Templates**: save sections and place them with a unit, block, widget or shortcode.
-* **Forms**: email forms with honeypot, reCAPTCHA or Cloudflare Turnstile.
-* **Accessibility**: ARIA label, role and custom attributes on every unit.
-* **Performance**: per-page CSS and scripts, optional external CSS files, unit cache, lazy images and self-hosted Google Fonts.
-* **Developers**: REST routes, WP-CLI commands and hooks for add-ons.
+* **True visual editing**: drag units from the library, edit text inline, undo and redo, right-click menus, and preview desktop, tablet and mobile side by side.
+* **CSS-first output**: XEditor elements print one clean HTML element each, with no wrapper divs, so pages stay light and fast.
+* **Design once, reuse everywhere**: global colors, typography, classes, variables, components and site kits keep every page on brand.
+* **Performance built in**: per-page CSS and scripts, external CSS files, a unit cache, lazy images and self-hosted Google Fonts.
+* **Spam-safe forms and logins**: honeypot, Google reCAPTCHA or privacy-friendly Cloudflare Turnstile, with the Submit or Log In button kept disabled until the visitor passes the check.
+
+= Visual editor =
+
+* Drag-and-drop canvas with Containers, Inner Sections and CSS Grid (tracks, gaps, spans, drag-to-resize).
+* Desktop, tablet and mobile views with per-breakpoint values and custom breakpoints.
+* Inline text editing, undo/redo, revisions and history, autosave with restore bar, favorites and a searchable unit library.
+* Canvasly colour picker with HEX, RGB, HSL, opacity, eyedropper and Global Colors.
+* Content, Style and Advanced tabs on every unit: spacing, borders, shadows, backgrounds (image, gradient, video, slideshow), transforms, filters and blend modes.
+* Style > Items flex controls (direction, justify, align, gaps, wrap) on containers and widgets.
+* Editing lock so two people never overwrite each other.
+
+= XEditor (CSS-first layer) =
+
+* Atomic elements: Div Block, Flexbox, Grid, Heading, Paragraph, Image and Button.
+* Classes & Variables Manager: global `--xe-var-*` tokens and reusable `.xe-class-*` utility classes with Normal, Hover, Focus and Active states and breakpoints.
+* Class stacking on every unit (XEditor and classic).
+* XEditor Loop data model with dynamic tokens such as `{{post.title}}` and `{{post.url}}` (rendering comes with Canvasly Pro).
+
+= 50+ free units =
+
+* **Layout**: Container, Inner Section, Grid, Spacer, Divider, Menu Anchor, Sidebar, Template, Component, Collection Loop.
+* **Content**: Heading, Text, Text Editor, Image, Button, Icon, Icon Box, Image Box, Icon List, Read More, Text Path, Code, HTML, Shortcode, WordPress Widget.
+* **Media**: Gallery, Image Carousel, Video, Audio, SoundCloud, Embed, Google Maps.
+* **Interactive**: Tabs, Accordion, Toggle, Nested Tabs, Nested Accordion, Nested Toggle, Flip Box, Counter, Progress Bar, Alert.
+* **Marketing**: Price Table, Testimonial, Star Rating, Rating, Social Icons, Link in Bio.
+* **Site**: Site Menu (responsive navigation), Login, Form, Cloudflare Turnstile.
+
+= Forms, login and spam protection =
+
+* **Form unit**: text, email, phone, URL, textarea, select and checkbox fields; stacked, inline or two-column layout; custom recipient and success message.
+* **Cloudflare Turnstile (new)**: under Settings → Integrations, paste your site and secret keys, or let Canvasly create the Turnstile widget for you with a Cloudflare API token. Test keys, theme, size and appearance options are included.
+* **Require Turnstile per form**: the Form unit (Spam protection → Require Cloudflare Turnstile) and the Login unit (Require Cloudflare Turnstile) keep the Submit or Log In button disabled until the visitor completes the check. The button locks again if the token expires or after each submission, and every token is verified on the server with Cloudflare Siteverify.
+* **Site-wide protection**: optionally protect every Canvasly form, the WordPress login form (wp-login.php) and the comment form.
+* **Cloudflare Turnstile unit**: drop it next to any Canvasly form to protect that form.
+* Honeypot and Google reCAPTCHA (v2 or v3) are also supported.
+
+= Templates and theme =
+
+* Save any section as a template and place it with the Template unit, the Canvasly Template block, a sidebar widget or the `[canvasly_lite_template]` shortcode.
+* Canvas and Full Width page templates, header and footer editing, and template import and export.
+* Works with any theme; optionally turn off Canvasly's default colors and fonts so your theme keeps them.
+
+= Motion and accessibility =
+
+* Entrance and exit animation presets, custom keyframes, scroll triggers and hover effects.
+* ARIA label, role and custom attributes placed on the real link, button, field or image.
+* RTL styles and translation-ready strings.
+
+= Site tools =
+
+* Maintenance and Coming Soon mode, Safe mode for troubleshooting, and one-click rollback to an earlier Canvasly version.
+* Replace URL tool, system info, roles and capabilities, Units Manager and experiments.
+* Yoast SEO and Rank Math see your Canvasly content; WPML and Polylang can translate it.
+* Import pages and templates built with Elementor (when Elementor is active) into new Canvasly documents.
+* REST routes, WP-CLI commands and hooks for developers.
 
 = Canvasly Pro =
 
-[Canvasly Pro](https://canvasly.pro/price.html#lite-vs-pro) adds the XEditor Loop, Theme Builder, popups, WooCommerce units, hosted payments, extra widgets and more.
+[Canvasly Pro](https://canvasly.pro/price.html#lite-vs-pro) is a separate add-on that adds Theme Builder, popups, display conditions, dynamic tags, Loop Grid and Loop Carousel, 70+ extra units, WooCommerce builder units, hosted payments (Stripe, PayPal, Square, Authorize.Net, Razorpay, Mollie) with Payment Forms, form actions and submissions, custom fonts and icons, custom code, editor notes and an AI assistant with an MCP server. Pro's Login & Register and Payment Form units also include the "Require Cloudflare Turnstile" option.
 
 The full unit list and user guide are at [canvasly.pro](https://canvasly.pro/blocks.html). For third-party services used by optional features, see the FAQ entry "Does Canvasly connect to external services?".
 
@@ -56,6 +105,12 @@ Shop units appear only while WooCommerce is active. [Canvasly Pro](https://canva
 3. Open a page or post and choose **Edit with Canvasly**. The same link is in the admin bar.
 4. Drag units from the left library onto the canvas, then save. Publish or update the page in WordPress.
 
+= Set up Cloudflare Turnstile (optional) =
+
+1. Go to **Canvasly → Settings → Integrations → Cloudflare Turnstile**.
+2. Paste the site key and secret key from your Cloudflare dashboard, or paste an API token and Account ID and click **Create Turnstile widget for this site**.
+3. In the editor, select a Form and set **Spam protection** to **Require Cloudflare Turnstile**, or select a Login unit and turn on **Require Cloudflare Turnstile**.
+
 Step-by-step install for Canvasly and Canvasly Pro, including the license screen, is in the [installation guide](https://canvasly.pro/installation.html). Settings for post types, CSS, fonts, maps, and performance are in the [settings guide](https://canvasly.pro/settings.html).
 
 == Frequently Asked Questions ==
@@ -64,9 +119,13 @@ Step-by-step install for Canvasly and Canvasly Pro, including the license screen
 
 From the WordPress dashboard go to Plugins → Add New → Upload Plugin, upload the Canvasly zip, then Activate. You can also copy the plugin folder into `wp-content/plugins/`. The [installation guide](https://canvasly.pro/installation.html) covers Canvasly Pro as well.
 
+= Is Canvasly free? =
+
+Yes. Canvasly is free and GPL licensed, with no limit on pages or sites. [Canvasly Pro](https://canvasly.pro/price.html) is an optional paid add-on.
+
 = What does Canvasly require? =
 
-WordPress 6.9 or later and PHP 7.4 or later. The plugin is tested up to WordPress 7.1. Canvasly Pro 0.11 needs Canvasly 0.13.0 or newer.
+WordPress 6.9 or later and PHP 7.4 or later. The plugin is tested up to WordPress 7.1. Canvasly Pro needs Canvasly 0.12.73 or newer; the Turnstile options in Pro's Login & Register and Payment Form units need Canvasly 0.13.2 or newer.
 
 = How do I edit a page? =
 
@@ -74,15 +133,43 @@ Open the page and choose **Edit with Canvasly**, or use the admin-bar link. Post
 
 = Where are the settings? =
 
-[Canvasly → Settings](https://canvasly.pro/settings.html) covers post types, maps, reCAPTCHA, CSS, fonts, performance, tools, and experiments. Colors, type, and breakpoints are under Design System.
+[Canvasly → Settings](https://canvasly.pro/settings.html) covers post types, maps, reCAPTCHA, Cloudflare Turnstile (Integrations tab), CSS, fonts, performance, tools, and experiments. Colors, type, and breakpoints are under Design System.
+
+= How do I add Cloudflare Turnstile to a form or login? =
+
+Add your Turnstile keys under Canvasly → Settings → Integrations. Then select the Form unit and set Content → Spam protection to **Require Cloudflare Turnstile**, or select the Login unit and turn on **Security → Require Cloudflare Turnstile**. With Canvasly Pro, the Login & Register and Payment Form units have the same switch under Security.
+
+= Why is the Submit or Log In button greyed out? =
+
+That form requires Cloudflare Turnstile. The button stays disabled until the visitor completes the Turnstile check, then it turns on. It locks again if the check expires or after each submission, because every Turnstile token can be used only once. If the button never turns on, make sure your site key allows this domain and that nothing blocks challenges.cloudflare.com.
+
+= Is Cloudflare Turnstile better than reCAPTCHA? =
+
+Turnstile is a free, privacy-friendly CAPTCHA alternative from Cloudflare that usually passes without puzzles. You do not need to use Cloudflare for DNS. Canvasly supports both, so choose per form.
+
+= Does the Turnstile option protect wp-login.php too? =
+
+The Login unit's switch protects logins sent from that unit. To protect the standard WordPress login screen as well, turn on Settings → Integrations → WordPress forms → Login form. The comment form can be protected there too.
+
+= How can I test Turnstile before going live? =
+
+Click **Use Cloudflare test keys** under Settings → Integrations. Every challenge passes with these keys, so replace them with your real keys before launch.
 
 = Does Canvasly work with my theme and with Gutenberg? =
 
-On the normal WordPress editing screen, Canvasly does not load its full editor. The Canvasly Template block and the Edit with Canvasly launcher still appear. You can turn off Canvasly’s default colors and fonts so the theme keeps those. See the [FAQ](https://canvasly.pro/faq.html).
+On the normal WordPress editing screen, Canvasly does not load its full editor. The Canvasly Template block and the Edit with Canvasly launcher still appear. You can turn off Canvasly's default colors and fonts so the theme keeps those. See the [FAQ](https://canvasly.pro/faq.html).
 
 = Do I need to know how to code? =
 
 No. The free unit library, templates, and design system cover a typical page. Custom CSS, HTML, and the Code unit are there when you want them.
+
+= Can I build landing pages with Canvasly? =
+
+Yes. Use the Canvas page template for a blank page without the theme header and footer, then add a hero, pricing, testimonials and a form with Turnstile protection.
+
+= Is Canvasly responsive and mobile friendly? =
+
+Yes. Every layout and style value can be set per breakpoint, and the editor previews desktop, tablet and mobile.
 
 = Can I reuse a section on another page? =
 
@@ -92,9 +179,21 @@ Right-click a Container or Grid and choose Save as Template. Place it later with
 
 Units Manager can disable a type or hide it from your role. Nested Tabs, Accordion, and Toggle, Collection Loop, and Grid container can also be switched off under Settings → Features. Shop units are absent unless WooCommerce is active. Pro units are absent unless [Canvasly Pro](https://canvasly.pro/price.html) has started.
 
+= I saved a page but visitors still see the old version. Why? =
+
+A page cache (from a caching plugin, your host, or a CDN) is serving an older copy. Canvasly clears the page from WP-Optimize, WP Super Cache, W3 Total Cache, WP Rocket, LiteSpeed Cache, SiteGround Optimizer, Breeze, WP Fastest Cache, FlyingPress, NitroPack, Hummingbird and Cache Enabler when you save. For any other cache, purge it from that plugin, your host panel or your CDN after saving.
+
 = Will Canvasly slow down my site? =
 
-CSS and scripts load for the units on the page. You can print CSS as external files, cache non-dynamic unit HTML, lazy-load images, and self-host Google Fonts. See [Performance](https://canvasly.pro/settings.html#performance).
+CSS and scripts load only for the units on the page. You can print CSS as external files, cache non-dynamic unit HTML, lazy-load images, and self-host Google Fonts. The Turnstile script loads only on pages with a protected form. See [Performance](https://canvasly.pro/settings.html#performance).
+
+= Is Canvasly SEO friendly? =
+
+Yes. Canvasly prints semantic HTML with real heading tags, and Yoast SEO and Rank Math can analyze the content you build.
+
+= Can I translate Canvasly pages? =
+
+Yes. Canvasly works with WPML and Polylang and is translation ready.
 
 = How do I move the site to a new address? =
 
@@ -102,7 +201,7 @@ Use Canvasly → Settings → Tools → Replace URL. Run Dry run first. The repl
 
 = What is the difference between Canvasly and Canvasly Pro? =
 
-Canvasly is the free page builder: the visual editor, the free unit library, the design system, entrance and exit motion, page templates, the collection loop, and basic dynamic tags. [Canvasly Pro](https://canvasly.pro/price.html#lite-vs-pro) adds Theme Builder, popups, shop units, hosted payments, extra form actions, editor notes, and the AI connection. Every Pro plan includes the same features.
+Canvasly is the free page builder: the visual editor, the free unit library, the design system, forms with Turnstile, entrance and exit motion, page templates, the collection loop, and basic dynamic tags. [Canvasly Pro](https://canvasly.pro/price.html#lite-vs-pro) adds Theme Builder, popups, Loop Grid, 70+ extra units, shop units, hosted payments, extra form actions, editor notes, and the AI connection. Every Pro plan includes the same features.
 
 = The editor looks broken. What should I try? =
 
@@ -125,7 +224,7 @@ No. Elementor is a trademark of its respective owner. Canvasly is an independent
 
 Only when you turn on a feature that needs one. Nothing below is contacted by default.
 
-* **Cloudflare Turnstile** (Cloudflare, Inc.) — used when you add Turnstile keys under Settings → Integrations. Pages with a protected form (and the login or comment form, if you enable them) load `api.js` from challenges.cloudflare.com; your server sends the visitor's token and IP address to the Siteverify endpoint when the form is submitted. If you enter a Cloudflare API token, the admin screen calls api.cloudflare.com only when you click Verify or Create widget. [Terms](https://www.cloudflare.com/website-terms/), [Privacy](https://www.cloudflare.com/privacypolicy/).
+* **Cloudflare Turnstile** (Cloudflare, Inc.) — used when you add Turnstile keys under Settings → Integrations. Pages with a protected form or login (and the WordPress login or comment form, if you enable them) load `api.js` from challenges.cloudflare.com; your server sends the visitor's token and IP address to the Siteverify endpoint when the form is submitted. If you enter a Cloudflare API token, the admin screen calls api.cloudflare.com only when you click Verify or Create widget. [Terms](https://www.cloudflare.com/website-terms/), [Privacy](https://www.cloudflare.com/privacypolicy/).
 * **Google reCAPTCHA** (Google LLC) — used when reCAPTCHA keys are set: loads the reCAPTCHA script and verifies the token on submit. [Terms](https://policies.google.com/terms), [Privacy](https://policies.google.com/privacy).
 * **Google Maps** — the Google Maps unit embeds a map from google.com (Maps Embed API when a key is set). Same Google terms and privacy policy.
 * **Google Fonts** — fonts chosen in the editor load from fonts.googleapis.com unless "Load Google Fonts locally" is on.
@@ -146,6 +245,17 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 0.13.3 =
+* Fixed: With WP-Optimize page caching on, visitors kept seeing the old version of a page after it was saved in Canvasly (for example, a newly added Form did not appear). Canvasly now clears that page from the WP-Optimize cache on every save, as it already did for WP Super Cache, W3 Total Cache, WP Rocket, LiteSpeed, SiteGround, Breeze and others.
+
+= 0.13.2 =
+* New: "Require Cloudflare Turnstile" on the Login unit (Security section). The Log In button stays disabled until the visitor completes the Turnstile check, and the login is rejected without a valid token.
+* New: Submit gate for every Turnstile-protected form. The Form unit (Spam protection → Require Cloudflare Turnstile), the Login unit, and the WordPress login and comment forms keep their Submit / Log In button disabled until the check passes, lock it again when the token expires, errors, or is used, and block Enter-key submits while locked.
+* New: Turnstile verification for Canvasly login, register and lost-password forms that post to wp-login.php, used by the Login unit and by Canvasly Pro's Login & Register unit.
+* New: Turnstile widgets inside hidden tabs render when the tab opens.
+* Changed: If Settings → Integrations → WordPress forms → Login form is on, the Login unit now shows the Turnstile check automatically so its logins are not rejected.
+* Docs: readme rewritten with the full feature list, Turnstile setup steps and new FAQ entries.
+
 = 0.13.1 =
 * Plugin Check: documented why the Cloudflare Turnstile script and Siteverify endpoint are loaded from Cloudflare (required by the service, only after keys are entered), marked loop "exclude" settings as editor settings, shortened the readme Description and Changelog (full history now in changelog.txt), and added an "external services" FAQ entry.
 
@@ -159,20 +269,16 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * Fixed: ARIA Label had no effect on most units because it was printed on a generic wrapper <div>. It is now placed on the unit's link, button, field, form or image; containers and multi-link units get role="group" so the name is announced.
 * Fixed: Form errors now show the server's message (for example a failed security check) instead of a generic error.
 
-= 0.12.113 =
-* Fixed: A container (or any group background, border, or shadow) set to a Global Color showed in the editor but not on the live page: the page stylesheet printed the raw binding (`background-color:{{var:colors.primary}}`), which browsers ignore. Global Color bindings are now turned into their CSS variables (`var(--lb-color-primary)`) in group controls and, as a safety net, in the compiled page and global CSS. Existing pages pick up the fix on their next view; no re-save needed. This also brings back shape dividers that were drawn in a contrasting colour on top of that background.
-
-= 0.12.112 =
-* Changed: Autosave now runs silently in the background. The "An autosave is newer than the last save. Restore it?" browser dialog is gone; when a newer autosave exists, a small bar under the top menu offers Restore or dismiss, and it is not shown when the autosave matches the page or after you dismiss it in that session.
-
-= 0.12.111 =
-* Added: Canvasly colour picker for every colour control, replacing the browser / Windows colour dialog (the one with the "Define Custom Colors >>" button). It has a saturation area, hue and opacity sliders, HEX / RGB / HSL format switch, a value box, Global Colors, preset and recent swatches, Clear and Eyedropper.
-* Added: Colour values can be typed as HEX (#rgb, #rrggbb, #rrggbbaa), rgb()/rgba(), hsl()/hsla() or CSS colour names (tomato, transparent). The value is saved as typed, and Global Colors accept the same formats.
-
 = Earlier versions =
 The complete history is in `changelog.txt` inside the plugin folder.
 
 == Upgrade Notice ==
+
+= 0.13.3 =
+Saved pages now refresh right away on sites that use the WP-Optimize page cache.
+
+= 0.13.2 =
+Adds "Require Cloudflare Turnstile" to the Login unit and keeps Submit and Log In buttons disabled until the Turnstile check passes.
 
 = 0.12.107 =
 Borders with a style but no colour now default to white instead of a dark box.
