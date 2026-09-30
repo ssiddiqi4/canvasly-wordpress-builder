@@ -70,6 +70,11 @@ class Cache {
 			\Hummingbird\WP_Hummingbird::flush_cache();
 		}
 
+		// WP-Optimize page cache.
+		if ( class_exists( '\\WPO_Page_Cache' ) && method_exists( '\\WPO_Page_Cache', 'delete_single_post_cache' ) ) {
+			\WPO_Page_Cache::delete_single_post_cache( $post_id );
+		}
+
 		if ( function_exists( 'has_action' ) && has_action( 'cache_enabler_clear_page_cache_by_post' ) ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Cache Enabler integration hook.
 			do_action( 'cache_enabler_clear_page_cache_by_post', $post_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Cache Enabler integration hook.
 		}
@@ -90,6 +95,15 @@ class Cache {
 		self::call_if( 'wp_cache_clear_cache' );
 		self::call_if( 'w3tc_flush_all' );
 		self::call_if( 'rocket_clean_domain' );
+		if ( function_exists( 'WP_Optimize' ) ) {
+			$wpo = WP_Optimize();
+			if ( is_object( $wpo ) && method_exists( $wpo, 'get_page_cache' ) ) {
+				$cache = $wpo->get_page_cache();
+				if ( is_object( $cache ) && method_exists( $cache, 'purge' ) ) {
+					$cache->purge();
+				}
+			}
+		}
 		if ( function_exists( 'do_action' ) ) {
 			do_action( 'litespeed_purge_all' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- LiteSpeed Cache integration hook.
 		}
