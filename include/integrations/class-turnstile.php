@@ -15,7 +15,12 @@
  * Protection points:
  *   - Turnstile unit (Lite widget): protects the Canvasly form in the same container.
  *   - Form unit: "Spam protection → Cloudflare Turnstile".
+ *   - Login unit (Lite) and Login & Register / Payment Form units (Pro): "Require Cloudflare Turnstile".
  *   - Optional: all Canvasly forms, WordPress login and comment forms.
+ *
+ * Submit gate: every widget printed by markup() keeps the submit / login / pay buttons of its
+ * form disabled until Cloudflare returns a token, and locks them again when the token expires,
+ * errors, or is reset after a submission. The server still verifies every token (Siteverify).
  *
  * Docs: https://developers.cloudflare.com/turnstile/
  *
@@ -42,6 +47,8 @@ class Turnstile {
 	const VERIFY_URL  = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Server-side API endpoint (wp_remote_post), not an offloaded asset.
 	const CF_API      = 'https://api.cloudflare.com/client/v4';
 	const FIELD       = 'cf-turnstile-response';
+	/** Hidden field a protected Canvasly login / register / lost-password form posts to wp-login.php. */
+	const REQUIRE     = 'lb_turnstile_require';
 	const MASK        = '********';
 	/** Cloudflare's documented always-pass test keys, used for the "use test keys" helper. */
 	const TEST_SITE   = '1x00000000000000000000AA';
@@ -185,6 +192,7 @@ class Turnstile {
 		echo '<tr><th>' . esc_html__( 'WordPress forms', 'canvasly-lite' ) . '</th><td>';
 		echo '<label><input type="checkbox" name="turnstile_protect_login" value="1"' . checked( ! empty( $d['protect_login'] ), true, false ) . '> ' . esc_html__( 'Login form', 'canvasly-lite' ) . '</label><br>';
 		echo '<label><input type="checkbox" name="turnstile_protect_comments" value="1"' . checked( ! empty( $d['protect_comments'] ), true, false ) . '> ' . esc_html__( 'Comment form (visitors)', 'canvasly-lite' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'Per unit: Form (Spam protection → Require Cloudflare Turnstile), Login, and in Canvasly Pro the Login & Register and Payment Form units (Security → Require Cloudflare Turnstile). Protected forms keep their submit, log in or pay buttons disabled until the visitor completes the check.', 'canvasly-lite' ) . '</p>';
 		echo '</td></tr>';
 		echo '</tbody></table>';
 	}
@@ -388,7 +396,9 @@ class Turnstile {
 	/**
 	 * Widget markup (explicitly rendered by assets/js/turnstile.js).
 	 *
-	 * @param array $o theme, size, appearance, action, language, standalone.
+	 * @param array $o theme, size, appearance, action, language, standalone, gate (bool, default true:
+	 *                 disable the form's submit buttons until the challenge passes), targets (extra
+	 *                 CSS selector of buttons/links outside the form to lock the same way).
 	 * @return string
 	 */
 	public static function markup( array $o = array() ) {
@@ -411,6 +421,15 @@ class Turnstile {
 		}
 		if ( ! empty( $o['standalone'] ) ) {
 			$attrs['data-lb-turnstile-protect'] = '1';
+		}
+		// Keep the form's submit buttons disabled until the challenge passes (default on).
+		if ( ! array_key_exists( 'gate', $o ) || ! empty( $o['gate'] ) ) {
+			$attrs['data-lb-turnstile-gate']  = '1';
+			$attrs['data-lb-turnstile-wait']  = __( 'Complete the security check to continue.', 'canvasly-lite' );
+			$targets                          = trim( (string) ( $o['targets'] ?? '' ) );
+			if ( '' !== $targets ) {
+				$attrs['data-lb-turnstile-targets'] = substr( $targets, 0, 300 );
+			}
 		}
 		$html = '<div';
 		foreach ( $attrs as $k => $v ) {
@@ -563,8 +582,12 @@ class Turnstile {
 		if ( ! empty( $d['protect_login'] ) ) {
 			add_action( 'login_enqueue_scripts', array( self::class, 'enqueue_core' ) );
 			add_action( 'login_form', array( self::class, 'print_login' ) );
-			add_filter( 'authenticate', array( self::class, 'check_login' ), 30, 3 );
 		}
+		// Login is checked when the site-wide option is on, or when a Canvasly login unit that
+		// requires Turnstile posts its marker. Register and lost password follow their marker.
+		add_filter( 'authenticate', array( self::class, 'check_login' ), 30, 3 );
+		add_filter( 'registration_errors', array( self::class, 'check_register' ), 30, 3 );
+		add_action( 'lostpassword_post', array( self::class, 'check_lostpassword' ), 10, 1 );
 		if ( ! empty( $d['protect_comments'] ) ) {
 			add_action( 'comment_form_after_fields', array( self::class, 'print_comment' ) );
 			add_filter( 'preprocess_comment', array( self::class, 'check_comment' ) );
@@ -598,11 +621,104 @@ class Turnstile {
 		if ( '' === (string) $username || ! isset( $_POST['log'] ) || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core login form has no nonce.
 			return $user;
 		}
+		if ( empty( self::get()['protect_login'] ) && ! self::posted_requires( 'login' ) ) {
+			return $user;
+		}
 		$token = isset( $_POST[ self::FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::FIELD ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( self::verify( $token ) ) {
 			return $user;
 		}
 		return new \WP_Error( 'turnstile', __( '<strong>Error:</strong> Please complete the security check.', 'canvasly-lite' ) );
+	}
+
+	/**
+	 * Did a Canvasly form that requires Turnstile post this request?
+	 *
+	 * @param string $context login|register|lostpassword
+	 * @return bool
+	 */
+	public static function posted_requires( $context ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Read-only marker on core wp-login.php forms.
+		$raw = isset( $_POST[ self::REQUIRE ] ) ? sanitize_key( wp_unslash( $_POST[ self::REQUIRE ] ) ) : '';
+		return '' !== $raw && $raw === $context;
+	}
+
+	/**
+	 * Hidden marker that tells wp-login.php this form requires Turnstile.
+	 *
+	 * @param string $context login|register|lostpassword
+	 * @return string
+	 */
+	public static function require_field( $context ) {
+		return '<input type="hidden" name="' . esc_attr( self::REQUIRE ) . '" value="' . esc_attr( sanitize_key( (string) $context ) ) . '">';
+	}
+
+	/**
+	 * Turnstile widget + marker for a Canvasly form that posts to wp-login.php.
+	 *
+	 * @param string $context login|register|lostpassword
+	 * @param array  $o       Extra markup() options.
+	 * @return string
+	 */
+	public static function core_form_markup( $context, array $o = array() ) {
+		if ( ! self::enabled() ) {
+			return '';
+		}
+		$o = array_merge( array( 'action' => sanitize_key( (string) $context ), 'size' => 'flexible' ), $o );
+		return self::markup( $o ) . self::require_field( $context );
+	}
+
+	/**
+	 * Put $html right before the submit row of a wp_login_form() / custom form.
+	 *
+	 * @param string $form
+	 * @param string $html
+	 * @return string
+	 */
+	public static function inject_before_submit( $form, $html ) {
+		$form = (string) $form;
+		if ( '' === $html ) {
+			return $form;
+		}
+		foreach ( array( '<p class="login-submit">', '<p class="cpu-account-submit">' ) as $needle ) {
+			$pos = strpos( $form, $needle );
+			if ( false !== $pos ) {
+				return substr( $form, 0, $pos ) . $html . substr( $form, $pos );
+			}
+		}
+		$pos = strrpos( $form, '</form>' );
+		return false === $pos ? $form . $html : substr( $form, 0, $pos ) . $html . substr( $form, $pos );
+	}
+
+	/**
+	 * @param \WP_Error $errors
+	 * @param string    $login
+	 * @param string    $email
+	 * @return \WP_Error
+	 */
+	public static function check_register( $errors, $login = '', $email = '' ) {
+		unset( $login, $email );
+		if ( ! self::posted_requires( 'register' ) || ! is_wp_error( $errors ) ) {
+			return $errors;
+		}
+		$token = isset( $_POST[ self::FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::FIELD ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core registration form.
+		if ( ! self::verify( $token ) ) {
+			$errors->add( 'turnstile', __( '<strong>Error:</strong> Please complete the security check.', 'canvasly-lite' ) );
+		}
+		return $errors;
+	}
+
+	/**
+	 * @param \WP_Error $errors
+	 */
+	public static function check_lostpassword( $errors ) {
+		if ( ! self::posted_requires( 'lostpassword' ) || ! is_wp_error( $errors ) ) {
+			return;
+		}
+		$token = isset( $_POST[ self::FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::FIELD ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core lost password form.
+		if ( ! self::verify( $token ) ) {
+			$errors->add( 'turnstile', __( '<strong>Error:</strong> Please complete the security check.', 'canvasly-lite' ) );
+		}
 	}
 
 	/**
