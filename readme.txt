@@ -1,6 +1,6 @@
 === Canvasly - Visual Page Builder ===
 Contributors: ssiddiqi4
-Tags: page builder, drag and drop, landing page, website builder, turnstile
+Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
