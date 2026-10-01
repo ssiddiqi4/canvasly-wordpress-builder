@@ -107,15 +107,26 @@ function installBreakpoints() {
     else settings[key] = { desktop: old ?? "", [app.device]: value };
     return settings[key];
   };
+  const DEVICE_ICONS = {
+    mobile: '<rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/>',
+    tablet: '<rect x="4.5" y="2.5" width="15" height="19" rx="2"/><path d="M11 18.5h2"/>',
+    laptop: '<rect x="5" y="5" width="14" height="10" rx="1.5"/><path d="M2.5 18.5h19"/>',
+    desktop: '<rect x="2.5" y="4" width="19" height="12.5" rx="1.5"/><path d="M9 20.5h6M12 16.5v4"/>',
+    widescreen: '<rect x="1.5" y="5" width="21" height="11.5" rx="1.5"/><path d="M8.5 20.5h7M12 16.5v4"/>',
+  };
+  app.deviceIconSVG = function deviceIconSVG(name) {
+    const base = String(name || "").replace(/_extra$/, "");
+    const shape = DEVICE_ICONS[base] || DEVICE_ICONS.desktop;
+    return `<svg class="lb-device-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${shape}</svg>`;
+  };
   app.deviceSwitcherHTML = function deviceSwitcherHTML() {
     app.ensureDevice();
     const list = app.enabledBreakpoints();
-    const coreOnly = list.length <= 3 && list.every((b) => ["desktop", "tablet", "mobile"].includes(b.name));
     return `<div class="lb-device">${list
       .map((b) => {
-        const label = coreOnly ? app.t(b.label) || b.label : b.short;
         const title = app.t(b.label) || b.label;
-        return `<button type="button" data-device="${app.esc(b.name)}" class="${app.device === b.name ? "active" : ""}" title="${app.esc(title)}">${app.esc(label)}</button>`;
+        const extra = /_extra$/.test(b.name) ? '<span class="lb-device-extra" aria-hidden="true">+</span>' : "";
+        return `<button type="button" data-device="${app.esc(b.name)}" class="${app.device === b.name ? "active" : ""}" title="${app.esc(title)}" aria-label="${app.esc(title)}">${app.deviceIconSVG(b.name)}${extra}</button>`;
       })
       .join("")}</div>`;
   };

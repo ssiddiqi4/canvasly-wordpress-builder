@@ -1191,3 +1191,9 @@ input[type="color"].lb-cp-input::-moz-color-swatch{opacity:0}
 .lb-cp .lb-cp-actions .lb-cp-clear{margin-left:auto;color:#b32d2e!important}
 .lb-cp .lb-cp-actions .lb-cp-done{background:#2f73d9!important;border-color:#2f73d9!important;color:#fff!important}
 .lb-autosave-banner{display:flex;align-items:center;gap:8px;padding:6px 14px;background:#eef4ff;border-bottom:1px solid #c9d8f5;color:#1d2f55;font-size:12px;transition:opacity .4s}.lb-autosave-banner span{flex:1}.lb-autosave-banner .lb-btn{padding:3px 10px;font-size:12px;background:#fff;color:#1d2f55;border-color:#c9d8f5}.lb-autosave-banner.is-quiet{opacity:.55}.lb-autosave-banner.is-quiet:hover{opacity:1}
+
+/* Device switcher: icons instead of text labels. */
+.lb-admin .lb-device button{display:inline-flex;align-items:center;justify-content:center;gap:1px;width:34px;height:34px;padding:0;font-size:12px;line-height:1}
+.lb-admin .lb-device button:before{content:none!important}
+.lb-admin .lb-device .lb-device-icon{display:block;flex:none;width:18px;height:18px}
+.lb-admin .lb-device .lb-device-extra{font-size:11px;font-weight:700}
