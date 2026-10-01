@@ -22,23 +22,23 @@ class Container extends Unit {
   $shape_opts=[''=>'None','wave'=>'Wave','tilt'=>'Tilt','triangle'=>'Triangle','curve'=>'Curve','arrow'=>'Arrow','zigzag'=>'Zigzag','mountains'=>'Mountains'];
   $blend=[''=>'Normal','normal'=>'Normal','multiply'=>'Multiply','screen'=>'Screen','overlay'=>'Overlay','darken'=>'Darken','lighten'=>'Lighten','color-dodge'=>'Color Dodge','color-burn'=>'Color Burn','hard-light'=>'Hard Light','soft-light'=>'Soft Light','difference'=>'Difference','exclusion'=>'Exclusion','hue'=>'Hue','saturation'=>'Saturation','color'=>'Color','luminosity'=>'Luminosity'];
   $c=[
-   'layout'=>$this->ctrl('choose',__('Layout', 'sidcraft-page-builder'),'content',$lay,['options'=>['flex'=>__('Flex', 'sidcraft-page-builder'),'grid'=>__('Grid', 'sidcraft-page-builder'),'block'=>__('Block', 'sidcraft-page-builder')],'map'=>['flex'=>'flex','grid'=>'grid','block'=>'block'],'selectors'=>['{{WRAPPER}} .lb-container'=>'display: {{VALUE}};']]),
+   'layout'=>$this->ctrl('choose',__('Layout', 'sidcraft-page-builder'),'content',$lay,['options'=>['flex'=>__('Flex', 'sidcraft-page-builder'),'grid'=>__('Grid', 'sidcraft-page-builder'),'block'=>__('Block', 'sidcraft-page-builder')],'map'=>['flex'=>'flex','grid'=>'grid','block'=>'block'],'selectors'=>['{{WRAPPER}} > .lb-container'=>'display: {{VALUE}};']]),
    // Legacy layout keys stay for saved pages; the visible controls live on Style > Items.
-   'gap'=>$this->ctrl('slider',__('Gap', 'sidcraft-page-builder'),'content',$lay,['hidden'=>true,'responsive'=>true,'units'=>['px','em','rem','%'],'range'=>['min'=>0,'max'=>80],'condition'=>$flex,'selectors'=>['{{WRAPPER}} .lb-container'=>'gap: {{SIZE}}{{UNIT}};']]),
-   'gaps'=>$this->ctrl('gaps',__('Gaps', 'sidcraft-page-builder'),'content',$lay,['hidden'=>true,'condition'=>$grid,'selectors'=>['{{WRAPPER}} .lb-container'=>'gap: {{VALUE}};']]),
-   'column_gap'=>$this->ctrl('slider',__('Column Gap', 'sidcraft-page-builder'),'content',$lay,['hidden'=>true,'responsive'=>true,'units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>80],'condition'=>$grid,'selectors'=>['{{WRAPPER}} .lb-container'=>'column-gap: {{SIZE}}{{UNIT}};']]),
-   'row_gap'=>$this->ctrl('slider',__('Row Gap', 'sidcraft-page-builder'),'content',$lay,['hidden'=>true,'responsive'=>true,'units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>80],'condition'=>$grid,'selectors'=>['{{WRAPPER}} .lb-container'=>'row-gap: {{SIZE}}{{UNIT}};']]),
+   'gap'=>$this->ctrl('slider',__('Gap', 'sidcraft-page-builder'),'content',$lay,['hidden'=>true,'responsive'=>true,'units'=>['px','em','rem','%'],'range'=>['min'=>0,'max'=>80],'condition'=>$flex,'selectors'=>['{{WRAPPER}} > .lb-container'=>'gap: {{SIZE}}{{UNIT}};']]),
+   'gaps'=>$this->ctrl('gaps',__('Gaps', 'sidcraft-page-builder'),'content',$lay,['hidden'=>true,'condition'=>$grid,'selectors'=>['{{WRAPPER}} > .lb-container'=>'gap: {{VALUE}};']]),
+   'column_gap'=>$this->ctrl('slider',__('Column Gap', 'sidcraft-page-builder'),'content',$lay,['hidden'=>true,'responsive'=>true,'units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>80],'condition'=>$grid,'selectors'=>['{{WRAPPER}} > .lb-container'=>'column-gap: {{SIZE}}{{UNIT}};']]),
+   'row_gap'=>$this->ctrl('slider',__('Row Gap', 'sidcraft-page-builder'),'content',$lay,['hidden'=>true,'responsive'=>true,'units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>80],'condition'=>$grid,'selectors'=>['{{WRAPPER}} > .lb-container'=>'row-gap: {{SIZE}}{{UNIT}};']]),
    'columns'=>$this->ctrl('number',__('Columns', 'sidcraft-page-builder'),'content',$lay,['range'=>['min'=>1,'max'=>12],'condition'=>$grid]),
-   'overflow'=>$this->ctrl('select',__('Overflow', 'sidcraft-page-builder'),'content',$lay,['options'=>[''=>__('Default', 'sidcraft-page-builder'),'visible'=>__('Visible', 'sidcraft-page-builder'),'hidden'=>__('Hidden', 'sidcraft-page-builder'),'auto'=>__('Auto', 'sidcraft-page-builder'),'scroll'=>__('Scroll', 'sidcraft-page-builder')],'selectors'=>['{{WRAPPER}} .lb-container'=>'overflow: {{VALUE}};']]),
+   'overflow'=>$this->ctrl('select',__('Overflow', 'sidcraft-page-builder'),'content',$lay,['options'=>[''=>__('Default', 'sidcraft-page-builder'),'visible'=>__('Visible', 'sidcraft-page-builder'),'hidden'=>__('Hidden', 'sidcraft-page-builder'),'auto'=>__('Auto', 'sidcraft-page-builder'),'scroll'=>__('Scroll', 'sidcraft-page-builder')],'selectors'=>['{{WRAPPER}} > .lb-container'=>'overflow: {{VALUE}};']]),
    'html_tag'=>$this->ctrl('select',__('HTML Tag', 'sidcraft-page-builder'),'content',$link,['options'=>['div'=>__('div', 'sidcraft-page-builder'),'section'=>__('section', 'sidcraft-page-builder'),'header'=>__('header', 'sidcraft-page-builder'),'footer'=>__('footer', 'sidcraft-page-builder'),'main'=>__('main', 'sidcraft-page-builder'),'article'=>__('article', 'sidcraft-page-builder'),'aside'=>__('aside', 'sidcraft-page-builder'),'nav'=>__('nav', 'sidcraft-page-builder')]]),
    'link'=>$this->ctrl('url',__('Link', 'sidcraft-page-builder'),'content',$link,['dynamic'=>true]),
    'link_target'=>$this->ctrl('select',__('Link Target', 'sidcraft-page-builder'),'content',$link,['options'=>self::opt_target(),'condition'=>['link!'=>'']]),
-   'width'=>$this->ctrl('slider',__('Width', 'sidcraft-page-builder'),'style',$lay,['responsive'=>true,'units'=>['%','px','vw','em','rem'],'range'=>['min'=>0,'max'=>1000],'selectors'=>['{{WRAPPER}} .lb-container'=>'width: {{VALUE}};']]),
-   'min_height'=>$this->ctrl('slider',__('Min Height', 'sidcraft-page-builder'),'style',$lay,['responsive'=>true,'units'=>['px','%','vh','em','rem'],'range'=>['min'=>0,'max'=>2000],'selectors'=>['{{WRAPPER}} .lb-container'=>'min-height: {{VALUE}};']]),
-   'max_width'=>$this->ctrl('slider',__('Max Width', 'sidcraft-page-builder'),'style',$lay,['responsive'=>true,'units'=>['px','%','vw','em','rem'],'range'=>['min'=>0,'max'=>2000],'selectors'=>['{{WRAPPER}} .lb-container'=>'max-width: {{VALUE}};']]),
-   'background'=>$this->ctrl('background',__('Background', 'sidcraft-page-builder'),'style',$bg,['selectors'=>['{{WRAPPER}} .lb-container'=>'{{VALUE}}']]),
-   'padding'=>$this->ctrl('dimensions',__('Padding', 'sidcraft-page-builder'),'style',$lay,['selectors'=>['{{WRAPPER}} .lb-container'=>'padding: {{VALUE}};']]),
-   'margin'=>$this->ctrl('dimensions',__('Margin', 'sidcraft-page-builder'),'style',$lay,['selectors'=>['{{WRAPPER}} .lb-container'=>'margin: {{VALUE}};']]),
+   'width'=>$this->ctrl('slider',__('Width', 'sidcraft-page-builder'),'style',$lay,['responsive'=>true,'units'=>['%','px','vw','em','rem'],'range'=>['min'=>0,'max'=>1000],'selectors'=>['{{WRAPPER}} > .lb-container'=>'width: {{VALUE}};']]),
+   'min_height'=>$this->ctrl('slider',__('Min Height', 'sidcraft-page-builder'),'style',$lay,['responsive'=>true,'units'=>['px','%','vh','em','rem'],'range'=>['min'=>0,'max'=>2000],'selectors'=>['{{WRAPPER}} > .lb-container'=>'min-height: {{VALUE}};']]),
+   'max_width'=>$this->ctrl('slider',__('Max Width', 'sidcraft-page-builder'),'style',$lay,['responsive'=>true,'units'=>['px','%','vw','em','rem'],'range'=>['min'=>0,'max'=>2000],'selectors'=>['{{WRAPPER}} > .lb-container'=>'max-width: {{VALUE}};']]),
+   'background'=>$this->ctrl('background',__('Background', 'sidcraft-page-builder'),'style',$bg,['selectors'=>['{{WRAPPER}} > .lb-container'=>'{{VALUE}}']]),
+   'padding'=>$this->ctrl('dimensions',__('Padding', 'sidcraft-page-builder'),'style',$lay,['selectors'=>['{{WRAPPER}} > .lb-container'=>'padding: {{VALUE}};']]),
+   'margin'=>$this->ctrl('dimensions',__('Margin', 'sidcraft-page-builder'),'style',$lay,['selectors'=>['{{WRAPPER}} > .lb-container'=>'margin: {{VALUE}};']]),
    'overlay_color'=>$this->ctrl('color',__('Overlay Color', 'sidcraft-page-builder'),'style',$bg,['hidden'=>true]),
    'overlay_opacity'=>$this->ctrl('slider',__('Overlay Opacity', 'sidcraft-page-builder'),'style',$bg,['hidden'=>true,'units'=>[],'range'=>['min'=>0,'max'=>1,'step'=>0.05]]),
    'overlay_blend_mode'=>$this->ctrl('select',__('Blend Mode', 'sidcraft-page-builder'),'style',$bg,['hidden'=>true,'options'=>$blend]),
@@ -72,7 +72,7 @@ class Container extends Unit {
   * Items keys are stubbed out so the container shows one Items section.
   */
  protected static function container_items_controls(array $flex){
-  $items=self::flex_items_controls(['direction'=>'direction','justify'=>'justify','align'=>'align','gap'=>'items_gap','wrap'=>'wrap'],'{{WRAPPER}} .lb-container','',[],'column');
+  $items=self::flex_items_controls(['direction'=>'direction','justify'=>'justify','align'=>'align','gap'=>'items_gap','wrap'=>'wrap'],'{{WRAPPER}} > .lb-container','',[],'column');
   foreach(['direction','justify','wrap'] as $k)$items[$k]['condition']=$flex;
   $items['items_gap']['condition']=['layout'=>['flex','grid']];
   $items['items_gap']['fallback']=['gap','gaps'];
@@ -115,7 +115,7 @@ class Container extends Unit {
   return '<'.$tag.' class="'.esc_attr($classes).'">'.$layers.$children.$linkHtml.'</'.$tag.'>';
  }
  public function style_css($id,$s){
-  $sel='#lb-node-'.$id.' .lb-container';
+  $sel='#lb-node-'.$id.' > .lb-container';
   $layout=$s['layout']??'flex';
   $css='';
   if($layout==='grid'){

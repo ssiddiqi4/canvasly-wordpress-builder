@@ -408,3 +408,5 @@ html{scroll-behavior:smooth}
 .lb-loop-arrow.lb-loop-arrow:hover,.lb-loop-arrow.lb-loop-arrow:focus,.lb-loop-arrow.lb-loop-arrow:active{background:#fff;color:inherit}
 .lb-loop-dot.lb-loop-dot:hover,.lb-loop-dot.lb-loop-dot:focus{background:#c3c4c7}
 .lb-loop-dot.lb-loop-dot.is-active:hover,.lb-loop-dot.lb-loop-dot.is-active:focus{background:#1d2327}
+/* The box radius lives on the node; let the container background follow it. */
+.lb-node-container>.lb-container,.lb-node-inner_section>.lb-container{border-radius:inherit}

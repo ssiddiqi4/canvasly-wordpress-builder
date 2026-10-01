@@ -249,7 +249,7 @@ class SavedTemplates {
 		} else {
 			$clean = $doc;
 		}
-		update_post_meta( $id, self::META_DATA, wp_json_encode( $clean ) );
+		update_post_meta( $id, self::META_DATA, wp_slash( wp_json_encode( $clean ) ) );
 		return $clean;
 	}
 
@@ -333,14 +333,14 @@ class SavedTemplates {
 		}
 		$new = absint( $new );
 		$d   = get_post_meta( $id, self::META_DATA, true );
-		update_post_meta( $new, self::META_DATA, $d );
+		update_post_meta( $new, self::META_DATA, wp_slash( $d ) );
 		update_post_meta( $new, self::META_TYPE, get_post_meta( $id, self::META_TYPE, true ) ?: 'page' );
 		$old_key = (string) get_post_meta( $id, self::META_KEY, true );
 		update_post_meta( $new, self::META_KEY, $old_key !== '' ? $old_key . '-copy' : sanitize_title( $p->post_title . '-copy' ) );
 		if ( class_exists( DocumentManager::class ) && $d ) {
 			$doc = is_string( $d ) ? json_decode( $d, true ) : $d;
 			if ( is_array( $doc ) ) {
-				update_post_meta( $new, DocumentManager::META, wp_json_encode( $doc ) );
+				update_post_meta( $new, DocumentManager::META, wp_slash( wp_json_encode( $doc ) ) );
 			}
 		}
 		self::set_categories( $new, self::category_slugs( $id ) );

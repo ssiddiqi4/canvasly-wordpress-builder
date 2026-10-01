@@ -979,7 +979,7 @@ class Kit {
 		if ( is_wp_error( $id ) || ! $id ) {
 			return 0;
 		}
-		update_post_meta( $id, '_sidsyn_template_data', wp_json_encode( $doc ) );
+		update_post_meta( $id, '_sidsyn_template_data', wp_slash( wp_json_encode( $doc ) ) );
 		if ( class_exists( '\\SidcraftPageBuilder\\Templates\\SavedTemplates' ) ) {
 			$type = \SidcraftPageBuilder\Templates\SavedTemplates::normalize_type( $type ?: 'page' );
 		}
