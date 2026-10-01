@@ -7,7 +7,7 @@ const outfile = "assets/js/editor.js";
 const check = process.argv.includes("--check");
 
 const result = await build({
-  entryPoints: ["src/editor/entry.js"],
+  entryPoints: ["src/editor/index.js"],
   bundle: true,
   format: "iife",
   charset: "utf8",

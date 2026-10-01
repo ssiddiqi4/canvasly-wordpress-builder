@@ -23600,6 +23600,8 @@
       };
     }
   }
+
+  // src/editor/effects-reset.js
   function installEffectsReset() {
     if (app.__lbEffectsReset) return;
     app.__lbEffectsReset = true;
@@ -23734,8 +23736,7 @@
     if (!document.getElementById(css.id)) document.head.appendChild(css);
   }
 
-  // src/editor/index.js
-  installHooks();
+  // src/editor/carousel-preview.js
   function installImageCarouselPreview() {
     const memory = app.lbCarouselMemory || (app.lbCarouselMemory = {});
     const int = (v, min, max, d) => {
@@ -24385,6 +24386,9 @@
       }).observe(document.body, { childList: true, subtree: true });
     }
   }
+
+  // src/editor/index.js
+  installHooks();
   function boot() {
     if (installState() === false) return;
     installBreakpoints();

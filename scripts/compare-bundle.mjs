@@ -1,18 +1,24 @@
 // Checks that a refactor of src/editor/ did not change what the editor bundle does.
 //
-//   node scripts/compare-bundle.mjs [git-ref]   (default: origin/main)
+//   node scripts/compare-bundle.mjs [--allow-moves] [git-ref]   (default: origin/main)
 //
 // Parses assets/js/editor.js at <git-ref> and in the working tree and compares their
 // syntax trees, ignoring what a move or reformat legitimately changes: comments,
 // formatting, positions, quotes on object keys, regex flag order, regrouping of
 // a || b || c chains, and the names esbuild picks for local variables.
+//
+// --allow-moves also accepts top-level function declarations in a different order (they
+// are hoisted, so moving one between files changes nothing). Every other top-level
+// statement must still run in the same order.
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import * as acorn from "acorn";
 import * as escope from "eslint-scope";
 
 const BUNDLE = "assets/js/editor.js";
-const ref = process.argv[2] || "origin/main";
+const args = process.argv.slice(2);
+const allowMoves = args.includes("--allow-moves");
+const ref = args.find((a) => !a.startsWith("--")) || "origin/main";
 
 const norm = (n) => {
   if (Array.isArray(n)) return n.map(norm);
@@ -47,7 +53,8 @@ const tree = (code) => {
   const ast = acorn.parse(code, { ecmaVersion: "latest", ranges: true });
   let c = 0;
   for (const scope of escope.analyze(ast, { ecmaVersion: 2022 }).scopes) {
-    if (scope.type === "global") continue;
+    // The bundle's own top-level names are compared as written; only locals are renamed.
+    if (scope.type === "global" || scope.upper?.type === "global") continue;
     for (const v of scope.variables) {
       if (v.name === "arguments") continue;
       const name = "$v" + c++;
@@ -55,7 +62,11 @@ const tree = (code) => {
       v.references.forEach((r) => (r.identifier.name = name));
     }
   }
-  return norm(ast);
+  const program = norm(ast);
+  if (!allowMoves) return program;
+  const body = program.body[0].expression.callee.body.body;
+  const fns = body.filter((st) => st.type === "FunctionDeclaration").sort((a, b) => (a.id.name < b.id.name ? -1 : 1));
+  return { functions: fns, statements: body.filter((st) => st.type !== "FunctionDeclaration") };
 };
 
 const firstDiff = (a, b, path) => {
