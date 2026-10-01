@@ -1,7 +1,6 @@
 /* Canvasly Lite editor bundle. Source: src/editor/. Rebuild with `npm run build`. */
 (() => {
-  // Plain permalinks: REST base is "index.php?rest_route=/ns/v1", so code that appends
-  // "?param=" produces a second "?" and a 404. Normalize those URLs before fetch() runs.
+  // src/editor/rest-url-fix.js
   (function lbRestUrlFix() {
     const orig = window.fetch;
     if (typeof orig !== "function" || orig.__lbRestFix) return;
@@ -19,6 +18,7 @@
     wrapped.__lbRestFix = true;
     window.fetch = wrapped;
   })();
+
   // src/editor/app.js
   var app = {};
 
@@ -31,14 +31,21 @@
       const add = (kind) => (name, cb, priority, ns) => {
         if (typeof name !== "string" || !name || typeof cb !== "function") return false;
         const list = store[kind][name] || (store[kind][name] = []);
-        list.push({ cb, priority: Number.isFinite(+priority) ? +priority : 10, ns: ns ? String(ns) : "", seq: list.length });
+        list.push({
+          cb,
+          priority: Number.isFinite(+priority) ? +priority : 10,
+          ns: ns ? String(ns) : "",
+          seq: list.length
+        });
         list.sort((a, b) => a.priority - b.priority || a.seq - b.seq);
         return true;
       };
       const remove = (kind) => (name, target) => {
         const list = store[kind][name];
         if (!list) return 0;
-        const keep = list.filter((h) => !(target === void 0 || h.cb === target || typeof target === "string" && h.ns === target));
+        const keep = list.filter(
+          (h) => !(target === void 0 || h.cb === target || typeof target === "string" && h.ns === target)
+        );
         store[kind][name] = keep;
         return list.length - keep.length;
       };
@@ -209,11 +216,13 @@
       if (!raw) return { prefs, migrated: false };
       const old = JSON.parse(raw);
       if (!old || typeof old !== "object") return { prefs, migrated: false };
-      const next = normalizePreferences(Object.assign({}, prefs, {
-        autosave: old.autosave,
-        tips: old.tips,
-        confirm_delete: old.confirmDelete
-      }));
+      const next = normalizePreferences(
+        Object.assign({}, prefs, {
+          autosave: old.autosave,
+          tips: old.tips,
+          confirm_delete: old.confirmDelete
+        })
+      );
       localStorage.removeItem(LOCAL_KEY);
       return { prefs: next, migrated: true };
     } catch (e) {
@@ -406,11 +415,12 @@
       if (!row || row.querySelector(".lb-eyedropper")) return;
       row.insertAdjacentHTML("beforeend", eyedropperButtonHTML());
       const btn = row.querySelector(".lb-eyedropper");
-      if (btn) btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        pickColorForInput(input);
-      });
+      if (btn)
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          pickColorForInput(input);
+        });
     });
     host.querySelectorAll(".lb-eyedropper").forEach((btn) => {
       if (btn.__lbEye) return;
@@ -533,18 +543,22 @@
     const fd = app.frameDoc && app.frameDoc();
     if (!fd || fd.__lbEditorLightbox) return;
     fd.__lbEditorLightbox = true;
-    fd.addEventListener("click", (e) => {
-      if (!app.prefs || !app.prefs.editor_lightbox) return;
-      const a = e.target.closest && e.target.closest('[data-lb-lightbox="1"], a.lb-image-lightbox');
-      if (!a) return;
-      const href = a.getAttribute("href") || "";
-      if (!href || href === "#") return;
-      e.preventDefault();
-      e.stopPropagation();
-      const node = e.target.closest(".lb-node");
-      if (node && node.dataset.id) app.selectNode(node.dataset.id);
-      openEditorLightbox(href, a.getAttribute("title") || "");
-    }, true);
+    fd.addEventListener(
+      "click",
+      (e) => {
+        if (!app.prefs || !app.prefs.editor_lightbox) return;
+        const a = e.target.closest && e.target.closest('[data-lb-lightbox="1"], a.lb-image-lightbox');
+        if (!a) return;
+        const href = a.getAttribute("href") || "";
+        if (!href || href === "#") return;
+        e.preventDefault();
+        e.stopPropagation();
+        const node = e.target.closest(".lb-node");
+        if (node && node.dataset.id) app.selectNode(node.dataset.id);
+        openEditorLightbox(href, a.getAttribute("title") || "");
+      },
+      true
+    );
   }
   function openEditorLightbox(src, caption) {
     closeEditorLightbox();
@@ -552,7 +566,7 @@
     back.className = "lb-editor-lightbox";
     back.setAttribute("role", "dialog");
     back.setAttribute("aria-modal", "true");
-    back.innerHTML = `<button type="button" class="lb-editor-lightbox-close" aria-label="${app.esc(app.t("Close"))}">\xD7</button><img src="${app.esc(src)}" alt="">${caption ? `<p class="lb-editor-lightbox-caption">${app.esc(caption)}</p>` : ""}`;
+    back.innerHTML = `<button type="button" class="lb-editor-lightbox-close" aria-label="${app.esc(app.t("Close"))}">×</button><img src="${app.esc(src)}" alt="">${caption ? `<p class="lb-editor-lightbox-caption">${app.esc(caption)}</p>` : ""}`;
     back.addEventListener("click", (e) => {
       if (e.target === back || e.target.closest(".lb-editor-lightbox-close")) closeEditorLightbox();
     });
@@ -578,8 +592,15 @@
     if (typeof app.closeMainMenu === "function") app.closeMainMenu();
     if (typeof app.closeFinder === "function") app.closeFinder();
     const p = app.prefs || normalizePreferences();
-    const themeOpts = [["auto", app.t("Auto")], ["light", app.t("Light")], ["dark", app.t("Dark")]].map(([v, l]) => `<option value="${v}" ${p.ui_theme === v ? "selected" : ""}>${l}</option>`).join("");
-    const navOpts = [["open", app.t("Open")], ["closed", app.t("Closed")]].map(([v, l]) => `<option value="${v}" ${p.navigator_default === v ? "selected" : ""}>${l}</option>`).join("");
+    const themeOpts = [
+      ["auto", app.t("Auto")],
+      ["light", app.t("Light")],
+      ["dark", app.t("Dark")]
+    ].map(([v, l]) => `<option value="${v}" ${p.ui_theme === v ? "selected" : ""}>${l}</option>`).join("");
+    const navOpts = [
+      ["open", app.t("Open")],
+      ["closed", app.t("Closed")]
+    ].map(([v, l]) => `<option value="${v}" ${p.navigator_default === v ? "selected" : ""}>${l}</option>`).join("");
     const body = `<div class="lb-preference-list">
 		<label class="lb-control"><span>${app.t("UI theme")}</span><select id="lb-pref-theme">${themeOpts}</select><small class="lb-control-desc">${app.t("Follows the operating system color scheme.")}</small></label>
 		<label class="lb-control"><span>${app.t("Left panel width")}</span><input id="lb-pref-left-width" type="number" min="190" max="520" step="10" value="${p.panel_width_left}"></label>
@@ -629,9 +650,11 @@
     ["#lb-pref-left-width", "#lb-pref-width", "#lb-pref-autosave-interval"].forEach((sel2) => {
       app.$(sel2)?.addEventListener("change", read);
     });
-    ["#lb-pref-handles", "#lb-pref-lightbox", "#lb-pref-autosave", "#lb-pref-tips", "#lb-pref-confirm-delete"].forEach((sel2) => {
-      app.$(sel2)?.addEventListener("change", read);
-    });
+    ["#lb-pref-handles", "#lb-pref-lightbox", "#lb-pref-autosave", "#lb-pref-tips", "#lb-pref-confirm-delete"].forEach(
+      (sel2) => {
+        app.$(sel2)?.addEventListener("change", read);
+      }
+    );
     app.$("#lb-pref-shortcuts")?.addEventListener("click", () => {
       app.closeModal();
       if (typeof app.openShortcutSheet === "function") app.openShortcutSheet();
@@ -660,12 +683,17 @@
       return s;
     };
     if (app.LB) app.LB.t = app.t;
-    app.esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]);
+    app.esc = (v) => String(v ?? "").replace(
+      /[&<>"']/g,
+      (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]
+    );
     app.lbDevMode = !!app.D.devMode;
     if (window.CanvaslyLite) window.CanvaslyLite.devMode = app.lbDevMode;
     app.LB_DYNAMIC_KEYS = { title: 1, excerpt: 1, url: 1, featured_image: 1, author: 1, date: 1 };
     app.lbLooksLikeEval = function lbLooksLikeEval(s) {
-      return /\b(?:eval|Function|setTimeout|setInterval)\s*\(|new\s+Function\s*\(|javascript\s*:|vbscript\s*:|<\?php|<\?=|\{\{[\s]*[=#\/]|\{%/i.test(String(s || ""));
+      return /\b(?:eval|Function|setTimeout|setInterval)\s*\(|new\s+Function\s*\(|javascript\s*:|vbscript\s*:|<\?php|<\?=|\{\{[\s]*[=#\/]|\{%/i.test(
+        String(s || "")
+      );
     };
     app.lbSanitizeCss = function lbSanitizeCss(v) {
       let s = String(v ?? "");
@@ -680,8 +708,12 @@
     };
     app.lbSanitizeHtml = function lbSanitizeHtml(html) {
       let s = String(html ?? "");
-      s = s.replace(/<\?(?:php|=)?[\s\S]*?\?>/gi, "").replace(/<(script|iframe|object|embed|link|meta|base|svg|math)\b[^>]*>[\s\S]*?<\/\1>/gi, "").replace(/<(script|iframe|object|embed|link|meta|base)[^>]*\/?>/gi, "").replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "").replace(/\s(href|src|xlink:href|action|formaction|poster)\s*=\s*(["']?)\s*(javascript|vbscript|data\s*:\s*text\s*\/\s*html)\b[^"'\s>]*/gi, " $1=$2").replace(/expression\s*\(|javascript\s*:|vbscript\s*:/gi, "");
-      if (app.lbLooksLikeEval(s)) s = s.replace(/\b(?:eval|Function)\s*\([^)]*\)/gi, "").replace(/new\s+Function\s*\([^)]*\)/gi, "");
+      s = s.replace(/<\?(?:php|=)?[\s\S]*?\?>/gi, "").replace(/<(script|iframe|object|embed|link|meta|base|svg|math)\b[^>]*>[\s\S]*?<\/\1>/gi, "").replace(/<(script|iframe|object|embed|link|meta|base)[^>]*\/?>/gi, "").replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "").replace(
+        /\s(href|src|xlink:href|action|formaction|poster)\s*=\s*(["']?)\s*(javascript|vbscript|data\s*:\s*text\s*\/\s*html)\b[^"'\s>]*/gi,
+        " $1=$2"
+      ).replace(/expression\s*\(|javascript\s*:|vbscript\s*:/gi, "");
+      if (app.lbLooksLikeEval(s))
+        s = s.replace(/\b(?:eval|Function)\s*\([^)]*\)/gi, "").replace(/new\s+Function\s*\([^)]*\)/gi, "");
       return s;
     };
     app.lbResolveSafeDynamic = function lbResolveSafeDynamic(v) {
@@ -696,7 +728,10 @@
         return out == null ? "" : String(out);
       };
       v = v.replace(/\{\{lb:([a-z0-9_:-]+)\}\}/gi, (_, k) => token(k));
-      v = v.replace(/\{\{(?!var:[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|lb:[a-z0-9_:-]+|\s*(?:post|term|loop|site)\.[a-z_]+(?::[a-zA-Z0-9_-]+)?\s*\}\})[\s\S]*?\}\}/gi, "");
+      v = v.replace(
+        /\{\{(?!var:[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|lb:[a-z0-9_:-]+|\s*(?:post|term|loop|site)\.[a-z_]+(?::[a-zA-Z0-9_-]+)?\s*\}\})[\s\S]*?\}\}/gi,
+        ""
+      );
       if (app.lbLooksLikeEval(v)) v = v.replace(/\b(?:eval|Function)\s*\([^)]*\)/gi, "");
       return v;
     };
@@ -712,9 +747,11 @@
       if (typeof v !== "string") return v;
       if (k === "code" && type === "code") return v.replace(/\b(?:eval|Function)\s*\(/gi, "(");
       let x = app.lbResolveSafeDynamic(v);
-      if (k === "url" || k === "link" || k === "image_url" || k === "background_image" || k === "background_video" || k === "video_url" || k === "video_poster") x = app.lbSanitizeUrl(x);
+      if (k === "url" || k === "link" || k === "image_url" || k === "background_image" || k === "background_video" || k === "video_url" || k === "video_poster")
+        x = app.lbSanitizeUrl(x);
       if (k === "custom_css" || k === "background_gradient" || k === "custom") x = app.lbSanitizeCss(x);
-      if (k === "html" || k === "content" || k === "text" || k === "quote" || k === "front" || k === "back" || k === "front_text" || k === "back_text" || k === "tabs") x = app.lbSanitizeHtml(x);
+      if (k === "html" || k === "content" || k === "text" || k === "quote" || k === "front" || k === "back" || k === "front_text" || k === "back_text" || k === "tabs")
+        x = app.lbSanitizeHtml(x);
       if (k === "dynamic_key" && x && !app.LB_DYNAMIC_KEYS[x] && x !== "content") x = "";
       if (k === "dynamic_meta_key") x = String(x).replace(/[^a-z0-9_-]/gi, "");
       return x;
@@ -739,7 +776,8 @@
       const m = raw.match(/\ssrc\s*=\s*(?:"([^"]*)"|'([^']*)')/i);
       if (!m) return "";
       const url = (m[1] || m[2] || "").replace(/&amp;/gi, "&").replace(/&#0*38;/gi, "&").trim();
-      if (!/^https:\/\/(?:www\.google\.com\/maps(?:\/embed\/v1\/place)?|maps\.google\.com\/maps)(?:\?|#|$)/i.test(url)) return "";
+      if (!/^https:\/\/(?:www\.google\.com\/maps(?:\/embed\/v1\/place)?|maps\.google\.com\/maps)(?:\?|#|$)/i.test(url))
+        return "";
       if (/[\s<>"']/.test(url)) return "";
       const src = url.replace(/&/g, "&amp;");
       return '<iframe class="lb-map-frame" title="Map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="' + src + '" style="width:100%;height:100%;border:0;display:block;pointer-events:none"></iframe>';
@@ -754,7 +792,10 @@
         const url = m ? (m[1] || "").replace(/&amp;/gi, "&").replace(/&#0*38;/gi, "&").trim() : "";
         return /^https:\/\/(?:www\.google\.com\/maps(?:\/embed\/v1\/place)?|maps\.google\.com\/maps)(?:\?|#|$)/i.test(url) ? open : "";
       });
-      s = s.replace(/<(script|object|embed|link|meta|base|math|foreignObject|annotation-xml)\b[^>]*>[\s\S]*?<\/\1>/gi, "");
+      s = s.replace(
+        /<(script|object|embed|link|meta|base|math|foreignObject|annotation-xml)\b[^>]*>[\s\S]*?<\/\1>/gi,
+        ""
+      );
       s = s.replace(/<(script|object|embed|link|meta|base|foreignObject|annotation-xml)\b[^>]*\/?>/gi, "");
       s = s.replace(/<form\b([^>]*)>/gi, (full, attrs) => {
         const cls = String(attrs).match(/\bclass\s*=\s*(?:"([^"]*)"|'([^']*)')/i) || [];
@@ -765,9 +806,13 @@
       });
       s = s.replace(/<\/form\s*>/gi, "</div>");
       s = s.replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
-      s = s.replace(/\s(href|src|xlink:href|action|formaction|poster)\s*=\s*(["']?)\s*(javascript|vbscript|data\s*:\s*text\s*\/\s*html)\b[^"'\s>]*/gi, " $1=$2");
+      s = s.replace(
+        /\s(href|src|xlink:href|action|formaction|poster)\s*=\s*(["']?)\s*(javascript|vbscript|data\s*:\s*text\s*\/\s*html)\b[^"'\s>]*/gi,
+        " $1=$2"
+      );
       s = s.replace(/expression\s*\(|javascript\s*:|vbscript\s*:/gi, "");
-      if (app.lbLooksLikeEval(s)) s = s.replace(/\b(?:eval|Function)\s*\([^)]*\)/gi, "").replace(/new\s+Function\s*\([^)]*\)/gi, "");
+      if (app.lbLooksLikeEval(s))
+        s = s.replace(/\b(?:eval|Function)\s*\([^)]*\)/gi, "").replace(/new\s+Function\s*\([^)]*\)/gi, "");
       return s;
     };
     app.eid = () => `n_${Math.random().toString(36).slice(2, 10)}`;
@@ -775,7 +820,17 @@
       if (!n) return false;
       const type = typeof n === "string" ? n : n.type;
       const meta = app.meta(type);
-      return !!(meta.children || meta.slots || meta.slot_source || ["container", "grid", "inner_section", "collection_loop", "nested_carousel", "nested_tabs", "nested_accordion", "nested_toggle", "off_canvas"].includes(type));
+      return !!(meta.children || meta.slots || meta.slot_source || [
+        "container",
+        "grid",
+        "inner_section",
+        "collection_loop",
+        "nested_carousel",
+        "nested_tabs",
+        "nested_accordion",
+        "nested_toggle",
+        "off_canvas"
+      ].includes(type));
     };
     app.proLicensed = function proLicensed() {
       const lic = app.D && app.D.proLicense;
@@ -789,7 +844,15 @@
       if (app.proUnitLocked(type)) return null;
       const e = app.meta(type);
       if (!e.type) return null;
-      const n = { id: app.eid(), type, settings: app.defaults(type), atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type), styles: { base: {} }, interactions: [], editor_settings: {} };
+      const n = {
+        id: app.eid(),
+        type,
+        settings: app.defaults(type),
+        atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type),
+        styles: { base: {} },
+        interactions: [],
+        editor_settings: {}
+      };
       if (e.children) n.children = [];
       return n;
     };
@@ -847,12 +910,22 @@
       return slot;
     };
     app.mountSiteParts = function mountSiteParts() {
-      app.pageChrome = { header: JSON.parse(JSON.stringify(app.state.header || [])), footer: JSON.parse(JSON.stringify(app.state.footer || [])) };
+      app.pageChrome = {
+        header: JSON.parse(JSON.stringify(app.state.header || [])),
+        footer: JSON.parse(JSON.stringify(app.state.footer || []))
+      };
       app.sitePartMeta = {};
       ["header", "footer"].forEach((part) => {
         const slot = app.sitePart(part);
         if (!slot) return;
-        app.sitePartMeta[part] = { id: Number(slot.id), type: String(slot.type || ""), version: slot.version || app.state.version || "2.8", settings: slot.settings && typeof slot.settings === "object" ? slot.settings : {}, header: Array.isArray(slot.header) ? slot.header : [], footer: Array.isArray(slot.footer) ? slot.footer : [] };
+        app.sitePartMeta[part] = {
+          id: Number(slot.id),
+          type: String(slot.type || ""),
+          version: slot.version || app.state.version || "2.8",
+          settings: slot.settings && typeof slot.settings === "object" ? slot.settings : {},
+          header: Array.isArray(slot.header) ? slot.header : [],
+          footer: Array.isArray(slot.footer) ? slot.footer : []
+        };
         app.state[part] = Array.isArray(slot.nodes) ? JSON.parse(JSON.stringify(slot.nodes)) : [];
       });
     };
@@ -861,9 +934,13 @@
       return !!(Array.isArray(d.root) && d.root.length || Array.isArray(d.header) && d.header.length || Array.isArray(d.footer) && d.footer.length);
     };
     app.lbHydrateDocument = function lbHydrateDocument() {
-      if (!app.root || app.root.dataset.lbHasDocument !== "1" || app.lbDocumentHasNodes(app.state) || !app.D || !app.D.postId || !app.D.api) return;
+      if (!app.root || app.root.dataset.lbHasDocument !== "1" || app.lbDocumentHasNodes(app.state) || !app.D || !app.D.postId || !app.D.api)
+        return;
       const api = String(app.D.api).replace(/\/$/, "");
-      fetch(api + "/document/" + encodeURIComponent(app.D.postId), { headers: { "X-WP-Nonce": app.D.nonce || "" }, credentials: "same-origin" }).then((r) => r.ok ? r.json() : null).then((doc) => {
+      fetch(api + "/document/" + encodeURIComponent(app.D.postId), {
+        headers: { "X-WP-Nonce": app.D.nonce || "" },
+        credentials: "same-origin"
+      }).then((r) => r.ok ? r.json() : null).then((doc) => {
         if (!doc || typeof doc !== "object" || !app.lbDocumentHasNodes(doc)) return;
         const added = app.dirty && Array.isArray(app.state.root) ? app.state.root.slice() : [];
         app.state = doc;
@@ -889,12 +966,31 @@
         if (meta.type === "header_footer") {
           let entry = byId[meta.id];
           if (!entry) {
-            entry = { id: meta.id, document: { version: meta.version || payload.version || "2.8", root: [], header: Array.isArray(meta.header) ? JSON.parse(JSON.stringify(meta.header)) : [], footer: Array.isArray(meta.footer) ? JSON.parse(JSON.stringify(meta.footer)) : [], settings: meta.settings || {} } };
+            entry = {
+              id: meta.id,
+              document: {
+                version: meta.version || payload.version || "2.8",
+                root: [],
+                header: Array.isArray(meta.header) ? JSON.parse(JSON.stringify(meta.header)) : [],
+                footer: Array.isArray(meta.footer) ? JSON.parse(JSON.stringify(meta.footer)) : [],
+                settings: meta.settings || {}
+              }
+            };
             byId[meta.id] = entry;
             parts.push(entry);
           }
           entry.document[part] = nodes;
-        } else parts.push({ id: meta.id, document: { version: meta.version || payload.version || "2.8", root: nodes, header: meta.header || [], footer: meta.footer || [], settings: meta.settings || {} } });
+        } else
+          parts.push({
+            id: meta.id,
+            document: {
+              version: meta.version || payload.version || "2.8",
+              root: nodes,
+              header: meta.header || [],
+              footer: meta.footer || [],
+              settings: meta.settings || {}
+            }
+          });
         payload[part] = JSON.parse(JSON.stringify(app.pageChrome && app.pageChrome[part] || []));
       });
       return { page: payload, parts };
@@ -946,7 +1042,12 @@
     };
     app.commit = function commit(label, target) {
       if (app.previewingRevision) return false;
-      app.history.push({ s: app.snap(), label: label || app.t("Change"), target: target || app.selected || "", t: Date.now() });
+      app.history.push({
+        s: app.snap(),
+        label: label || app.t("Change"),
+        target: target || app.selected || "",
+        t: Date.now()
+      });
       const cap = app.historyLimit || 40;
       if (app.history.length > cap) app.history.shift();
       app.future = [];
@@ -971,7 +1072,8 @@
         if (cur == null || typeof cur !== "object" || Array.isArray(cur)) {
           const prev = cur;
           y[k] = /^\d+$/.test(next) ? [] : {};
-          if (prev != null && typeof prev !== "object" && !Array.isArray(prev) && bp.indexOf(next) !== -1) y[k].desktop = prev;
+          if (prev != null && typeof prev !== "object" && !Array.isArray(prev) && bp.indexOf(next) !== -1)
+            y[k].desktop = prev;
         }
         y = y[k];
       }
@@ -1018,7 +1120,8 @@
         const cs = c.settings || {}, c0 = Math.max(1, parseInt(v(cs.grid_column_start), 10) || 1), r0 = Math.max(1, parseInt(v(cs.grid_row_start), 10) || 1), cw = Math.max(1, parseInt(v(cs.grid_column_span), 10) || 1), rh = Math.max(1, parseInt(v(cs.grid_row_span), 10) || 1);
         for (let r = r0; r < r0 + rh; r++) for (let k = c0; k < c0 + cw; k++) used.add(k + "," + r);
       });
-      for (let r = 1; r <= rows + (g.children || []).length; r++) for (let c = 1; c <= cols; c++) if (!used.has(c + "," + r)) return { col: c, row: r };
+      for (let r = 1; r <= rows + (g.children || []).length; r++)
+        for (let c = 1; c <= cols; c++) if (!used.has(c + "," + r)) return { col: c, row: r };
       return { col: 1, row: rows + 1 };
     };
     app.add = function add(type, parentId = null, index = null, slotId = null) {
@@ -1036,7 +1139,14 @@
         if (typeof app.assignSlot === "function") app.assignSlot(n, p.node, slotId);
         if (app.lbIsGridNode(p.node) && n.settings.grid_column_start == null && n.settings.grid_row_start == null) {
           const c = app.lbFirstFreeCell(p.node);
-          Object.assign(n.settings, { grid_column_start: c.col, grid_row_start: c.row, grid_column_span: 1, grid_row_span: 1, justify_self: "stretch", align_self: "stretch" });
+          Object.assign(n.settings, {
+            grid_column_start: c.col,
+            grid_row_start: c.row,
+            grid_column_span: 1,
+            grid_row_span: 1,
+            justify_self: "stretch",
+            align_self: "stretch"
+          });
         }
         index == null ? p.node.children.push(n) : p.node.children.splice(index, 0, n);
       } else {
@@ -1045,7 +1155,8 @@
         else if (!region && app.selected) {
           const where = app.regionOf(app.selected);
           if (where === "header" || where === "footer") region = where;
-        } else if (!region && !app.selected && (app.chromeFocus === "header" || app.chromeFocus === "footer")) region = app.chromeFocus;
+        } else if (!region && !app.selected && (app.chromeFocus === "header" || app.chromeFocus === "footer"))
+          region = app.chromeFocus;
         const list = region === "header" || region === "footer" ? app.chromeList(region) : app.state.root;
         if (index == null && region && app.selected && app.regionOf(app.selected) === region) {
           const hit = app.locateTree(list, app.selected);
@@ -1093,7 +1204,9 @@
       const r = id && app.locate(app.state.root, id);
       if (!r || !app.styleClipboard) return;
       app.commit(app.t("Pasted style"), id);
-      Object.entries(app.styleClipboard).forEach(([k, v]) => app.setPath(r.node.settings, k, JSON.parse(JSON.stringify(v))));
+      Object.entries(app.styleClipboard).forEach(
+        ([k, v]) => app.setPath(r.node.settings, k, JSON.parse(JSON.stringify(v)))
+      );
       app.selected = id;
       app.render();
     };
@@ -1134,12 +1247,52 @@
   function installBreakpoints() {
     const FALLBACK = {
       mobile: { name: "mobile", label: "Mobile", short: "M", enabled: true, value: 767, direction: "max", preview: 390 },
-      mobile_extra: { name: "mobile_extra", label: "Mobile Extra", short: "M+", enabled: false, value: 880, direction: "max", preview: 568 },
-      tablet: { name: "tablet", label: "Tablet", short: "T", enabled: true, value: 1024, direction: "max", preview: 1024 },
-      tablet_extra: { name: "tablet_extra", label: "Tablet Extra", short: "T+", enabled: false, value: 1200, direction: "max", preview: 1200 },
-      laptop: { name: "laptop", label: "Laptop", short: "L", enabled: false, value: 1366, direction: "max", preview: 1366 },
+      mobile_extra: {
+        name: "mobile_extra",
+        label: "Mobile Extra",
+        short: "M+",
+        enabled: false,
+        value: 880,
+        direction: "max",
+        preview: 568
+      },
+      tablet: {
+        name: "tablet",
+        label: "Tablet",
+        short: "T",
+        enabled: true,
+        value: 1024,
+        direction: "max",
+        preview: 1024
+      },
+      tablet_extra: {
+        name: "tablet_extra",
+        label: "Tablet Extra",
+        short: "T+",
+        enabled: false,
+        value: 1200,
+        direction: "max",
+        preview: 1200
+      },
+      laptop: {
+        name: "laptop",
+        label: "Laptop",
+        short: "L",
+        enabled: false,
+        value: 1366,
+        direction: "max",
+        preview: 1366
+      },
       desktop: { name: "desktop", label: "Desktop", short: "D", enabled: true, value: 0, direction: "base", preview: 0 },
-      widescreen: { name: "widescreen", label: "Widescreen", short: "W", enabled: false, value: 2400, direction: "min", preview: 2400 }
+      widescreen: {
+        name: "widescreen",
+        label: "Widescreen",
+        short: "W",
+        enabled: false,
+        value: 2400,
+        direction: "min",
+        preview: 2400
+      }
     };
     const ORDER = ["mobile", "mobile_extra", "tablet", "tablet_extra", "laptop", "desktop", "widescreen"];
     app.breakpointNames = function breakpointNames() {
@@ -1221,7 +1374,9 @@
       const x = app.asResponsiveMap(v);
       const list = app.enabledBreakpoints();
       const cols = Math.min(Math.max(list.length, 1), 4);
-      const inputs = list.map((b) => `<input data-setting="${app.esc(k)}.${b.name}" value="${app.esc(x[b.name] ?? "")}" placeholder="${app.esc(app.t(b.label) || b.label)}">`).join("");
+      const inputs = list.map(
+        (b) => `<input data-setting="${app.esc(k)}.${b.name}" value="${app.esc(x[b.name] ?? "")}" placeholder="${app.esc(app.t(b.label) || b.label)}">`
+      ).join("");
       return `<div class="lb-control"><span>${app.esc(label)} <small>${app.t("responsive")}</small></span><div class="lb-responsive lb-responsive-n" style="--lb-rcols:${cols}">${inputs}</div></div>`;
     };
     app.applyCanvasWidth = function applyCanvasWidth() {
@@ -1329,27 +1484,57 @@
       menu.className = "lb-context-menu";
       let html = "";
       if (kind === "unit-card") {
-        html += app.contextItem(app.fav.has(opts.type) ? app.t("Remove from Favorites") : app.t("Add to Favorites"), app.fav.has(opts.type) ? "remove-favorite" : "add-favorite");
+        html += app.contextItem(
+          app.fav.has(opts.type) ? app.t("Remove from Favorites") : app.t("Add to Favorites"),
+          app.fav.has(opts.type) ? "remove-favorite" : "add-favorite"
+        );
       } else if (kind === "unit") {
         const title = app.meta(opts.type).title || opts.type || app.t("Unit");
         html += app.contextItem(app.t("Edit %s", title), "edit");
         html += app.contextItem(app.t("Duplicate"), "duplicate", "", sc("duplicate") || "Ctrl/Cmd+D");
         html += app.contextItem(app.t("Copy"), "copy", "", sc("copy") || "Ctrl/Cmd+C");
-        html += app.contextItem(app.t("Paste"), "paste", !(app.hasUnitClipboard ? app.hasUnitClipboard() : app.clipboard), sc("paste") || "Ctrl/Cmd+V");
+        html += app.contextItem(
+          app.t("Paste"),
+          "paste",
+          !(app.hasUnitClipboard ? app.hasUnitClipboard() : app.clipboard),
+          sc("paste") || "Ctrl/Cmd+V"
+        );
         html += app.contextItem(app.t("Copy Style"), "copy-style", "", sc("copy_style") || "Ctrl/Cmd+Shift+C");
-        html += app.contextItem(app.t("Paste style"), "paste-style", !(app.hasStyleClipboard ? app.hasStyleClipboard() : app.styleClipboard), sc("paste_style") || "Ctrl/Cmd+Shift+V");
+        html += app.contextItem(
+          app.t("Paste style"),
+          "paste-style",
+          !(app.hasStyleClipboard ? app.hasStyleClipboard() : app.styleClipboard),
+          sc("paste_style") || "Ctrl/Cmd+Shift+V"
+        );
         html += app.contextItem(app.t("Reset style"), "reset-style", "", sc("reset_style"));
-        if (["tabs", "accordion", "toggle"].includes(opts.type)) html += app.contextItem(app.t("Convert to nested"), "convert-nested");
-        if (opts.type !== "container" && opts.type !== "grid") html += app.contextItem(app.fav.has(opts.type) ? app.t("Remove from Favorites") : app.t("Add to Favorites"), app.fav.has(opts.type) ? "remove-favorite" : "add-favorite");
-        if (["container", "grid"].includes(opts.type)) html += app.contextItem(app.t("Add New Container"), "add-container");
+        if (["tabs", "accordion", "toggle"].includes(opts.type))
+          html += app.contextItem(app.t("Convert to nested"), "convert-nested");
+        if (opts.type !== "container" && opts.type !== "grid")
+          html += app.contextItem(
+            app.fav.has(opts.type) ? app.t("Remove from Favorites") : app.t("Add to Favorites"),
+            app.fav.has(opts.type) ? "remove-favorite" : "add-favorite"
+          );
+        if (["container", "grid"].includes(opts.type))
+          html += app.contextItem(app.t("Add New Container"), "add-container");
         html += '<div class="lb-context-separator"></div>';
-        if (opts.type === "container" || opts.type === "grid") html += app.contextItem(app.t("Save as Template"), "save-template");
+        if (opts.type === "container" || opts.type === "grid")
+          html += app.contextItem(app.t("Save as Template"), "save-template");
         html += app.contextItem(app.t("Save as Component"), "save-component");
         html += app.contextItem(app.t("Structure"), "structure");
         html += '<div class="lb-context-separator"></div>' + app.contextItem(app.t("Delete"), "delete", "", app.shortcutLabel && app.shortcutLabel("delete") || "Delete");
       } else {
-        html += app.contextItem(app.t("Paste"), "paste", !(app.hasUnitClipboard ? app.hasUnitClipboard() : app.clipboard), sc("paste") || "Ctrl/Cmd+V");
-        html += app.contextItem(app.t("Paste All Content"), "paste-all", !(app.hasPageClipboard ? app.hasPageClipboard() : app.pageClipboard), sc("paste_all"));
+        html += app.contextItem(
+          app.t("Paste"),
+          "paste",
+          !(app.hasUnitClipboard ? app.hasUnitClipboard() : app.clipboard),
+          sc("paste") || "Ctrl/Cmd+V"
+        );
+        html += app.contextItem(
+          app.t("Paste All Content"),
+          "paste-all",
+          !(app.hasPageClipboard ? app.hasPageClipboard() : app.pageClipboard),
+          sc("paste_all")
+        );
         html += app.contextItem(app.t("Add New Container"), "add-container");
         html += app.contextItem(app.t("Copy All Content"), "copy-all", "", sc("copy_all"));
         html += app.contextItem(app.t("Delete All Content"), "delete-all");
@@ -1375,70 +1560,72 @@
       menu.style.position = "fixed";
       menu.style.left = x + "px";
       menu.style.top = y + "px";
-      menu.querySelectorAll("[data-context-action]").forEach((b) => b.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const a = b.dataset.contextAction;
-        app.closeContextMenu();
-        if (opts.id) app.selected = opts.id;
-        switch (a) {
-          case "edit":
-            app.selectNode(opts.id);
-            break;
-          case "duplicate":
-            app.duplicate();
-            break;
-          case "copy":
-            app.copy(opts.id);
-            break;
-          case "copy-style":
-            app.copyStyle(opts.id);
-            break;
-          case "paste":
-            app.paste();
-            break;
-          case "paste-all":
-            app.pasteAllContent();
-            break;
-          case "paste-style":
-            app.pasteStyle(opts.id);
-            break;
-          case "reset-style":
-            app.resetStyle(opts.id);
-            break;
-          case "convert-nested":
-            if (typeof app.convertToNested === "function") app.convertToNested(opts.id);
-            break;
-          case "add-favorite":
-            app.toggleFavorite(opts.type);
-            break;
-          case "remove-favorite":
-            app.toggleFavorite(opts.type);
-            break;
-          case "add-container":
-            app.add("container", opts.id && ["container", "grid"].includes(opts.type) ? opts.id : null);
-            break;
-          case "save-template":
-            app.saveTemplateFor(opts.id);
-            break;
-          case "save-component":
-            app.saveComponentFor(opts.id);
-            break;
-          case "structure":
-            app.activeTab = "navigator";
-            app.refreshRightPanel();
-            break;
-          case "delete":
-            app.remove(opts.id);
-            break;
-          case "copy-all":
-            app.copyAllContent();
-            break;
-          case "delete-all":
-            app.deleteAllContent();
-            break;
+      menu.querySelectorAll("[data-context-action]").forEach(
+        (b) => b.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const a = b.dataset.contextAction;
+          app.closeContextMenu();
+          if (opts.id) app.selected = opts.id;
+          switch (a) {
+            case "edit":
+              app.selectNode(opts.id);
+              break;
+            case "duplicate":
+              app.duplicate();
+              break;
+            case "copy":
+              app.copy(opts.id);
+              break;
+            case "copy-style":
+              app.copyStyle(opts.id);
+              break;
+            case "paste":
+              app.paste();
+              break;
+            case "paste-all":
+              app.pasteAllContent();
+              break;
+            case "paste-style":
+              app.pasteStyle(opts.id);
+              break;
+            case "reset-style":
+              app.resetStyle(opts.id);
+              break;
+            case "convert-nested":
+              if (typeof app.convertToNested === "function") app.convertToNested(opts.id);
+              break;
+            case "add-favorite":
+              app.toggleFavorite(opts.type);
+              break;
+            case "remove-favorite":
+              app.toggleFavorite(opts.type);
+              break;
+            case "add-container":
+              app.add("container", opts.id && ["container", "grid"].includes(opts.type) ? opts.id : null);
+              break;
+            case "save-template":
+              app.saveTemplateFor(opts.id);
+              break;
+            case "save-component":
+              app.saveComponentFor(opts.id);
+              break;
+            case "structure":
+              app.activeTab = "navigator";
+              app.refreshRightPanel();
+              break;
+            case "delete":
+              app.remove(opts.id);
+              break;
+            case "copy-all":
+              app.copyAllContent();
+              break;
+            case "delete-all":
+              app.deleteAllContent();
+              break;
+          }
         }
-      });
+      );
       setTimeout(() => {
         document.addEventListener("mousedown", app.contextOutside, true);
         document.addEventListener("keydown", app.contextEscape, true);
@@ -1450,7 +1637,15 @@
       const title = prompt(app.t("Template name:"), app.t("%s Template", app.meta(r.node.type).title));
       if (!title) return;
       const type = ["container", "grid"].includes(r.node.type) ? "section" : "block";
-      const resp = await fetch(`${app.D.api}/templates`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ title, type, document: { version: app.state.version || "2.1", root: [r.node], settings: {} } }) });
+      const resp = await fetch(`${app.D.api}/templates`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify({
+          title,
+          type,
+          document: { version: app.state.version || "2.1", root: [r.node], settings: {} }
+        })
+      });
       if (!resp.ok) alert(app.t("Could not save template."));
     };
     app.saveComponentFor = async function saveComponentFor(id) {
@@ -1458,7 +1653,15 @@
       if (!r) return;
       const title = prompt(app.t("Component name:"), app.t("%s Component", app.meta(r.node.type).title));
       if (!title) return;
-      const resp = await fetch(`${app.D.api}/components`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ title, document: { version: "2.1", root: [app.clone(r.node)], atomic: true }, exposed: ["text", "title", "url", "image_url", "color", "background"] }) });
+      const resp = await fetch(`${app.D.api}/components`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify({
+          title,
+          document: { version: "2.1", root: [app.clone(r.node)], atomic: true },
+          exposed: ["text", "title", "url", "image_url", "color", "background"]
+        })
+      });
       if (!resp.ok) alert(app.t("Could not save component."));
     };
     app.paste = function paste() {
@@ -1475,7 +1678,8 @@
         r.nodes.splice(r.index + 1, 0, c);
       } else {
         if (c.slot) delete c.slot;
-        if (!app.selected && (app.chromeFocus === "header" || app.chromeFocus === "footer")) app.chromeList(app.chromeFocus).push(c);
+        if (!app.selected && (app.chromeFocus === "header" || app.chromeFocus === "footer"))
+          app.chromeList(app.chromeFocus).push(c);
         else app.state.root.push(c);
       }
       const placed = app.regionOf ? app.regionOf(c.id) : "root";
@@ -1524,7 +1728,8 @@
       if (app.scheduleSave) app.scheduleSave();
       if (typeof app.previewSetting === "function") {
         app.previewSetting(path, r.node.id);
-        if (typeof app.settingNeedsPanel === "function" && app.settingNeedsPanel(path) && typeof app.refreshRightPanel === "function") app.refreshRightPanel();
+        if (typeof app.settingNeedsPanel === "function" && app.settingNeedsPanel(path) && typeof app.refreshRightPanel === "function")
+          app.refreshRightPanel();
         return;
       }
       app.render();
@@ -1614,13 +1819,25 @@
     app.undo = function undo() {
       if (!app.history.length || app.previewingRevision) return;
       const item = app.history.pop();
-      app.future.push(app.normalizeHistoryItem({ s: app.snap(), label: historyLabel(item, app.t("Change")), target: app.selected || historyTarget(item) }));
+      app.future.push(
+        app.normalizeHistoryItem({
+          s: app.snap(),
+          label: historyLabel(item, app.t("Change")),
+          target: app.selected || historyTarget(item)
+        })
+      );
       app.applyHistoryEntry(item);
     };
     app.redo = function redo() {
       if (!app.future.length || app.previewingRevision) return;
       const item = app.future.pop();
-      app.history.push(app.normalizeHistoryItem({ s: app.snap(), label: historyLabel(item, app.t("Change")), target: app.selected || historyTarget(item) }));
+      app.history.push(
+        app.normalizeHistoryItem({
+          s: app.snap(),
+          label: historyLabel(item, app.t("Change")),
+          target: app.selected || historyTarget(item)
+        })
+      );
       app.applyHistoryEntry(item);
     };
     app.jumpToHistory = function jumpToHistory(kind, index) {
@@ -1667,7 +1884,8 @@
       if (!app.isPublishablePost()) return "";
       const current = app.postStatus();
       if (app.statusIntent) return app.statusIntent;
-      if (current === "draft" || current === "auto-draft" || current === "pending" || current === "") return app.D.canPublish ? "publish" : current;
+      if (current === "draft" || current === "auto-draft" || current === "pending" || current === "")
+        return app.D.canPublish ? "publish" : current;
       return current;
     };
     app.saveButtonLabel = function saveButtonLabel() {
@@ -1711,7 +1929,7 @@
       const publishing = !!target && target !== app.postStatus() && (target === "publish" || target === "private");
       if (!auto && btn) {
         btn.disabled = true;
-        btn.textContent = publishing ? app.t("Publishing\u2026") : app.t("Saving\u2026");
+        btn.textContent = publishing ? app.t("Publishing…") : app.t("Saving…");
       }
       try {
         const persist = (nodes) => (nodes || []).forEach((n) => {
@@ -1720,7 +1938,8 @@
         });
         persist(app.state.root);
         ["header", "footer"].forEach((part) => {
-          if (app.sitePartMeta && app.sitePartMeta[part] || typeof app.designsHeaderAndFooter === "function" && app.designsHeaderAndFooter()) persist(app.state[part]);
+          if (app.sitePartMeta && app.sitePartMeta[part] || typeof app.designsHeaderAndFooter === "function" && app.designsHeaderAndFooter())
+            persist(app.state[part]);
         });
         const packed = typeof app.pageDocumentForSave === "function" ? app.pageDocumentForSave() : { page: app.state, parts: [] };
         const headers = { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce };
@@ -1740,17 +1959,19 @@
         if (saved && saved.status && app.D) app.D.postStatus = String(saved.status);
         if (typeof app.persistThemeChrome === "function") await app.persistThemeChrome();
         let statusResult = { ok: true, changed: false };
-        if (!auto && target) statusResult = await app.applyPostStatus(target).catch(() => ({ ok: false, changed: false }));
+        if (!auto && target)
+          statusResult = await app.applyPostStatus(target).catch(() => ({ ok: false, changed: false }));
         if (!auto) {
           app.dirty = false;
-          app.D.updated = (/* @__PURE__ */ new Date()).toISOString().slice(0, 19).replace("T", " ");
+          app.D.updated = /* @__PURE__ */ (/* @__PURE__ */ new Date()).toISOString().slice(0, 19).replace("T", " ");
           app.loadWpRevisions();
         }
-        const when = (/* @__PURE__ */ new Date()).toLocaleTimeString();
+        const when = /* @__PURE__ */ (/* @__PURE__ */ new Date()).toLocaleTimeString();
         if (status) {
           if (auto) status.textContent = app.t("Autosaved %s", when);
           else if (!statusResult.ok) status.textContent = app.t("Saved, but the page could not be published.");
-          else if (statusResult.changed && app.postStatus() === "publish") status.textContent = app.t("Published %s", when);
+          else if (statusResult.changed && app.postStatus() === "publish")
+            status.textContent = app.t("Published %s", when);
           else status.textContent = app.t("Saved %s", when);
         }
         if (btn && !auto) {
@@ -1818,7 +2039,9 @@
       if (!el) return;
       const tab = app.historyTab === "revisions" ? "revisions" : "actions";
       const actions = app.actionHistoryItems();
-      const actionHtml = actions.length ? actions.map((a) => `<button type="button" class="lb-history-item${a.current ? " is-current" : ""}" data-hist-kind="${a.kind}" data-hist-index="${a.index}" title="${app.esc(app.t("Jump to this change"))}"><span>${app.esc(a.label)}</span>${a.target && !a.current ? `<small>${app.esc(a.target)}</small>` : ""}</button>`).join("") : `<p class="lb-muted">${app.t("No actions yet.")}</p>`;
+      const actionHtml = actions.length ? actions.map(
+        (a) => `<button type="button" class="lb-history-item${a.current ? " is-current" : ""}" data-hist-kind="${a.kind}" data-hist-index="${a.index}" title="${app.esc(app.t("Jump to this change"))}"><span>${app.esc(a.label)}</span>${a.target && !a.current ? `<small>${app.esc(a.target)}</small>` : ""}</button>`
+      ).join("") : `<p class="lb-muted">${app.t("No actions yet.")}</p>`;
       const revs = app.wpRevisions || [];
       const previewId = app.previewingRevision && app.previewingRevision.id;
       const revHtml = revs.length ? revs.map((r) => {
@@ -1830,7 +2053,7 @@
 					<button type="button" class="lb-btn" data-revision-restore="${r.id}">${app.t("Restore")}</button>
 				</div>`;
       }).join("") : `<p class="lb-muted">${app.t("No revisions yet.")}</p>`;
-      el.innerHTML = `<div class="lb-history-head"><strong>${app.t("History")}</strong><button type="button" data-history-close aria-label="${app.t("Close history")}">\xD7</button></div>
+      el.innerHTML = `<div class="lb-history-head"><strong>${app.t("History")}</strong><button type="button" data-history-close aria-label="${app.t("Close history")}">×</button></div>
 			<div class="lb-history-tabs">
 				<button type="button" data-history-tab="actions" class="${tab === "actions" ? "active" : ""}">${app.t("Actions")}</button>
 				<button type="button" data-history-tab="revisions" class="${tab === "revisions" ? "active" : ""}">${app.t("Revisions")}</button>
@@ -1915,7 +2138,10 @@
       if (!id || !rev) return;
       if (!confirm(app.t("Restore this revision? Current changes will be saved as a new revision first."))) return;
       try {
-        const r = await fetch(`${app.D.api}/document/${id}/revisions/${rev}/restore`, { method: "POST", headers: { "X-WP-Nonce": app.D.nonce } });
+        const r = await fetch(`${app.D.api}/document/${id}/revisions/${rev}/restore`, {
+          method: "POST",
+          headers: { "X-WP-Nonce": app.D.nonce }
+        });
         if (!r.ok) throw Error();
         const d = await r.json();
         app.previewingRevision = null;
@@ -1957,7 +2183,7 @@
       bar.className = "lb-autosave-banner";
       bar.setAttribute("role", "status");
       const when = time ? " (" + app.esc(time.slice(11, 16) || time) + ")" : "";
-      bar.innerHTML = "<span>" + app.esc(app.t("A newer autosave of this page is available.")) + when + '</span><button type="button" class="lb-btn" data-lb-autosave="restore">' + app.esc(app.t("Restore")) + '</button><button type="button" class="lb-btn" data-lb-autosave="dismiss" aria-label="' + app.esc(app.t("Dismiss")) + '">\u00D7</button>';
+      bar.innerHTML = "<span>" + app.esc(app.t("A newer autosave of this page is available.")) + when + '</span><button type="button" class="lb-btn" data-lb-autosave="restore">' + app.esc(app.t("Restore")) + '</button><button type="button" class="lb-btn" data-lb-autosave="dismiss" aria-label="' + app.esc(app.t("Dismiss")) + '">×</button>';
       const close = () => {
         bar.remove();
         try {
@@ -1980,7 +2206,9 @@
       const top = shell.querySelector(".lb-top");
       if (top && top.parentNode) top.insertAdjacentElement("afterend", bar);
       else shell.insertBefore(bar, shell.firstChild);
-      setTimeout(() => { if (bar.isConnected) bar.classList.add("is-quiet"); }, 12e3);
+      setTimeout(() => {
+        if (bar.isConnected) bar.classList.add("is-quiet");
+      }, 12e3);
     };
     app.recoverAutosave = async function recoverAutosave() {
       const id = parseInt(app.D.postId || 0, 10);
@@ -1994,7 +2222,11 @@
         const saved = String(app.D.updated || "");
         const time = String(auto.time || "");
         if (time && saved && time <= saved) return;
-        const strip = (doc) => JSON.stringify({ root: doc && doc.root || [], header: doc && doc.header || [], footer: doc && doc.footer || [] });
+        const strip = (doc) => JSON.stringify({
+          root: doc && doc.root || [],
+          header: doc && doc.header || [],
+          footer: doc && doc.footer || []
+        });
         if (strip(auto.document) === strip(app.state)) return;
         let key = "";
         try {
@@ -2053,9 +2285,17 @@
     app.galleryGroupsOf = function galleryGroupsOf(s) {
       s = s || {};
       if ((s.mode || "single") === "multiple" && Array.isArray(s.collections) && s.collections.length) {
-        return s.collections.map((c, i) => ({ label: String(c && c.label || "").trim() || "Gallery " + (i + 1), ids: String(c && c.ids || "").split(/[,\s]+/).filter(Boolean) }));
+        return s.collections.map((c, i) => ({
+          label: String(c && c.label || "").trim() || "Gallery " + (i + 1),
+          ids: String(c && c.ids || "").split(/[,\s]+/).filter(Boolean)
+        }));
       }
-      return [{ label: "", ids: String(s.ids || "").split(/[,\s]+/).filter(Boolean) }];
+      return [
+        {
+          label: "",
+          ids: String(s.ids || "").split(/[,\s]+/).filter(Boolean)
+        }
+      ];
     };
     app.galleryIdsOf = function galleryIdsOf(s) {
       return app.galleryGroupsOf(s).flatMap((g) => g.ids);
@@ -2072,14 +2312,15 @@
       return Math.max(80, Math.min(800, parseInt(app.resp((s || {}).row_height), 10) || 220));
     };
     app.galleryRatioOf = function galleryRatioOf(s) {
-      return { "1:1": "1 / 1", "3:2": "3 / 2", "4:3": "4 / 3", "16:9": "16 / 9", "9:16": "9 / 16", "auto": "auto" }[String((s || {}).image_ratio || "1:1")] || "1 / 1";
+      return { "1:1": "1 / 1", "3:2": "3 / 2", "4:3": "4 / 3", "16:9": "16 / 9", "9:16": "9 / 16", auto: "auto" }[String((s || {}).image_ratio || "1:1")] || "1 / 1";
     };
     app.galleryUrlOf = function galleryUrlOf(s, id) {
       s = s || {};
       const map = s.media_urls && typeof s.media_urls === "object" ? s.media_urls : {};
       if (map[id] || map[String(id)]) return map[id] || map[String(id)];
       const hit = (typeof window !== "undefined" && window.CanvaslyLite1228 && window.CanvaslyLite1228.attCache || {})[parseInt(id, 10)];
-      if (hit) return hit.sizes && (hit.sizes.medium && hit.sizes.medium.url || hit.sizes.large && hit.sizes.large.url || hit.sizes.thumbnail && hit.sizes.thumbnail.url) || hit.url || "";
+      if (hit)
+        return hit.sizes && (hit.sizes.medium && hit.sizes.medium.url || hit.sizes.large && hit.sizes.large.url || hit.sizes.thumbnail && hit.sizes.thumbnail.url) || hit.url || "";
       return "";
     };
     app.galleryItemRatio = function galleryItemRatio(s, id) {
@@ -2097,8 +2338,10 @@
     app.galleryBoxStyle = function galleryBoxStyle(s) {
       const cols = app.galleryColsOf(s), gap = Math.max(0, parseInt(app.resp(s.gap), 10) || 10), layout = app.galleryLayoutOf(s), ratio = app.galleryRatioOf(s), rowH = app.galleryRowHOf(s);
       const vars = `--lb-cols:${cols};--lb-gap:${gap}px;--lb-gallery-ratio:${ratio};--lb-row-h:${rowH}px`;
-      if (layout === "masonry") return `${vars};display:block;column-count:${cols};column-gap:${gap}px;width:100%;height:auto`;
-      if (layout === "grid") return `${vars};display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));gap:${gap}px;width:100%`;
+      if (layout === "masonry")
+        return `${vars};display:block;column-count:${cols};column-gap:${gap}px;width:100%;height:auto`;
+      if (layout === "grid")
+        return `${vars};display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));gap:${gap}px;width:100%`;
       return `${vars};display:flex;flex-wrap:wrap;align-content:flex-start;gap:${gap}px;width:100%`;
     };
     app.galleryItemStyle = function galleryItemStyle(s, id) {
@@ -2107,7 +2350,8 @@
         const w = Math.max(40, Math.round(rowH * r));
         return `height:${rowH}px;width:${w}px;flex:1 1 ${w}px;overflow:hidden;margin:0`;
       }
-      if (layout === "masonry") return `display:inline-block;width:100%;margin:0 0 ${gap}px;break-inside:avoid;overflow:hidden;position:static`;
+      if (layout === "masonry")
+        return `display:inline-block;width:100%;margin:0 0 ${gap}px;break-inside:avoid;overflow:hidden;position:static`;
       return "margin:0;min-width:0;overflow:hidden";
     };
     app.galleryCanvasHTML = function galleryCanvasHTML(s) {
@@ -2124,12 +2368,14 @@
           items += `<figure class="lb-gallery-item" style="${app.galleryItemStyle(s, id)}" data-lb-ratio="${r}"${multiple ? ` data-lb-in="${i}"` : ""}${hide ? " hidden" : ""}><img src="${app.esc(app.galleryUrlOf(s, id) || app.LB_ATT_PLACEHOLDER)}" data-lb28-att="${app.esc(id)}" data-lb28-size="${app.esc(s.size || "medium")}" alt=""${s.lazy_load === false ? "" : ' loading="lazy"'}></figure>`;
         });
       });
-      if (!items) return `<div class="lb-gallery lb-gallery-empty is-grid" data-lb-open-gallery="1" style="${app.galleryBoxStyle(Object.assign({}, s, { gallery_layout: "grid" }))}">${Array.from({ length: cols }, () => '<div class="lb-gallery-placeholder" data-lb-open-gallery="1">' + app.t("Choose images") + "</div>").join("")}</div>`;
+      if (!items)
+        return `<div class="lb-gallery lb-gallery-empty is-grid" data-lb-open-gallery="1" style="${app.galleryBoxStyle(Object.assign({}, s, { gallery_layout: "grid" }))}">${Array.from({ length: cols }, () => '<div class="lb-gallery-placeholder" data-lb-open-gallery="1">' + app.t("Choose images") + "</div>").join("")}</div>`;
       let nav = "";
       if (many) {
         const all = String(s.all_label || "All").trim() || "All";
         nav = '<nav class="lb-gallery-nav" role="tablist" aria-label="' + app.t("Gallery") + '">';
-        if (showAll) nav += `<button type="button" class="is-active" role="tab" aria-selected="true" data-lb-set="">${app.esc(all)}</button>`;
+        if (showAll)
+          nav += `<button type="button" class="is-active" role="tab" aria-selected="true" data-lb-set="">${app.esc(all)}</button>`;
         groups.forEach((g, i) => {
           nav += `<button type="button" role="tab" aria-selected="${!showAll && i === 0 ? "true" : "false"}"${showAll ? "" : ` class="${i === 0 ? "is-active" : ""}"`} data-lb-set="${i}">${app.esc(g.label)}</button>`;
         });
@@ -2164,7 +2410,12 @@
     app.openCollectionPicker = function openCollectionPicker(settings, index, done) {
       if (!window.wp?.media) return;
       const current = String((Array.isArray(settings.collections) ? settings.collections[index] : null)?.ids || "").split(/[,\s]+/).filter(Boolean);
-      const f = wp.media({ title: app.t("Select collection images"), button: { text: app.t("Use Images") }, multiple: true, library: { type: "image" } });
+      const f = wp.media({
+        title: app.t("Select collection images"),
+        button: { text: app.t("Use Images") },
+        multiple: true,
+        library: { type: "image" }
+      });
       f.on("open", () => {
         try {
           const sel2 = f.state().get("selection");
@@ -2192,8 +2443,14 @@
       }
     };
     app.rememberGalleryUrls = function rememberGalleryUrls(settings, items) {
-      const urls = Object.assign({}, settings.media_urls && typeof settings.media_urls === "object" ? settings.media_urls : {});
-      const ratios = Object.assign({}, settings.media_ratios && typeof settings.media_ratios === "object" ? settings.media_ratios : {});
+      const urls = Object.assign(
+        {},
+        settings.media_urls && typeof settings.media_urls === "object" ? settings.media_urls : {}
+      );
+      const ratios = Object.assign(
+        {},
+        settings.media_ratios && typeof settings.media_ratios === "object" ? settings.media_ratios : {}
+      );
       items.forEach((x) => {
         if (!x || !x.id) return;
         const url = x.sizes && (x.sizes.medium && x.sizes.medium.url || x.sizes.large && x.sizes.large.url || x.sizes.thumbnail && x.sizes.thumbnail.url || x.sizes.full && x.sizes.full.url) || x.url || "";
@@ -2206,9 +2463,119 @@
       settings.media_ratios = ratios;
       return urls;
     };
-    app.responsiveKeys = /* @__PURE__ */ new Set(["size", "font_size", "width", "height", "min_height", "max_width", "max_height", "gap", "column_gap", "row_gap", "radius", "letter_spacing", "line_height", "padding", "margin", "opacity", "order", "flex_grow", "flex_shrink", "flex_basis", "top", "right", "bottom", "left"]);
-    app.styleKeys = /* @__PURE__ */ new Set(["background", "color", "text_color", "font_family", "font_size", "size", "weight", "line_height", "letter_spacing", "align", "alignment", "padding", "margin", "width", "height", "min_height", "max_width", "max_height", "gap", "column_gap", "row_gap", "radius", "border_width", "border_color", "border_style", "border_radius", "shadow", "icon_color", "title_color", "icon_size", "object_fit", "object_position", "background_image", "background_size", "background_position", "background_repeat", "background_overlay", "opacity", "filter", "transform", "transition", "cursor", "mix_blend_mode"]);
-    app.advancedKeys = /* @__PURE__ */ new Set(["class_mode", "variable_ref", "css_id", "css_class", "custom_css", "z_index", "position", "top", "right", "bottom", "left", "display", "visibility", "order", "flex_grow", "flex_shrink", "flex_basis", "align_self", "filter", "transform", "transition", "cursor", "mix_blend_mode", "hide_desktop", "hide_laptop", "hide_tablet_extra", "hide_tablet", "hide_mobile_extra", "hide_mobile", "hide_widescreen", "interaction", "interaction_duration", "interaction_delay", "interaction_trigger", "interaction_easing", "global_class", "aria_label", "role", "html_attributes", "button_radius"]);
+    app.responsiveKeys = /* @__PURE__ */ new Set([
+      "size",
+      "font_size",
+      "width",
+      "height",
+      "min_height",
+      "max_width",
+      "max_height",
+      "gap",
+      "column_gap",
+      "row_gap",
+      "radius",
+      "letter_spacing",
+      "line_height",
+      "padding",
+      "margin",
+      "opacity",
+      "order",
+      "flex_grow",
+      "flex_shrink",
+      "flex_basis",
+      "top",
+      "right",
+      "bottom",
+      "left"
+    ]);
+    app.styleKeys = /* @__PURE__ */ new Set([
+      "background",
+      "color",
+      "text_color",
+      "font_family",
+      "font_size",
+      "size",
+      "weight",
+      "line_height",
+      "letter_spacing",
+      "align",
+      "alignment",
+      "padding",
+      "margin",
+      "width",
+      "height",
+      "min_height",
+      "max_width",
+      "max_height",
+      "gap",
+      "column_gap",
+      "row_gap",
+      "radius",
+      "border_width",
+      "border_color",
+      "border_style",
+      "border_radius",
+      "shadow",
+      "icon_color",
+      "title_color",
+      "icon_size",
+      "object_fit",
+      "object_position",
+      "background_image",
+      "background_size",
+      "background_position",
+      "background_repeat",
+      "background_overlay",
+      "opacity",
+      "filter",
+      "transform",
+      "transition",
+      "cursor",
+      "mix_blend_mode"
+    ]);
+    app.advancedKeys = /* @__PURE__ */ new Set([
+      "class_mode",
+      "variable_ref",
+      "css_id",
+      "css_class",
+      "custom_css",
+      "z_index",
+      "position",
+      "top",
+      "right",
+      "bottom",
+      "left",
+      "display",
+      "visibility",
+      "order",
+      "flex_grow",
+      "flex_shrink",
+      "flex_basis",
+      "align_self",
+      "filter",
+      "transform",
+      "transition",
+      "cursor",
+      "mix_blend_mode",
+      "hide_desktop",
+      "hide_laptop",
+      "hide_tablet_extra",
+      "hide_tablet",
+      "hide_mobile_extra",
+      "hide_mobile",
+      "hide_widescreen",
+      "interaction",
+      "interaction_duration",
+      "interaction_delay",
+      "interaction_trigger",
+      "interaction_easing",
+      "global_class",
+      "aria_label",
+      "role",
+      "html_attributes",
+      "button_radius"
+    ]);
     app.lbResolveToken = function lbResolveToken(v) {
       if (typeof v !== "string") return v;
       v = app.lbResolveSafeDynamic(v);
@@ -2329,13 +2696,14 @@
         if (!t3) return "";
         return /^-?\d+(\.\d+)?$/.test(t3) ? t3 + "px" : t3;
       }
-      if (typeof v === "object") return ["top", "right", "bottom", "left"].map((k) => {
-        const x = v[k];
-        if (x === "" || x == null) return "0";
-        const s = String(x).trim();
-        if (s === "" || s === "0") return "0";
-        return /^-?\d+(\.\d+)?$/.test(s) ? s + "px" : s;
-      }).join(" ");
+      if (typeof v === "object")
+        return ["top", "right", "bottom", "left"].map((k) => {
+          const x = v[k];
+          if (x === "" || x == null) return "0";
+          const s = String(x).trim();
+          if (s === "" || s === "0") return "0";
+          return /^-?\d+(\.\d+)?$/.test(s) ? s + "px" : s;
+        }).join(" ");
       return "";
     };
   }
@@ -2406,7 +2774,9 @@
           const textLen = phase.len > 1 ? phase.len : measure();
           if (pathLen > 1 && textLen > 1) {
             const span = pathLen + textLen;
-            const secs = app.lbTextPathSeconds(view.getComputedStyle(box).getPropertyValue("--lb-speed") || box.getAttribute("data-lb-speed"));
+            const secs = app.lbTextPathSeconds(
+              view.getComputedStyle(box).getPropertyValue("--lb-speed") || box.getAttribute("data-lb-speed")
+            );
             phase.pos = (phase.pos + dt / (secs * 1e3)) % 1;
             textPath.setAttribute("startOffset", String(-textLen + phase.pos * span));
             if (text) text.style.visibility = "visible";
@@ -2417,9 +2787,10 @@
           view.requestAnimationFrame(step);
         };
         const fonts = view.document && view.document.fonts;
-        if (fonts && fonts.ready) fonts.ready.then(() => {
-          measure();
-        });
+        if (fonts && fonts.ready)
+          fonts.ready.then(() => {
+            measure();
+          });
         view.requestAnimationFrame(step);
       });
     };
@@ -2427,7 +2798,8 @@
       const q = encodeURIComponent(String(addr || "").trim());
       const z = Math.max(1, Math.min(21, parseInt(zoom, 10) || 14));
       const key = app.D && app.D.googleMapsEmbed ? String(app.D.googleMapsKey || "").trim() : "";
-      if (key && /^[A-Za-z0-9_.-]{8,200}$/.test(key)) return "https://www.google.com/maps/embed/v1/place?key=" + encodeURIComponent(key) + "&q=" + q + "&zoom=" + z;
+      if (key && /^[A-Za-z0-9_.-]{8,200}$/.test(key))
+        return "https://www.google.com/maps/embed/v1/place?key=" + encodeURIComponent(key) + "&q=" + q + "&zoom=" + z;
       return "https://www.google.com/maps?q=" + q + "&output=embed&z=" + z;
     };
     app.bodyHTML = function bodyHTML(n) {
@@ -2445,45 +2817,61 @@
         const u = s.image_url || "";
         return u ? `<img src="${app.esc(u)}" alt="${app.esc(s.alt || "")}" style="${st}" loading="lazy">` : '<div class="lb-image-placeholder">' + app.t("Choose image") + "</div>";
       }
-      if (n.type === "button") return `<button type="button" class="lb-button lb-editor-button" style="${st}" data-inline="text" data-link-url="${app.esc(s.url || "")}" data-link-target="${app.esc(s.target || "_self")}">${s.text || "Button"}</button>`;
-      if (n.type === "divider") return `<hr class="lb-divider" style="border-top:${Math.max(1, Number(s.thickness || 1))}px ${app.esc(s.style || "solid")} ${app.esc(s.color || "#ddd")}">`;
-      if (n.type === "spacer") return `<div class="lb-spacer" style="height:${Math.max(0, Number(s.height || 40))}px"></div>`;
-      if (n.type === "icon") return `<div class="lb-icon-glyph" style="font-size:${Number(s.size || 32)}px;color:${app.esc(s.color || "#222")}">${app.esc(s.icon || "\u2726")}</div>`;
-      if (n.type === "icon_box") return `<div class="lb-icon-box"><div class="lb-icon-box-icon">${app.esc(s.icon || "\u2727")}</div><h3>${app.esc(s.title || "Icon Box")}</h3><div>${s.text || ""}</div></div>`;
+      if (n.type === "button")
+        return `<button type="button" class="lb-button lb-editor-button" style="${st}" data-inline="text" data-link-url="${app.esc(s.url || "")}" data-link-target="${app.esc(s.target || "_self")}">${s.text || "Button"}</button>`;
+      if (n.type === "divider")
+        return `<hr class="lb-divider" style="border-top:${Math.max(1, Number(s.thickness || 1))}px ${app.esc(s.style || "solid")} ${app.esc(s.color || "#ddd")}">`;
+      if (n.type === "spacer")
+        return `<div class="lb-spacer" style="height:${Math.max(0, Number(s.height || 40))}px"></div>`;
+      if (n.type === "icon")
+        return `<div class="lb-icon-glyph" style="font-size:${Number(s.size || 32)}px;color:${app.esc(s.color || "#222")}">${app.esc(s.icon || "✦")}</div>`;
+      if (n.type === "icon_box")
+        return `<div class="lb-icon-box"><div class="lb-icon-box-icon">${app.esc(s.icon || "✧")}</div><h3>${app.esc(s.title || "Icon Box")}</h3><div>${s.text || ""}</div></div>`;
       if (n.type === "rating" || n.type === "star_rating") {
         const max = Math.max(1, Math.min(10, Number(s.max || 5))), r = Math.max(0, Math.min(max, Number(s.rating || 5)));
         const size = Math.max(8, Number(s.size || 24));
         const label = s.label ? `<span class="lb-rating-label" style="margin-left:8px;font-size:.55em;color:inherit">${app.esc(s.label)}</span>` : "";
-        return `<div class="lb-rating" style="color:${app.esc(s.color || "#f4b400")};font-size:${size}px" aria-label="${app.t("Rating %s of %s", r, max)}">${app.esc((s.icon || "\u2605").repeat(Math.floor(r)))}${r % 1 >= 0.5 ? "\xBD" : ""}${app.esc((s.empty_icon || "\u2606").repeat(Math.max(0, max - Math.ceil(r))))}${label}</div>`;
+        return `<div class="lb-rating" style="color:${app.esc(s.color || "#f4b400")};font-size:${size}px" aria-label="${app.t("Rating %s of %s", r, max)}">${app.esc((s.icon || "★").repeat(Math.floor(r)))}${r % 1 >= 0.5 ? "½" : ""}${app.esc((s.empty_icon || "☆").repeat(Math.max(0, max - Math.ceil(r))))}${label}</div>`;
       }
       if (n.type === "audio") {
         if (!s.url) return '<div class="lb-embed-placeholder">' + app.t("Add audio URL") + "</div>";
-        if (/\.(mp3|wav|ogg|oga|opus|m4a|aac|flac|wma)(\?|#|$)/i.test(String(s.url))) return `<audio class="lb-audio" controls src="${app.esc(s.url)}"></audio>`;
-        return `<div class="lb-audio-embed"><div class="lb-embed-placeholder">${app.esc(s.url)} \xB7 ${app.t("plays on the live page")}</div></div>`;
+        if (/\.(mp3|wav|ogg|oga|opus|m4a|aac|flac|wma)(\?|#|$)/i.test(String(s.url)))
+          return `<audio class="lb-audio" controls src="${app.esc(s.url)}"></audio>`;
+        return `<div class="lb-audio-embed"><div class="lb-embed-placeholder">${app.esc(s.url)} · ${app.t("plays on the live page")}</div></div>`;
       }
-      if (n.type === "embed") return s.url ? `<div class="lb-embed-wrap"><div class="lb-embed"><div class="lb-embed-placeholder">${app.esc(s.url)} \xB7 ${app.t("plays on the live page")}</div></div></div>` : '<div class="lb-embed-placeholder">' + app.t("Paste a URL to embed") + "</div>";
-      if (n.type === "soundcloud") return s.url ? `<iframe class="lb-audio" title="${app.t("Audio")}" height="${Number(s.height || 166)}" src="${app.esc(s.url)}"></iframe>` : '<div class="lb-embed-placeholder">' + app.t("Add audio URL") + "</div>";
-      if (n.type === "wordpress_widget" || n.type === "sidebar") return `<div class="lb-embed-placeholder">WordPress Widget: ${app.esc(s.sidebar || "select a sidebar")}</div>`;
+      if (n.type === "embed")
+        return s.url ? `<div class="lb-embed-wrap"><div class="lb-embed"><div class="lb-embed-placeholder">${app.esc(s.url)} · ${app.t("plays on the live page")}</div></div></div>` : '<div class="lb-embed-placeholder">' + app.t("Paste a URL to embed") + "</div>";
+      if (n.type === "soundcloud")
+        return s.url ? `<iframe class="lb-audio" title="${app.t("Audio")}" height="${Number(s.height || 166)}" src="${app.esc(s.url)}"></iframe>` : '<div class="lb-embed-placeholder">' + app.t("Add audio URL") + "</div>";
+      if (n.type === "wordpress_widget" || n.type === "sidebar")
+        return `<div class="lb-embed-placeholder">WordPress Widget: ${app.esc(s.sidebar || "select a sidebar")}</div>`;
       if (n.type === "link_in_bio") {
         const layout = s.layout === "inline" ? "inline" : "stack";
         const avatar = String(s.avatar || "").trim() ? `<img class="lb-link-bio-avatar" src="${app.esc(s.avatar)}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:50%">` : "";
-        return `<div class="lb-link-bio lb-link-bio-${layout}" style="display:flex;flex-direction:${layout === "inline" ? "row" : "column"};gap:12px;align-items:${layout === "inline" ? "center" : "flex-start"}">${avatar}<div><h3 style="margin:0">${app.esc(s.title || "My Links")}</h3><p style="margin:4px 0 0">${app.esc(s.subtitle || "")}</p></div><div class="lb-link-bio-links" style="display:flex;flex-direction:column;gap:8px;width:100%">${String(s.links || "").split(/\r?\n/).filter(Boolean).map((x) => {
+        return `<div class="lb-link-bio lb-link-bio-${layout}" style="display:flex;flex-direction:${layout === "inline" ? "row" : "column"};gap:12px;align-items:${layout === "inline" ? "center" : "flex-start"}">${avatar}<div><h3 style="margin:0">${app.esc(s.title || "My Links")}</h3><p style="margin:4px 0 0">${app.esc(s.subtitle || "")}</p></div><div class="lb-link-bio-links" style="display:flex;flex-direction:column;gap:8px;width:100%">${String(
+          s.links || ""
+        ).split(/\r?\n/).filter(Boolean).map((x) => {
           const p = x.split("|");
           return `<a href="${app.esc(p[1] || "#")}" target="${app.esc(s.target || "_self")}">${app.esc(p[0])}</a>`;
         }).join("")}</div></div>`;
       }
       if (n.type === "gallery") return app.galleryCanvasHTML(s);
-      if (n.type === "carousel") return `<div class="lb-carousel"><div class="lb-carousel-placeholder">Image Carousel${s.ids ? ": " + app.esc(s.ids) : ""}</div></div>`;
-      if (n.type === "accordion" || n.type === "toggle") return `<details class="lb-accordion" ${s.open ? "open" : ""}><summary>${app.esc(s.title || n.type)}</summary><div>${s.text || ""}</div></details>`;
-      if (n.type === "tabs") return `<div class="lb-tabs-widget">${String(s.tabs || "").split(/\r?\n/).filter(Boolean).map((x, i) => {
-        const p = x.split("|");
-        return `<button class="lb-tab-button" data-tab-index="${i}">${app.esc(p[0])}</button><div class="lb-tab-panel" data-panel-index="${i}">${p[1] || ""}</div>`;
-      }).join("")}</div>`;
-      if (n.type === "social") return `<div class="lb-social">${String(s.links || "").split(/\r?\n/).filter(Boolean).map((x) => {
-        const p = x.split("|");
-        return `<a href="${app.esc(p[1] || "#")}" target="_blank" rel="noopener">${app.esc(p[0])}</a>`;
-      }).join("")}</div>`;
-      if (n.type === "testimonial") return `<figure class="lb-testimonial"><blockquote>${s.quote || ""}</blockquote><figcaption><strong>${app.esc(s.author || "Customer")}</strong> ${app.esc(s.role || "")}</figcaption></figure>`;
+      if (n.type === "carousel")
+        return `<div class="lb-carousel"><div class="lb-carousel-placeholder">Image Carousel${s.ids ? ": " + app.esc(s.ids) : ""}</div></div>`;
+      if (n.type === "accordion" || n.type === "toggle")
+        return `<details class="lb-accordion" ${s.open ? "open" : ""}><summary>${app.esc(s.title || n.type)}</summary><div>${s.text || ""}</div></details>`;
+      if (n.type === "tabs")
+        return `<div class="lb-tabs-widget">${String(s.tabs || "").split(/\r?\n/).filter(Boolean).map((x, i) => {
+          const p = x.split("|");
+          return `<button class="lb-tab-button" data-tab-index="${i}">${app.esc(p[0])}</button><div class="lb-tab-panel" data-panel-index="${i}">${p[1] || ""}</div>`;
+        }).join("")}</div>`;
+      if (n.type === "social")
+        return `<div class="lb-social">${String(s.links || "").split(/\r?\n/).filter(Boolean).map((x) => {
+          const p = x.split("|");
+          return `<a href="${app.esc(p[1] || "#")}" target="_blank" rel="noopener">${app.esc(p[0])}</a>`;
+        }).join("")}</div>`;
+      if (n.type === "testimonial")
+        return `<figure class="lb-testimonial"><blockquote>${s.quote || ""}</blockquote><figcaption><strong>${app.esc(s.author || "Customer")}</strong> ${app.esc(s.role || "")}</figcaption></figure>`;
       if (n.type === "menu_anchor") {
         const aid = String(s.anchor || "section").trim().toLowerCase().replace(/^#+/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "section";
         const anchor = `<span class="lb-menu-anchor" id="${app.esc(aid)}"><span class="lb-menu-anchor-label">#${app.esc(aid)}</span></span>`;
@@ -2491,19 +2879,28 @@
         if (!id) return anchor;
         const menu = (app.D.menus || []).find((x) => String(x.id) === id);
         const items = menu ? (menu.items || []).filter((it) => !parseInt(it.parent, 10)) : [];
-        const links = items.length ? items.map((it) => `<li class="lb-anchor-menu-item"><a href="${app.esc(it.url || "#")}" data-lb-editor-link="1">${app.esc(it.title || "")}</a></li>`).join("") : `<li class="lb-anchor-menu-item"><span>${app.esc(menu && menu.name || app.t("Missing menu"))}</span></li>`;
+        const links = items.length ? items.map(
+          (it) => `<li class="lb-anchor-menu-item"><a href="${app.esc(it.url || "#")}" data-lb-editor-link="1">${app.esc(it.title || "")}</a></li>`
+        ).join("") : `<li class="lb-anchor-menu-item"><span>${app.esc(menu && menu.name || app.t("Missing menu"))}</span></li>`;
         return anchor + `<nav class="lb-anchor-menu" aria-label="${app.esc(menu && menu.name || app.t("Menu"))}"><ul class="lb-anchor-menu-list">${links}</ul></nav>`;
       }
-      if (n.type === "read_more") return `<a class="lb-read-more" href="${app.esc(s.url || "#")}" target="${app.esc(s.target || "_self")}">${app.esc(s.text || "Read More")}</a>`;
+      if (n.type === "read_more")
+        return `<a class="lb-read-more" href="${app.esc(s.url || "#")}" target="${app.esc(s.target || "_self")}">${app.esc(s.text || "Read More")}</a>`;
       if (n.type === "google_maps") {
         const h = Math.max(80, Number(s.height || 320) || 320);
         const z = Math.max(1, Math.min(21, parseInt(s.zoom, 10) || 14));
         const addr = String(s.address || "").trim();
-        if (!addr) return `<div class="lb-map-placeholder" style="height:${h}px;min-height:${h}px">${app.t("Add a map address")}</div>`;
+        if (!addr)
+          return `<div class="lb-map-placeholder" style="height:${h}px;min-height:${h}px">${app.t("Add a map address")}</div>`;
         return `<div class="lb-map" style="height:${h}px;min-height:${h}px"><iframe class="lb-map-frame" title="${app.esc(app.t("Map"))}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${app.esc(app.lbMapSrc(addr, z))}" style="width:100%;height:100%;border:0;display:block;pointer-events:none"></iframe></div>`;
       }
       if (n.type === "text_path") {
-        const paths = { wave: "M 20 80 Q 140 16 260 80 T 500 80 T 740 80 T 980 80", arc: "M 36 112 Q 500 8 964 112", circle: "M 500 46 A 150 32 0 1 1 499 46", line: "M 20 96 H 980" };
+        const paths = {
+          wave: "M 20 80 Q 140 16 260 80 T 500 80 T 740 80 T 980 80",
+          arc: "M 36 112 Q 500 8 964 112",
+          circle: "M 500 46 A 150 32 0 1 1 499 46",
+          line: "M 20 96 H 980"
+        };
         const kind = ["wave", "arc", "circle", "line"].includes(s.path) ? s.path : "wave";
         const d = paths[kind];
         const pid = "lb-tp-" + String(n.id || "x").replace(/[^a-zA-Z0-9_-]/g, "");
@@ -2512,15 +2909,22 @@
         return `<div class="lb-text-path lb-text-path-${kind}" data-lb-speed="${speed}" style="${st};--lb-speed:${speed}s"><svg viewBox="0 0 1000 160" overflow="visible" role="img"><path id="${pid}" class="lb-text-path-guide" d="${d}" fill="none"${guide}></path><text visibility="hidden" style="${st}"><textPath href="#${pid}" startOffset="0">${app.esc(s.text || "Canvasly")}</textPath></text></svg></div>`;
       }
       if (n.type === "code") return `<pre class="lb-code"><code>${app.esc(s.code || "")}</code></pre>`;
-      if (n.type === "price_table") return `<div class="lb-price-table"><h3>${app.esc(s.title || "Plan")}</h3><strong>${app.esc(s.price || "$0")}</strong><p>${app.esc(s.description || "")}</p></div>`;
-      if (n.type === "flip_box") return `<div class="lb-flip-box lb-flip-effect-flip lb-flip-dir-right lb-flip-trigger-hover"><div class="lb-flip-layer"><div class="lb-flip-front lb-flip-align-center lb-flip-valign-middle"><div class="lb-flip-content"><h3 class="lb-flip-title">${app.esc(s.front_title || s.front || "Front")}</h3><div class="lb-flip-desc">${app.esc(s.front_text || "")}</div></div></div><div class="lb-flip-back lb-flip-align-center lb-flip-valign-middle"><div class="lb-flip-content"><h3 class="lb-flip-title">${app.esc(s.back_title || s.back || "Back")}</h3><div class="lb-flip-desc">${app.esc(s.back_text || "")}</div></div></div></div></div>`;
-      if (n.type === "login") return `<div class="lb-login" style="max-width:360px"><h3 style="margin:0 0 12px">${app.esc(s.title || "Login")}</h3><div class="lb-form-field"><label>${app.t("Username")}</label><input type="text" tabindex="-1" readonly></div><div class="lb-form-field"><label>${app.t("Password")}</label><input type="password" tabindex="-1" readonly></div><button type="button" class="lb-button" tabindex="-1">${app.esc(s.button || app.t("Log In"))}</button></div>`;
-      if (n.type === "progress") return `<div class="lb-progress"><strong>${app.esc(s.label || "Progress")}</strong><div class="lb-progress-track"><span style="width:${Math.min(100, Math.max(0, Number(s.value || 0)))}%"></span></div></div>`;
-      if (n.type === "counter") return `<div class="lb-counter"><strong>${app.esc(s.prefix || "")}${app.esc(s.number || 0)}${app.esc(s.suffix || "")}</strong><span>${app.esc(s.title || "")}</span></div>`;
-      if (n.type === "alert") return `<div class="lb-alert"><strong>${app.esc(s.title || "Notice")}</strong><div>${app.esc(s.text || "")}</div></div>`;
+      if (n.type === "price_table")
+        return `<div class="lb-price-table"><h3>${app.esc(s.title || "Plan")}</h3><strong>${app.esc(s.price || "$0")}</strong><p>${app.esc(s.description || "")}</p></div>`;
+      if (n.type === "flip_box")
+        return `<div class="lb-flip-box lb-flip-effect-flip lb-flip-dir-right lb-flip-trigger-hover"><div class="lb-flip-layer"><div class="lb-flip-front lb-flip-align-center lb-flip-valign-middle"><div class="lb-flip-content"><h3 class="lb-flip-title">${app.esc(s.front_title || s.front || "Front")}</h3><div class="lb-flip-desc">${app.esc(s.front_text || "")}</div></div></div><div class="lb-flip-back lb-flip-align-center lb-flip-valign-middle"><div class="lb-flip-content"><h3 class="lb-flip-title">${app.esc(s.back_title || s.back || "Back")}</h3><div class="lb-flip-desc">${app.esc(s.back_text || "")}</div></div></div></div></div>`;
+      if (n.type === "login")
+        return `<div class="lb-login" style="max-width:360px"><h3 style="margin:0 0 12px">${app.esc(s.title || "Login")}</h3><div class="lb-form-field"><label>${app.t("Username")}</label><input type="text" tabindex="-1" readonly></div><div class="lb-form-field"><label>${app.t("Password")}</label><input type="password" tabindex="-1" readonly></div><button type="button" class="lb-button" tabindex="-1">${app.esc(s.button || app.t("Log In"))}</button></div>`;
+      if (n.type === "progress")
+        return `<div class="lb-progress"><strong>${app.esc(s.label || "Progress")}</strong><div class="lb-progress-track"><span style="width:${Math.min(100, Math.max(0, Number(s.value || 0)))}%"></span></div></div>`;
+      if (n.type === "counter")
+        return `<div class="lb-counter"><strong>${app.esc(s.prefix || "")}${app.esc(s.number || 0)}${app.esc(s.suffix || "")}</strong><span>${app.esc(s.title || "")}</span></div>`;
+      if (n.type === "alert")
+        return `<div class="lb-alert"><strong>${app.esc(s.title || "Notice")}</strong><div>${app.esc(s.text || "")}</div></div>`;
       if (n.type === "html") {
         const raw = String(s.html || "").trim();
-        if (/^https?:\/\/\S+$/i.test(raw) && raw.indexOf("<") < 0) return `<div class="lb-html lb-html-embed"><div class="lb-embed-placeholder">${app.esc(raw)} \xB7 ${app.t("plays on the live page")}</div></div>`;
+        if (/^https?:\/\/\S+$/i.test(raw) && raw.indexOf("<") < 0)
+          return `<div class="lb-html lb-html-embed"><div class="lb-embed-placeholder">${app.esc(raw)} · ${app.t("plays on the live page")}</div></div>`;
         return `<div class="lb-html">${s.html || ""}</div>`;
       }
       if (n.type === "shortcode") {
@@ -2532,15 +2936,16 @@
       }
       if (n.type === "video") {
         if (!s.url) return '<div class="lb-video-placeholder">Add video URL</div>';
-        if (/\.(mp4|webm|ogv|ogg|m4v|mov)(\?|#|$)/i.test(String(s.url))) return `<video class="lb-video" src="${app.esc(s.url)}" controls></video>`;
-        return `<div class="lb-video lb-video-oembed"><div class="lb-video-placeholder">${app.esc(s.url)} \xB7 plays on the live page</div></div>`;
+        if (/\.(mp4|webm|ogv|ogg|m4v|mov)(\?|#|$)/i.test(String(s.url)))
+          return `<video class="lb-video" src="${app.esc(s.url)}" controls></video>`;
+        return `<div class="lb-video lb-video-oembed"><div class="lb-video-placeholder">${app.esc(s.url)} · plays on the live page</div></div>`;
       }
       return `<div class="lb-embed-placeholder">${app.esc(app.meta(n.type).title || n.type)}</div>`;
     };
     app.nodeHTML = function nodeHTML(n) {
       try {
         const s = n.settings || {}, e = app.meta(n.type), sel2 = app.selected === n.id ? " is-selected" : "", globalNames = String(s.global_class || "").split(/[\s,]+/).map((x) => x.trim()).filter(Boolean).map((x) => "lb-class-" + x.replace(/[^a-zA-Z0-9_-]/g, "")).filter(Boolean), classes = "lb-node lb-node-" + app.esc(n.type) + sel2 + (globalNames.length ? " " + globalNames.join(" ") : "");
-        return `<div class="${classes}" id="lb-node-${app.esc(n.id)}" data-id="${app.esc(n.id)}" data-type="${app.esc(n.type)}" draggable="true" tabindex="0" aria-label="${app.esc(e.title || n.type)}">${app.bodyHTML(n)}<div class="lb-node-toolbar"><span>${app.esc(e.title || n.type)}</span><button type="button" data-act="move-up" title="${app.t("Move up")}">\u2191</button><button type="button" data-act="move-down" title="${app.t("Move down")}">\u2193</button><button type="button" data-act="duplicate" title="${app.t("Duplicate")}">\uFF0B</button><button type="button" data-act="delete" title="${app.t("Delete")}">\xD7</button></div></div>`;
+        return `<div class="${classes}" id="lb-node-${app.esc(n.id)}" data-id="${app.esc(n.id)}" data-type="${app.esc(n.type)}" draggable="true" tabindex="0" aria-label="${app.esc(e.title || n.type)}">${app.bodyHTML(n)}<div class="lb-node-toolbar"><span>${app.esc(e.title || n.type)}</span><button type="button" data-act="move-up" title="${app.t("Move up")}">↑</button><button type="button" data-act="move-down" title="${app.t("Move down")}">↓</button><button type="button" data-act="duplicate" title="${app.t("Duplicate")}">＋</button><button type="button" data-act="delete" title="${app.t("Delete")}">×</button></div></div>`;
       } catch (err) {
         if (window.console) console.error(err);
         const title = (app.meta(n && n.type) || {}).title || n && n.type || "Unit";
@@ -2550,7 +2955,10 @@
     app.settingNeedsPanel = function settingNeedsPanel(path) {
       const key = String(path || "");
       if (!key) return false;
-      if (/(^|\.)(type|mode|gallery_layout|look|graphic|orientation|box_layout|list_layout|flip_effect|show_button)$/.test(key)) return true;
+      if (/(^|\.)(type|mode|gallery_layout|look|graphic|orientation|box_layout|list_layout|flip_effect|show_button)$/.test(
+        key
+      ))
+        return true;
       if (/(^|\.)([a-zA-Z0-9]+_)?icon$/.test(key)) return true;
       const r = app.selected && app.locate(app.state.root, app.selected);
       if (!r) return false;
@@ -2566,7 +2974,8 @@
       const status = document.getElementById("lb-status");
       if (status) status.textContent = app.dirty ? app.t("Unsaved") : app.t("Saved");
       const paint = () => {
-        if (!app.patchCanvasNode(id || app.selected) && typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
+        if (!app.patchCanvasNode(id || app.selected) && typeof app.lbPaintCanvas === "function")
+          app.lbPaintCanvas({ skipPanel: true });
       };
       const nodeId = id || app.selected;
       const hit = nodeId && app.locate(app.state.root, nodeId);
@@ -2609,7 +3018,8 @@
         x.addEventListener("change", () => {
           if (!started) apply();
           started = false;
-          if (app.settingNeedsPanel(x.dataset.setting) && typeof app.refreshRightPanel === "function") app.refreshRightPanel();
+          if (app.settingNeedsPanel(x.dataset.setting) && typeof app.refreshRightPanel === "function")
+            app.refreshRightPanel();
         });
       });
     };
@@ -2642,7 +3052,10 @@
           app.inlineEdit(target);
         }
       };
-      if (["nested_carousel", "nested_tabs", "nested_accordion", "nested_toggle", "collection_loop"].includes(n.dataset.type)) n.setAttribute("draggable", "false");
+      if (["nested_carousel", "nested_tabs", "nested_accordion", "nested_toggle", "collection_loop"].includes(
+        n.dataset.type
+      ))
+        n.setAttribute("draggable", "false");
       n.ondragstart = (e) => {
         if (n.getAttribute("draggable") === "false") {
           e.preventDefault();
@@ -2750,7 +3163,8 @@
       const to = next.querySelectorAll("img,video,audio,iframe");
       if (from.length && from.length === to.length) {
         for (let i = 0; i < from.length; i++) {
-          if (from[i].tagName === to[i].tagName && from[i].getAttribute("src") === to[i].getAttribute("src")) to[i].replaceWith(from[i]);
+          if (from[i].tagName === to[i].tagName && from[i].getAttribute("src") === to[i].getAttribute("src"))
+            to[i].replaceWith(from[i]);
         }
       }
       el.replaceWith(next);
@@ -2776,9 +3190,11 @@
       const packs = app.shortcodePreview || {};
       const css = ".lb-shortcode-live{pointer-events:none}\n" + Object.keys(packs).map((key) => packs[key].css || "").join("\n");
       const links = [];
-      Object.keys(packs).forEach((key) => (packs[key].links || []).forEach((href) => {
-        if (href && links.indexOf(href) === -1) links.push(href);
-      }));
+      Object.keys(packs).forEach(
+        (key) => (packs[key].links || []).forEach((href) => {
+          if (href && links.indexOf(href) === -1) links.push(href);
+        })
+      );
       fd.querySelectorAll("link[data-lb-shortcode-style]").forEach((el) => {
         if (links.indexOf(el.getAttribute("href")) === -1) el.remove();
       });
@@ -2806,11 +3222,20 @@
       if (!api) return;
       app.shortcodePreviewPending[key] = true;
       const post = parseInt(app.D && app.D.postId || 0, 10) || 0;
-      fetch(api + "/shortcode/preview", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D && app.D.nonce || "" }, body: JSON.stringify({ post_id: post, shortcode: key }) }).then((r) => r.ok ? r.json() : null).then((data) => {
+      fetch(api + "/shortcode/preview", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D && app.D.nonce || "" },
+        body: JSON.stringify({ post_id: post, shortcode: key })
+      }).then((r) => r.ok ? r.json() : null).then((data) => {
         delete app.shortcodePreviewPending[key];
         if (!data) return;
         const html = app.lbSanitizePreviewHtml(data.html || "");
-        app.shortcodePreview[key] = { html, css: String(data.css || ""), links: Array.isArray(data.links) ? data.links.filter(Boolean) : [] };
+        app.shortcodePreview[key] = {
+          html,
+          css: String(data.css || ""),
+          links: Array.isArray(data.links) ? data.links.filter(Boolean) : []
+        };
         if (html.trim() && typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
         else if (typeof app.frameDoc === "function") app.installShortcodePreviewStyles(app.frameDoc());
       }).catch(() => {
@@ -2837,7 +3262,9 @@
   // src/editor/navigator.js
   function installNavigator() {
     app.treeHTML = function treeHTML(nodes, depth = 0) {
-      return nodes.map((n) => `<div class="lb-tree-item"><div class="lb-tree-row ${app.selected === n.id ? "active" : ""}" data-tree-id="${app.esc(n.id)}" style="padding-left:${8 + depth * 15}px"><span class="lb-tree-grip">\u22EE\u22EE</span><span>${app.esc(app.meta(n.type).title || n.type)}</span></div>${n.children?.length ? treeHTML(n.children, depth + 1) : ""}</div>`).join("");
+      return nodes.map(
+        (n) => `<div class="lb-tree-item"><div class="lb-tree-row ${app.selected === n.id ? "active" : ""}" data-tree-id="${app.esc(n.id)}" style="padding-left:${8 + depth * 15}px"><span class="lb-tree-grip">⋮⋮</span><span>${app.esc(app.meta(n.type).title || n.type)}</span></div>${n.children?.length ? treeHTML(n.children, depth + 1) : ""}</div>`
+      ).join("");
     };
     app.structureHTML = function structureHTML() {
       const showPage = typeof app.pageShowsThemeChrome === "function" && app.pageShowsThemeChrome();
@@ -2847,12 +3274,12 @@
       const showFooter = showPage || site("footer");
       const section = (label, part, nodes) => {
         const active = app.chromeFocus === part && !app.selected ? " active" : "";
-        const text = site(part) ? label + " \xB7 " + app.t("Site-wide") : label;
+        const text = site(part) ? label + " · " + app.t("Site-wide") : label;
         return `<div class="lb-tree-section"><div class="lb-tree-row lb-tree-region${active}" data-lb-region="${part}"><span>${app.esc(text)}</span></div>${app.treeHTML(nodes || [])}</div>`;
       };
       const inherited = (label, part) => {
         const active = app.chromeFocus === part && !app.selected ? " active" : "";
-        return `<div class="lb-tree-section"><div class="lb-tree-row lb-tree-region${active}" data-lb-region="${part}"><span>${app.esc(label + " \xB7 " + app.t("Theme"))}</span></div>${app.treeHTML(app.state[part] || [])}</div>`;
+        return `<div class="lb-tree-section"><div class="lb-tree-row lb-tree-region${active}" data-lb-region="${part}"><span>${app.esc(label + " · " + app.t("Theme"))}</span></div>${app.treeHTML(app.state[part] || [])}</div>`;
       };
       if (!showHeader && !showFooter && !inherit) return app.treeHTML(app.state.root || []);
       let html = "";
@@ -2864,7 +3291,32 @@
       return html;
     };
     app.optionLabel = function optionLabel(k, o) {
-      const map = { single: app.t("Single"), multiple: app.t("Multiple"), default: app.t("Default"), random: app.t("Random"), date: app.t("Date"), title: app.t("Title"), left: app.t("Left"), center: app.t("Center"), right: app.t("Right"), none: app.t("None"), file: app.t("Media File"), attachment: app.t("Attachment Page"), start: app.t("Start"), end: app.t("End"), stretch: app.t("Stretch"), top: app.t("Top"), middle: app.t("Middle"), bottom: app.t("Bottom"), auto: app.t("Auto"), grid: app.t("Grid"), masonry: app.t("Masonry"), justified: app.t("Justified"), fit: app.t("Fit"), grow: app.t("Grow") };
+      const map = {
+        single: app.t("Single"),
+        multiple: app.t("Multiple"),
+        default: app.t("Default"),
+        random: app.t("Random"),
+        date: app.t("Date"),
+        title: app.t("Title"),
+        left: app.t("Left"),
+        center: app.t("Center"),
+        right: app.t("Right"),
+        none: app.t("None"),
+        file: app.t("Media File"),
+        attachment: app.t("Attachment Page"),
+        start: app.t("Start"),
+        end: app.t("End"),
+        stretch: app.t("Stretch"),
+        top: app.t("Top"),
+        middle: app.t("Middle"),
+        bottom: app.t("Bottom"),
+        auto: app.t("Auto"),
+        grid: app.t("Grid"),
+        masonry: app.t("Masonry"),
+        justified: app.t("Justified"),
+        fit: app.t("Fit"),
+        grow: app.t("Grow")
+      };
       return map[o] || (o ? String(o).replace(/_/g, " ") : app.t("Default"));
     };
   }
@@ -2880,7 +3332,39 @@
       if (k === "order_by") return ["default", "random", "date", "title"];
       if (k === "alignment") return ["left", "center", "right"];
       if (k === "sidebar") return (app.D.sidebars || []).map((x) => x.id);
-      return { tag: ["h1", "h2", "h3", "h4", "h5", "h6"], target: ["_self", "_blank"], layout: ["flex", "grid", "block"], direction: ["row", "row-reverse", "column", "column-reverse"], wrap: ["nowrap", "wrap", "wrap-reverse"], justify: ["flex-start", "center", "flex-end", "space-between", "space-around", "space-evenly"], align: ["stretch", "flex-start", "center", "flex-end", "baseline"], align_self: ["auto", "stretch", "flex-start", "center", "flex-end", "baseline"], object_fit: ["cover", "contain", "fill", "none"], object_position: ["center", "top", "right", "bottom", "left"], link: ["none", "file"], size: ["small", "medium", "large"], preload: ["none", "metadata", "auto"], auto_flow: ["row", "column", "dense", "row dense", "column dense"], position: ["", "relative", "absolute", "fixed", "sticky"], display: ["", "block", "inline-block", "flex", "grid", "none"], visibility: ["", "visible", "hidden"], overflow: ["", "visible", "hidden", "auto", "scroll"], border_style: ["", "solid", "dashed", "dotted", "double", "none"], background_size: ["", "cover", "contain", "auto"], background_repeat: ["", "no-repeat", "repeat", "repeat-x", "repeat-y"], cursor: ["", "default", "pointer", "move", "text", "not-allowed"], mix_blend_mode: ["", "normal", "multiply", "screen", "overlay", "darken", "lighten"], interaction: ["", "fade", "slide-up", "scale"], interaction_trigger: ["viewport", "hover"], interaction_easing: ["ease", "ease-in", "ease-out", "ease-in-out", "linear"], loading: ["lazy", "eager", "auto"], caption: ["none", "title", "caption"], hover_animation: ["", "zoom", "lift", "fade"], transition: ["slide", "fade"], icon_position: ["left", "right"] }[k] || [];
+      return {
+        tag: ["h1", "h2", "h3", "h4", "h5", "h6"],
+        target: ["_self", "_blank"],
+        layout: ["flex", "grid", "block"],
+        direction: ["row", "row-reverse", "column", "column-reverse"],
+        wrap: ["nowrap", "wrap", "wrap-reverse"],
+        justify: ["flex-start", "center", "flex-end", "space-between", "space-around", "space-evenly"],
+        align: ["stretch", "flex-start", "center", "flex-end", "baseline"],
+        align_self: ["auto", "stretch", "flex-start", "center", "flex-end", "baseline"],
+        object_fit: ["cover", "contain", "fill", "none"],
+        object_position: ["center", "top", "right", "bottom", "left"],
+        link: ["none", "file"],
+        size: ["small", "medium", "large"],
+        preload: ["none", "metadata", "auto"],
+        auto_flow: ["row", "column", "dense", "row dense", "column dense"],
+        position: ["", "relative", "absolute", "fixed", "sticky"],
+        display: ["", "block", "inline-block", "flex", "grid", "none"],
+        visibility: ["", "visible", "hidden"],
+        overflow: ["", "visible", "hidden", "auto", "scroll"],
+        border_style: ["", "solid", "dashed", "dotted", "double", "none"],
+        background_size: ["", "cover", "contain", "auto"],
+        background_repeat: ["", "no-repeat", "repeat", "repeat-x", "repeat-y"],
+        cursor: ["", "default", "pointer", "move", "text", "not-allowed"],
+        mix_blend_mode: ["", "normal", "multiply", "screen", "overlay", "darken", "lighten"],
+        interaction: ["", "fade", "slide-up", "scale"],
+        interaction_trigger: ["viewport", "hover"],
+        interaction_easing: ["ease", "ease-in", "ease-out", "ease-in-out", "linear"],
+        loading: ["lazy", "eager", "auto"],
+        caption: ["none", "title", "caption"],
+        hover_animation: ["", "zoom", "lift", "fade"],
+        transition: ["slide", "fade"],
+        icon_position: ["left", "right"]
+      }[k] || [];
     };
     app.formatControlValue = function formatControlValue(v) {
       return v && typeof v === "object" ? JSON.stringify(v) : v ?? "";
@@ -2901,8 +3385,12 @@
     };
     app.lbRepeaterTitle = function lbRepeaterTitle(item, titleField, index) {
       const tf = String(titleField || "");
-      if (tf && item && item[tf] != null && String(item[tf]).trim() !== "") return String(item[tf]).replace(/<[^>]+>/g, "").trim().slice(0, 60);
-      const html = tf.replace(/\{\{\{?\s*([\w-]+)\s*\}?\}\}/g, (_, k) => item && item[k] != null ? String(item[k]) : "");
+      if (tf && item && item[tf] != null && String(item[tf]).trim() !== "")
+        return String(item[tf]).replace(/<[^>]+>/g, "").trim().slice(0, 60);
+      const html = tf.replace(
+        /\{\{\{?\s*([\w-]+)\s*\}?\}\}/g,
+        (_, k) => item && item[k] != null ? String(item[k]) : ""
+      );
       const text = html.replace(/<[^>]+>/g, "").trim();
       return text || "Item " + (index + 1);
     };
@@ -2910,7 +3398,8 @@
       const item = { _id: app.eid() };
       Object.keys(fields || {}).forEach((k) => {
         const def = app.lbCtrlDef(fields[k]);
-        if (Object.prototype.hasOwnProperty.call(def, "default")) item[k] = typeof def.default === "object" ? JSON.parse(JSON.stringify(def.default)) : def.default;
+        if (Object.prototype.hasOwnProperty.call(def, "default"))
+          item[k] = typeof def.default === "object" ? JSON.parse(JSON.stringify(def.default)) : def.default;
         else if (def.type === "switch") item[k] = false;
         else if (def.type === "media" || def.type === "number") item[k] = 0;
         else item[k] = "";
@@ -2942,7 +3431,7 @@
             body += html;
           });
         }
-        return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-repeater-index="${i}" data-repeater-id="${app.esc(id)}"><div class="lb-repeater-head"><span class="lb-repeater-handle" title="${app.t("Drag to reorder")}" draggable="true" aria-hidden="true">\u22EE\u22EE</span><button type="button" class="lb-repeater-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(app.lbRepeaterTitle(item, def.title_field, i))}</button><button type="button" class="lb-repeater-dup" title="${app.t("Duplicate")}" aria-label="${app.t("Duplicate")}">\u29C9</button><button type="button" class="lb-repeater-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}"${def.prevent_empty && items.length < 2 ? " disabled" : ""}>\u00D7</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
+        return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-repeater-index="${i}" data-repeater-id="${app.esc(id)}"><div class="lb-repeater-head"><span class="lb-repeater-handle" title="${app.t("Drag to reorder")}" draggable="true" aria-hidden="true">⋮⋮</span><button type="button" class="lb-repeater-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(app.lbRepeaterTitle(item, def.title_field, i))}</button><button type="button" class="lb-repeater-dup" title="${app.t("Duplicate")}" aria-label="${app.t("Duplicate")}">⧉</button><button type="button" class="lb-repeater-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}"${def.prevent_empty && items.length < 2 ? " disabled" : ""}>×</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
       }).join("");
       return `<div class="lb-control lb-repeater" data-repeater-key="${app.esc(k)}" data-prevent-empty="${def.prevent_empty ? "1" : "0"}"><span>${app.esc(label || def.label || k.replace(/_/g, " "))}</span><div class="lb-repeater-items">${rows || '<div class="lb-repeater-empty">No items yet</div>'}</div><button type="button" class="lb-btn lb-repeater-add">+ Add Item</button></div>`;
     };
@@ -2990,38 +3479,44 @@
           app.repeaterOpen[storeOf()] = { [item._id]: true };
           app.render();
         });
-        box.querySelectorAll(".lb-repeater-toggle").forEach((b) => b.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const item = b.closest(".lb-repeater-item");
-          if (!item) return;
-          const id = item.dataset.repeaterId;
-          const map = app.repeaterOpen[storeOf()] || (app.repeaterOpen[storeOf()] = {});
-          map[id] = !map[id];
-          app.refreshRightPanel();
-        });
-        box.querySelectorAll(".lb-repeater-dup").forEach((b) => b.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const { list, i } = indexOf(b.closest(".lb-repeater-item"));
-          if (!list || i < 0 || !list[i]) return;
-          app.commit();
-          const copy = JSON.parse(JSON.stringify(list[i]));
-          copy._id = app.eid();
-          list.splice(i + 1, 0, copy);
-          app.repeaterOpen[storeOf()] = { [copy._id]: true };
-          app.render();
-        });
-        box.querySelectorAll(".lb-repeater-del").forEach((b) => b.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const { list, i } = indexOf(b.closest(".lb-repeater-item"));
-          if (!list || i < 0) return;
-          if (prevent && list.length < 2) return;
-          app.commit();
-          list.splice(i, 1);
-          app.render();
-        });
+        box.querySelectorAll(".lb-repeater-toggle").forEach(
+          (b) => b.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const item = b.closest(".lb-repeater-item");
+            if (!item) return;
+            const id = item.dataset.repeaterId;
+            const map = app.repeaterOpen[storeOf()] || (app.repeaterOpen[storeOf()] = {});
+            map[id] = !map[id];
+            app.refreshRightPanel();
+          }
+        );
+        box.querySelectorAll(".lb-repeater-dup").forEach(
+          (b) => b.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const { list, i } = indexOf(b.closest(".lb-repeater-item"));
+            if (!list || i < 0 || !list[i]) return;
+            app.commit();
+            const copy = JSON.parse(JSON.stringify(list[i]));
+            copy._id = app.eid();
+            list.splice(i + 1, 0, copy);
+            app.repeaterOpen[storeOf()] = { [copy._id]: true };
+            app.render();
+          }
+        );
+        box.querySelectorAll(".lb-repeater-del").forEach(
+          (b) => b.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const { list, i } = indexOf(b.closest(".lb-repeater-item"));
+            if (!list || i < 0) return;
+            if (prevent && list.length < 2) return;
+            app.commit();
+            list.splice(i, 1);
+            app.render();
+          }
+        );
         box.querySelectorAll(".lb-repeater-item").forEach((item) => {
           const handle = item.querySelector(".lb-repeater-handle");
           if (handle) {
@@ -3064,17 +3559,27 @@
       if (type === "repeater") return app.lbRepeaterHTML(k, def, v, l);
       if (type === "spacing" || type === "dimensions") return app.boxControl(k, v, l);
       if (type === "box_shadow") return app.shadowControl(k, v, l);
-      if (type === "gradient") return typeof app.lbGradientHTML === "function" ? app.lbGradientHTML(k, v, l) : `<label class="lb-control"><span>${app.esc(l)}</span><input data-setting="${app.esc(k)}" value="${app.esc(app.formatControlValue(v))}" placeholder="${app.t("linear-gradient(...)")}" type="text"></label>`;
-      if (k === "icon" && type === "text") return `<div class="lb-control"><span>${app.esc(l)}</span><button type="button" class="lb-btn lb-icon-picker" data-icon-picker="1">${app.esc(v || "Choose icon")}</button></div>`;
+      if (type === "gradient")
+        return typeof app.lbGradientHTML === "function" ? app.lbGradientHTML(k, v, l) : `<label class="lb-control"><span>${app.esc(l)}</span><input data-setting="${app.esc(k)}" value="${app.esc(app.formatControlValue(v))}" placeholder="${app.t("linear-gradient(...)")}" type="text"></label>`;
+      if (k === "icon" && type === "text")
+        return `<div class="lb-control"><span>${app.esc(l)}</span><button type="button" class="lb-btn lb-icon-picker" data-icon-picker="1">${app.esc(v || "Choose icon")}</button></div>`;
       if (type === "slider") {
         const units = Array.isArray(def.units) ? def.units : ["px"];
         const range2 = def.range || {};
         const key = def.responsive ? k + "." + app.device : k;
         const val = def.responsive ? v && typeof v === "object" && !Array.isArray(v) ? v[app.device] ?? v.desktop ?? "" : v : v;
-        return app.lbSlider(key, l, val, { units, min: range2.min ?? 0, max: range2.max ?? 1e3, step: range2.step ?? 1, unitless: !units.length });
+        return app.lbSlider(key, l, val, {
+          units,
+          min: range2.min ?? 0,
+          max: range2.max ?? 1e3,
+          step: range2.step ?? 1,
+          unitless: !units.length
+        });
       }
-      if (type === "switch") return `<label class="lb-control lb-switch"><input data-setting="${app.esc(k)}" type="checkbox" ${v ? "checked" : ""}><span>${app.esc(l)}</span></label>`;
-      if (type === "color") return `<label class="lb-control"><span>${app.esc(l)}</span><input data-setting="${app.esc(k)}" type="color" value="${app.esc(v || "#000000")}"></label>`;
+      if (type === "switch")
+        return `<label class="lb-control lb-switch"><input data-setting="${app.esc(k)}" type="checkbox" ${v ? "checked" : ""}><span>${app.esc(l)}</span></label>`;
+      if (type === "color")
+        return `<label class="lb-control"><span>${app.esc(l)}</span><input data-setting="${app.esc(k)}" type="color" value="${app.esc(v || "#000000")}"></label>`;
       if (type === "font" || k === "font_family" || /(^|\.)font_family$/.test(k)) {
         const opts = typeof app.lb104FontOptions === "function" ? app.lb104FontOptions(typeof v === "string" ? v : "") : `<option value="">${app.esc(app.t("Default"))}</option>`;
         return `<label class="lb-control lb-font-family-control"><span>${app.esc(l)} <small>${app.esc(app.t("Google Fonts"))}</small></span><select data-setting="${app.esc(k)}" class="lb-font-family-select" aria-label="${app.esc(l)}">${opts}</select></label>`;
@@ -3091,8 +3596,10 @@
         const ids = String(v || "").split(/[,\s]+/).filter(Boolean), st = app.selected && app.locate(app.state.root, app.selected)?.node?.settings || {};
         return `<div class="lb-control lb32-gallery"><span>${app.esc(l)}</span><div class="lb32-thumbs lb-gallery-open" role="button" title="${app.t("Choose images")}">${ids.map((id) => `<img class="lb32-thumb" src="${app.esc(app.galleryUrlOf(st, id) || app.LB_ATT_PLACEHOLDER)}" data-lb28-att="${app.esc(id)}" data-lb28-size="thumbnail" alt="">`).join("") || '<span class="lb32-thumbs-empty">' + app.t("Choose images") + "</span>"}</div><input data-setting="${app.esc(k)}" type="hidden" value="${app.esc(v || "")}"><button type="button" class="lb-btn lb-gallery-open">${app.t("Choose images")}</button></div>`;
       }
-      if (type === "wysiwyg") return `<label class="lb-control"><span>${app.esc(l)}</span><textarea data-setting="${app.esc(k)}" rows="6"${ph}>${app.esc(v || "")}</textarea></label>`;
-      if (type === "textarea") return `<label class="lb-control"><span>${app.esc(l)}</span><textarea data-setting="${app.esc(k)}" rows="4"${ph}>${app.esc(v || "")}</textarea></label>`;
+      if (type === "wysiwyg")
+        return `<label class="lb-control"><span>${app.esc(l)}</span><textarea data-setting="${app.esc(k)}" rows="6"${ph}>${app.esc(v || "")}</textarea></label>`;
+      if (type === "textarea")
+        return `<label class="lb-control"><span>${app.esc(l)}</span><textarea data-setting="${app.esc(k)}" rows="4"${ph}>${app.esc(v || "")}</textarea></label>`;
       if (def.responsive || app.responsiveKeys.has(k)) return app.responsiveFieldsHTML(k, v, l);
       const input = type === "number" ? "number" : type === "url" ? "url" : "text";
       const range = def.range || {};
@@ -3109,12 +3616,54 @@
     };
     app.lb091Universal = function lb091Universal(n, tab) {
       const s = n.settings || {};
-      if (tab === "style") return app.lb09Section(app.t("Layout & Effects"), app.lbSlider("width", "Width", s.width || "", { units: ["%", "px", "vw", "em"], min: 0, max: 1e3 }) + app.lbSlider("max_width", "Max Width", s.max_width || "", { units: ["px", "%", "vw", "em"], min: 0, max: 2e3 }) + app.lbSlider("height", "Height", s.height || "", { units: ["px", "%", "vh", "em", "auto"], min: 0, max: 2e3 }) + app.lbSlider("min_height", "Min Height", s.min_height || "", { units: ["px", "%", "vh", "em"], min: 0, max: 2e3 }) + app.lbSlider("opacity", "Opacity", s.opacity ?? 1, { unitless: true, min: 0, max: 1, step: 0.05 }) + app.lb09Select("overflow", app.t("Overflow"), s.overflow || "", ["", "visible", "hidden", "auto", "scroll"]) + app.lb09Field("background", app.t("Background"), "text", s.background || "") + app.lb09Field("background_image", app.t("Background Image"), "url", s.background_image || "") + app.lb09Select("background_size", app.t("Background Size"), s.background_size || "", ["", "cover", "contain", "auto"]) + app.lb09Field("background_position", app.t("Background Position"), "text", s.background_position || "center") + app.lb09Select("background_repeat", app.t("Background Repeat"), s.background_repeat || "", ["", "no-repeat", "repeat", "repeat-x", "repeat-y"]) + app.lb09Select("mix_blend_mode", app.t("Blend Mode"), s.mix_blend_mode || "", ["", "normal", "multiply", "screen", "overlay", "darken", "lighten"]), false);
+      if (tab === "style")
+        return app.lb09Section(
+          app.t("Layout & Effects"),
+          app.lbSlider("width", "Width", s.width || "", { units: ["%", "px", "vw", "em"], min: 0, max: 1e3 }) + app.lbSlider("max_width", "Max Width", s.max_width || "", {
+            units: ["px", "%", "vw", "em"],
+            min: 0,
+            max: 2e3
+          }) + app.lbSlider("height", "Height", s.height || "", {
+            units: ["px", "%", "vh", "em", "auto"],
+            min: 0,
+            max: 2e3
+          }) + app.lbSlider("min_height", "Min Height", s.min_height || "", {
+            units: ["px", "%", "vh", "em"],
+            min: 0,
+            max: 2e3
+          }) + app.lbSlider("opacity", "Opacity", s.opacity ?? 1, { unitless: true, min: 0, max: 1, step: 0.05 }) + app.lb09Select("overflow", app.t("Overflow"), s.overflow || "", ["", "visible", "hidden", "auto", "scroll"]) + app.lb09Field("background", app.t("Background"), "text", s.background || "") + app.lb09Field("background_image", app.t("Background Image"), "url", s.background_image || "") + app.lb09Select("background_size", app.t("Background Size"), s.background_size || "", [
+            "",
+            "cover",
+            "contain",
+            "auto"
+          ]) + app.lb09Field(
+            "background_position",
+            app.t("Background Position"),
+            "text",
+            s.background_position || "center"
+          ) + app.lb09Select("background_repeat", app.t("Background Repeat"), s.background_repeat || "", [
+            "",
+            "no-repeat",
+            "repeat",
+            "repeat-x",
+            "repeat-y"
+          ]) + app.lb09Select("mix_blend_mode", app.t("Blend Mode"), s.mix_blend_mode || "", [
+            "",
+            "normal",
+            "multiply",
+            "screen",
+            "overlay",
+            "darken",
+            "lighten"
+          ]),
+          false
+        );
       if (tab === "advanced") return app.lb09AdvancedTab(n);
       return "";
     };
     app.settingsHTML = function settingsHTML() {
-      if (!app.selected) return '<div class="lb-empty-settings">' + app.t("Select a unit to edit its settings.") + "</div>";
+      if (!app.selected)
+        return '<div class="lb-empty-settings">' + app.t("Select a unit to edit its settings.") + "</div>";
       const r = app.locate(app.state.root, app.selected), e = app.meta(r.node.type), s = r.node.settings || {}, groups = { content: [], style: [], advanced: [] };
       Object.entries(e.controls || {}).forEach(([k, t3]) => {
         let g = app.advancedKeys.has(k) ? "advanced" : app.styleKeys.has(k) ? "style" : "content";
@@ -3125,7 +3674,7 @@
       h += app.lb091Universal(r.node, app.styleTab);
       if (app.styleTab === "advanced") {
         const warn = app.accessibilityWarnings(r.node);
-        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div>`;
+        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div>`;
       }
       h += `<div class="lb-action-grid"><button class="lb-btn" id="lb-duplicate">${app.t("Duplicate")}</button><button class="lb-btn danger" id="lb-delete">${app.t("Delete")}</button></div>`;
       return h;
@@ -3167,7 +3716,9 @@
     };
     app.unitPanel = function unitPanel() {
       const q = app.unitSearch.trim().toLowerCase();
-      let list = (app.D.units || []).filter((e) => app.unitInCategory(e) && (!q || [e.title, e.type, e.category, ...e.keywords || []].join(" ").toLowerCase().includes(q)));
+      let list = (app.D.units || []).filter(
+        (e) => app.unitInCategory(e) && (!q || [e.title, e.type, e.category, ...e.keywords || []].join(" ").toLowerCase().includes(q))
+      );
       list.sort((a, b) => app.fav.has(b.type) - app.fav.has(a.type) || a.title.localeCompare(b.title));
       if (!list.length) return '<div class="lb-no-results">' + app.t("No units found.") + "</div>";
       const groups = {};
@@ -3178,15 +3729,17 @@
       return app.unitGroupOrder(Object.keys(groups)).map((c) => {
         const a = groups[c];
         const label = c === "pro" ? "PRO" : c;
-        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>\u2605 " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => (() => {
-          const locked = app.proUnitLocked(e);
-          const hint = locked ? app.t("Canvasly Pro license required") : app.t("Double-click to add");
-          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "\u25A1")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\u2605" : "\u2606"}</b></button>`;
-        })()).join("")}</div></div>`;
+        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>★ " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map(
+          (e) => (() => {
+            const locked = app.proUnitLocked(e);
+            const hint = locked ? app.t("Canvasly Pro license required") : app.t("Double-click to add");
+            return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "□")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></button>`;
+          })()
+        ).join("")}</div></div>`;
       }).join("");
     };
     app.modalHTML = function modalHTML(title, body) {
-      return `<div class="lb-modal-backdrop"><div class="lb-modal" role="dialog" aria-modal="true"><div class="lb-modal-head"><strong>${app.esc(title)}</strong><button data-close-modal aria-label="${app.t("Close")}">\u00D7</button></div><div class="lb-modal-body">${body}</div></div></div>`;
+      return `<div class="lb-modal-backdrop"><div class="lb-modal" role="dialog" aria-modal="true"><div class="lb-modal-head"><strong>${app.esc(title)}</strong><button data-close-modal aria-label="${app.t("Close")}">×</button></div><div class="lb-modal-body">${body}</div></div></div>`;
     };
     app.showModal = function showModal(title, body, after) {
       app.closeModal();
@@ -3206,45 +3759,72 @@
     };
     app.openIconLibrary = function openIconLibrary() {
       const icons = app.D.icons || [];
-      app.showModal(app.t("Canvasly Icon Manager"), `<input class="lb-modal-search" id="lb-icon-search" placeholder="${app.t("Search icons\u2026")}"><div class="lb-form-row"><input id="lb-icon-id" placeholder="${app.t("ID")}"><input id="lb-icon-title" placeholder="${app.t("Title")}"><input id="lb-icon-category" placeholder="${app.t("Category")}" value="Custom"><textarea id="lb-icon-svg" rows="2" placeholder="<svg viewBox=...>...</svg>"></textarea><button class="lb-btn primary" id="lb-icon-add">${app.t("Add SVG")}</button></div><div class="lb-icon-grid">${icons.map((i) => `<button class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" title="${app.esc(i.title)}"><span>${i.svg}</span><small>${app.esc(i.title)}</small></button>`).join("")}</div>`, () => {
-        app.$("#lb-icon-search")?.addEventListener("input", (e) => {
-          app.$$(".lb-icon-choice").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
-        });
-        app.$("#lb-icon-add")?.addEventListener("click", async () => {
-          const d = { id: app.$("#lb-icon-id")?.value, title: app.$("#lb-icon-title")?.value, category: app.$("#lb-icon-category")?.value, svg: app.$("#lb-icon-svg")?.value };
-          const r = await fetch(`${app.D.api}/icons/custom`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify(d) });
-          if (r.ok) {
-            app.D.icons = app.D.icons || [];
-            app.D.icons = app.D.icons.filter((x) => x.id !== d.id).concat([await r.json()]);
-            app.closeModal();
-            openIconLibrary();
-          }
-        });
-      });
+      app.showModal(
+        app.t("Canvasly Icon Manager"),
+        `<input class="lb-modal-search" id="lb-icon-search" placeholder="${app.t("Search icons…")}"><div class="lb-form-row"><input id="lb-icon-id" placeholder="${app.t("ID")}"><input id="lb-icon-title" placeholder="${app.t("Title")}"><input id="lb-icon-category" placeholder="${app.t("Category")}" value="Custom"><textarea id="lb-icon-svg" rows="2" placeholder="<svg viewBox=...>...</svg>"></textarea><button class="lb-btn primary" id="lb-icon-add">${app.t("Add SVG")}</button></div><div class="lb-icon-grid">${icons.map((i) => `<button class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" title="${app.esc(i.title)}"><span>${i.svg}</span><small>${app.esc(i.title)}</small></button>`).join("")}</div>`,
+        () => {
+          app.$("#lb-icon-search")?.addEventListener("input", (e) => {
+            app.$$(".lb-icon-choice").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
+          });
+          app.$("#lb-icon-add")?.addEventListener("click", async () => {
+            const d = {
+              id: app.$("#lb-icon-id")?.value,
+              title: app.$("#lb-icon-title")?.value,
+              category: app.$("#lb-icon-category")?.value,
+              svg: app.$("#lb-icon-svg")?.value
+            };
+            const r = await fetch(`${app.D.api}/icons/custom`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+              body: JSON.stringify(d)
+            });
+            if (r.ok) {
+              app.D.icons = app.D.icons || [];
+              app.D.icons = app.D.icons.filter((x) => x.id !== d.id).concat([await r.json()]);
+              app.closeModal();
+              openIconLibrary();
+            }
+          });
+        }
+      );
     };
     app.openTemplateLibrary = async function openTemplateLibrary() {
       try {
         const items = await (await fetch(`${app.D.api}/templates`, { headers: { "X-WP-Nonce": app.D.nonce } })).json();
-        app.showModal(app.t("Template Library"), `<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates\u2026")}"><div class="lb-library-list">${items.length ? items.map((i) => {
-          const count = (i.document?.root || []).length;
-          return `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type || "page")} \u00B7 ${count} root unit(s)</span><button class="lb-btn" data-template-id="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-template-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-template-del="${i.id}">${app.t("Delete")}</button></div>`;
-        }).join("") : "<p>" + app.t("No templates saved yet.") + "</p>"}</div>`, () => {
-          app.$("#lb-template-search")?.addEventListener("input", (e) => {
-            app.$$(".lb-library-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
-          });
-          app.$$("[data-template-dup]").forEach((b) => b.onclick = async () => {
-            await fetch(`${app.D.api}/templates/${b.dataset.templateDup}/duplicate`, { method: "POST", headers: { "X-WP-Nonce": app.D.nonce } });
-            app.closeModal();
-            openTemplateLibrary();
-          });
-          app.$$("[data-template-del]").forEach((b) => b.onclick = async () => {
-            if (confirm(app.t("Delete this template?"))) {
-              await fetch(`${app.D.api}/templates/${b.dataset.templateDel}`, { method: "DELETE", headers: { "X-WP-Nonce": app.D.nonce } });
-              app.closeModal();
-              openTemplateLibrary();
-            }
-          });
-        });
+        app.showModal(
+          app.t("Template Library"),
+          `<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates…")}"><div class="lb-library-list">${items.length ? items.map((i) => {
+            const count = (i.document?.root || []).length;
+            return `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type || "page")} · ${count} root unit(s)</span><button class="lb-btn" data-template-id="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-template-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-template-del="${i.id}">${app.t("Delete")}</button></div>`;
+          }).join("") : "<p>" + app.t("No templates saved yet.") + "</p>"}</div>`,
+          () => {
+            app.$("#lb-template-search")?.addEventListener("input", (e) => {
+              app.$$(".lb-library-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
+            });
+            app.$$("[data-template-dup]").forEach(
+              (b) => b.onclick = async () => {
+                await fetch(`${app.D.api}/templates/${b.dataset.templateDup}/duplicate`, {
+                  method: "POST",
+                  headers: { "X-WP-Nonce": app.D.nonce }
+                });
+                app.closeModal();
+                openTemplateLibrary();
+              }
+            );
+            app.$$("[data-template-del]").forEach(
+              (b) => b.onclick = async () => {
+                if (confirm(app.t("Delete this template?"))) {
+                  await fetch(`${app.D.api}/templates/${b.dataset.templateDel}`, {
+                    method: "DELETE",
+                    headers: { "X-WP-Nonce": app.D.nonce }
+                  });
+                  app.closeModal();
+                  openTemplateLibrary();
+                }
+              }
+            );
+          }
+        );
       } catch (e) {
         alert(app.t("Could not load templates."));
       }
@@ -3252,19 +3832,37 @@
     app.openComponentLibrary = async function openComponentLibrary() {
       try {
         const items = await (await fetch(`${app.D.api}/components`, { headers: { "X-WP-Nonce": app.D.nonce } })).json();
-        app.showModal(app.t("Components"), `<div class="lb-library-list">${items.length ? items.map((i) => `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><button class="lb-btn" data-component-id="${i.id}">${app.t("Insert")}</button></div>`).join("") : "<p>" + app.t("No components saved yet.") + "</p>"}</div>`);
+        app.showModal(
+          app.t("Components"),
+          `<div class="lb-library-list">${items.length ? items.map((i) => `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><button class="lb-btn" data-component-id="${i.id}">${app.t("Insert")}</button></div>`).join("") : "<p>" + app.t("No components saved yet.") + "</p>"}</div>`
+        );
       } catch (e) {
         alert(app.t("Could not load components."));
       }
     };
     app.openVariables = function openVariables() {
       const v = app.D.variables || {};
-      app.showModal(app.t("Global Variables"), `<p class="lb-muted">Use these design tokens in custom CSS with CSS variables.</p><div class="lb-form-grid">${Object.entries(v.colors || {}).map(([k, val]) => `<label><span>${app.esc(k)}</span><input id="lb-v-color-${app.esc(k)}" type="color" value="${app.esc(val)}"></label>`).join("")}${Object.entries(v.sizes || {}).map(([k, val]) => `<label><span>${app.esc(k)}</span><input id="lb-v-size-${app.esc(k)}" value="${app.esc(val)}"></label>`).join("")}</div><button class="lb-btn primary" id="lb-var-save">${app.t("Save variables")}</button> <button class="lb-btn" id="lb-ds-export">${app.t("Export Design System")}</button>`);
+      app.showModal(
+        app.t("Global Variables"),
+        `<p class="lb-muted">Use these design tokens in custom CSS with CSS variables.</p><div class="lb-form-grid">${Object.entries(
+          v.colors || {}
+        ).map(
+          ([k, val]) => `<label><span>${app.esc(k)}</span><input id="lb-v-color-${app.esc(k)}" type="color" value="${app.esc(val)}"></label>`
+        ).join("")}${Object.entries(v.sizes || {}).map(
+          ([k, val]) => `<label><span>${app.esc(k)}</span><input id="lb-v-size-${app.esc(k)}" value="${app.esc(val)}"></label>`
+        ).join(
+          ""
+        )}</div><button class="lb-btn primary" id="lb-var-save">${app.t("Save variables")}</button> <button class="lb-btn" id="lb-ds-export">${app.t("Export Design System")}</button>`
+      );
       app.$("#lb-var-save")?.addEventListener("click", async () => {
         const colors = { ...v.colors || {} }, sizes = { ...v.sizes || {} };
         Object.keys(colors).forEach((k) => colors[k] = app.$(`#lb-v-color-${k}`)?.value || colors[k]);
         Object.keys(sizes).forEach((k) => sizes[k] = app.$(`#lb-v-size-${k}`)?.value || sizes[k]);
-        const r = await fetch(`${app.D.api}/variables`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ colors, sizes, fonts: v.fonts || {} }) });
+        const r = await fetch(`${app.D.api}/variables`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+          body: JSON.stringify({ colors, sizes, fonts: v.fonts || {} })
+        });
         if (r.ok) {
           app.D.variables = await r.json();
           app.closeModal();
@@ -3282,11 +3880,20 @@
     };
     app.openClassManager = function openClassManager() {
       const items = app.D.classes || {};
-      app.showModal(app.t("Global Classes"), `<div class="lb-form-row"><input id="lb-class-name" placeholder="${app.t("Class name")}"><input id="lb-class-css" placeholder="${app.t("CSS declarations")}"><button class="lb-btn primary" id="lb-class-add">${app.t("Add")}</button></div><div class="lb-library-list">${Object.entries(items).map(([n, c]) => `<div class="lb-library-row"><strong>.${app.esc(n)}</strong><code>${app.esc(c)}</code></div>`).join("")}</div>`);
+      app.showModal(
+        app.t("Global Classes"),
+        `<div class="lb-form-row"><input id="lb-class-name" placeholder="${app.t("Class name")}"><input id="lb-class-css" placeholder="${app.t("CSS declarations")}"><button class="lb-btn primary" id="lb-class-add">${app.t("Add")}</button></div><div class="lb-library-list">${Object.entries(
+          items
+        ).map(([n, c]) => `<div class="lb-library-row"><strong>.${app.esc(n)}</strong><code>${app.esc(c)}</code></div>`).join("")}</div>`
+      );
       app.$("#lb-class-add")?.addEventListener("click", async () => {
         const name = app.$("#lb-class-name").value, css = app.$("#lb-class-css").value;
         if (!name) return;
-        const r = await fetch(`${app.D.api}/classes`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ name, css }) });
+        const r = await fetch(`${app.D.api}/classes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+          body: JSON.stringify({ name, css })
+        });
         if (r.ok) {
           app.D.classes = app.D.classes || {};
           app.D.classes[name.toLowerCase().replace(/[^a-z0-9_-]+/g, "-")] = css;
@@ -3298,22 +3905,38 @@
     app.openRevisions = async function openRevisions() {
       try {
         const items = await (await fetch(`${app.D.api}/document/${app.D.postId}/revisions`, { headers: { "X-WP-Nonce": app.D.nonce } })).json();
-        app.showModal(app.t("Revision History"), `<p class="lb-muted">Select a revision to restore. The current document is preserved as a new revision when saved.</p><div class="lb-library-list">${items.length ? items.slice().reverse().map((i) => `<div class="lb-library-row"><strong>${app.esc(i.time)}</strong><span>${app.t("Revision %s", i.index + 1)}</span><button class="lb-btn" data-revision="${i.index}">${app.t("Restore")}</button></div>`).join("") : "<p>" + app.t("No revisions yet.") + "</p>"}</div>`);
+        app.showModal(
+          app.t("Revision History"),
+          `<p class="lb-muted">Select a revision to restore. The current document is preserved as a new revision when saved.</p><div class="lb-library-list">${items.length ? items.slice().reverse().map(
+            (i) => `<div class="lb-library-row"><strong>${app.esc(i.time)}</strong><span>${app.t("Revision %s", i.index + 1)}</span><button class="lb-btn" data-revision="${i.index}">${app.t("Restore")}</button></div>`
+          ).join("") : "<p>" + app.t("No revisions yet.") + "</p>"}</div>`
+        );
       } catch (e) {
         alert(app.t("Could not load revisions."));
       }
     };
     app.openNavigation = function openNavigation() {
       const items = app.D.navigation || [];
-      app.showModal(app.t("Site Navigation"), `<input class="lb-modal-search" id="lb-nav-search" placeholder="${app.t("Search pages and posts\u2026")}"><div class="lb-library-list">${items.map((i) => `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type)} \u00B7 ${app.esc(i.status)}</span><button class="lb-btn" data-nav-id="${i.id}">${app.t("Open")}</button></div>`).join("")}</div>`, () => app.$("#lb-nav-search")?.addEventListener("input", (e) => {
-        app.$$(".lb-library-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
-      }));
+      app.showModal(
+        app.t("Site Navigation"),
+        `<input class="lb-modal-search" id="lb-nav-search" placeholder="${app.t("Search pages and posts…")}"><div class="lb-library-list">${items.map((i) => `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type)} · ${app.esc(i.status)}</span><button class="lb-btn" data-nav-id="${i.id}">${app.t("Open")}</button></div>`).join("")}</div>`,
+        () => app.$("#lb-nav-search")?.addEventListener("input", (e) => {
+          app.$$(".lb-library-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
+        })
+      );
     };
     app.openPageSettings = function openPageSettings() {
       const s = app.state.settings || {};
       const tpl = app.pageTemplate();
-      const opts = [["default", app.t("Default")], ["full_width", app.t("Full Width")], ["canvas", app.t("Canvas")]].map(([v, l]) => `<option value="${v}" ${tpl === v ? "selected" : ""}>${l}</option>`).join("");
-      app.showModal(app.t("Page Settings"), `<label class="lb-control"><span>${app.t("Page template")}</span><select id="lb-page-template">${opts}</select></label><p class="lb-muted">${app.t("Default uses the theme layout. Full Width keeps the header and footer. Canvas inherits the theme header and footer when the theme has them, and is a blank document otherwise.")}</p>${app.themeChromeScopeHTML()}${app.pageStatusHTML()}<label class="lb-control"><span>${app.t("Page title")}</span><input id="lb-page-title" value="${app.esc(s.title || "")}"></label><label class="lb-control"><span>${app.t("Body class")}</span><input id="lb-body-class" value="${app.esc(s.body_class || "")}"></label><label class="lb-control"><span>${app.t("Content width")}</span><input id="lb-page-width" value="${app.esc(s.page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "1180px")}"></label><label class="lb-control lb-code-editor"><span>${app.t("Page custom CSS")}</span><textarea id="lb-page-css" class="lb-code-textarea" data-lb-code="css" rows="8">${app.esc(s.custom_css || "")}</textarea></label><button type="button" class="lb-btn primary" id="lb-page-save">${app.t("Save")}</button>`);
+      const opts = [
+        ["default", app.t("Default")],
+        ["full_width", app.t("Full Width")],
+        ["canvas", app.t("Canvas")]
+      ].map(([v, l]) => `<option value="${v}" ${tpl === v ? "selected" : ""}>${l}</option>`).join("");
+      app.showModal(
+        app.t("Page Settings"),
+        `<label class="lb-control"><span>${app.t("Page template")}</span><select id="lb-page-template">${opts}</select></label><p class="lb-muted">${app.t("Default uses the theme layout. Full Width keeps the header and footer. Canvas inherits the theme header and footer when the theme has them, and is a blank document otherwise.")}</p>${app.themeChromeScopeHTML()}${app.pageStatusHTML()}<label class="lb-control"><span>${app.t("Page title")}</span><input id="lb-page-title" value="${app.esc(s.title || "")}"></label><label class="lb-control"><span>${app.t("Body class")}</span><input id="lb-body-class" value="${app.esc(s.body_class || "")}"></label><label class="lb-control"><span>${app.t("Content width")}</span><input id="lb-page-width" value="${app.esc(s.page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "1180px")}"></label><label class="lb-control lb-code-editor"><span>${app.t("Page custom CSS")}</span><textarea id="lb-page-css" class="lb-code-textarea" data-lb-code="css" rows="8">${app.esc(s.custom_css || "")}</textarea></label><button type="button" class="lb-btn primary" id="lb-page-save">${app.t("Save")}</button>`
+      );
       const readSettings = () => {
         const next = Object.assign({}, app.state.settings || {}, {
           title: app.$("#lb-page-title")?.value || "",
@@ -3326,8 +3949,13 @@
         return next;
       };
       const preview = () => {
-        app.state.settings = Object.assign({}, app.state.settings || {}, { template: app.$("#lb-page-template")?.value || "default", page_width: app.$("#lb-page-width")?.value || "", body_class: app.$("#lb-body-class")?.value || "" });
-        if (!["default", "full_width", "canvas"].includes(app.state.settings.template)) app.state.settings.template = "default";
+        app.state.settings = Object.assign({}, app.state.settings || {}, {
+          template: app.$("#lb-page-template")?.value || "default",
+          page_width: app.$("#lb-page-width")?.value || "",
+          body_class: app.$("#lb-body-class")?.value || ""
+        });
+        if (!["default", "full_width", "canvas"].includes(app.state.settings.template))
+          app.state.settings.template = "default";
         app.applyPageTemplatePreview();
       };
       app.$("#lb-page-template")?.addEventListener("change", () => {
@@ -3335,16 +3963,18 @@
         preview();
         app.dirty = true;
       });
-      app.$$('input[name="lb-chrome-scope"]').forEach((el) => el.addEventListener("change", () => {
-        if (el.disabled) return;
-        const next = el.value === "theme" && app.canPublishThemeChrome() ? "theme" : "page";
-        if (next === app.themeChromeScope) return;
-        app.themeChromeScope = next;
-        app.themeChromeScopeDirty = true;
-        app.dirty = true;
-        app.syncInheritScopeLabels();
-        if (app.scheduleSave) app.scheduleSave();
-      }));
+      app.$$('input[name="lb-chrome-scope"]').forEach(
+        (el) => el.addEventListener("change", () => {
+          if (el.disabled) return;
+          const next = el.value === "theme" && app.canPublishThemeChrome() ? "theme" : "page";
+          if (next === app.themeChromeScope) return;
+          app.themeChromeScope = next;
+          app.themeChromeScopeDirty = true;
+          app.dirty = true;
+          app.syncInheritScopeLabels();
+          if (app.scheduleSave) app.scheduleSave();
+        })
+      );
       app.$("#lb-page-width")?.addEventListener("input", preview);
       app.$("#lb-body-class")?.addEventListener("input", preview);
       app.$("#lb-page-status")?.addEventListener("change", (e) => {
@@ -3364,7 +3994,12 @@
       const current = app.postStatus();
       const selected = app.statusIntent || (typeof app.publishTarget === "function" ? app.publishTarget() : current) || current || "draft";
       const canPublish = !!(app.D && app.D.canPublish);
-      const opts = [["draft", app.t("Draft")], ["pending", app.t("Pending review")], ["publish", app.t("Published")], ["private", app.t("Private")]];
+      const opts = [
+        ["draft", app.t("Draft")],
+        ["pending", app.t("Pending review")],
+        ["publish", app.t("Published")],
+        ["private", app.t("Private")]
+      ];
       if (current && !opts.some((o) => o[0] === current)) opts.unshift([current, current]);
       const html = opts.map(([v, l]) => {
         const locked = (v === "publish" || v === "private") && !canPublish && v !== current;
@@ -3398,20 +4033,38 @@
     app.lbDropStrayClosers = function lbDropStrayClosers(html) {
       html = String(html || "");
       if (html.indexOf("</") === -1) return html;
-      const voids = { area: 1, base: 1, br: 1, col: 1, embed: 1, hr: 1, img: 1, input: 1, link: 1, meta: 1, param: 1, source: 1, track: 1, wbr: 1 };
+      const voids = {
+        area: 1,
+        base: 1,
+        br: 1,
+        col: 1,
+        embed: 1,
+        hr: 1,
+        img: 1,
+        input: 1,
+        link: 1,
+        meta: 1,
+        param: 1,
+        source: 1,
+        track: 1,
+        wbr: 1
+      };
       const stack = [];
-      return html.replace(/<!--[\s\S]*?-->|<(style|textarea|title)\b[^>]*>[\s\S]*?<\/\1\s*>|<(\/?)([a-zA-Z][a-zA-Z0-9:-]*)\b[^>]*>/g, (all, raw, close, tag) => {
-        if (!tag) return all;
-        const name = tag.toLowerCase();
-        if (close !== "/") {
-          if (!voids[name] && all.slice(-2) !== "/>") stack.push(name);
+      return html.replace(
+        /<!--[\s\S]*?-->|<(style|textarea|title)\b[^>]*>[\s\S]*?<\/\1\s*>|<(\/?)([a-zA-Z][a-zA-Z0-9:-]*)\b[^>]*>/g,
+        (all, raw, close, tag) => {
+          if (!tag) return all;
+          const name = tag.toLowerCase();
+          if (close !== "/") {
+            if (!voids[name] && all.slice(-2) !== "/>") stack.push(name);
+            return all;
+          }
+          const at = stack.lastIndexOf(name);
+          if (at === -1) return "";
+          stack.length = at;
           return all;
         }
-        const at = stack.lastIndexOf(name);
-        if (at === -1) return "";
-        stack.length = at;
-        return all;
-      });
+      );
     };
     app.lbIsolateThemeChrome = function lbIsolateThemeChrome(html) {
       html = app.lbDropStrayClosers(html);
@@ -3438,14 +4091,19 @@
         if (type === "header" || type === "footer") return true;
         const tokens = String(el.getAttribute("class") || "").toLowerCase().split(/\s+/);
         if (id) tokens.push(id);
-        return tokens.some((token) => /(^|-)(footer|colophon)($|-)/.test(token) || /(^|-)(header|masthead)($|-)/.test(token) && token.indexOf("content") === -1);
+        return tokens.some(
+          (token) => /(^|-)(footer|colophon)($|-)/.test(token) || /(^|-)(header|masthead)($|-)/.test(token) && token.indexOf("content") === -1
+        );
       };
-      root.querySelectorAll("#preloader,.preloader,.page-loader,.site-loader,.loader-wrapper,.loading-screen,.preloader-wrap").forEach((el) => el.remove());
+      root.querySelectorAll(
+        "#preloader,.preloader,.page-loader,.site-loader,.loader-wrapper,.loading-screen,.preloader-wrap"
+      ).forEach((el) => el.remove());
       root.querySelectorAll("[style]").forEach((el) => {
         if (!el.parentNode || chromeLandmark(el)) return;
         const style = String(el.getAttribute("style") || "").toLowerCase();
         if (!/position\s*:\s*fixed/.test(style)) return;
-        if (/(?:inset\s*:\s*0|height\s*:\s*100(?:%|vh)|bottom\s*:\s*0)/.test(style) && /(?:width\s*:\s*100%|left\s*:\s*0|inset\s*:\s*0)/.test(style)) el.remove();
+        if (/(?:inset\s*:\s*0|height\s*:\s*100(?:%|vh)|bottom\s*:\s*0)/.test(style) && /(?:width\s*:\s*100%|left\s*:\s*0|inset\s*:\s*0)/.test(style))
+          el.remove();
       });
       root.querySelectorAll("#content,#primary,#main,main,.site-content,.content-area,.site-main,.content-wrap").forEach((el) => {
         if (!el.parentNode) return;
@@ -3498,7 +4156,9 @@
       return `<fieldset class="lb-chrome-scope"><legend>${app.esc(app.t("Theme header and footer"))}</legend><p class="lb-muted">${app.esc(app.t("Click the header or footer on the canvas to edit it. Choose where those edits are saved."))}</p>${page}${theme}</fieldset>`;
     };
     app.chromeFragmentVisible = function chromeFragmentVisible(html) {
-      const raw = app.lbDropStrayClosers(String(html || "").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "").replace(/<link\b[^>]*>/gi, ""));
+      const raw = app.lbDropStrayClosers(
+        String(html || "").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "").replace(/<link\b[^>]*>/gi, "")
+      );
       if (!raw.trim()) return false;
       if (typeof DOMParser === "undefined") return raw.replace(/<[^>]+>/g, "").trim().length > 0;
       const doc = new DOMParser().parseFromString('<div id="lb-vis">' + raw + "</div>", "text/html");
@@ -3701,14 +4361,18 @@
       let text;
       while (text = walker.nextNode()) nodes.push(text);
       nodes.forEach((node) => {
-        if (node.parentElement && node.parentElement.closest && node.parentElement.closest("[data-lb-unit],.lb-node,.lb-inherit-toolbar")) return;
+        if (node.parentElement && node.parentElement.closest && node.parentElement.closest("[data-lb-unit],.lb-node,.lb-inherit-toolbar"))
+          return;
         const next = String(node.nodeValue || "").replace(/\bunit:([a-z0-9_-]+)/gi, (all, type) => types.has(type) ? "" : all).replace(/\bnode:n_[a-z0-9]+\b/g, "");
         if (next !== node.nodeValue) node.nodeValue = next;
       });
     };
     app.importChromeUnits = function importChromeUnits(part, html) {
       if (part !== "header" && part !== "footer" || !html || typeof DOMParser === "undefined") return;
-      const doc = new DOMParser().parseFromString('<div id="lb-chrome-import">' + app.lbDropStrayClosers(html) + "</div>", "text/html");
+      const doc = new DOMParser().parseFromString(
+        '<div id="lb-chrome-import">' + app.lbDropStrayClosers(html) + "</div>",
+        "text/html"
+      );
       const root = doc.getElementById("lb-chrome-import");
       if (!root) return;
       root.querySelectorAll("[data-lb-unit]").forEach((host) => {
@@ -3813,7 +4477,10 @@
       if (!body || !doc) return;
       app.scrubUnitDropText(body);
       const fd = app.frameDoc();
-      if (moving && fd) fd.querySelectorAll('[data-lb-unit="' + String(typeOrId).replace(/"/g, "") + '"]').forEach((host2) => host2.remove());
+      if (moving && fd)
+        fd.querySelectorAll('[data-lb-unit="' + String(typeOrId).replace(/"/g, "") + '"]').forEach(
+          (host2) => host2.remove()
+        );
       const host = doc.createElement("div");
       host.className = "lb-chrome-unit";
       host.setAttribute("contenteditable", "false");
@@ -3866,7 +4533,8 @@
     app.ensureInheritEditor = function ensureInheritEditor(el) {
       if (!el || el.dataset.lbThemeInherit !== "header" && el.dataset.lbThemeInherit !== "footer") return;
       const doc = el.ownerDocument;
-      if (!el.querySelector(":scope > .lb-inherit-toolbar")) el.insertAdjacentHTML("afterbegin", app.inheritToolbarHTML());
+      if (!el.querySelector(":scope > .lb-inherit-toolbar"))
+        el.insertAdjacentHTML("afterbegin", app.inheritToolbarHTML());
       let body = el.querySelector(":scope > .lb-inherit-body");
       if (!body) {
         body = doc.createElement("div");
@@ -3894,28 +4562,36 @@
         app.scrubUnitDropText(body);
         app.captureInheritedChrome(el);
       });
-      el.addEventListener("dragover", (ev) => {
-        const payload = window.__lbDragPayload || "";
-        if (!/^unit:|^node:/.test(payload)) return;
-        if (ev.target.closest && ev.target.closest(".lb-node")) return;
-        ev.preventDefault();
-        ev.stopPropagation();
-        if (ev.dataTransfer) ev.dataTransfer.dropEffect = payload.startsWith("node:") ? "move" : "copy";
-        el.classList.add("canvas-drop");
-      }, true);
+      el.addEventListener(
+        "dragover",
+        (ev) => {
+          const payload = window.__lbDragPayload || "";
+          if (!/^unit:|^node:/.test(payload)) return;
+          if (ev.target.closest && ev.target.closest(".lb-node")) return;
+          ev.preventDefault();
+          ev.stopPropagation();
+          if (ev.dataTransfer) ev.dataTransfer.dropEffect = payload.startsWith("node:") ? "move" : "copy";
+          el.classList.add("canvas-drop");
+        },
+        true
+      );
       el.addEventListener("dragleave", (ev) => {
         if (!el.contains(ev.relatedTarget)) el.classList.remove("canvas-drop");
       });
-      el.addEventListener("drop", (ev) => {
-        const payload = ev.dataTransfer.getData("text/plain") || window.__lbDragPayload || "";
-        if (!/^unit:|^node:/.test(payload)) return;
-        if (ev.target.closest && ev.target.closest(".lb-node")) return;
-        ev.preventDefault();
-        ev.stopPropagation();
-        el.classList.remove("canvas-drop");
-        if (payload.startsWith("unit:")) app.insertInheritedUnit(el, payload.slice(5), ev, false);
-        else app.insertInheritedUnit(el, payload.slice(5), ev, true);
-      }, true);
+      el.addEventListener(
+        "drop",
+        (ev) => {
+          const payload = ev.dataTransfer.getData("text/plain") || window.__lbDragPayload || "";
+          if (!/^unit:|^node:/.test(payload)) return;
+          if (ev.target.closest && ev.target.closest(".lb-node")) return;
+          ev.preventDefault();
+          ev.stopPropagation();
+          el.classList.remove("canvas-drop");
+          if (payload.startsWith("unit:")) app.insertInheritedUnit(el, payload.slice(5), ev, false);
+          else app.insertInheritedUnit(el, payload.slice(5), ev, true);
+        },
+        true
+      );
       el.querySelectorAll(".lb-inherit-toolbar [data-lb-cmd]").forEach((btn) => {
         btn.addEventListener("mousedown", (ev) => ev.preventDefault());
         btn.addEventListener("click", (ev) => {
@@ -3939,12 +4615,16 @@
       fd.querySelectorAll("[data-lb-theme-inherit]").forEach((el) => app.ensureInheritEditor(el));
       if (fd.__lbInheritNav) return;
       fd.__lbInheritNav = true;
-      fd.addEventListener("click", (e) => {
-        const bar = e.target.closest && e.target.closest("[data-lb-theme-inherit]");
-        if (!bar || e.target.closest && e.target.closest(".lb-inherit-toolbar")) return;
-        const link = e.target.closest && e.target.closest("a,button");
-        if (link) e.preventDefault();
-      }, true);
+      fd.addEventListener(
+        "click",
+        (e) => {
+          const bar = e.target.closest && e.target.closest("[data-lb-theme-inherit]");
+          if (!bar || e.target.closest && e.target.closest(".lb-inherit-toolbar")) return;
+          const link = e.target.closest && e.target.closest("a,button");
+          if (link) e.preventDefault();
+        },
+        true
+      );
     };
     app.applyThemeBodyClass = function applyThemeBodyClass(el) {
       if (!el || !el.classList) return;
@@ -4036,9 +4716,16 @@
         const footer = app.lbDropStrayClosers(String(data.footer || ""));
         app.themeChromeHtml = { header, footer };
         app.themeChromeBaseline = { header, footer };
-        app.themeChromeLive = { header: String(data.live && data.live.header || ""), footer: String(data.live && data.live.footer || "") };
+        app.themeChromeLive = {
+          header: String(data.live && data.live.header || ""),
+          footer: String(data.live && data.live.footer || "")
+        };
         const styles = data.styles && typeof data.styles === "object" ? data.styles : {};
-        app.themeChromeStyles = { css: String(styles.css || ""), links: Array.isArray(styles.links) ? styles.links.slice() : [], home: String(data.home || "") };
+        app.themeChromeStyles = {
+          css: String(styles.css || ""),
+          links: Array.isArray(styles.links) ? styles.links.slice() : [],
+          home: String(data.home || "")
+        };
         app.themeChromeBodyClass = String(data.bodyClass || "");
         app.themeChromeInlineCss = [];
         app.themeChromeAssetHtml = { header: "", footer: "" };
@@ -4071,7 +4758,11 @@
       let scope = app.themeChromeScope === "theme" ? "theme" : "page";
       if (scope === "theme" && !app.canPublishThemeChrome()) scope = "page";
       const api = String(app.D && app.D.api || "").replace(/\/$/, "");
-      const r = await fetch(api + "/theme-chrome", { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce || "" }, body: JSON.stringify({ post_id: id, scope, parts }) });
+      const r = await fetch(api + "/theme-chrome", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce || "" },
+        body: JSON.stringify({ post_id: id, scope, parts })
+      });
       if (!r.ok) throw Error();
       const now = app.themeChromeHtml || {};
       const nextBase = {
@@ -4140,8 +4831,12 @@
     app.syncChromeFocus = function syncChromeFocus() {
       const fd = app.frameDoc();
       if (!fd) return;
-      fd.querySelectorAll("[data-lb-chrome]").forEach((el) => el.classList.toggle("is-editing", el.dataset.lbChrome === app.chromeFocus));
-      fd.querySelectorAll("[data-lb-theme-inherit]").forEach((el) => el.classList.toggle("is-editing", el.dataset.lbThemeInherit === app.chromeFocus));
+      fd.querySelectorAll("[data-lb-chrome]").forEach(
+        (el) => el.classList.toggle("is-editing", el.dataset.lbChrome === app.chromeFocus)
+      );
+      fd.querySelectorAll("[data-lb-theme-inherit]").forEach(
+        (el) => el.classList.toggle("is-editing", el.dataset.lbThemeInherit === app.chromeFocus)
+      );
     };
     app.pageDropHTML = function pageDropHTML() {
       const btn = (action, cls, title, inner) => '<button type="button" class="lb-page-drop-btn ' + cls + '" data-lb-drop-action="' + action + '" title="' + app.esc(title) + '" aria-label="' + app.esc(title) + '">' + inner + "</button>";
@@ -4179,12 +4874,16 @@
       const slug = "lb-template-" + tpl.replace(/_/g, "-");
       fd.body.className = app.pageTemplateBodyClass();
       if (fd.documentElement) {
-        ["lb-template-default", "lb-template-full-width", "lb-template-canvas"].forEach((c) => fd.documentElement.classList.remove(c));
+        ["lb-template-default", "lb-template-full-width", "lb-template-canvas"].forEach(
+          (c) => fd.documentElement.classList.remove(c)
+        );
         fd.documentElement.classList.add(slug);
       }
       const root = fd.querySelector(".lb-frame-root");
       if (!root) return;
-      const width = String((app.state.settings || {}).page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "").trim();
+      const width = String(
+        (app.state.settings || {}).page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || ""
+      ).trim();
       if (tpl === "default" && width) root.style.setProperty("--lb-page-width", width);
       else root.style.removeProperty("--lb-page-width");
       const show = app.pageShowsThemeChrome();
@@ -4205,10 +4904,14 @@
       const button = document.getElementById("lb-create-page");
       if (button) {
         button.disabled = true;
-        button.textContent = app.t("Creating\u2026");
+        button.textContent = app.t("Creating…");
       }
       try {
-        const r = await fetch(`${app.D.api}/pages`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ title }) });
+        const r = await fetch(`${app.D.api}/pages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+          body: JSON.stringify({ title })
+        });
         const data = await r.json().catch(() => ({}));
         if (!r.ok || !data.id) throw new Error(data?.message || "WordPress could not create the page.");
         window.location.href = data.url || `${app.D.adminUrl}admin.php?page=canvasly-lite&post_id=${data.id}`;
@@ -4222,40 +4925,50 @@
       }
     };
     app.openPageMenu = function openPageMenu() {
-      app.showModal(app.t("Page"), `<div class="lb-page-actions"><button type="button" class="lb-btn" id="lb-open-page-settings">${app.t("Page Settings")}</button><button type="button" class="lb-btn primary" id="lb-open-add-page">Add New Page</button></div>`, () => {
-        document.getElementById("lb-open-page-settings")?.addEventListener("click", () => {
-          app.closeModal();
-          app.openPageSettings();
-        });
-        document.getElementById("lb-open-add-page")?.addEventListener("click", () => {
-          const body = `<p>Create a new WordPress Page and open it directly in Canvasly. This avoids leaving the Canvasly workspace.</p><label class="lb-control"><span>Page title</span><input id="lb-new-page-title" value="Canvasly Page" autofocus></label><div id="lb-new-page-error" class="lb-tinymce-error" aria-live="polite"></div><div class="lb-tinymce-actions"><button type="button" class="lb-btn" data-close-modal>Cancel</button><button type="button" class="lb-btn primary" id="lb-create-page">${app.t("Add Page")}</button></div>`;
-          app.showModal(app.t("Add New Page"), body, () => {
-            document.getElementById("lb-create-page")?.addEventListener("click", app.addNewPage);
-            document.getElementById("lb-new-page-title")?.addEventListener("keydown", (e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                app.addNewPage();
-              }
+      app.showModal(
+        app.t("Page"),
+        `<div class="lb-page-actions"><button type="button" class="lb-btn" id="lb-open-page-settings">${app.t("Page Settings")}</button><button type="button" class="lb-btn primary" id="lb-open-add-page">Add New Page</button></div>`,
+        () => {
+          document.getElementById("lb-open-page-settings")?.addEventListener("click", () => {
+            app.closeModal();
+            app.openPageSettings();
+          });
+          document.getElementById("lb-open-add-page")?.addEventListener("click", () => {
+            const body = `<p>Create a new WordPress Page and open it directly in Canvasly. This avoids leaving the Canvasly workspace.</p><label class="lb-control"><span>Page title</span><input id="lb-new-page-title" value="Canvasly Page" autofocus></label><div id="lb-new-page-error" class="lb-tinymce-error" aria-live="polite"></div><div class="lb-tinymce-actions"><button type="button" class="lb-btn" data-close-modal>Cancel</button><button type="button" class="lb-btn primary" id="lb-create-page">${app.t("Add Page")}</button></div>`;
+            app.showModal(app.t("Add New Page"), body, () => {
+              document.getElementById("lb-create-page")?.addEventListener("click", app.addNewPage);
+              document.getElementById("lb-new-page-title")?.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  app.addNewPage();
+                }
+              });
             });
           });
-        });
-      });
+        }
+      );
     };
     app.bindModal = function bindModal() {
-      document.querySelectorAll(".lb-modal-backdrop").forEach((b) => b.addEventListener("click", (e) => {
-        if (e.target === b || e.target.closest("[data-close-modal]")) app.closeModal();
-      }));
-      document.querySelectorAll(".lb-modal-backdrop [data-icon-id]").forEach((b) => b.onclick = () => {
-        if (app.selected) app.update("icon", b.dataset.iconId);
-        app.closeModal();
-      });
+      document.querySelectorAll(".lb-modal-backdrop").forEach(
+        (b) => b.addEventListener("click", (e) => {
+          if (e.target === b || e.target.closest("[data-close-modal]")) app.closeModal();
+        })
+      );
+      document.querySelectorAll(".lb-modal-backdrop [data-icon-id]").forEach(
+        (b) => b.onclick = () => {
+          if (app.selected) app.update("icon", b.dataset.iconId);
+          app.closeModal();
+        }
+      );
       document.querySelectorAll(".lb-modal-backdrop [data-template-id]").forEach((b) => b.onclick = () => app.loadTemplate(b.dataset.templateId));
       document.querySelectorAll(".lb-modal-backdrop [data-component-id]").forEach((b) => b.onclick = () => app.loadComponent(b.dataset.componentId));
       document.querySelectorAll(".lb-modal-backdrop [data-revision]").forEach((b) => b.onclick = () => app.restoreRevision(b.dataset.revision));
-      document.querySelectorAll(".lb-modal-backdrop [data-nav-id]").forEach((b) => b.onclick = () => {
-        const n = (app.D.navigation || []).find((x) => String(x.id) === String(b.dataset.navId));
-        if (n?.id) window.open(`${app.D.adminUrl}admin.php?page=canvasly-lite&post_id=${n.id}`, "_blank");
-      });
+      document.querySelectorAll(".lb-modal-backdrop [data-nav-id]").forEach(
+        (b) => b.onclick = () => {
+          const n = (app.D.navigation || []).find((x) => String(x.id) === String(b.dataset.navId));
+          if (n?.id) window.open(`${app.D.adminUrl}admin.php?page=canvasly-lite&post_id=${n.id}`, "_blank");
+        }
+      );
     };
     app.loadTemplate = async function loadTemplate(id) {
       const r = await fetch(`${app.D.api}/templates/${id}`, { headers: { "X-WP-Nonce": app.D.nonce } }), doc = await r.json();
@@ -4277,7 +4990,10 @@
     };
     app.restoreRevision = async function restoreRevision(i) {
       if (!confirm("Restore this revision? Current changes will be saved as a new revision first.")) return;
-      const r = await fetch(`${app.D.api}/document/${app.D.postId}/revisions/${i}/restore`, { method: "POST", headers: { "X-WP-Nonce": app.D.nonce } });
+      const r = await fetch(`${app.D.api}/document/${app.D.postId}/revisions/${i}/restore`, {
+        method: "POST",
+        headers: { "X-WP-Nonce": app.D.nonce }
+      });
       if (r.ok) {
         const d = await r.json();
         app.state = d.document || app.state;
@@ -4290,14 +5006,26 @@
       const title = prompt(app.t("Template name:"), "My Template");
       if (!title) return;
       const type = prompt(app.t("Template type: page, section or block"), "page") || "page";
-      const r = await fetch(`${app.D.api}/templates`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ title, type, document: app.state }) });
+      const r = await fetch(`${app.D.api}/templates`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify({ title, type, document: app.state })
+      });
       if (!r.ok) alert(app.t("Could not save template."));
     };
     app.saveComponent = async function saveComponent() {
       if (!app.selected) return;
       const r = app.locate(app.state.root, app.selected), title = prompt(app.t("Component name:"), "Reusable Component");
       if (!r || !title) return;
-      const x = await fetch(`${app.D.api}/components`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ title, document: { version: "2.1", root: [app.clone(r.node)], atomic: true }, exposed: ["text", "title", "url", "image_url", "color", "background"] }) });
+      const x = await fetch(`${app.D.api}/components`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify({
+          title,
+          document: { version: "2.1", root: [app.clone(r.node)], atomic: true },
+          exposed: ["text", "title", "url", "image_url", "color", "background"]
+        })
+      });
       if (!x.ok) alert(app.t("Could not save component."));
     };
     app.openMedia = function openMedia(e) {
@@ -4308,7 +5036,12 @@
       const types = raw.split(/[,\s]+/).filter(Boolean);
       const libraryType = types.length === 1 ? types[0] : types.length ? types : "image";
       const videoOnly = types.length === 1 && types[0] === "video";
-      const f = wp.media({ title: app.t(videoOnly ? "Select Video" : "Select Image"), button: { text: app.t(videoOnly ? "Use Video" : "Use this file") }, multiple: false, library: { type: libraryType } });
+      const f = wp.media({
+        title: app.t(videoOnly ? "Select Video" : "Select Image"),
+        button: { text: app.t(videoOnly ? "Use Video" : "Use this file") },
+        multiple: false,
+        library: { type: libraryType }
+      });
       f.on("select", () => {
         const a = f.state().get("selection").first().toJSON(), r = app.locate(app.state.root, app.selected);
         if (!r) return;
@@ -4326,7 +5059,12 @@
       if (!window.wp?.media || !app.selected) return;
       const r = app.locate(app.state.root, app.selected);
       if (!r) return;
-      const f = wp.media({ title: app.t("Select Gallery Images"), button: { text: app.t("Use Images") }, multiple: true, library: { type: "image" } });
+      const f = wp.media({
+        title: app.t("Select Gallery Images"),
+        button: { text: app.t("Use Images") },
+        multiple: true,
+        library: { type: "image" }
+      });
       f.on("select", () => {
         const items = app.mediaSelectionItems(f), ids = items.map((x) => x.id).filter(Boolean);
         app.commit();
@@ -4345,7 +5083,11 @@
     app.toggleFavorite = function toggleFavorite(type) {
       if (app.fav.has(type)) app.fav.delete(type);
       else app.fav.add(type);
-      fetch(`${app.D.api}/favorites`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ items: [...app.fav] }) });
+      fetch(`${app.D.api}/favorites`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify({ items: [...app.fav] })
+      });
       app.render();
     };
     app.startResize = function startResize(side, e) {
@@ -4397,8 +5139,8 @@
         ["exit", app.t("Exit to WordPress Dashboard"), app.t("Return to the WordPress dashboard.")]
       ];
       const html = `<div class="lb-main-menu" role="menu" aria-label="${app.t("Canvasly menu")}">
-   <div class="lb-main-menu-head"><strong>Canvasly</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">\u00D7</button></div>
-   ${items.map((it, i) => `<button type="button" class="lb-main-menu-item ${it[0] === "exit" ? "is-exit" : ""}" data-main-menu="${it[0]}" role="menuitem"><span class="lb-menu-mark lb-menu-${it[0]}" aria-hidden="true">${i === 0 ? "\u2699" : i === 1 ? "\u25A4" : i === 2 ? "\u25A2" : i === 3 ? "\u25C9" : i === 4 ? "\u2328" : i === 5 ? "?" : i === 6 ? "\u25CE" : "\u21AA"}</span><span><b>${app.esc(it[1])}</b><small>${app.esc(it[2])}</small></span></button>`).join("")}
+   <div class="lb-main-menu-head"><strong>Canvasly</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">×</button></div>
+   ${items.map((it, i) => `<button type="button" class="lb-main-menu-item ${it[0] === "exit" ? "is-exit" : ""}" data-main-menu="${it[0]}" role="menuitem"><span class="lb-menu-mark lb-menu-${it[0]}" aria-hidden="true">${i === 0 ? "⚙" : i === 1 ? "▤" : i === 2 ? "▢" : i === 3 ? "◉" : i === 4 ? "⌨" : i === 5 ? "?" : i === 6 ? "◎" : "↪"}</span><span><b>${app.esc(it[1])}</b><small>${app.esc(it[2])}</small></span></button>`).join("")}
  </div>`;
       app.root.insertAdjacentHTML("beforeend", html);
       app.root.querySelector("[data-menu-close]").onclick = app.closeMainMenu;
@@ -4416,11 +5158,17 @@
         return;
       }
       if (action === "theme-builder") {
-        app.showMenuDialog(app.t("Theme Builder"), '<p>Theme Builder is the Canvasly workspace for site templates such as headers, footers, single posts, archives and other theme areas.</p><p class="lb-menu-note">The full Theme Builder is planned for the Pro module. Your current page remains open.</p>');
+        app.showMenuDialog(
+          app.t("Theme Builder"),
+          '<p>Theme Builder is the Canvasly workspace for site templates such as headers, footers, single posts, archives and other theme areas.</p><p class="lb-menu-note">The full Theme Builder is planned for the Pro module. Your current page remains open.</p>'
+        );
         return;
       }
       if (action === "notes") {
-        app.showMenuDialog(app.t("Notes"), '<label class="lb-control"><span>Page notes</span><textarea id="lb-page-notes" rows="8" placeholder="' + app.t("Add private notes for this page\u2026") + '">' + app.esc(app.state.settings?.notes || "") + '</textarea></label><button type="button" class="lb-btn primary" id="lb-save-notes">' + app.t("Save Notes") + "</button>");
+        app.showMenuDialog(
+          app.t("Notes"),
+          '<label class="lb-control"><span>Page notes</span><textarea id="lb-page-notes" rows="8" placeholder="' + app.t("Add private notes for this page…") + '">' + app.esc(app.state.settings?.notes || "") + '</textarea></label><button type="button" class="lb-btn primary" id="lb-save-notes">' + app.t("Save Notes") + "</button>"
+        );
         app.$("#lb-save-notes")?.addEventListener("click", () => {
           app.state.settings = app.state.settings || {};
           app.state.settings.notes = app.$("#lb-page-notes")?.value || "";
@@ -4435,19 +5183,31 @@
           app.openPreferences();
           return;
         }
-        app.showMenuDialog(app.t("User Preferences"), '<div class="lb-preference-list"><label><input type="checkbox" id="lb-pref-autosave" checked> ' + app.t("Enable autosave") + '</label><label><input type="checkbox" id="lb-pref-tips" checked> ' + app.t("Show editor tips") + '</label><label><input type="checkbox" id="lb-pref-confirm-delete" checked> ' + app.t("Confirm destructive actions") + '</label></div><button type="button" class="lb-btn primary" id="lb-save-preferences">' + app.t("Save Preferences") + "</button>");
+        app.showMenuDialog(
+          app.t("User Preferences"),
+          '<div class="lb-preference-list"><label><input type="checkbox" id="lb-pref-autosave" checked> ' + app.t("Enable autosave") + '</label><label><input type="checkbox" id="lb-pref-tips" checked> ' + app.t("Show editor tips") + '</label><label><input type="checkbox" id="lb-pref-confirm-delete" checked> ' + app.t("Confirm destructive actions") + '</label></div><button type="button" class="lb-btn primary" id="lb-save-preferences">' + app.t("Save Preferences") + "</button>"
+        );
         return;
       }
       if (action === "shortcuts") {
-        app.showMenuDialog(app.t("Keyboard Shortcuts"), '<div class="lb-shortcuts"><div><kbd>Ctrl / Cmd</kbd> + <kbd>P</kbd><span>Show or hide side panels</span></div><div><kbd>Ctrl / Cmd</kbd> + <kbd>Z</kbd><span>Undo</span></div><div><kbd>Ctrl / Cmd</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd><span>Redo</span></div><div><kbd>Ctrl / Cmd</kbd> + <kbd>C</kbd><span>Copy selected unit</span></div><div><kbd>Ctrl / Cmd</kbd> + <kbd>V</kbd><span>Paste unit</span></div><div><kbd>Ctrl / Cmd</kbd> + <kbd>D</kbd><span>Duplicate selected unit</span></div><div><kbd>Delete</kbd><span>Delete selected unit</span></div><div><kbd>Esc</kbd><span>Close menus and dialogs</span></div></div>');
+        app.showMenuDialog(
+          app.t("Keyboard Shortcuts"),
+          '<div class="lb-shortcuts"><div><kbd>Ctrl / Cmd</kbd> + <kbd>P</kbd><span>Show or hide side panels</span></div><div><kbd>Ctrl / Cmd</kbd> + <kbd>Z</kbd><span>Undo</span></div><div><kbd>Ctrl / Cmd</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd><span>Redo</span></div><div><kbd>Ctrl / Cmd</kbd> + <kbd>C</kbd><span>Copy selected unit</span></div><div><kbd>Ctrl / Cmd</kbd> + <kbd>V</kbd><span>Paste unit</span></div><div><kbd>Ctrl / Cmd</kbd> + <kbd>D</kbd><span>Duplicate selected unit</span></div><div><kbd>Delete</kbd><span>Delete selected unit</span></div><div><kbd>Esc</kbd><span>Close menus and dialogs</span></div></div>'
+        );
         return;
       }
       if (action === "help") {
-        app.showMenuDialog(app.t("Help Center"), '<div class="lb-help"><p><strong>Getting started</strong></p><p>Choose a unit from the left panel, drag it onto the canvas, then edit its settings in the right panel.</p><p>Use the device controls for responsive editing. Use Navigator to select nested units.</p><p class="lb-menu-note">Canvasly help documentation can be connected here as the documentation library grows.</p></div>');
+        app.showMenuDialog(
+          app.t("Help Center"),
+          '<div class="lb-help"><p><strong>Getting started</strong></p><p>Choose a unit from the left panel, drag it onto the canvas, then edit its settings in the right panel.</p><p>Use the device controls for responsive editing. Use Navigator to select nested units.</p><p class="lb-menu-note">Canvasly help documentation can be connected here as the documentation library grows.</p></div>'
+        );
         return;
       }
       if (action === "account") {
-        app.showMenuDialog(app.t("My Canvasly"), '<p><strong>Canvasly account</strong></p><p>Account, licensing and product services will be available here when the Canvasly account service is enabled.</p><p class="lb-menu-note">Core editing does not require an account.</p>');
+        app.showMenuDialog(
+          app.t("My Canvasly"),
+          '<p><strong>Canvasly account</strong></p><p>Account, licensing and product services will be available here when the Canvasly account service is enabled.</p><p class="lb-menu-note">Core editing does not require an account.</p>'
+        );
         return;
       }
       if (action === "exit") {
@@ -4460,14 +5220,17 @@
       const css = app.D.editorCss || "", designCss = app.lbSanitizeCss(app.D.designCss || "");
       const tpl = app.pageTemplate();
       const slug = tpl.replace(/_/g, "-");
-      const width = tpl === "default" ? String((app.state.settings || {}).page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "").trim() : "";
+      const width = tpl === "default" ? String(
+        (app.state.settings || {}).page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || ""
+      ).trim() : "";
       const widthStyle = width ? "--lb-page-width:" + app.esc(width) + ";" : "";
       return '<!doctype html><html class="lb-template-' + slug + '" dir="' + (app.D.isRtl ? "rtl" : "ltr") + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="' + app.esc(css) + '"><style>' + designCss + "html,body{margin:0;padding:0;background:#fff;font-family:system-ui,sans-serif;box-sizing:border-box}html{height:100%;overflow-x:hidden;overflow-y:scroll;scrollbar-gutter:stable}html::-webkit-scrollbar{width:12px}html::-webkit-scrollbar-track{background:#eef1f4}html::-webkit-scrollbar-thumb{background:#b7c0ca;border-radius:6px}" + app.pageStageStyle(false) + '.lb-node{position:relative;margin:0;max-width:100%}.lb-insert-zone{min-height:18px}.lb-grid-inner,.lb-container-inner{box-sizing:border-box}.lb-grid-inner>.lb-insert-zone,.lb-container-inner[style*="display:grid"]>.lb-insert-zone{display:none}.lb21-hover-tab{position:absolute;width:max-content;height:25px;min-width:88px;max-height:25px;padding:0 6px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;background:#dca6ef;border-radius:7px 7px 0 0;z-index:2147483000;pointer-events:auto}</style></head><body class="' + app.esc(app.pageTemplateBodyClass()) + '"><div class="lb-page-stage">' + app.pageChromeHTML("header") + '<div class="lb-frame-root lb-scope" style="' + widthStyle + '">' + body + "</div>" + app.pageChromeHTML("footer") + "</div></body></html>";
     };
     app.lbPaintCanvas = function lbPaintCanvas(opts) {
       const frame = document.getElementById("lb-editor-frame");
       const fd = frame && frame.contentDocument;
-      if (document.body.classList.contains("lb123-resizing") || fd && fd.body && fd.body.classList.contains("lb123-resizing")) return true;
+      if (document.body.classList.contains("lb123-resizing") || fd && fd.body && fd.body.classList.contains("lb123-resizing"))
+        return true;
       const canvas = fd && fd.querySelector(".lb-frame-root");
       const work = app.root.querySelector(".lb-work");
       if (!canvas || !work) return false;
@@ -4489,8 +5252,8 @@
       work.querySelector(".lb-panel.right")?.classList.toggle("is-collapsed", app.rightHidden);
       if (typeof app.syncPanelColumns === "function") app.syncPanelColumns(work);
       const lt = work.querySelector('[data-panel-toggle="left"]'), rt = work.querySelector('[data-panel-toggle="right"]');
-      if (lt) lt.textContent = app.leftHidden ? "\u203A" : "\u2039";
-      if (rt) rt.textContent = app.rightHidden ? "\u2039" : "\u203A";
+      if (lt) lt.textContent = app.leftHidden ? "›" : "‹";
+      if (rt) rt.textContent = app.rightHidden ? "‹" : "›";
       const status = document.getElementById("lb-status");
       if (status) status.textContent = app.dirty ? app.t("Unsaved") : app.t("Saved");
       if (app.applyCanvasWidth) app.applyCanvasWidth();
@@ -4504,7 +5267,11 @@
       app.closeContextMenu();
       if (app.lbPaintCanvas()) return;
       const both = app.leftHidden && app.rightHidden;
-      app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">\u21B6</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">\u21B7</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftHidden ? 0 : app.leftWidth}px;--lb-right-width:${app.rightHidden ? 0 : app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "\u203A" : "\u2039"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units\u2026")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">\u00D7</button></div><div class="lb-categories">${app.unitCategories().map((c) => `<button data-cat="${c}" class="${app.category === c ? "active" : ""}">${app.unitCategoryLabel(c)}</button>`).join("")}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Canvasly isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "\u2039" : "\u203A"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
+      app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">↶</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">↷</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftHidden ? 0 : app.leftWidth}px;--lb-right-width:${app.rightHidden ? 0 : app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "›" : "‹"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units…")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">×</button></div><div class="lb-categories">${app.unitCategories().map(
+        (c) => `<button data-cat="${c}" class="${app.category === c ? "active" : ""}">${app.unitCategoryLabel(c)}</button>`
+      ).join(
+        ""
+      )}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Canvasly isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "‹" : "›"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
       app.bind();
       const frame = document.getElementById("lb-editor-frame");
       if (frame) {
@@ -4561,36 +5328,48 @@
       if (!same) app.refreshRightPanel();
     };
     app.bindRightPanel = function bindRightPanel() {
-      app.root.querySelectorAll(".lb-tabs [data-tab]").forEach((b) => b.onclick = () => {
-        app.activeTab = b.dataset.tab;
-        app.refreshRightPanel();
-      });
-      app.root.querySelectorAll("[data-tree-id]").forEach((b) => b.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        app.selectNode(b.dataset.treeId);
-      });
-      app.root.querySelectorAll("[data-lb-region]").forEach((b) => b.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        app.focusChrome(b.dataset.lbRegion);
-      });
-      app.root.querySelectorAll("[data-tree-id]").forEach((b) => b.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const r = app.locate(app.state.root, b.dataset.treeId);
-        if (r) app.showContextMenu("unit", { id: r.node.id, type: r.node.type, x: e.clientX, y: e.clientY });
-      }));
-      app.root.querySelectorAll("[data-style-tab]").forEach((b) => b.onclick = () => {
-        app.styleTab = b.dataset.styleTab;
-        app.refreshRightPanel();
-      });
+      app.root.querySelectorAll(".lb-tabs [data-tab]").forEach(
+        (b) => b.onclick = () => {
+          app.activeTab = b.dataset.tab;
+          app.refreshRightPanel();
+        }
+      );
+      app.root.querySelectorAll("[data-tree-id]").forEach(
+        (b) => b.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          app.selectNode(b.dataset.treeId);
+        }
+      );
+      app.root.querySelectorAll("[data-lb-region]").forEach(
+        (b) => b.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          app.focusChrome(b.dataset.lbRegion);
+        }
+      );
+      app.root.querySelectorAll("[data-tree-id]").forEach(
+        (b) => b.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const r = app.locate(app.state.root, b.dataset.treeId);
+          if (r) app.showContextMenu("unit", { id: r.node.id, type: r.node.type, x: e.clientX, y: e.clientY });
+        })
+      );
+      app.root.querySelectorAll("[data-style-tab]").forEach(
+        (b) => b.onclick = () => {
+          app.styleTab = b.dataset.styleTab;
+          app.refreshRightPanel();
+        }
+      );
       app.bindSettingInputs();
       app.root.querySelectorAll(".lb-media-open").forEach((b) => b.onclick = app.openMedia);
-      app.root.querySelectorAll(".lb-gallery-open").forEach((b) => b.onclick = (e) => {
-        e.preventDefault();
-        app.openGallery();
-      });
+      app.root.querySelectorAll(".lb-gallery-open").forEach(
+        (b) => b.onclick = (e) => {
+          e.preventDefault();
+          app.openGallery();
+        }
+      );
       app.bindRepeater();
       app.root.querySelector(".lb31-gal-add")?.addEventListener("click", () => {
         const r = app.selected && app.locate(app.state.root, app.selected);
@@ -4602,31 +5381,35 @@
         s.collections.push({ label: app.t("Gallery %s", s.collections.length + 1), ids: "" });
         app.render();
       });
-      app.root.querySelectorAll(".lb31-gal-del").forEach((b) => b.onclick = () => {
-        const r = app.selected && app.locate(app.state.root, app.selected);
-        if (!r) return;
-        const i = Number(b.closest("[data-gal-index]")?.dataset.galIndex);
-        if (!Number.isFinite(i)) return;
-        app.commit();
-        r.node.settings.collections = Array.isArray(r.node.settings.collections) ? r.node.settings.collections.slice() : [];
-        r.node.settings.collections.splice(i, 1);
-        app.render();
-      });
-      app.root.querySelectorAll(".lb31-gal-pick").forEach((b) => b.onclick = () => {
-        const r = app.selected && app.locate(app.state.root, app.selected);
-        if (!r) return;
-        const i = Number(b.closest("[data-gal-index]")?.dataset.galIndex);
-        if (!Number.isFinite(i)) return;
-        app.openCollectionPicker(r.node.settings, i, (items, ids) => {
+      app.root.querySelectorAll(".lb31-gal-del").forEach(
+        (b) => b.onclick = () => {
+          const r = app.selected && app.locate(app.state.root, app.selected);
+          if (!r) return;
+          const i = Number(b.closest("[data-gal-index]")?.dataset.galIndex);
+          if (!Number.isFinite(i)) return;
           app.commit();
-          app.rememberGalleryUrls(r.node.settings, items);
-          const list = Array.isArray(r.node.settings.collections) ? r.node.settings.collections.slice() : [];
-          list[i] = Object.assign({}, list[i], { ids: ids.join(",") });
-          r.node.settings.collections = list;
-          app.persistGalleryIds(r.node.settings);
+          r.node.settings.collections = Array.isArray(r.node.settings.collections) ? r.node.settings.collections.slice() : [];
+          r.node.settings.collections.splice(i, 1);
           app.render();
-        });
-      });
+        }
+      );
+      app.root.querySelectorAll(".lb31-gal-pick").forEach(
+        (b) => b.onclick = () => {
+          const r = app.selected && app.locate(app.state.root, app.selected);
+          if (!r) return;
+          const i = Number(b.closest("[data-gal-index]")?.dataset.galIndex);
+          if (!Number.isFinite(i)) return;
+          app.openCollectionPicker(r.node.settings, i, (items, ids) => {
+            app.commit();
+            app.rememberGalleryUrls(r.node.settings, items);
+            const list = Array.isArray(r.node.settings.collections) ? r.node.settings.collections.slice() : [];
+            list[i] = Object.assign({}, list[i], { ids: ids.join(",") });
+            r.node.settings.collections = list;
+            app.persistGalleryIds(r.node.settings);
+            app.render();
+          });
+        }
+      );
       app.root.querySelectorAll("[data-icon-picker]").forEach((b) => b.onclick = app.openIconLibrary);
       app.root.querySelector("#lb-duplicate")?.addEventListener("click", app.duplicate);
       app.root.querySelector("#lb-delete")?.addEventListener("click", () => app.remove());
@@ -4643,28 +5426,40 @@
       if (!rootCanvas) return;
       if (!fd.__lbNavigationGuard) {
         fd.__lbNavigationGuard = true;
-        fd.addEventListener("click", (e) => {
-          const node = e.target.closest?.(".lb-node");
-          if (!node) return;
-          if (e.target.closest(".lb-node-toolbar")) return;
-          const interactive = e.target.closest?.("a,button,[role=button],input,select,textarea");
-          if (interactive) e.preventDefault();
-        }, true);
-        fd.addEventListener("auxclick", (e) => {
-          if (e.target.closest?.(".lb-node")) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        }, true);
-        fd.addEventListener("keydown", (e) => {
-          if ((e.key === "Enter" || e.key === " ") && e.target.closest?.(".lb-node")) {
-            const interactive = e.target.closest("a,button,[role=button]");
-            if (interactive) {
+        fd.addEventListener(
+          "click",
+          (e) => {
+            const node = e.target.closest?.(".lb-node");
+            if (!node) return;
+            if (e.target.closest(".lb-node-toolbar")) return;
+            const interactive = e.target.closest?.("a,button,[role=button],input,select,textarea");
+            if (interactive) e.preventDefault();
+          },
+          true
+        );
+        fd.addEventListener(
+          "auxclick",
+          (e) => {
+            if (e.target.closest?.(".lb-node")) {
               e.preventDefault();
               e.stopPropagation();
             }
-          }
-        }, true);
+          },
+          true
+        );
+        fd.addEventListener(
+          "keydown",
+          (e) => {
+            if ((e.key === "Enter" || e.key === " ") && e.target.closest?.(".lb-node")) {
+              const interactive = e.target.closest("a,button,[role=button]");
+              if (interactive) {
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            }
+          },
+          true
+        );
       }
       app.bindCanvasTree(rootCanvas);
       fd.querySelectorAll("[data-lb-drop-action]").forEach((b) => {
@@ -4796,7 +5591,13 @@
           if (node) {
             app.selectNode(node.dataset.id);
             const r = app.locate(app.state.root, node.dataset.id);
-            app.showContextMenu("unit", { id: node.dataset.id, type: node.dataset.type, x: e.clientX, y: e.clientY, inFrame: true });
+            app.showContextMenu("unit", {
+              id: node.dataset.id,
+              type: node.dataset.type,
+              x: e.clientX,
+              y: e.clientY,
+              inFrame: true
+            });
             return;
           }
           app.showContextMenu("canvas", { x: e.clientX, y: e.clientY, inFrame: true });
@@ -4823,23 +5624,26 @@
       });
       app.$$("[data-panel-toggle]").forEach((b) => b.onclick = () => app.togglePanel(b.dataset.panelToggle));
       const search = app.$("#lb-unit-search");
-      if (search) search.oninput = () => {
-        app.unitSearch = search.value;
-        app.render();
-        const n = app.$("#lb-unit-search");
-        if (n) {
-          n.focus();
-          n.setSelectionRange(n.value.length, n.value.length);
-        }
-      };
+      if (search)
+        search.oninput = () => {
+          app.unitSearch = search.value;
+          app.render();
+          const n = app.$("#lb-unit-search");
+          if (n) {
+            n.focus();
+            n.setSelectionRange(n.value.length, n.value.length);
+          }
+        };
       app.$("#lb-search-clear")?.addEventListener("click", () => {
         app.unitSearch = "";
         app.render();
       });
-      app.$$(".lb-categories button").forEach((b) => b.onclick = () => {
-        app.category = b.dataset.cat;
-        app.render();
-      });
+      app.$$(".lb-categories button").forEach(
+        (b) => b.onclick = () => {
+          app.category = b.dataset.cat;
+          app.render();
+        }
+      );
       app.$$(".lb-unit-card").forEach((b) => {
         b.onclick = (e) => {
           if (e.target.closest("[data-fav]")) return;
@@ -4871,33 +5675,43 @@
           }, 250);
         };
       });
-      app.$$(".lb-unit-card").forEach((b) => b.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        app.showContextMenu("unit-card", { type: b.dataset.type, x: e.clientX, y: e.clientY });
-      }));
-      app.$$("[data-fav]").forEach((b) => b.onclick = (e) => {
-        e.stopPropagation();
-        app.toggleFavorite(b.dataset.fav);
-      });
+      app.$$(".lb-unit-card").forEach(
+        (b) => b.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          app.showContextMenu("unit-card", { type: b.dataset.type, x: e.clientX, y: e.clientY });
+        })
+      );
+      app.$$("[data-fav]").forEach(
+        (b) => b.onclick = (e) => {
+          e.stopPropagation();
+          app.toggleFavorite(b.dataset.fav);
+        }
+      );
       app.bindSettingInputs();
       app.$$(".lb-media-open").forEach((b) => b.onclick = app.openMedia);
       app.$$(".lb-gallery-open").forEach((b) => b.onclick = app.openGallery);
       app.$$("[data-icon-picker]").forEach((b) => b.onclick = app.openIconLibrary);
-      app.$$("[data-style-tab]").forEach((b) => b.onclick = () => {
-        app.styleTab = b.dataset.styleTab;
-        app.refreshRightPanel();
-      });
-      app.$$("[data-tree-id]").forEach((b) => b.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        app.selectNode(b.dataset.treeId);
-      });
-      app.$$("[data-lb-region]").forEach((b) => b.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        app.focusChrome(b.dataset.lbRegion);
-      });
+      app.$$("[data-style-tab]").forEach(
+        (b) => b.onclick = () => {
+          app.styleTab = b.dataset.styleTab;
+          app.refreshRightPanel();
+        }
+      );
+      app.$$("[data-tree-id]").forEach(
+        (b) => b.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          app.selectNode(b.dataset.treeId);
+        }
+      );
+      app.$$("[data-lb-region]").forEach(
+        (b) => b.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          app.focusChrome(b.dataset.lbRegion);
+        }
+      );
       app.$("#lb-save").onclick = () => app.save(false);
       app.$("#lb-template-save").onclick = app.saveTemplate;
       app.$("#lb-template-load").onclick = app.openTemplateLibrary;
@@ -4914,14 +5728,18 @@
       app.$("#lb-redo").onclick = app.redo;
       app.$("#lb-duplicate")?.addEventListener("click", app.duplicate);
       app.$("#lb-delete")?.addEventListener("click", () => app.remove());
-      app.$$("[data-device]").forEach((b) => b.onclick = () => {
-        app.device = b.dataset.device;
-        app.render();
-      });
-      app.$$("[data-tab]").forEach((b) => b.onclick = () => {
-        app.activeTab = b.dataset.tab;
-        app.refreshRightPanel();
-      });
+      app.$$("[data-device]").forEach(
+        (b) => b.onclick = () => {
+          app.device = b.dataset.device;
+          app.render();
+        }
+      );
+      app.$$("[data-tab]").forEach(
+        (b) => b.onclick = () => {
+          app.activeTab = b.dataset.tab;
+          app.refreshRightPanel();
+        }
+      );
       app.bindSliders();
       app.bindRepeater();
     };
@@ -5044,14 +5862,49 @@
       const unit = unitless ? "" : units.includes(p.unit) ? p.unit : units[0], size = p.size;
       const smax = unit === "%" ? 100 : max, snum = parseFloat(size), srest = min <= 0 && smax >= 0 ? 0 : min, sval = size === "" || !Number.isFinite(snum) ? srest : Math.max(min, Math.min(smax, snum));
       const unitSel = unitless ? "" : `<select class="lb-slider-unit">${units.map((u) => `<option value="${app.esc(u)}" ${u === unit ? "selected" : ""}>${app.esc(u)}</option>`).join("")}</select>`;
-      return `<div class="lb-control lb-slider${unitless ? " lb-slider-unitless" : ""}" data-slider-key="${app.esc(k)}" data-slider-max="${max}" data-slider-unitless="${unitless ? "1" : "0"}"><span>${app.esc(label)}</span><div class="lb-slider-row"><input class="lb-slider-range" type="range" min="${min}" max="${smax}" step="${step}" value="${app.esc(sval)}" ${unit === "auto" ? "disabled" : ""}><input class="lb-slider-num" type="number" size="5" min="${min}" max="${smax}" step="${step}" value="${app.esc(size)}" placeholder="\u2014" ${unit === "auto" ? "disabled" : ""}>${unitSel}</div></div>`;
+      return `<div class="lb-control lb-slider${unitless ? " lb-slider-unitless" : ""}" data-slider-key="${app.esc(k)}" data-slider-max="${max}" data-slider-unitless="${unitless ? "1" : "0"}"><span>${app.esc(label)}</span><div class="lb-slider-row"><input class="lb-slider-range" type="range" min="${min}" max="${smax}" step="${step}" value="${app.esc(sval)}" ${unit === "auto" ? "disabled" : ""}><input class="lb-slider-num" type="number" size="5" min="${min}" max="${smax}" step="${step}" value="${app.esc(size)}" placeholder="—" ${unit === "auto" ? "disabled" : ""}>${unitSel}</div></div>`;
     };
     app.lb09LayoutSliders = function lb09LayoutSliders(s) {
-      return app.lb09Section(app.t("Layout"), app.lbSlider("width", "Width", s.width || "", { units: ["%", "px", "vw", "em"], min: 0, max: 1e3 }) + app.lbSlider("max_width", "Max Width", s.max_width || "", { units: ["px", "%", "vw", "em"], min: 0, max: 2e3 }) + app.lbSlider("height", "Height", s.height || "", { units: ["px", "%", "vh", "em", "auto"], min: 0, max: 2e3 }) + app.lbSlider("min_height", "Min Height", s.min_height || "", { units: ["px", "%", "vh", "em"], min: 0, max: 2e3 }), true);
+      return app.lb09Section(
+        app.t("Layout"),
+        app.lbSlider("width", "Width", s.width || "", { units: ["%", "px", "vw", "em"], min: 0, max: 1e3 }) + app.lbSlider("max_width", "Max Width", s.max_width || "", {
+          units: ["px", "%", "vw", "em"],
+          min: 0,
+          max: 2e3
+        }) + app.lbSlider("height", "Height", s.height || "", { units: ["px", "%", "vh", "em", "auto"], min: 0, max: 2e3 }) + app.lbSlider("min_height", "Min Height", s.min_height || "", {
+          units: ["px", "%", "vh", "em"],
+          min: 0,
+          max: 2e3
+        }),
+        true
+      );
     };
     app.lb09AdvancedTab = function lb09AdvancedTab(n) {
       const s = n.settings || {};
-      return app.lb09LayoutSliders(s) + app.lb09Section(app.t("Spacing"), app.lb09Box("margin", app.t("Margin"), s.margin) + app.lb09Box("padding", app.t("Padding"), s.padding), false) + app.lb09Section(app.t("Position"), app.lb09Select("position", app.t("Position"), s.position || "", ["", "relative", "absolute", "fixed", "sticky"]) + app.lb09Field("z_index", app.t("Z-index"), "number", s.z_index ?? 0) + app.lb09Select("overflow", app.t("Overflow"), s.overflow || "", ["", "visible", "hidden", "auto", "scroll"]), false) + app.lb09Section(app.t("Responsive"), app.hideOnHTML(s), false) + app.lb09Section(app.t("Custom CSS"), app.lb09Field("css_id", app.t("CSS ID"), "text", s.css_id) + app.lb09Field("css_class", app.t("CSS Classes"), "text", s.css_class) + app.lb09Field("global_class", app.t("Global Classes"), "text", s.global_class) + app.control("custom_css", { type: "code", language: "css", rows: 8 }, s.custom_css || "", app.t("Custom CSS")) + `<label class="lb-control"><span>Attributes</span><textarea data-setting="html_attributes" rows="4" placeholder="title=Example">${app.esc(s.html_attributes || "")}</textarea></label>`, false);
+      return app.lb09LayoutSliders(s) + app.lb09Section(
+        app.t("Spacing"),
+        app.lb09Box("margin", app.t("Margin"), s.margin) + app.lb09Box("padding", app.t("Padding"), s.padding),
+        false
+      ) + app.lb09Section(
+        app.t("Position"),
+        app.lb09Select("position", app.t("Position"), s.position || "", [
+          "",
+          "relative",
+          "absolute",
+          "fixed",
+          "sticky"
+        ]) + app.lb09Field("z_index", app.t("Z-index"), "number", s.z_index ?? 0) + app.lb09Select("overflow", app.t("Overflow"), s.overflow || "", ["", "visible", "hidden", "auto", "scroll"]),
+        false
+      ) + app.lb09Section(app.t("Responsive"), app.hideOnHTML(s), false) + app.lb09Section(
+        app.t("Custom CSS"),
+        app.lb09Field("css_id", app.t("CSS ID"), "text", s.css_id) + app.lb09Field("css_class", app.t("CSS Classes"), "text", s.css_class) + app.lb09Field("global_class", app.t("Global Classes"), "text", s.global_class) + app.control(
+          "custom_css",
+          { type: "code", language: "css", rows: 8 },
+          s.custom_css || "",
+          app.t("Custom CSS")
+        ) + `<label class="lb-control"><span>Attributes</span><textarea data-setting="html_attributes" rows="4" placeholder="title=Example">${app.esc(s.html_attributes || "")}</textarea></label>`,
+        false
+      );
     };
     app.lbFormatCounterNumber = formatCounterNumber;
     app.lbApplyCounterLive = applyCounterLive;
@@ -5109,7 +5962,9 @@
       if (node.classList.contains("lb-node-image") || node.classList.contains("lb-node-video") || node.classList.contains("lb-node-image_box") || node.classList.contains("lb-node-carousel") || node.classList.contains("lb-node-gallery") || node.classList.contains("lb-node-audio")) {
         if (key === "width") {
           node.style.setProperty("--lb-img-w", v || "100%");
-          const inner = node.querySelector(".lb-image-preview,.lb-image,.lb-video,.lb-image-box,.lb-carousel,.lb-gallery-shell,.lb-audio");
+          const inner = node.querySelector(
+            ".lb-image-preview,.lb-image,.lb-video,.lb-image-box,.lb-carousel,.lb-gallery-shell,.lb-audio"
+          );
           if (inner) inner.style.width = v || "100%";
           return;
         }
@@ -5132,7 +5987,12 @@
         return;
       }
       if (["width", "max_width", "height", "min_height"].includes(layoutDim) && !node.classList.contains("lb-node-container") && !node.classList.contains("lb-node-grid")) {
-        const map = { width: ["--lb-el-w", "width"], max_width: ["--lb-el-max-w", "max-width"], height: ["--lb-el-h", "height"], min_height: ["--lb-el-min-h", "min-height"] };
+        const map = {
+          width: ["--lb-el-w", "width"],
+          max_width: ["--lb-el-max-w", "max-width"],
+          height: ["--lb-el-h", "height"],
+          min_height: ["--lb-el-min-h", "min-height"]
+        };
         const pair = map[layoutDim], cssVar = pair[0], prop2 = pair[1];
         if (v && v !== "auto") {
           node.style.setProperty(cssVar, String(v));
@@ -5200,7 +6060,12 @@
           app.dirty = true;
           app.scheduleSave();
           if (typeof app.previewSetting === "function") app.previewSetting(key, r.node.id);
-          else app.lbApplySliderLive(app.frameDoc()?.querySelector('.lb-node[data-id="' + CSS.escape(String(r.node.id)) + '"]'), key, v);
+          else
+            app.lbApplySliderLive(
+              app.frameDoc()?.querySelector('.lb-node[data-id="' + CSS.escape(String(r.node.id)) + '"]'),
+              key,
+              v
+            );
         };
         const finish = () => {
           started = false;
@@ -5229,7 +6094,15 @@
     app.bindCounterLive = function bindCounterLive() {
       const r = app.selected && app.locate(app.state.root, app.selected);
       if (!r || r.node.type !== "counter") return;
-      const keys = /* @__PURE__ */ new Set(["number", "start", "prefix", "suffix", "title", "thousand_separator", "separator_char"]);
+      const keys = /* @__PURE__ */ new Set([
+        "number",
+        "start",
+        "prefix",
+        "suffix",
+        "title",
+        "thousand_separator",
+        "separator_char"
+      ]);
       app.root.querySelectorAll("[data-setting]").forEach((x) => {
         if (!keys.has(x.dataset.setting) || x.__lbCounterLive) return;
         x.__lbCounterLive = true;
@@ -5256,7 +6129,7 @@
           const list = Array.isArray(s.collections) ? s.collections : [];
           h += `<div class="lb-control lb31-gal-list"><span>Galleries</span>`;
           list.forEach((g, i) => {
-            h += `<div class="lb31-gal-row" data-gal-index="${i}"><input class="lb31-gal-label" value="${app.esc(g.label || "")}" placeholder="${app.t("Gallery name")}"><button type="button" class="lb-btn lb31-gal-pick" title="${app.t("Choose images")}" aria-label="Choose images">\u{1F5BC}</button><button type="button" class="lb-btn lb31-gal-dup" title="${app.t("Duplicate")}">\u29C9</button><button type="button" class="lb-btn lb31-gal-del" title="${app.t("Remove")}">\xD7</button></div>`;
+            h += `<div class="lb31-gal-row" data-gal-index="${i}"><input class="lb31-gal-label" value="${app.esc(g.label || "")}" placeholder="${app.t("Gallery name")}"><button type="button" class="lb-btn lb31-gal-pick" title="${app.t("Choose images")}" aria-label="Choose images">🖼</button><button type="button" class="lb-btn lb31-gal-dup" title="${app.t("Duplicate")}">⧉</button><button type="button" class="lb-btn lb31-gal-del" title="${app.t("Remove")}">×</button></div>`;
           });
           h += `<button type="button" class="lb-btn lb31-gal-add">+ Add Item</button></div>`;
           h += `<label class="lb-control lb-switch"><input data-setting="show_all" type="checkbox" ${s.show_all !== false ? "checked" : ""}><span>Show All tab</span></label>`;
@@ -5264,16 +6137,42 @@
         } else {
           h += app.control("ids", "gallery", s.ids || "", "Images");
         }
-        h += `<label class="lb-control"><span>Order By</span><select data-setting="order_by">${[["default", "Default"], ["random", "Random"], ["date", "Date"], ["title", "Title"]].map(([v, l]) => `<option value="${v}" ${(s.order_by || "default") === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>`;
+        h += `<label class="lb-control"><span>Order By</span><select data-setting="order_by">${[
+          ["default", "Default"],
+          ["random", "Random"],
+          ["date", "Date"],
+          ["title", "Title"]
+        ].map(([v, l]) => `<option value="${v}" ${(s.order_by || "default") === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>`;
         h += `<label class="lb-control lb-switch"><input data-setting="lazy_load" type="checkbox" ${s.lazy_load !== false ? "checked" : ""}><span>Lazy Load</span></label>`;
-        h += `<label class="lb-control"><span>Layout</span><select data-setting="gallery_layout">${[["justified", "Justified"], ["grid", "Grid"], ["masonry", "Masonry"]].map(([v, l]) => `<option value="${v}" ${layout === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>`;
+        h += `<label class="lb-control"><span>Layout</span><select data-setting="gallery_layout">${[
+          ["justified", "Justified"],
+          ["grid", "Grid"],
+          ["masonry", "Masonry"]
+        ].map(([v, l]) => `<option value="${v}" ${layout === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>`;
         if (layout === "justified") {
-          h += app.lbSlider("row_height", "Row Height", s.row_height ?? 220, { unitless: true, min: 80, max: 600, step: 1 });
-          h += `<label class="lb-control"><span>Last Row</span><select data-setting="last_row">${[["auto", "Auto"], ["fit", "Fit"], ["grow", "Grow"]].map(([v, l]) => `<option value="${v}" ${(s.last_row || "auto") === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>`;
+          h += app.lbSlider("row_height", "Row Height", s.row_height ?? 220, {
+            unitless: true,
+            min: 80,
+            max: 600,
+            step: 1
+          });
+          h += `<label class="lb-control"><span>Last Row</span><select data-setting="last_row">${[
+            ["auto", "Auto"],
+            ["fit", "Fit"],
+            ["grow", "Grow"]
+          ].map(([v, l]) => `<option value="${v}" ${(s.last_row || "auto") === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>`;
         }
-        if (layout !== "justified") h += app.lbSlider("columns", "Columns", s.columns ?? 4, { unitless: true, min: 1, max: 10, step: 1 });
+        if (layout !== "justified")
+          h += app.lbSlider("columns", "Columns", s.columns ?? 4, { unitless: true, min: 1, max: 10, step: 1 });
         if (layout === "grid") {
-          h += `<label class="lb-control"><span>Image Ratio</span><select data-setting="image_ratio">${[["1:1", "1:1"], ["3:2", "3:2"], ["4:3", "4:3"], ["16:9", "16:9"], ["9:16", "9:16"], ["auto", "Auto"]].map(([v, l]) => `<option value="${v}" ${(s.image_ratio || "1:1") === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>`;
+          h += `<label class="lb-control"><span>Image Ratio</span><select data-setting="image_ratio">${[
+            ["1:1", "1:1"],
+            ["3:2", "3:2"],
+            ["4:3", "4:3"],
+            ["16:9", "16:9"],
+            ["9:16", "9:16"],
+            ["auto", "Auto"]
+          ].map(([v, l]) => `<option value="${v}" ${(s.image_ratio || "1:1") === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>`;
         }
         h += app.lbSlider("gap", "Spacing", s.gap ?? 10, { unitless: true, min: 0, max: 80, step: 1 });
         h += app.control("link", "select", s.link || "file", "Link");
@@ -5281,38 +6180,126 @@
         h += app.control("caption", "select", s.caption || "none", "Caption");
         h += app.control("size", "select", s.size || "medium", "Image size");
       } else if (app.styleTab === "style") {
-        h += app.lb09Section(app.t("Images"), app.lbSlider("image_radius", "Border Radius", s.image_radius || 0, { unitless: true, min: 0, max: 80, step: 1 }) + app.control("hover_animation", "select", s.hover_animation || "", "Hover Animation"), true);
-        h += app.lb09Section(app.t("Caption"), app.lb09Select("caption_align", app.t("Alignment"), s.caption_align || "center", ["left", "center", "right"]) + `<label class="lb-control"><span>Text Color</span><input data-setting="caption_color" type="color" value="${app.esc(s.caption_color || "#30343a")}"></label>` + app.lbSlider("caption_size", "Size", s.caption_size || 12, { unitless: true, min: 8, max: 32, step: 1 }), true);
+        h += app.lb09Section(
+          app.t("Images"),
+          app.lbSlider("image_radius", "Border Radius", s.image_radius || 0, {
+            unitless: true,
+            min: 0,
+            max: 80,
+            step: 1
+          }) + app.control("hover_animation", "select", s.hover_animation || "", "Hover Animation"),
+          true
+        );
+        h += app.lb09Section(
+          app.t("Caption"),
+          app.lb09Select("caption_align", app.t("Alignment"), s.caption_align || "center", ["left", "center", "right"]) + `<label class="lb-control"><span>Text Color</span><input data-setting="caption_color" type="color" value="${app.esc(s.caption_color || "#30343a")}"></label>` + app.lbSlider("caption_size", "Size", s.caption_size || 12, { unitless: true, min: 8, max: 32, step: 1 }),
+          true
+        );
         h += app.lb09GeneralSettings(n, app.meta("gallery"), s);
       } else {
         h += app.lb09AdvancedTab(n);
       }
       const warn = app.accessibilityWarnings(n);
-      h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
+      h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
       return h;
     };
     app.lb09GridChild = function lb09GridChild(n) {
       const r = app.locate(app.state.root, n.id), p = r?.parent;
       if (!p || p.type !== "grid") return "";
       const s = n.settings || {};
-      return app.lb09Section(app.t("Grid Child"), app.lb09Field("grid_column_start", app.t("Column Start"), "text", s.grid_column_start) + app.lb09Field("grid_column_span", app.t("Column Span"), "number", s.grid_column_span ?? 1) + app.lb09Field("grid_row_start", app.t("Row Start"), "text", s.grid_row_start) + app.lb09Field("grid_row_span", app.t("Row Span"), "number", s.grid_row_span ?? 1) + app.lb09Select("align_self", app.t("Align Self"), s.align_self || "auto", ["auto", "stretch", "start", "center", "end"]) + app.lb09Select("justify_self", app.t("Justify Self"), s.justify_self || "auto", ["auto", "stretch", "start", "center", "end"]) + app.lb09Field("order", app.t("Order"), "number", s.order ?? 0), true);
+      return app.lb09Section(
+        app.t("Grid Child"),
+        app.lb09Field("grid_column_start", app.t("Column Start"), "text", s.grid_column_start) + app.lb09Field("grid_column_span", app.t("Column Span"), "number", s.grid_column_span ?? 1) + app.lb09Field("grid_row_start", app.t("Row Start"), "text", s.grid_row_start) + app.lb09Field("grid_row_span", app.t("Row Span"), "number", s.grid_row_span ?? 1) + app.lb09Select("align_self", app.t("Align Self"), s.align_self || "auto", [
+          "auto",
+          "stretch",
+          "start",
+          "center",
+          "end"
+        ]) + app.lb09Select("justify_self", app.t("Justify Self"), s.justify_self || "auto", [
+          "auto",
+          "stretch",
+          "start",
+          "center",
+          "end"
+        ]) + app.lb09Field("order", app.t("Order"), "number", s.order ?? 0),
+        true
+      );
     };
     app.lb09GeneralSettings = function lb09GeneralSettings(n, e, s) {
       let h = "";
       h += app.lb09LayoutSliders(s);
-      h += app.lb09Section(app.t("Spacing"), app.lb09Box("margin", app.t("Margin"), s.margin) + app.lb09Box("padding", app.t("Padding"), s.padding) + app.lb09Select("display", app.t("Display"), s.display || "", ["", "block", "inline-block", "flex", "grid", "none"]), true);
-      h += app.lb09Section(app.t("Typography"), app.lb09Field("font_family", app.t("Font Family"), "text", s.font_family) + app.lb09Responsive("font_size", app.t("Font Size"), s.font_size ?? s.size) + app.lb09Select("font_weight", app.t("Weight"), s.font_weight || s.weight || "", ["", "300", "400", "500", "600", "700", "800", "900"]) + app.lb09Select("font_style", app.t("Style"), s.font_style || "", ["", "normal", "italic", "oblique"]) + app.lb09Select("text_transform", app.t("Transform"), s.text_transform || "", ["", "none", "uppercase", "lowercase", "capitalize"]) + app.lb09Select("text_decoration", app.t("Decoration"), s.text_decoration || "", ["", "none", "underline", "overline", "line-through"]) + app.lb09Responsive("line_height", app.t("Line Height"), s.line_height) + app.lb09Responsive("letter_spacing", app.t("Letter Spacing"), s.letter_spacing), true);
-      h += app.lb09Section(app.t("Background"), app.control("background", "background", typeof s.background === "object" ? s.background : s.background ? { type: "classic", color: s.background } : {}, app.t("Background")), true);
-      h += app.lb09Section(app.t("Border & Effects"), app.lb09Box("border_width", app.t("Border Width"), s.border_width) + app.lb09Select("border_style", app.t("Border Style"), s.border_style || "", ["", "solid", "dashed", "dotted", "double", "none"]) + `<label class="lb-control"><span>Border Color</span><input data-setting="border_color" type="color" value="${app.esc(s.border_color || "#dddddd")}"></label>` + app.lb09Box("border_radius", app.t("Radius"), s.border_radius) + app.control("shadow", "box_shadow", s.shadow || {}, "Shadow") + app.lbSlider("opacity", "Opacity", s.opacity ?? 1, { unitless: true, min: 0, max: 1, step: 0.05 }) + app.control("filter", "css_filter", s.filter || {}, app.t("CSS Filter")) + app.control("transform", "transform", s.transform || {}, app.t("Transform")), true);
+      h += app.lb09Section(
+        app.t("Spacing"),
+        app.lb09Box("margin", app.t("Margin"), s.margin) + app.lb09Box("padding", app.t("Padding"), s.padding) + app.lb09Select("display", app.t("Display"), s.display || "", [
+          "",
+          "block",
+          "inline-block",
+          "flex",
+          "grid",
+          "none"
+        ]),
+        true
+      );
+      h += app.lb09Section(
+        app.t("Typography"),
+        app.lb09Field("font_family", app.t("Font Family"), "text", s.font_family) + app.lb09Responsive("font_size", app.t("Font Size"), s.font_size ?? s.size) + app.lb09Select("font_weight", app.t("Weight"), s.font_weight || s.weight || "", [
+          "",
+          "300",
+          "400",
+          "500",
+          "600",
+          "700",
+          "800",
+          "900"
+        ]) + app.lb09Select("font_style", app.t("Style"), s.font_style || "", ["", "normal", "italic", "oblique"]) + app.lb09Select("text_transform", app.t("Transform"), s.text_transform || "", [
+          "",
+          "none",
+          "uppercase",
+          "lowercase",
+          "capitalize"
+        ]) + app.lb09Select("text_decoration", app.t("Decoration"), s.text_decoration || "", [
+          "",
+          "none",
+          "underline",
+          "overline",
+          "line-through"
+        ]) + app.lb09Responsive("line_height", app.t("Line Height"), s.line_height) + app.lb09Responsive("letter_spacing", app.t("Letter Spacing"), s.letter_spacing),
+        true
+      );
+      h += app.lb09Section(
+        app.t("Background"),
+        app.control(
+          "background",
+          "background",
+          typeof s.background === "object" ? s.background : s.background ? { type: "classic", color: s.background } : {},
+          app.t("Background")
+        ),
+        true
+      );
+      h += app.lb09Section(
+        app.t("Border & Effects"),
+        app.lb09Box("border_width", app.t("Border Width"), s.border_width) + app.lb09Select("border_style", app.t("Border Style"), s.border_style || "", [
+          "",
+          "solid",
+          "dashed",
+          "dotted",
+          "double",
+          "none"
+        ]) + `<label class="lb-control"><span>Border Color</span><input data-setting="border_color" type="color" value="${app.esc(s.border_color || "#dddddd")}"></label>` + app.lb09Box("border_radius", app.t("Radius"), s.border_radius) + app.control("shadow", "box_shadow", s.shadow || {}, "Shadow") + app.lbSlider("opacity", "Opacity", s.opacity ?? 1, { unitless: true, min: 0, max: 1, step: 0.05 }) + app.control("filter", "css_filter", s.filter || {}, app.t("CSS Filter")) + app.control("transform", "transform", s.transform || {}, app.t("Transform")),
+        true
+      );
       return h;
     };
     app.settingsHTML = function() {
-      if (!app.selected) return '<div class="lb-empty-settings">' + app.t("Select a unit to edit its settings.") + "</div>";
+      if (!app.selected)
+        return '<div class="lb-empty-settings">' + app.t("Select a unit to edit its settings.") + "</div>";
       const r = app.locate(app.state.root, app.selected), e = app.meta(r.node.type), s = r.node.settings || {};
       if (r.node.type === "gallery") return app.lb09GallerySettings(r.node);
       let h = `<div class="lb-selection-head"><strong>${app.esc(e.title || r.node.type)}</strong><span class="lb-selection-id">${app.esc(r.node.id)}</span></div><div class="lb-settings-tabs">${["content", "style", "advanced"].map((x) => `<button data-style-tab="${x}" class="${app.styleTab === x ? "active" : ""}">${x[0].toUpperCase() + x.slice(1)}</button>`).join("")}</div>`;
       if (app.styleTab === "content") {
-        h += e.controls ? Object.entries(e.controls).map(([k, t3]) => app.control(k, t3, s[k] ?? (t3 === "spacing" || t3 === "dimensions" || t3 === "box_shadow" ? {} : ""))).join("") : "";
+        h += e.controls ? Object.entries(e.controls).map(
+          ([k, t3]) => app.control(k, t3, s[k] ?? (t3 === "spacing" || t3 === "dimensions" || t3 === "box_shadow" ? {} : ""))
+        ).join("") : "";
       }
       if (app.styleTab === "style") {
         h += app.lb09GeneralSettings(r.node, e, s);
@@ -5320,9 +6307,32 @@
       if (app.styleTab === "advanced") {
         h += app.lb09AdvancedTab(r.node) + app.lb09GridChild(r.node);
       }
-      if (r.node.type === "grid" && app.styleTab === "content") h += app.lb09Section(app.t("Grid Layout"), app.lb09Field("grid_template_columns", app.t("Column Tracks"), "text", s.grid_template_columns, 'placeholder="repeat(3, 1fr)"') + app.lb09Field("grid_template_rows", app.t("Row Tracks"), "text", s.grid_template_rows, 'placeholder="auto auto"') + app.lb09Field("min_column", app.t("Min Column Size"), "text", s.min_column || "120px") + app.lb09Field("min_row", app.t("Auto Row Size"), "text", s.min_row || "auto") + app.lb09Select("auto_flow", app.t("Auto Flow"), s.auto_flow || "row", ["row", "column", "dense", "row dense", "column dense"]) + app.lb09Responsive("column_gap", app.t("Column Gap"), s.column_gap) + app.lb09Responsive("row_gap", app.t("Row Gap"), s.row_gap) + `<label class="lb-control lb-switch"><input data-setting="show_outline" type="checkbox" ${s.show_outline ? "checked" : ""}><span>Show Grid Outline (editor only)</span></label>`, true);
+      if (r.node.type === "grid" && app.styleTab === "content")
+        h += app.lb09Section(
+          app.t("Grid Layout"),
+          app.lb09Field(
+            "grid_template_columns",
+            app.t("Column Tracks"),
+            "text",
+            s.grid_template_columns,
+            'placeholder="repeat(3, 1fr)"'
+          ) + app.lb09Field(
+            "grid_template_rows",
+            app.t("Row Tracks"),
+            "text",
+            s.grid_template_rows,
+            'placeholder="auto auto"'
+          ) + app.lb09Field("min_column", app.t("Min Column Size"), "text", s.min_column || "120px") + app.lb09Field("min_row", app.t("Auto Row Size"), "text", s.min_row || "auto") + app.lb09Select("auto_flow", app.t("Auto Flow"), s.auto_flow || "row", [
+            "row",
+            "column",
+            "dense",
+            "row dense",
+            "column dense"
+          ]) + app.lb09Responsive("column_gap", app.t("Column Gap"), s.column_gap) + app.lb09Responsive("row_gap", app.t("Row Gap"), s.row_gap) + `<label class="lb-control lb-switch"><input data-setting="show_outline" type="checkbox" ${s.show_outline ? "checked" : ""}><span>Show Grid Outline (editor only)</span></label>`,
+          true
+        );
       const warn = app.accessibilityWarnings(r.node);
-      h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
+      h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
       return h;
     };
     app.lb09StyleFor = function lb09StyleFor(n) {
@@ -5383,21 +6393,37 @@
       }
       put("border-width", app.formatBox(app.resp(s.border_width)));
       put("border-style", s.border_style);
-      put("border-color", s.border_color || (n.type !== "button" && ["solid", "dashed", "dotted", "double", "groove", "ridge", "inset", "outset"].indexOf(s.border_style) !== -1 ? "#ffffff" : ""));
+      put(
+        "border-color",
+        s.border_color || (n.type !== "button" && ["solid", "dashed", "dotted", "double", "groove", "ridge", "inset", "outset"].indexOf(s.border_style) !== -1 ? "#ffffff" : "")
+      );
       put("border-radius", app.formatBox(app.resp(s.border_radius)) || s.radius);
       if (s.shadow && typeof s.shadow === "object") {
         const sh = s.shadow;
-        put("box-shadow", `${sh.inset ? "inset " : ""}${sh.x || 0}px ${sh.y || 0}px ${sh.blur || 0}px ${sh.spread || 0}px ${sh.color || "rgba(0,0,0,.15)"}`);
+        put(
+          "box-shadow",
+          `${sh.inset ? "inset " : ""}${sh.x || 0}px ${sh.y || 0}px ${sh.blur || 0}px ${sh.spread || 0}px ${sh.color || "rgba(0,0,0,.15)"}`
+        );
       }
       put("object-fit", s.object_fit);
       put("object-position", s.object_position);
       put("filter", typeof app.lbCompileFilter === "function" ? app.lbCompileFilter(s.filter) : s.filter);
       put("transform", typeof app.lbCompileTransform === "function" ? app.lbCompileTransform(s.transform) : s.transform);
-      put("transition", typeof app.lbCompileTransition === "function" ? app.lbCompileTransition(s.transition) : typeof s.transition === "string" ? s.transition : "");
-      put("text-shadow", typeof app.lbCompileTextShadow === "function" ? app.lbCompileTextShadow(s.text_shadow) : typeof s.text_shadow === "string" ? s.text_shadow : "");
+      put(
+        "transition",
+        typeof app.lbCompileTransition === "function" ? app.lbCompileTransition(s.transition) : typeof s.transition === "string" ? s.transition : ""
+      );
+      put(
+        "text-shadow",
+        typeof app.lbCompileTextShadow === "function" ? app.lbCompileTextShadow(s.text_shadow) : typeof s.text_shadow === "string" ? s.text_shadow : ""
+      );
       const itemsGapNow = s.items_gap && typeof app.lbCompileGaps === "function" ? app.lbCompileGaps(app.lbGapsValue ? app.lbGapsValue(s.items_gap) : "") : "";
       if (itemsGapNow) put("gap", itemsGapNow);
-      else if (s.gaps && typeof s.gaps === "object") put("gap", s.gaps.linked || s.gaps.row === s.gaps.column ? s.gaps.row || s.gaps.column || "" : (s.gaps.row || "0") + " " + (s.gaps.column || "0"));
+      else if (s.gaps && typeof s.gaps === "object")
+        put(
+          "gap",
+          s.gaps.linked || s.gaps.row === s.gaps.column ? s.gaps.row || s.gaps.column || "" : (s.gaps.row || "0") + " " + (s.gaps.column || "0")
+        );
       put("mix-blend-mode", s.mix_blend_mode);
       return a.join(";");
     };
@@ -5416,8 +6442,10 @@
         const src = u || "";
         const img = src ? `<img class="lb-image-img" src="${app.esc(src)}" alt="${app.esc(s.alt || "")}" style="${app.styleInline(n)}" loading="${app.esc(s.loading || "lazy")}" decoding="${app.esc(s.decoding || "async")}">` : '<div class="lb-image-placeholder">' + app.t("Choose image") + "</div>";
         let wrapped = img;
-        if (s.lightbox && src) wrapped = `<a class="lb-image-lightbox" href="${app.esc(src)}" data-lb-lightbox="1">${img}</a>`;
-        else if (s.link) wrapped = `<a href="${app.esc(s.link)}" target="${app.esc(s.link_target || "_self")}">${img}</a>`;
+        if (s.lightbox && src)
+          wrapped = `<a class="lb-image-lightbox" href="${app.esc(src)}" data-lb-lightbox="1">${img}</a>`;
+        else if (s.link)
+          wrapped = `<a href="${app.esc(s.link)}" target="${app.esc(s.link_target || "_self")}">${img}</a>`;
         const cap = s.caption_type && s.caption_type !== "none" ? `<figcaption>${app.esc(s.caption || "")}</figcaption>` : "";
         return `<figure class="lb-image-preview">${wrapped}${cap}</figure>`;
       }
@@ -5447,7 +6475,10 @@
     app.openPerformance = async function openPerformance() {
       try {
         const r = await fetch(`${app.D.api}/performance/${app.D.postId}`, { headers: { "X-WP-Nonce": app.D.nonce } }), d = await r.json();
-        app.showModal(app.t("Performance & Assets"), `<div class="lb-library-list"><div class="lb-library-row"><strong>Asset version</strong><code>${app.esc(d.version || "")}</code></div><div class="lb-library-row"><strong>Editor CSS/JS</strong><code>Isolated iframe + versioned assets</code></div><div class="lb-library-row"><strong>Frontend CSS</strong><code>Document CSS cache + invalidation</code></div><div class="lb-library-row"><strong>Interaction JS</strong><code>Loaded only when interactions are present</code></div><div class="lb-library-row"><strong>Image delivery</strong><code>srcset + sizes + lazy loading</code></div></div>`);
+        app.showModal(
+          app.t("Performance & Assets"),
+          `<div class="lb-library-list"><div class="lb-library-row"><strong>Asset version</strong><code>${app.esc(d.version || "")}</code></div><div class="lb-library-row"><strong>Editor CSS/JS</strong><code>Isolated iframe + versioned assets</code></div><div class="lb-library-row"><strong>Frontend CSS</strong><code>Document CSS cache + invalidation</code></div><div class="lb-library-row"><strong>Interaction JS</strong><code>Loaded only when interactions are present</code></div><div class="lb-library-row"><strong>Image delivery</strong><code>srcset + sizes + lazy loading</code></div></div>`
+        );
       } catch (e) {
         alert(app.t("Could not load performance information."));
       }
@@ -5455,10 +6486,16 @@
     app.lb09Toolbar = function lb09Toolbar() {
       const top = app.$(".lb-top");
       if (!top) return;
-      if (!app.$("#lb-export")) top.insertAdjacentHTML("beforeend", '<button class="lb-btn" id="lb-export" title="Export document">' + app.t("Export") + '</button><button class="lb-btn" id="lb-import" title="Import document">' + app.t("Import") + '</button><button class="lb-btn" id="lb-breakpoints" title="Responsive breakpoints">' + app.t("Breakpoints") + '</button><button class="lb-btn" id="lb-audit" title="Accessibility audit">' + app.t("A11y") + '</button><button class="lb-btn" id="lb-lock" title="Document lock">' + app.t("Lock") + '</button><button class="lb-btn" id="lb-performance" title="Performance and assets">' + app.t("Assets") + '</button><input id="lb-import-file" type="file" accept="application/json" hidden>');
+      if (!app.$("#lb-export"))
+        top.insertAdjacentHTML(
+          "beforeend",
+          '<button class="lb-btn" id="lb-export" title="Export document">' + app.t("Export") + '</button><button class="lb-btn" id="lb-import" title="Import document">' + app.t("Import") + '</button><button class="lb-btn" id="lb-breakpoints" title="Responsive breakpoints">' + app.t("Breakpoints") + '</button><button class="lb-btn" id="lb-audit" title="Accessibility audit">' + app.t("A11y") + '</button><button class="lb-btn" id="lb-lock" title="Document lock">' + app.t("Lock") + '</button><button class="lb-btn" id="lb-performance" title="Performance and assets">' + app.t("Assets") + '</button><input id="lb-import-file" type="file" accept="application/json" hidden>'
+        );
       app.$("#lb-export")?.addEventListener("click", async () => {
         try {
-          const r = await fetch(`${app.D.api}/document/${app.D.postId}/export`, { headers: { "X-WP-Nonce": app.D.nonce } }), d = await r.json();
+          const r = await fetch(`${app.D.api}/document/${app.D.postId}/export`, {
+            headers: { "X-WP-Nonce": app.D.nonce }
+          }), d = await r.json();
           const blob = new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }), a = document.createElement("a");
           a.href = URL.createObjectURL(blob);
           a.download = `canvasly-lite-${app.D.postId || "document"}.json`;
@@ -5477,13 +6514,21 @@
           if (n.children) walk(n.children);
         });
         walk(app.state.root);
-        app.showModal(app.t("Accessibility Audit"), issues.length ? issues.map((i) => `<div class="lb-library-row"><strong>${app.esc(app.meta(i.type).title || i.type)}</strong><span>${app.esc(i.msg)}</span></div>`).join("") : "<p>\u2713 No obvious issues detected in the current document.</p>");
+        app.showModal(
+          app.t("Accessibility Audit"),
+          issues.length ? issues.map(
+            (i) => `<div class="lb-library-row"><strong>${app.esc(app.meta(i.type).title || i.type)}</strong><span>${app.esc(i.msg)}</span></div>`
+          ).join("") : "<p>✓ No obvious issues detected in the current document.</p>"
+        );
       });
       app.$("#lb-performance")?.addEventListener("click", app.openPerformance);
       app.$("#lb-lock")?.addEventListener("click", async () => {
         if (typeof app.checkLock === "function") return app.checkLock();
         try {
-          const r = await fetch(`${app.D.api}/lock/${app.D.postId}`, { method: "POST", headers: { "X-WP-Nonce": app.D.nonce } });
+          const r = await fetch(`${app.D.api}/lock/${app.D.postId}`, {
+            method: "POST",
+            headers: { "X-WP-Nonce": app.D.nonce }
+          });
           const x = await r.json();
           if (x.locked) alert(app.t("%s is currently editing this document.", x.name || app.t("another user")));
           else alert(app.t("Document lock is active for this session."));
@@ -5524,9 +6569,12 @@
     app.lb09Recovery = async function lb09Recovery() {
       if (typeof app.recoverAutosave === "function") return app.recoverAutosave();
       try {
-        const r = await fetch(`${app.D.api}/document/${app.D.postId}/autosave`, { headers: { "X-WP-Nonce": app.D.nonce } });
+        const r = await fetch(`${app.D.api}/document/${app.D.postId}/autosave`, {
+          headers: { "X-WP-Nonce": app.D.nonce }
+        });
         const a = await r.json();
-        if (a?.document && JSON.stringify(a.document) !== JSON.stringify(app.state) && typeof app.showAutosaveBanner === "function") app.showAutosaveBanner(a, "", String(a.time || ""));
+        if (a?.document && JSON.stringify(a.document) !== JSON.stringify(app.state) && typeof app.showAutosaveBanner === "function")
+          app.showAutosaveBanner(a, "", String(a.time || ""));
       } catch (e) {
       }
     };
@@ -5548,7 +6596,8 @@
         if (document.querySelector(".lb-modal-backdrop,.lb-rte-overlay")) app.closeModal();
         return;
       }
-      if (document.querySelector(".lb-rte-overlay") || document.activeElement?.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
+      if (document.querySelector(".lb-rte-overlay") || document.activeElement?.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName))
+        return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
         e.preventDefault();
         app.leftHidden = !app.leftHidden;
@@ -5574,7 +6623,8 @@
       } else if (e.key === "Delete" && app.selected) app.remove();
     });
     document.addEventListener("click", (e) => {
-      if (app.menuOpen && !e.target.closest(".lb-main-menu") && !e.target.closest("#lb-main-menu-button")) app.closeMainMenu();
+      if (app.menuOpen && !e.target.closest(".lb-main-menu") && !e.target.closest("#lb-main-menu-button"))
+        app.closeMainMenu();
     });
     window.addEventListener("beforeunload", (e) => {
       if (app.dirty) {
@@ -5591,21 +6641,88 @@
       const s = n.settings || {};
       return app.lb09Section(
         app.t("Typography & Design"),
-        app.lb010ResponsiveTriple("font_size", "Font Size", s, "text") + app.lb09Field("font_family", app.t("Font Family"), "text", s.font_family || "") + app.lb09Select("font_weight", app.t("Font Weight"), s.font_weight || s.weight || "", ["", "300", "400", "500", "600", "700", "800"]) + app.lb09Select("font_style", app.t("Font Style"), s.font_style || "", ["", "normal", "italic", "oblique"]) + app.lb09Select("text_transform", app.t("Text Transform"), s.text_transform || "", ["", "none", "uppercase", "lowercase", "capitalize"]) + app.lb09Select("text_decoration", app.t("Text Decoration"), s.text_decoration || "", ["", "none", "underline", "line-through"]) + app.lb010ResponsiveTriple("line_height", "Line Height", s, "text") + app.lb010ResponsiveTriple("letter_spacing", "Letter Spacing", s, "text") + app.control("text_shadow", "text_shadow", s.text_shadow || {}, app.t("Text Shadow")) + app.control("background", "background", typeof s.background === "object" ? s.background : {}, app.t("Background")) + app.lb09Select("background_clip", app.t("Background Clip"), s.background_clip || "", ["", "border-box", "padding-box", "text"]) + app.control("filter", "css_filter", s.filter || {}, app.t("Filter")) + app.control("transform", "transform", s.transform || {}, app.t("Transform")),
+        app.lb010ResponsiveTriple("font_size", "Font Size", s, "text") + app.lb09Field("font_family", app.t("Font Family"), "text", s.font_family || "") + app.lb09Select("font_weight", app.t("Font Weight"), s.font_weight || s.weight || "", [
+          "",
+          "300",
+          "400",
+          "500",
+          "600",
+          "700",
+          "800"
+        ]) + app.lb09Select("font_style", app.t("Font Style"), s.font_style || "", ["", "normal", "italic", "oblique"]) + app.lb09Select("text_transform", app.t("Text Transform"), s.text_transform || "", [
+          "",
+          "none",
+          "uppercase",
+          "lowercase",
+          "capitalize"
+        ]) + app.lb09Select("text_decoration", app.t("Text Decoration"), s.text_decoration || "", [
+          "",
+          "none",
+          "underline",
+          "line-through"
+        ]) + app.lb010ResponsiveTriple("line_height", "Line Height", s, "text") + app.lb010ResponsiveTriple("letter_spacing", "Letter Spacing", s, "text") + app.control("text_shadow", "text_shadow", s.text_shadow || {}, app.t("Text Shadow")) + app.control(
+          "background",
+          "background",
+          typeof s.background === "object" ? s.background : {},
+          app.t("Background")
+        ) + app.lb09Select("background_clip", app.t("Background Clip"), s.background_clip || "", [
+          "",
+          "border-box",
+          "padding-box",
+          "text"
+        ]) + app.control("filter", "css_filter", s.filter || {}, app.t("Filter")) + app.control("transform", "transform", s.transform || {}, app.t("Transform")),
         true
       );
     };
     app.lb010Borders = function lb010Borders(n) {
       const s = n.settings || {};
-      return app.lb09Section(app.t("Border & Shadow"), app.lb09Select("border_style", app.t("Border Style"), s.border_style || "", ["", "solid", "dashed", "dotted", "double", "none"]) + app.boxControl("border_width", typeof s.border_width === "object" ? s.border_width : {}, app.t("Border Width")) + app.lb09Field("border_color", app.t("Border Color"), "color", s.border_color || "") + app.boxControl("border_radius", typeof s.border_radius === "object" ? s.border_radius : {}, app.t("Border Radius")) + app.control("shadow", "box_shadow", s.shadow || s.box_shadow || {}, app.t("Box Shadow")), false);
+      return app.lb09Section(
+        app.t("Border & Shadow"),
+        app.lb09Select("border_style", app.t("Border Style"), s.border_style || "", [
+          "",
+          "solid",
+          "dashed",
+          "dotted",
+          "double",
+          "none"
+        ]) + app.boxControl(
+          "border_width",
+          typeof s.border_width === "object" ? s.border_width : {},
+          app.t("Border Width")
+        ) + app.lb09Field("border_color", app.t("Border Color"), "color", s.border_color || "") + app.boxControl(
+          "border_radius",
+          typeof s.border_radius === "object" ? s.border_radius : {},
+          app.t("Border Radius")
+        ) + app.control("shadow", "box_shadow", s.shadow || s.box_shadow || {}, app.t("Box Shadow")),
+        false
+      );
     };
     app.lb010Dynamic = function lb010Dynamic(n) {
       const s = n.settings || {};
-      return app.lb09Section(app.t("Dynamic Content"), app.lb09Select("dynamic_source", app.t("Source"), s.dynamic_source || "", ["", "post", "site"]) + app.lb09Select("dynamic_key", app.t("Dynamic Field"), s.dynamic_key || "", ["", "title", "content", "excerpt", "featured_image", "author", "date", "url"]) + app.lb09Field("dynamic_meta_key", app.t("Custom Field"), "text", s.dynamic_meta_key || ""), false);
+      return app.lb09Section(
+        app.t("Dynamic Content"),
+        app.lb09Select("dynamic_source", app.t("Source"), s.dynamic_source || "", ["", "post", "site"]) + app.lb09Select("dynamic_key", app.t("Dynamic Field"), s.dynamic_key || "", [
+          "",
+          "title",
+          "content",
+          "excerpt",
+          "featured_image",
+          "author",
+          "date",
+          "url"
+        ]) + app.lb09Field("dynamic_meta_key", app.t("Custom Field"), "text", s.dynamic_meta_key || ""),
+        false
+      );
     };
     app.lb010Atomic = function lb010Atomic(n) {
       const atomicTypes = ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"];
-      return app.lb09Section(app.t("Atomic Unit"), `<div class="lb-atomic-badge">${atomicTypes.includes(n.type) ? "Atomic" : "Classic"} unit</div><label class="lb-control"><span>Unit Type</span><select id="lb-atomic-type">${Object.entries(app.D.atomicTypes || {}).map(([k, v]) => `<option value="${app.esc(k)}" ${k === n.type ? "selected" : ""}>${app.esc(v)}</option>`).join("")}</select></label><button class="lb-btn" id="lb-convert-atomic">Apply Type</button>`, false);
+      return app.lb09Section(
+        app.t("Atomic Unit"),
+        `<div class="lb-atomic-badge">${atomicTypes.includes(n.type) ? "Atomic" : "Classic"} unit</div><label class="lb-control"><span>Unit Type</span><select id="lb-atomic-type">${Object.entries(
+          app.D.atomicTypes || {}
+        ).map(([k, v]) => `<option value="${app.esc(k)}" ${k === n.type ? "selected" : ""}>${app.esc(v)}</option>`).join("")}</select></label><button class="lb-btn" id="lb-convert-atomic">Apply Type</button>`,
+        false
+      );
     };
     app.settingsHTML = function() {
       if (!app.selected) return app.lb010OriginalSettings();
@@ -5617,7 +6734,8 @@
       if (app.styleTab === "content") extra += app.lb010Dynamic(r.node);
       if (app.styleTab === "advanced") extra += app.lb010Atomic(r.node);
       if (extra) {
-        if (h.includes("lb-action-grid")) h = h.replace('<div class="lb-action-grid"', extra + '<div class="lb-action-grid"');
+        if (h.includes("lb-action-grid"))
+          h = h.replace('<div class="lb-action-grid"', extra + '<div class="lb-action-grid"');
         else h += extra;
       }
       return h;
@@ -5643,7 +6761,15 @@
       });
     };
     app.lb010OpenDesignSystem = function lb010OpenDesignSystem() {
-      Promise.all([fetch(`${app.D.api}/design-system`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json()), fetch(`${app.D.api}/classes`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json())]).then(([d, c]) => app.showModal(app.t("Design System"), `<div class="lb-library-list"><div class="lb-library-row"><strong>${app.t("Variables")}</strong><span>${Object.keys(d.variables?.colors || {}).length} colors \xB7 ${Object.keys(d.variables?.sizes || {}).length} sizes</span></div><div class="lb-library-row"><strong>Global Classes</strong><span>${Object.keys(c || {}).length}</span></div><div class="lb-library-row"><strong>Atomic Units</strong><span>${Object.keys(d.atomic || {}).length}</span></div><button class="lb-btn" id="lb-ds-export">${app.t("Export Design System")}</button><button class="lb-btn" id="lb-ds-import">${app.t("Import Design System")}</button><input id="lb-ds-file" type="file" accept="application/json" hidden></div>`)).then(() => {
+      Promise.all([
+        fetch(`${app.D.api}/design-system`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json()),
+        fetch(`${app.D.api}/classes`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json())
+      ]).then(
+        ([d, c]) => app.showModal(
+          app.t("Design System"),
+          `<div class="lb-library-list"><div class="lb-library-row"><strong>${app.t("Variables")}</strong><span>${Object.keys(d.variables?.colors || {}).length} colors · ${Object.keys(d.variables?.sizes || {}).length} sizes</span></div><div class="lb-library-row"><strong>Global Classes</strong><span>${Object.keys(c || {}).length}</span></div><div class="lb-library-row"><strong>Atomic Units</strong><span>${Object.keys(d.atomic || {}).length}</span></div><button class="lb-btn" id="lb-ds-export">${app.t("Export Design System")}</button><button class="lb-btn" id="lb-ds-import">${app.t("Import Design System")}</button><input id="lb-ds-file" type="file" accept="application/json" hidden></div>`
+        )
+      ).then(() => {
         app.root.querySelector("#lb-ds-export")?.addEventListener("click", async () => {
           const r = await fetch(`${app.D.api}/design-system`, { headers: { "X-WP-Nonce": app.D.nonce } }), d = await r.json();
           const a = document.createElement("a");
@@ -5659,7 +6785,11 @@
           rd.onload = async () => {
             try {
               const d = JSON.parse(rd.result);
-              await fetch(`${app.D.api}/design-system/import`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ ...d, mode: app.$("#lb-ds-import-mode")?.value || "merge" }) });
+              await fetch(`${app.D.api}/design-system/import`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+                body: JSON.stringify({ ...d, mode: app.$("#lb-ds-import-mode")?.value || "merge" })
+              });
               alert("Design system imported.");
               app.render();
             } catch (err) {
@@ -5672,32 +6802,43 @@
     };
     app.lb010OpenTemplateManager = function lb010OpenTemplateManager() {
       fetch(`${app.D.api}/templates`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json()).then((list) => {
-        app.showModal(app.t("Template Library"), `<div class="lb-template-grid">${(list || []).map((tpl) => `<article class="lb-template-card"><div class="lb-template-thumb"><span>${app.esc((tpl.type || "page").toUpperCase())}</span></div><strong>${app.esc(tpl.title)}</strong><small>${app.esc(tpl.type || "page")}</small><div><button class="lb-btn" data-tpl-insert="${tpl.id}">${app.t("Insert")}</button><button class="lb-btn" data-tpl-export="${tpl.id}">${app.t("Export")}</button></div></article>`).join("") || "<p>" + app.t("No templates saved yet.") + "</p>"}</div>`);
-        app.root.querySelectorAll("[data-tpl-insert]").forEach((b) => b.onclick = async () => {
-          const r = await fetch(`${app.D.api}/templates/${b.dataset.tplInsert}`, { headers: { "X-WP-Nonce": app.D.nonce } }), d = await r.json();
-          if (Array.isArray(d.root)) {
-            app.commit();
-            app.state.root = d.root.map(app.clone);
-            app.selected = null;
-            app.render();
+        app.showModal(
+          app.t("Template Library"),
+          `<div class="lb-template-grid">${(list || []).map((tpl) => `<article class="lb-template-card"><div class="lb-template-thumb"><span>${app.esc((tpl.type || "page").toUpperCase())}</span></div><strong>${app.esc(tpl.title)}</strong><small>${app.esc(tpl.type || "page")}</small><div><button class="lb-btn" data-tpl-insert="${tpl.id}">${app.t("Insert")}</button><button class="lb-btn" data-tpl-export="${tpl.id}">${app.t("Export")}</button></div></article>`).join("") || "<p>" + app.t("No templates saved yet.") + "</p>"}</div>`
+        );
+        app.root.querySelectorAll("[data-tpl-insert]").forEach(
+          (b) => b.onclick = async () => {
+            const r = await fetch(`${app.D.api}/templates/${b.dataset.tplInsert}`, {
+              headers: { "X-WP-Nonce": app.D.nonce }
+            }), d = await r.json();
+            if (Array.isArray(d.root)) {
+              app.commit();
+              app.state.root = d.root.map(app.clone);
+              app.selected = null;
+              app.render();
+            }
           }
-        });
-        app.root.querySelectorAll("[data-tpl-export]").forEach((b) => b.onclick = async () => {
-          const r = await fetch(`${app.D.api}/templates/${b.dataset.tplExport}`, { headers: { "X-WP-Nonce": app.D.nonce } }), d = await r.json();
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-          a.download = `canvasly-lite-template-${b.dataset.tplExport}.json`;
-          a.click();
-        });
+        );
+        app.root.querySelectorAll("[data-tpl-export]").forEach(
+          (b) => b.onclick = async () => {
+            const r = await fetch(`${app.D.api}/templates/${b.dataset.tplExport}`, {
+              headers: { "X-WP-Nonce": app.D.nonce }
+            }), d = await r.json();
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
+            a.download = `canvasly-lite-template-${b.dataset.tplExport}.json`;
+            a.click();
+          }
+        );
       });
     };
     app.lb010OldToolbar = app.lb09Toolbar;
     app.lb09Toolbar = function() {
       app.lb010OldToolbar();
       const top = app.$(".lb-top");
-      if (top && !app.$("#lb-design-system")) top.insertAdjacentHTML("beforeend", '<button class="lb-btn" id="lb-design-system">Design System</button>');
+      if (top && !app.$("#lb-design-system"))
+        top.insertAdjacentHTML("beforeend", '<button class="lb-btn" id="lb-design-system">Design System</button>');
       app.$("#lb-design-system")?.addEventListener("click", app.lb010OpenDesignSystem);
-      /* XEditor: the legacy "Atomic" modal was replaced by the XEditor menu (assets/js/xeditor.js). */
     };
     app.lb010TemplateBtn = document.getElementById("lb-template-load");
     if (app.lb010TemplateBtn) app.lb010TemplateBtn.onclick = app.lb010OpenTemplateManager;
@@ -5710,7 +6851,7 @@
     };
     app.lb101IconSvg = function lb101IconSvg(id, cls = "") {
       const x = app.lb101Icons.find((i) => i.id === id);
-      if (!x) return '<span class="lb-icon-fallback">\u2605</span>';
+      if (!x) return '<span class="lb-icon-fallback">★</span>';
       if (x.svg) {
         return String(x.svg).replace(/<svg\b/i, '<svg class="lb-fa-icon ' + app.esc(cls) + '" width="1em" height="1em"').replace(/<svg\s+class="[^"]*"/, '<svg class="lb-fa-icon ' + app.esc(cls) + '" width="1em" height="1em"');
       }
@@ -5773,8 +6914,12 @@
       const family = encodeURIComponent(font).replace(/%20/g, "+");
       let weights, italic;
       if (variants && (Array.isArray(variants.weights) || Array.isArray(variants.italic))) {
-        weights = [...new Set((variants.weights || []).map(Number).filter((n) => n >= 100 && n <= 900))].sort((a, b) => a - b);
-        italic = [...new Set((variants.italic || []).map(Number).filter((n) => n >= 100 && n <= 900))].sort((a, b) => a - b);
+        weights = [...new Set((variants.weights || []).map(Number).filter((n) => n >= 100 && n <= 900))].sort(
+          (a, b) => a - b
+        );
+        italic = [...new Set((variants.italic || []).map(Number).filter((n) => n >= 100 && n <= 900))].sort(
+          (a, b) => a - b
+        );
         if (!weights.length) weights = italic.length ? italic.slice() : [400];
       } else {
         weights = app.lb101EditorWeights.slice();
@@ -5836,7 +6981,8 @@
         if (!obj || typeof obj !== "object" || depth > 16) return;
         if (typeof obj.font_family === "string") take(obj.font_family, obj.font_weight || obj.weight, obj.font_style);
         Object.keys(obj).forEach((k) => {
-          if (k !== "font_family" && k !== "font_weight" && k !== "weight" && k !== "font_style" && obj[k] && typeof obj[k] === "object") scan(obj[k], depth + 1);
+          if (k !== "font_family" && k !== "font_weight" && k !== "weight" && k !== "font_style" && obj[k] && typeof obj[k] === "object")
+            scan(obj[k], depth + 1);
         });
       };
       (function walk(items) {
@@ -5871,7 +7017,7 @@
     app.lb101OldControl = app.control;
     app.control = function(k, t3, v, label) {
       if (k === "icon" && app.lbCtrlType(t3) === "text") {
-        return `<div class="lb-control lb-icon-control"><span>${app.esc(label || "Icon")}</span><button type="button" class="lb-icon-picker lb-icon-picker-visual" data-icon-picker="1" data-icon-key="${app.esc(k)}" title="Choose icon"><span class="lb-icon-picker-preview">${app.lb101IconSvg(v || "star")}</span><span class="lb-icon-picker-name">${app.esc(app.lb101IconTitle(v || "star"))}</span><span class="lb-icon-picker-arrow">\u2304</span></button></div>`;
+        return `<div class="lb-control lb-icon-control"><span>${app.esc(label || "Icon")}</span><button type="button" class="lb-icon-picker lb-icon-picker-visual" data-icon-picker="1" data-icon-key="${app.esc(k)}" title="Choose icon"><span class="lb-icon-picker-preview">${app.lb101IconSvg(v || "star")}</span><span class="lb-icon-picker-name">${app.esc(app.lb101IconTitle(v || "star"))}</span><span class="lb-icon-picker-arrow">⌄</span></button></div>`;
       }
       return app.lb101OldControl(k, t3, v, label);
     };
@@ -5880,7 +7026,7 @@
       app.lbPendingIconKey = null;
       app.lb101EnsureIcons().then(() => {
         const families = ["all", "solid", "regular", "brands"];
-        const body = `<div class="lb-icon-library-toolbar"><input class="lb-modal-search" id="lb101-icon-search" placeholder="${app.t("Search icons\u2026")}"><select id="lb101-icon-family"><option value="all">All</option><option value="solid">Solid</option><option value="regular">Regular</option><option value="brands">Brands</option></select></div><div class="lb-icon-library-count" id="lb101-icon-count"></div><div class="lb-icon-grid lb-icon-grid-large" id="lb101-icon-grid">${app.lb101Icons.map((i) => `<button type="button" class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" data-family="${app.esc(i.family || "custom")}" title="${app.esc(i.title)}">${app.lb101IconSvg(i.id)}<small>${app.esc(i.title)}</small></button>`).join("")}</div>`;
+        const body = `<div class="lb-icon-library-toolbar"><input class="lb-modal-search" id="lb101-icon-search" placeholder="${app.t("Search icons…")}"><select id="lb101-icon-family"><option value="all">All</option><option value="solid">Solid</option><option value="regular">Regular</option><option value="brands">Brands</option></select></div><div class="lb-icon-library-count" id="lb101-icon-count"></div><div class="lb-icon-grid lb-icon-grid-large" id="lb101-icon-grid">${app.lb101Icons.map((i) => `<button type="button" class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" data-family="${app.esc(i.family || "custom")}" title="${app.esc(i.title)}">${app.lb101IconSvg(i.id)}<small>${app.esc(i.title)}</small></button>`).join("")}</div>`;
         app.showModal(app.t("Canvasly Icon Library"), body, () => {
           const filter = () => {
             const q = (app.$("#lb101-icon-search")?.value || "").toLowerCase();
@@ -5897,12 +7043,14 @@
           app.$("#lb101-icon-search")?.addEventListener("input", filter);
           app.$("#lb101-icon-family")?.addEventListener("change", filter);
           filter();
-          app.$$("#lb101-icon-grid [data-icon-id]").forEach((b) => b.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (app.selected) app.update(key, b.dataset.iconId);
-            app.closeModal();
-          });
+          app.$$("#lb101-icon-grid [data-icon-id]").forEach(
+            (b) => b.onclick = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (app.selected) app.update(key, b.dataset.iconId);
+              app.closeModal();
+            }
+          );
         });
       });
     };
@@ -5910,7 +7058,9 @@
     app.lb101OldUnitPanel = app.unitPanel;
     app.unitPanel = function() {
       const q = app.unitSearch.trim().toLowerCase();
-      let list = (app.D.units || []).filter((e) => (app.unitInCategory ? app.unitInCategory(e) : app.category === "all" || e.category === app.category) && (!q || [e.title, e.type, e.category, ...e.keywords || []].join(" ").toLowerCase().includes(q)));
+      let list = (app.D.units || []).filter(
+        (e) => (app.unitInCategory ? app.unitInCategory(e) : app.category === "all" || e.category === app.category) && (!q || [e.title, e.type, e.category, ...e.keywords || []].join(" ").toLowerCase().includes(q))
+      );
       list.sort((a, b) => app.fav.has(b.type) - app.fav.has(a.type) || a.title.localeCompare(b.title));
       if (!list.length) return '<div class="lb-no-results">' + app.t("No units found.") + "</div>";
       const groups = {};
@@ -5922,16 +7072,50 @@
       return keys.map((c) => {
         const a = groups[c];
         const label = c === "pro" ? "PRO" : c;
-        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>\u2605 " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => {
-          const ico = e.type === "icon" ? app.lb101IconSvg("star", "lb-unit-svg-icon") : app.esc(e.icon || "\u25A1");
-          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}" draggable="true" data-type="${app.esc(e.type)}" title="${app.esc(e.title)}" data-lb-hint="${app.esc(app.t("Double-click to add"))}"><span class="lb-icon" aria-hidden="true">${ico}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\u2605" : "\u2606"}</b></button>`;
+        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>★ " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => {
+          const ico = e.type === "icon" ? app.lb101IconSvg("star", "lb-unit-svg-icon") : app.esc(e.icon || "□");
+          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}" draggable="true" data-type="${app.esc(e.type)}" title="${app.esc(e.title)}" data-lb-hint="${app.esc(app.t("Double-click to add"))}"><span class="lb-icon" aria-hidden="true">${ico}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></button>`;
         }).join("")}</div></div>`;
       }).join("");
     };
     app.lb101OldDesignSection = app.lb010DesignSection;
     app.lb010DesignSection = function(n) {
       const s = n.settings || {};
-      return app.lb09Section(app.t("Typography & Design"), app.lb010ResponsiveTriple("font_size", "Font Size", s, "text") + app.lb101FontSelect(s.font_family || "") + app.lb09Select("font_weight", app.t("Font Weight"), s.font_weight || s.weight || "", ["", "300", "400", "500", "600", "700", "800", "900"]) + app.lb09Select("font_style", app.t("Font Style"), s.font_style || "", ["", "normal", "italic", "oblique"]) + app.lb09Select("text_transform", app.t("Text Transform"), s.text_transform || "", ["", "none", "uppercase", "lowercase", "capitalize"]) + app.lb09Select("text_decoration", app.t("Text Decoration"), s.text_decoration || "", ["", "none", "underline", "line-through"]) + app.lb010ResponsiveTriple("line_height", "Line Height", s, "text") + app.lb010ResponsiveTriple("letter_spacing", "Letter Spacing", s, "text") + app.control("text_shadow", "text_shadow", s.text_shadow || {}, app.t("Text Shadow")) + app.control("background", "background", typeof s.background === "object" ? s.background : {}, app.t("Background")) + app.lb09Select("background_clip", app.t("Background Clip"), s.background_clip || "", ["", "border-box", "padding-box", "text"]) + app.control("filter", "css_filter", s.filter || {}, app.t("Filter")) + app.control("transform", "transform", s.transform || {}, app.t("Transform")), true);
+      return app.lb09Section(
+        app.t("Typography & Design"),
+        app.lb010ResponsiveTriple("font_size", "Font Size", s, "text") + app.lb101FontSelect(s.font_family || "") + app.lb09Select("font_weight", app.t("Font Weight"), s.font_weight || s.weight || "", [
+          "",
+          "300",
+          "400",
+          "500",
+          "600",
+          "700",
+          "800",
+          "900"
+        ]) + app.lb09Select("font_style", app.t("Font Style"), s.font_style || "", ["", "normal", "italic", "oblique"]) + app.lb09Select("text_transform", app.t("Text Transform"), s.text_transform || "", [
+          "",
+          "none",
+          "uppercase",
+          "lowercase",
+          "capitalize"
+        ]) + app.lb09Select("text_decoration", app.t("Text Decoration"), s.text_decoration || "", [
+          "",
+          "none",
+          "underline",
+          "line-through"
+        ]) + app.lb010ResponsiveTriple("line_height", "Line Height", s, "text") + app.lb010ResponsiveTriple("letter_spacing", "Letter Spacing", s, "text") + app.control("text_shadow", "text_shadow", s.text_shadow || {}, app.t("Text Shadow")) + app.control(
+          "background",
+          "background",
+          typeof s.background === "object" ? s.background : {},
+          app.t("Background")
+        ) + app.lb09Select("background_clip", app.t("Background Clip"), s.background_clip || "", [
+          "",
+          "border-box",
+          "padding-box",
+          "text"
+        ]) + app.control("filter", "css_filter", s.filter || {}, app.t("Filter")) + app.control("transform", "transform", s.transform || {}, app.t("Transform")),
+        true
+      );
     };
     app.lb101OldBind = app.lb010BindFeatureUI;
     app.lb010BindFeatureUI = function() {
@@ -5941,7 +7125,9 @@
         const fam = sel2 && sel2.value;
         if (fam) app.lb101LoadEditorFont(fam);
       };
-      app.root.querySelectorAll('[data-setting="font_family"],[data-setting="font_weight"],[data-setting="weight"],[data-setting="font_style"]').forEach((x) => x.addEventListener("change", load));
+      app.root.querySelectorAll(
+        '[data-setting="font_family"],[data-setting="font_weight"],[data-setting="weight"],[data-setting="font_style"]'
+      ).forEach((x) => x.addEventListener("change", load));
     };
     Promise.all([app.lb101EnsureIcons(), app.lb101EnsureFonts()]).then(() => {
       app.lb101ApplyFontsInFrame();
@@ -5972,7 +7158,11 @@
       return select;
     };
     app.lb104FixFontFamilyControls = function lb104FixFontFamilyControls() {
-      const fields = [...document.querySelectorAll('#lb-editor [data-setting="font_family"], #lb-editor [data-setting$=".font_family"]')];
+      const fields = [
+        ...document.querySelectorAll(
+          '#lb-editor [data-setting="font_family"], #lb-editor [data-setting$=".font_family"]'
+        )
+      ];
       fields.forEach((field) => {
         const select = app.lb104MakeFontSelect(field);
         if (!select) return;
@@ -6097,7 +7287,8 @@
         e.preventDefault();
         visual.focus();
         const cmd = btn.dataset.cmd, val = btn.dataset.val || null;
-        if (cmd === "formatBlock") document.execCommand("formatBlock", false, val && val.charAt(0) === "<" ? val : "<" + val + ">");
+        if (cmd === "formatBlock")
+          document.execCommand("formatBlock", false, val && val.charAt(0) === "<" ? val : "<" + val + ">");
         else if (cmd === "createLink") {
           const url = window.prompt(app.t("Link URL"), "https://");
           if (url) document.execCommand("createLink", false, url);
@@ -6184,7 +7375,7 @@
       overlay.innerHTML = `<div class="lb-rte-dialog" role="dialog" aria-modal="true" aria-labelledby="lb-rte-title">
   <div class="lb-rte-head">
    <strong id="lb-rte-title">TinyMCE Text Editor</strong>
-   <button type="button" class="lb-rte-close" aria-label="${app.t("Close")}">\xD7</button>
+   <button type="button" class="lb-rte-close" aria-label="${app.t("Close")}">×</button>
   </div>
   <div class="lb-rte-body">
    <p class="lb-rte-intro">Edit this content in the visual editor. Changes apply to the Canvasly unit when you click <strong>Save Content</strong>.</p>
@@ -6199,7 +7390,7 @@
     <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
     <button type="button" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
     <span class="lb-rte-sep"></span>
-    <button type="button" data-cmd="insertUnorderedList" title="Bulleted list">\u2022 List</button>
+    <button type="button" data-cmd="insertUnorderedList" title="Bulleted list">• List</button>
     <button type="button" data-cmd="insertOrderedList" title="Numbered list">1. List</button>
     <span class="lb-rte-sep"></span>
     <button type="button" data-cmd="justifyLeft" title="Align left">Left</button>
@@ -6297,7 +7488,11 @@
           const s = r.node.settings || {};
           const preview = (s.content || "<p>Start writing your content here.</p>").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
           let h = `<div class="lb-selection-head"><strong>TinyMCE Text Editor</strong><span class="lb-selection-id">${app.esc(r.node.id)}</span></div><div class="lb-settings-tabs">${["content", "style", "advanced"].map((x) => `<button data-style-tab="${x}" class="${app.styleTab === x ? "active" : ""}">${x[0].toUpperCase() + x.slice(1)}</button>`).join("")}</div>`;
-          h += app.lb09Section(app.t("Content"), `<div class="lb-tinymce-setting-preview">${app.esc(preview || "No content")}</div><button type="button" class="lb-btn primary lb-tinymce-open" id="lb-tinymce-open">Edit with TinyMCE</button>`, true);
+          h += app.lb09Section(
+            app.t("Content"),
+            `<div class="lb-tinymce-setting-preview">${app.esc(preview || "No content")}</div><button type="button" class="lb-btn primary lb-tinymce-open" id="lb-tinymce-open">Edit with TinyMCE</button>`,
+            true
+          );
           h += `<div class="lb-action-grid"><button class="lb-btn" id="lb-duplicate">${app.t("Duplicate")}</button><button class="lb-btn danger" id="lb-delete">${app.t("Delete")}</button></div>`;
           return h;
         }
@@ -6338,7 +7533,11 @@
         if (x) rootVars.push(`--lb-font-${k}:${x};`);
       });
       Object.entries(v.effects || {}).forEach(([k, x]) => rootVars.push(`--lb-effect-${k}:${x};`));
-      Object.entries(v.custom || {}).forEach(([g, items]) => Object.entries(items || {}).forEach(([k, item]) => rootVars.push(`--lb-${g}-${k}:${typeof item === "object" ? item.value || "" : item};`)));
+      Object.entries(v.custom || {}).forEach(
+        ([g, items]) => Object.entries(items || {}).forEach(
+          ([k, item]) => rootVars.push(`--lb-${g}-${k}:${typeof item === "object" ? item.value || "" : item};`)
+        )
+      );
       if (rootVars.length) out.push(":root{" + rootVars.join("") + "}");
       const all = app.lb110ClassData();
       for (const [name, d0] of Object.entries(all)) {
@@ -6377,7 +7576,9 @@
     };
     app.lb110ClassChecklist = function lb110ClassChecklist(selectedNames) {
       const names = app.lb110ClassNames();
-      return names.length ? names.map((n) => `<label class="lb-ds-check"><input type="checkbox" data-lb-class-check="${app.esc(n)}" ${selectedNames.includes(n) ? "checked" : ""}> <strong>.${app.esc(n)}</strong><small>${app.esc(typeof app.lb110ClassData()[n] === "string" ? app.lb110ClassData()[n] : app.lb110ClassData()[n]?.description || "")}</small></label>`).join("") : '<p class="lb-muted">No global classes yet. Create one above.</p>';
+      return names.length ? names.map(
+        (n) => `<label class="lb-ds-check"><input type="checkbox" data-lb-class-check="${app.esc(n)}" ${selectedNames.includes(n) ? "checked" : ""}> <strong>.${app.esc(n)}</strong><small>${app.esc(typeof app.lb110ClassData()[n] === "string" ? app.lb110ClassData()[n] : app.lb110ClassData()[n]?.description || "")}</small></label>`
+      ).join("") : '<p class="lb-muted">No global classes yet. Create one above.</p>';
     };
     app.lb110ClassEditor = function lb110ClassEditor(name = "") {
       const d = app.lb110ClassData()[name];
@@ -6386,8 +7587,23 @@
       return `<div class="lb-ds-editor"><label class="lb-control"><span>Class Name</span><input id="lb-ds-name" value="${app.esc(name)}" ${name ? "readonly" : ""} placeholder="card"></label><label class="lb-control"><span>Description</span><input id="lb-ds-description" value="${app.esc(x.description || "")}" placeholder="Reusable card style"></label><div class="lb-ds-state-grid"><label><span>Base declarations</span><textarea id="lb-ds-base" class="lb-code-textarea" data-lb-code="css" rows="4">${app.esc(x.base || "")}</textarea></label><label><span>Hover declarations</span><textarea id="lb-ds-hover" class="lb-code-textarea" data-lb-code="css" rows="4">${app.esc(x.hover || "")}</textarea></label><label><span>Focus declarations</span><textarea id="lb-ds-focus" class="lb-code-textarea" data-lb-code="css" rows="4">${app.esc(x.focus || "")}</textarea></label><label><span>Active declarations</span><textarea id="lb-ds-active" class="lb-code-textarea" data-lb-code="css" rows="4">${app.esc(x.active || "")}</textarea></label><label><span>Focus-visible declarations</span><textarea id="lb-ds-focus-visible" class="lb-code-textarea" data-lb-code="css" rows="4">${app.esc(x.focus_visible || "")}</textarea></label></div><div><strong>Inherit from</strong><div class="lb-ds-parent-list">${parents.map((n) => `<label><input type="checkbox" data-lb-parent="${app.esc(n)}" ${(x.extends || []).includes(n) ? "checked" : ""}> .${app.esc(n)}</label>`).join("") || '<span class="lb-muted">No other classes.</span>'}</div></div><div class="lb-ds-actions"><button class="lb-btn primary" id="lb-ds-class-save">Save Class</button><button class="lb-btn" id="lb-ds-class-cancel">Cancel</button></div></div>`;
     };
     app.lb110SaveClass = async function lb110SaveClass(name) {
-      const payload = { name, description: app.root.querySelector("#lb-ds-description")?.value || "", css: { base: app.root.querySelector("#lb-ds-base")?.value || "", hover: app.root.querySelector("#lb-ds-hover")?.value || "", focus: app.root.querySelector("#lb-ds-focus")?.value || "", active: app.root.querySelector("#lb-ds-active")?.value || "", focus_visible: app.root.querySelector("#lb-ds-focus-visible")?.value || "", extends: [...app.root.querySelectorAll("[data-lb-parent]:checked")].map((x) => x.dataset.lbParent) } };
-      const r = await fetch(`${app.D.api}/classes`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify(payload) });
+      const payload = {
+        name,
+        description: app.root.querySelector("#lb-ds-description")?.value || "",
+        css: {
+          base: app.root.querySelector("#lb-ds-base")?.value || "",
+          hover: app.root.querySelector("#lb-ds-hover")?.value || "",
+          focus: app.root.querySelector("#lb-ds-focus")?.value || "",
+          active: app.root.querySelector("#lb-ds-active")?.value || "",
+          focus_visible: app.root.querySelector("#lb-ds-focus-visible")?.value || "",
+          extends: [...app.root.querySelectorAll("[data-lb-parent]:checked")].map((x) => x.dataset.lbParent)
+        }
+      };
+      const r = await fetch(`${app.D.api}/classes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify(payload)
+      });
       if (!r.ok) {
         alert(app.t("Could not save global class."));
         return;
@@ -6403,7 +7619,9 @@
         walk(n.children);
       });
       walk(app.state.root);
-      const body = `<div class="lb-ds-toolbar"><button class="lb-btn primary" id="lb-ds-new-class">New Class</button><input class="lb-modal-search" id="lb-ds-class-search" placeholder="Search classes\u2026"></div><div class="lb-library-list" id="lb-ds-class-list">${Object.entries(items).map(([n, d]) => `<div class="lb-library-row lb-ds-class-row" data-class-row="${app.esc(n)}"><div><strong>.${app.esc(n)}</strong><small class="lb-ds-meta">${usage[n] || 0} unit(s) \xB7 ${app.esc(typeof d === "string" ? "" : d.description || "")}</small></div><span>${typeof d === "string" ? app.esc(d) : (d.extends || []).map((x) => "." + app.esc(x)).join(", ")}</span><button class="lb-btn" data-lb-class-edit="${app.esc(n)}">Edit</button><button class="lb-btn danger" data-lb-class-delete="${app.esc(n)}">${app.t("Delete")}</button></div>`).join("") || '<p class="lb-muted">No global classes yet.</p>'}</div>`;
+      const body = `<div class="lb-ds-toolbar"><button class="lb-btn primary" id="lb-ds-new-class">New Class</button><input class="lb-modal-search" id="lb-ds-class-search" placeholder="Search classes…"></div><div class="lb-library-list" id="lb-ds-class-list">${Object.entries(items).map(
+        ([n, d]) => `<div class="lb-library-row lb-ds-class-row" data-class-row="${app.esc(n)}"><div><strong>.${app.esc(n)}</strong><small class="lb-ds-meta">${usage[n] || 0} unit(s) · ${app.esc(typeof d === "string" ? "" : d.description || "")}</small></div><span>${typeof d === "string" ? app.esc(d) : (d.extends || []).map((x) => "." + app.esc(x)).join(", ")}</span><button class="lb-btn" data-lb-class-edit="${app.esc(n)}">Edit</button><button class="lb-btn danger" data-lb-class-delete="${app.esc(n)}">${app.t("Delete")}</button></div>`
+      ).join("") || '<p class="lb-muted">No global classes yet.</p>'}</div>`;
       app.showModal(app.t("Global Classes 2.0"), body, () => {
         app.$("#lb-ds-new-class")?.addEventListener("click", () => {
           app.closeModal();
@@ -6416,70 +7634,104 @@
         app.$("#lb-ds-class-search")?.addEventListener("input", (e) => {
           app.$$("#lb-ds-class-list .lb-ds-class-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
         });
-        app.$$("[data-lb-class-edit]").forEach((b) => b.onclick = () => {
-          const name = b.dataset.lbClassEdit;
-          app.closeModal();
-          const m = app.modalHTML("Edit Global Class", app.lb110ClassEditor(name));
-          app.root.insertAdjacentHTML("beforeend", m);
-          app.bindModal();
-          app.$("#lb-ds-class-save")?.addEventListener("click", () => app.lb110SaveClass(name));
-          app.$("#lb-ds-class-cancel")?.addEventListener("click", app.closeModal);
-        });
-        app.$$("[data-lb-class-delete]").forEach((b) => b.onclick = async () => {
-          if (!confirm("Delete this global class? Existing units will keep the class name but the style will no longer apply.")) return;
-          await fetch(`${app.D.api}/classes/${encodeURIComponent(b.dataset.lbClassDelete)}`, { method: "DELETE", headers: { "X-WP-Nonce": app.D.nonce } });
-          await app.lb110RefreshDesignData(true);
-          openClassManager110();
-        });
+        app.$$("[data-lb-class-edit]").forEach(
+          (b) => b.onclick = () => {
+            const name = b.dataset.lbClassEdit;
+            app.closeModal();
+            const m = app.modalHTML("Edit Global Class", app.lb110ClassEditor(name));
+            app.root.insertAdjacentHTML("beforeend", m);
+            app.bindModal();
+            app.$("#lb-ds-class-save")?.addEventListener("click", () => app.lb110SaveClass(name));
+            app.$("#lb-ds-class-cancel")?.addEventListener("click", app.closeModal);
+          }
+        );
+        app.$$("[data-lb-class-delete]").forEach(
+          (b) => b.onclick = async () => {
+            if (!confirm(
+              "Delete this global class? Existing units will keep the class name but the style will no longer apply."
+            ))
+              return;
+            await fetch(`${app.D.api}/classes/${encodeURIComponent(b.dataset.lbClassDelete)}`, {
+              method: "DELETE",
+              headers: { "X-WP-Nonce": app.D.nonce }
+            });
+            await app.lb110RefreshDesignData(true);
+            openClassManager110();
+          }
+        );
       });
     };
     app.lb110ClassControl = function lb110ClassControl(n) {
       const selectedNames = String(n.settings?.global_class || "").split(/[\s,]+/).filter(Boolean);
-      return app.lb09Section(app.t("Global Classes & CSS"), `<p class="lb-muted">CSS-first styling: classes provide reusable declarations; instance settings remain available as local overrides.</p><div class="lb-ds-class-assign">${app.lb110ClassChecklist(selectedNames)}</div><button class="lb-btn" id="lb-ds-manage-classes">Manage Global Classes</button><label class="lb-control"><span>Variable Reference</span><input id="lb-ds-variable-ref" placeholder="{{var:colors.primary}}" value="${app.esc(n.settings?.variable_ref || "")}"></label><p class="lb-muted">Use token references such as <code>{{var:colors.primary}}</code> in supported style fields.</p>`, false);
+      return app.lb09Section(
+        app.t("Global Classes & CSS"),
+        `<p class="lb-muted">CSS-first styling: classes provide reusable declarations; instance settings remain available as local overrides.</p><div class="lb-ds-class-assign">${app.lb110ClassChecklist(selectedNames)}</div><button class="lb-btn" id="lb-ds-manage-classes">Manage Global Classes</button><label class="lb-control"><span>Variable Reference</span><input id="lb-ds-variable-ref" placeholder="{{var:colors.primary}}" value="${app.esc(n.settings?.variable_ref || "")}"></label><p class="lb-muted">Use token references such as <code>{{var:colors.primary}}</code> in supported style fields.</p>`,
+        false
+      );
     };
     app.lb110BindClassControl = function lb110BindClassControl() {
-      app.root.querySelectorAll("[data-lb-class-check]").forEach((x) => x.onchange = () => {
-        const names = [...app.root.querySelectorAll("[data-lb-class-check]:checked")].map((b) => b.dataset.lbClassCheck);
-        app.update("global_class", names.join(" "));
-      });
+      app.root.querySelectorAll("[data-lb-class-check]").forEach(
+        (x) => x.onchange = () => {
+          const names = [...app.root.querySelectorAll("[data-lb-class-check]:checked")].map(
+            (b) => b.dataset.lbClassCheck
+          );
+          app.update("global_class", names.join(" "));
+        }
+      );
       app.root.querySelector("#lb-ds-manage-classes")?.addEventListener("click", app.openClassManager110);
       app.root.querySelector("#lb-ds-variable-ref")?.addEventListener("change", (e) => app.update("variable_ref", e.target.value));
     };
     app.lb110VariableManager = function lb110VariableManager() {
       const v = app.D.variables || {}, groups = ["colors", "sizes", "fonts", "effects"];
-      const sections = groups.map((g) => `<div class="lb-ds-variable-group"><h4>${app.esc(g)}</h4>${Object.entries(v[g] || {}).map(([k, val]) => `<label><span>${app.esc(k)}</span><input data-lb-var-group="${app.esc(g)}" data-lb-var-name="${app.esc(k)}" value="${app.esc(val)}" ${g === "colors" ? 'type="color"' : ""}></label>`).join("")}</div>`).join("");
-      const custom = Object.entries(v.custom || {}).flatMap(([g, items]) => Object.entries(items || {}).map(([k, item]) => `<label><span>${app.esc(g)}.${app.esc(k)}</span><input data-lb-custom-value="${app.esc(g)}.${app.esc(k)}" value="${app.esc(typeof item === "object" ? item.value || "" : item)}"></label>`)).join("");
-      app.showModal(app.t("Global Variables 2.0"), `<p class="lb-muted">Variables are emitted as CSS custom properties and can be used by classes or instance styles. Reference them as <code>{{var:colors.primary}}</code>.</p><div class="lb-ds-variable-grid">${sections}</div><div class="lb-ds-variable-group"><h4>Custom Tokens</h4><div id="lb-ds-custom-list">${custom || '<span class="lb-muted">No custom tokens.</span>'}</div><div class="lb-form-row"><input id="lb-ds-custom-group" placeholder="group"><input id="lb-ds-custom-name" placeholder="token-name"><input id="lb-ds-custom-value" placeholder="value"><button class="lb-btn" id="lb-ds-custom-add">${app.t("Add")}</button></div></div><div class="lb-ds-actions"><button class="lb-btn primary" id="lb-ds-vars-save">Save Variables</button></div>`, () => {
-        app.$("#lb-ds-custom-add")?.addEventListener("click", () => {
-          const g = app.$("#lb-ds-custom-group")?.value.trim(), n = app.$("#lb-ds-custom-name")?.value.trim(), val = app.$("#lb-ds-custom-value")?.value;
-          if (!g || !n) return;
-          v.custom = v.custom || {};
-          v.custom[g] = v.custom[g] || {};
-          v.custom[g][n] = { value: val, type: "text", label: n };
-          app.closeModal();
-          app.openVariables110();
-        });
-        app.$("#lb-ds-vars-save")?.addEventListener("click", async () => {
-          for (const el of app.root.querySelectorAll("[data-lb-var-group]")) {
-            const g = el.dataset.lbVarGroup, n = el.dataset.lbVarName;
-            v[g] = v[g] || {};
-            v[g][n] = el.value;
-          }
-          for (const el of app.root.querySelectorAll("[data-lb-custom-value]")) {
-            const [g, n] = el.dataset.lbCustomValue.split(".");
+      const sections = groups.map(
+        (g) => `<div class="lb-ds-variable-group"><h4>${app.esc(g)}</h4>${Object.entries(v[g] || {}).map(
+          ([k, val]) => `<label><span>${app.esc(k)}</span><input data-lb-var-group="${app.esc(g)}" data-lb-var-name="${app.esc(k)}" value="${app.esc(val)}" ${g === "colors" ? 'type="color"' : ""}></label>`
+        ).join("")}</div>`
+      ).join("");
+      const custom = Object.entries(v.custom || {}).flatMap(
+        ([g, items]) => Object.entries(items || {}).map(
+          ([k, item]) => `<label><span>${app.esc(g)}.${app.esc(k)}</span><input data-lb-custom-value="${app.esc(g)}.${app.esc(k)}" value="${app.esc(typeof item === "object" ? item.value || "" : item)}"></label>`
+        )
+      ).join("");
+      app.showModal(
+        app.t("Global Variables 2.0"),
+        `<p class="lb-muted">Variables are emitted as CSS custom properties and can be used by classes or instance styles. Reference them as <code>{{var:colors.primary}}</code>.</p><div class="lb-ds-variable-grid">${sections}</div><div class="lb-ds-variable-group"><h4>Custom Tokens</h4><div id="lb-ds-custom-list">${custom || '<span class="lb-muted">No custom tokens.</span>'}</div><div class="lb-form-row"><input id="lb-ds-custom-group" placeholder="group"><input id="lb-ds-custom-name" placeholder="token-name"><input id="lb-ds-custom-value" placeholder="value"><button class="lb-btn" id="lb-ds-custom-add">${app.t("Add")}</button></div></div><div class="lb-ds-actions"><button class="lb-btn primary" id="lb-ds-vars-save">Save Variables</button></div>`,
+        () => {
+          app.$("#lb-ds-custom-add")?.addEventListener("click", () => {
+            const g = app.$("#lb-ds-custom-group")?.value.trim(), n = app.$("#lb-ds-custom-name")?.value.trim(), val = app.$("#lb-ds-custom-value")?.value;
+            if (!g || !n) return;
             v.custom = v.custom || {};
             v.custom[g] = v.custom[g] || {};
-            v.custom[g][n] = typeof v.custom[g][n] === "object" ? { ...v.custom[g][n], value: el.value } : { value: el.value, type: "text", label: n };
-          }
-          const r = await fetch(`${app.D.api}/variables`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify(v) });
-          if (r.ok) {
-            app.D.variables = await r.json();
-            app.D.designCss = app.lb110DesignCss();
+            v.custom[g][n] = { value: val, type: "text", label: n };
             app.closeModal();
-            app.render();
-          }
-        });
-      });
+            app.openVariables110();
+          });
+          app.$("#lb-ds-vars-save")?.addEventListener("click", async () => {
+            for (const el of app.root.querySelectorAll("[data-lb-var-group]")) {
+              const g = el.dataset.lbVarGroup, n = el.dataset.lbVarName;
+              v[g] = v[g] || {};
+              v[g][n] = el.value;
+            }
+            for (const el of app.root.querySelectorAll("[data-lb-custom-value]")) {
+              const [g, n] = el.dataset.lbCustomValue.split(".");
+              v.custom = v.custom || {};
+              v.custom[g] = v.custom[g] || {};
+              v.custom[g][n] = typeof v.custom[g][n] === "object" ? { ...v.custom[g][n], value: el.value } : { value: el.value, type: "text", label: n };
+            }
+            const r = await fetch(`${app.D.api}/variables`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+              body: JSON.stringify(v)
+            });
+            if (r.ok) {
+              app.D.variables = await r.json();
+              app.D.designCss = app.lb110DesignCss();
+              app.closeModal();
+              app.render();
+            }
+          });
+        }
+      );
     };
     app.openVariables110 = app.lb110VariableManager;
     app.lb110ComponentNodes = function lb110ComponentNodes(doc) {
@@ -6502,15 +7754,27 @@
           const name = existing[`${x.path}_${k}`]?.name || `${x.path}_${k}`;
           const label = existing[name]?.label || `${app.meta(x.node.type).title || x.node.type}: ${k.replace(/_/g, " ")}`;
           const type = typeof v === "number" ? "number" : typeof v === "boolean" ? "switch" : String(v).length > 120 ? "textarea" : "text";
-          rows.push(`<label class="lb-ds-exposed-row"><input type="checkbox" data-lb-expose="${app.esc(name)}" data-lb-expose-path="${app.esc(x.path)}" data-lb-expose-setting="${app.esc(k)}" ${existing[name] ? "checked" : ""}><span><strong>${app.esc(label)}</strong><small>${app.esc(x.path)} \xB7 ${app.esc(k)}</small></span></label>`);
+          rows.push(
+            `<label class="lb-ds-exposed-row"><input type="checkbox" data-lb-expose="${app.esc(name)}" data-lb-expose-path="${app.esc(x.path)}" data-lb-expose-setting="${app.esc(k)}" ${existing[name] ? "checked" : ""}><span><strong>${app.esc(label)}</strong><small>${app.esc(x.path)} · ${app.esc(k)}</small></span></label>`
+          );
         });
       }
       return `<div class="lb-ds-exposed-list">${rows.join("") || '<p class="lb-muted">No editable settings found.</p>'}</div>`;
     };
     app.lb110SaveComponentDefinition = async function lb110SaveComponentDefinition(c) {
-      const exposed = [...app.root.querySelectorAll("[data-lb-expose]:checked")].map((x) => ({ name: x.dataset.lbExpose, path: x.dataset.lbExposePath, setting: x.dataset.lbExposeSetting, label: x.parentElement?.querySelector("strong")?.textContent || x.dataset.lbExpose, type: "text" }));
+      const exposed = [...app.root.querySelectorAll("[data-lb-expose]:checked")].map((x) => ({
+        name: x.dataset.lbExpose,
+        path: x.dataset.lbExposePath,
+        setting: x.dataset.lbExposeSetting,
+        label: x.parentElement?.querySelector("strong")?.textContent || x.dataset.lbExpose,
+        type: "text"
+      }));
       const title = app.root.querySelector("#lb-comp-title")?.value || c.title;
-      const r = await fetch(`${app.D.api}/components/${c.id}`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ title, document: c.document, exposed }) });
+      const r = await fetch(`${app.D.api}/components/${c.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify({ title, document: c.document, exposed })
+      });
       if (!r.ok) {
         alert(app.t("Could not save component."));
         return;
@@ -6524,14 +7788,30 @@
       const r = await fetch(`${app.D.api}/components/${id}`, { headers: { "X-WP-Nonce": app.D.nonce } });
       if (!r.ok) return;
       const c = await r.json();
-      app.showModal(app.t("Edit Component"), `<label class="lb-control"><span>Component Name</span><input id="lb-comp-title" value="${app.esc(c.title)}"></label><p class="lb-muted">Choose which component settings become exposed properties. Every page instance can override these values independently.</p>${app.lb110ExposedEditor(c)}<div class="lb-ds-actions"><button class="lb-btn primary" id="lb-comp-save-def">${app.t("Save Component")}</button></div>`, () => app.$("#lb-comp-save-def")?.addEventListener("click", () => app.lb110SaveComponentDefinition(c)));
+      app.showModal(
+        app.t("Edit Component"),
+        `<label class="lb-control"><span>Component Name</span><input id="lb-comp-title" value="${app.esc(c.title)}"></label><p class="lb-muted">Choose which component settings become exposed properties. Every page instance can override these values independently.</p>${app.lb110ExposedEditor(c)}<div class="lb-ds-actions"><button class="lb-btn primary" id="lb-comp-save-def">${app.t("Save Component")}</button></div>`,
+        () => app.$("#lb-comp-save-def")?.addEventListener("click", () => app.lb110SaveComponentDefinition(c))
+      );
     };
     app.lb110EnterComponentEdit = async function lb110EnterComponentEdit(id) {
       const r = await fetch(`${app.D.api}/components/${id}`, { headers: { "X-WP-Nonce": app.D.nonce } });
       if (!r.ok) return;
       const c = await r.json();
-      if (app.dirty && !confirm("Your current page has unsaved changes. Continue editing the component? The page changes remain in memory until you return.")) return;
-      app.lb110ComponentEdit = { id: c.id, title: c.title, key: c.key || "", exposed: c.exposed || [], pageState: JSON.parse(JSON.stringify(app.state)), pageSelected: app.selected, pageDirty: app.dirty, componentVersion: c.version };
+      if (app.dirty && !confirm(
+        "Your current page has unsaved changes. Continue editing the component? The page changes remain in memory until you return."
+      ))
+        return;
+      app.lb110ComponentEdit = {
+        id: c.id,
+        title: c.title,
+        key: c.key || "",
+        exposed: c.exposed || [],
+        pageState: JSON.parse(JSON.stringify(app.state)),
+        pageSelected: app.selected,
+        pageDirty: app.dirty,
+        componentVersion: c.version
+      };
       app.state = JSON.parse(JSON.stringify(c.document || { version: "2.1", root: [], settings: {} }));
       app.selected = null;
       app.history = [];
@@ -6542,8 +7822,16 @@
     };
     app.lb110SaveComponentEdit = async function lb110SaveComponentEdit() {
       if (!app.lb110ComponentEdit) return;
-      const payload = { title: app.lb110ComponentEdit.title, document: app.state, exposed: app.lb110ComponentEdit.exposed };
-      const r = await fetch(`${app.D.api}/components/${app.lb110ComponentEdit.id}`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify(payload) });
+      const payload = {
+        title: app.lb110ComponentEdit.title,
+        document: app.state,
+        exposed: app.lb110ComponentEdit.exposed
+      };
+      const r = await fetch(`${app.D.api}/components/${app.lb110ComponentEdit.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify(payload)
+      });
       if (!r.ok) {
         alert(app.t("Component could not be saved."));
         return;
@@ -6567,22 +7855,39 @@
       app.render();
     };
     app.openComponentLibrary110 = function openComponentLibrary110() {
-      fetch(`${app.D.api}/components`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json()).then((items) => app.showModal(app.t("Components 2.0"), `<p class="lb-muted">Edit the source component once and all page instances automatically use the latest definition. Exposed properties allow per-instance overrides.</p><div class="lb-library-list">${items.length ? items.map((i) => `<div class="lb-library-row"><div><strong>${app.esc(i.title)}</strong><small class="lb-ds-meta">v${app.esc(i.version)} \xB7 ${(i.exposed || []).length} exposed properties</small></div><button class="lb-btn" data-comp-insert="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-comp-edit="${i.id}">Properties</button><button class="lb-btn" data-comp-structure="${i.id}">Edit Structure</button><button class="lb-btn" data-comp-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-comp-del="${i.id}">${app.t("Delete")}</button></div>`).join("") : '<p class="lb-muted">No components saved yet.</p>'}</div>`, () => {
-        app.$$("[data-comp-insert]").forEach((b) => b.onclick = () => app.loadComponent(b.dataset.compInsert));
-        app.$$("[data-comp-edit]").forEach((b) => b.onclick = () => app.lb110EditComponentDefinition(b.dataset.compEdit));
-        app.$$("[data-comp-structure]").forEach((b) => b.onclick = () => app.lb110EnterComponentEdit(b.dataset.compStructure));
-        app.$$("[data-comp-dup]").forEach((b) => b.onclick = async () => {
-          await fetch(`${app.D.api}/components/${b.dataset.compDup}/duplicate`, { method: "POST", headers: { "X-WP-Nonce": app.D.nonce } });
-          app.closeModal();
-          openComponentLibrary110();
-        });
-        app.$$("[data-comp-del]").forEach((b) => b.onclick = async () => {
-          if (!confirm("Delete this component? Existing instances will show a missing component placeholder.")) return;
-          await fetch(`${app.D.api}/components/${b.dataset.compDel}`, { method: "DELETE", headers: { "X-WP-Nonce": app.D.nonce } });
-          app.closeModal();
-          openComponentLibrary110();
-        });
-      }));
+      fetch(`${app.D.api}/components`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json()).then(
+        (items) => app.showModal(
+          app.t("Components 2.0"),
+          `<p class="lb-muted">Edit the source component once and all page instances automatically use the latest definition. Exposed properties allow per-instance overrides.</p><div class="lb-library-list">${items.length ? items.map((i) => `<div class="lb-library-row"><div><strong>${app.esc(i.title)}</strong><small class="lb-ds-meta">v${app.esc(i.version)} · ${(i.exposed || []).length} exposed properties</small></div><button class="lb-btn" data-comp-insert="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-comp-edit="${i.id}">Properties</button><button class="lb-btn" data-comp-structure="${i.id}">Edit Structure</button><button class="lb-btn" data-comp-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-comp-del="${i.id}">${app.t("Delete")}</button></div>`).join("") : '<p class="lb-muted">No components saved yet.</p>'}</div>`,
+          () => {
+            app.$$("[data-comp-insert]").forEach((b) => b.onclick = () => app.loadComponent(b.dataset.compInsert));
+            app.$$("[data-comp-edit]").forEach((b) => b.onclick = () => app.lb110EditComponentDefinition(b.dataset.compEdit));
+            app.$$("[data-comp-structure]").forEach((b) => b.onclick = () => app.lb110EnterComponentEdit(b.dataset.compStructure));
+            app.$$("[data-comp-dup]").forEach(
+              (b) => b.onclick = async () => {
+                await fetch(`${app.D.api}/components/${b.dataset.compDup}/duplicate`, {
+                  method: "POST",
+                  headers: { "X-WP-Nonce": app.D.nonce }
+                });
+                app.closeModal();
+                openComponentLibrary110();
+              }
+            );
+            app.$$("[data-comp-del]").forEach(
+              (b) => b.onclick = async () => {
+                if (!confirm("Delete this component? Existing instances will show a missing component placeholder."))
+                  return;
+                await fetch(`${app.D.api}/components/${b.dataset.compDel}`, {
+                  method: "DELETE",
+                  headers: { "X-WP-Nonce": app.D.nonce }
+                });
+                app.closeModal();
+                openComponentLibrary110();
+              }
+            );
+          }
+        )
+      );
     };
     app.lb110ComponentControl = function lb110ComponentControl(n) {
       const comps = Array.isArray(app.D.designSystem?.components) ? app.D.designSystem.components : [];
@@ -6594,19 +7899,25 @@
           return `<label class="lb-control"><span>${app.esc(x.label || x.name)}</span><input data-lb-comp-override="${app.esc(x.name)}" value="${app.esc(v)}" placeholder="${app.esc(x.name)}"></label>`;
         }).join("") || '<p class="lb-muted">This component has no exposed properties.</p>';
       }
-      return app.lb09Section(app.t("Component"), `<label class="lb-control"><span>Component</span><select id="lb-component-select"><option value="0">Select component</option>${comps.map((x) => `<option value="${x.id}" ${Number(x.id) === Number(s.component_id) ? "selected" : ""}>${app.esc(x.title)}</option>`).join("")}</select></label>${fields}<button class="lb-btn" id="lb-component-library-open">Manage Components</button>`, true);
+      return app.lb09Section(
+        app.t("Component"),
+        `<label class="lb-control"><span>Component</span><select id="lb-component-select"><option value="0">Select component</option>${comps.map((x) => `<option value="${x.id}" ${Number(x.id) === Number(s.component_id) ? "selected" : ""}>${app.esc(x.title)}</option>`).join("")}</select></label>${fields}<button class="lb-btn" id="lb-component-library-open">Manage Components</button>`,
+        true
+      );
     };
     app.lb110BindComponentControl = function lb110BindComponentControl() {
       app.root.querySelector("#lb-component-select")?.addEventListener("change", (e) => {
         app.update("component_id", Number(e.target.value || 0));
       });
-      app.root.querySelectorAll("[data-lb-comp-override]").forEach((x) => x.addEventListener("change", (e) => {
-        const r = app.selected && app.locate(app.state.root, app.selected);
-        if (!r) return;
-        const o = { ...r.node.settings.overrides || {} };
-        o[e.target.dataset.lbCompOverride] = e.target.value;
-        app.update("overrides", o);
-      }));
+      app.root.querySelectorAll("[data-lb-comp-override]").forEach(
+        (x) => x.addEventListener("change", (e) => {
+          const r = app.selected && app.locate(app.state.root, app.selected);
+          if (!r) return;
+          const o = { ...r.node.settings.overrides || {} };
+          o[e.target.dataset.lbCompOverride] = e.target.value;
+          app.update("overrides", o);
+        })
+      );
       app.root.querySelector("#lb-component-library-open")?.addEventListener("click", app.openComponentLibrary110);
     };
     app.lb110InjectEditorClasses = function lb110InjectEditorClasses(n, html) {
@@ -6623,7 +7934,11 @@
     };
     app.lb110AtomicSection = function lb110AtomicSection(n) {
       const isXe = /^xe_/.test(String(n.type || ""));
-      return app.lb09Section(app.t("XEditor"), `<div class="lb-atomic-badge">${isXe ? app.t("XEditor element") : app.t("Classic unit")}</div><p class="lb-muted">${app.esc(isXe ? app.t("This element prints one HTML element. Style it with stacked classes from the XEditor Classes manager; local styles never override a class.") : app.t("Classic units can also stack XEditor classes. Insert XEditor elements from the XEditor menu in the top bar."))}</p><label class="lb-control lb-switch"><input type="checkbox" id="lb-css-first-mode" ${n.settings?.class_mode === "class-first" ? "checked" : ""}><span>${app.t("CSS-first class styling")}</span></label>`, false);
+      return app.lb09Section(
+        app.t("XEditor"),
+        `<div class="lb-atomic-badge">${isXe ? app.t("XEditor element") : app.t("Classic unit")}</div><p class="lb-muted">${app.esc(isXe ? app.t("This element prints one HTML element. Style it with stacked classes from the XEditor Classes manager; local styles never override a class.") : app.t("Classic units can also stack XEditor classes. Insert XEditor elements from the XEditor menu in the top bar."))}</p><label class="lb-control lb-switch"><input type="checkbox" id="lb-css-first-mode" ${n.settings?.class_mode === "class-first" ? "checked" : ""}><span>${app.t("CSS-first class styling")}</span></label>`,
+        false
+      );
     };
     app.lb010Atomic = app.lb110AtomicSection;
     app.lb110BaseSettings = app.settingsHTML;
@@ -6673,7 +7988,11 @@
         const top = app.root.querySelector(".lb-top");
         if (top && !top.querySelector("#lb-component-edit-cancel")) {
           const brand = top.querySelector(".lb-brand-button");
-          if (brand && !brand.querySelector(".lb-component-edit-badge")) brand.insertAdjacentHTML("beforeend", '<span class="lb-component-edit-badge">' + app.t("Editing Component") + "</span>");
+          if (brand && !brand.querySelector(".lb-component-edit-badge"))
+            brand.insertAdjacentHTML(
+              "beforeend",
+              '<span class="lb-component-edit-badge">' + app.t("Editing Component") + "</span>"
+            );
           const saveBtn = top.querySelector("#lb-save");
           if (saveBtn) {
             saveBtn.textContent = app.t("Save Component");
@@ -6701,8 +8020,18 @@
       const title = prompt(app.t("Component name:"), app.t("%s Component", app.meta(r.node.type).title));
       if (!title) return;
       const source = app.clone(r.node), document2 = { version: "2.1", root: [source], settings: {}, atomic: true };
-      const exposed = Object.entries(source.settings || {}).filter(([k]) => !["css_id", "css_class", "global_class", "custom_css", "component_id", "overrides"].includes(k)).map(([k, v]) => ({ name: "0_" + k, path: "0", setting: k, label: `${app.meta(source.type).title || source.type}: ${k.replace(/_/g, " ")}`, type: typeof v === "number" ? "number" : typeof v === "boolean" ? "switch" : "text" }));
-      const resp = await fetch(`${app.D.api}/components`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ title, document: document2, exposed }) });
+      const exposed = Object.entries(source.settings || {}).filter(([k]) => !["css_id", "css_class", "global_class", "custom_css", "component_id", "overrides"].includes(k)).map(([k, v]) => ({
+        name: "0_" + k,
+        path: "0",
+        setting: k,
+        label: `${app.meta(source.type).title || source.type}: ${k.replace(/_/g, " ")}`,
+        type: typeof v === "number" ? "number" : typeof v === "boolean" ? "switch" : "text"
+      }));
+      const resp = await fetch(`${app.D.api}/components`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify({ title, document: document2, exposed })
+      });
       if (!resp.ok) {
         alert(app.t("Could not save component."));
         return;
@@ -6712,52 +8041,69 @@
     };
     app.lb010OpenDesignSystem = async function() {
       await app.lb110RefreshDesignData(false);
-      app.showModal(app.t("Design System 2.0"), `<div class="lb-ds-overview"><div><strong>${app.t("Classes")}</strong><span>${app.lb110ClassNames().length}</span></div><div><strong>${app.t("Variables")}</strong><span>${Object.values(app.D.variables || {}).reduce((n, x) => n + (x && typeof x === "object" ? Object.keys(x).length : 0), 0)}</span></div><div><strong>${app.t("Components")}</strong><span>${(app.D.designSystem?.components || []).length}</span></div><div><strong>Atomic types</strong><span>${Object.keys(app.D.atomicTypes || {}).length}</span></div></div><div class="lb-ds-actions"><button class="lb-btn" id="lb-ds-manage-classes-main">Global Classes</button><button class="lb-btn" id="lb-ds-manage-vars-main">Global Variables</button><button class="lb-btn" id="lb-ds-manage-components-main">${app.t("Components")}</button><button class="lb-btn" id="lb-ds-export-main">${app.t("Export Design System")}</button><select id="lb-ds-import-mode"><option value="merge">Merge on import</option><option value="replace">Replace classes/variables</option></select><button class="lb-btn" id="lb-ds-import-main">${app.t("Import Design System")}</button><input id="lb-ds-import-file-main" type="file" accept="application/json" hidden></div><p class="lb-muted">Design-system exports include variables, classes with inheritance, components with exposed properties, global settings, and atomic metadata.</p>`, () => {
-        app.$("#lb-ds-manage-classes-main")?.addEventListener("click", app.openClassManager110);
-        app.$("#lb-ds-manage-vars-main")?.addEventListener("click", app.openVariables110);
-        app.$("#lb-ds-manage-components-main")?.addEventListener("click", app.openComponentLibrary110);
-        app.$("#lb-ds-export-main")?.addEventListener("click", async () => {
-          const r = await fetch(`${app.D.api}/design-system/export`, { headers: { "X-WP-Nonce": app.D.nonce } });
-          const d = await r.json();
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-          a.download = "canvasly-lite-design-system-v2.json";
-          a.click();
-          URL.revokeObjectURL(a.href);
-        });
-        app.$("#lb-ds-import-main")?.addEventListener("click", () => app.$("#lb-ds-import-file-main")?.click());
-        app.$("#lb-ds-import-file-main")?.addEventListener("change", (e) => {
-          const f = e.target.files?.[0];
-          if (!f) return;
-          const rd = new FileReader();
-          rd.onload = async () => {
-            try {
-              const d = JSON.parse(rd.result);
-              await fetch(`${app.D.api}/design-system/import`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ ...d, mode: app.$("#lb-ds-import-mode")?.value || "merge" }) });
-              await app.lb110RefreshDesignData(true);
-              alert(app.t("Design system imported successfully."));
-            } catch (err) {
-              alert(app.t("Could not import design system."));
-            }
-          };
-          rd.readAsText(f);
-        });
-      });
+      app.showModal(
+        app.t("Design System 2.0"),
+        `<div class="lb-ds-overview"><div><strong>${app.t("Classes")}</strong><span>${app.lb110ClassNames().length}</span></div><div><strong>${app.t("Variables")}</strong><span>${Object.values(app.D.variables || {}).reduce((n, x) => n + (x && typeof x === "object" ? Object.keys(x).length : 0), 0)}</span></div><div><strong>${app.t("Components")}</strong><span>${(app.D.designSystem?.components || []).length}</span></div><div><strong>Atomic types</strong><span>${Object.keys(app.D.atomicTypes || {}).length}</span></div></div><div class="lb-ds-actions"><button class="lb-btn" id="lb-ds-manage-classes-main">Global Classes</button><button class="lb-btn" id="lb-ds-manage-vars-main">Global Variables</button><button class="lb-btn" id="lb-ds-manage-components-main">${app.t("Components")}</button><button class="lb-btn" id="lb-ds-export-main">${app.t("Export Design System")}</button><select id="lb-ds-import-mode"><option value="merge">Merge on import</option><option value="replace">Replace classes/variables</option></select><button class="lb-btn" id="lb-ds-import-main">${app.t("Import Design System")}</button><input id="lb-ds-import-file-main" type="file" accept="application/json" hidden></div><p class="lb-muted">Design-system exports include variables, classes with inheritance, components with exposed properties, global settings, and atomic metadata.</p>`,
+        () => {
+          app.$("#lb-ds-manage-classes-main")?.addEventListener("click", app.openClassManager110);
+          app.$("#lb-ds-manage-vars-main")?.addEventListener("click", app.openVariables110);
+          app.$("#lb-ds-manage-components-main")?.addEventListener("click", app.openComponentLibrary110);
+          app.$("#lb-ds-export-main")?.addEventListener("click", async () => {
+            const r = await fetch(`${app.D.api}/design-system/export`, { headers: { "X-WP-Nonce": app.D.nonce } });
+            const d = await r.json();
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
+            a.download = "canvasly-lite-design-system-v2.json";
+            a.click();
+            URL.revokeObjectURL(a.href);
+          });
+          app.$("#lb-ds-import-main")?.addEventListener("click", () => app.$("#lb-ds-import-file-main")?.click());
+          app.$("#lb-ds-import-file-main")?.addEventListener("change", (e) => {
+            const f = e.target.files?.[0];
+            if (!f) return;
+            const rd = new FileReader();
+            rd.onload = async () => {
+              try {
+                const d = JSON.parse(rd.result);
+                await fetch(`${app.D.api}/design-system/import`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+                  body: JSON.stringify({ ...d, mode: app.$("#lb-ds-import-mode")?.value || "merge" })
+                });
+                await app.lb110RefreshDesignData(true);
+                alert(app.t("Design system imported successfully."));
+              } catch (err) {
+                alert(app.t("Could not import design system."));
+              }
+            };
+            rd.readAsText(f);
+          });
+        }
+      );
     };
     app.lb110RefreshDesignData(false);
     app.lb111TypeControl = function lb111TypeControl(item, value) {
       const type = item?.type || "text", v = value ?? "";
-      if (type === "switch") return `<label class="lb-control"><span>${app.esc(item.label || item.name)}</span><input type="checkbox" data-lb-comp-override="${app.esc(item.name)}" ${v ? "checked" : ""}></label>`;
-      if (type === "number") return `<label class="lb-control"><span>${app.esc(item.label || item.name)}</span><input type="number" data-lb-comp-override="${app.esc(item.name)}" value="${app.esc(v)}"></label>`;
-      if (type === "color") return `<label class="lb-control"><span>${app.esc(item.label || item.name)}</span><input type="color" data-lb-comp-override="${app.esc(item.name)}" value="${app.esc(/^#[0-9a-f]{6}$/i.test(String(v)) ? v : "#000000")}"></label>`;
-      if (type === "textarea") return `<label class="lb-control"><span>${app.esc(item.label || item.name)}</span><textarea data-lb-comp-override="${app.esc(item.name)}" rows="4">${app.esc(v)}</textarea></label>`;
+      if (type === "switch")
+        return `<label class="lb-control"><span>${app.esc(item.label || item.name)}</span><input type="checkbox" data-lb-comp-override="${app.esc(item.name)}" ${v ? "checked" : ""}></label>`;
+      if (type === "number")
+        return `<label class="lb-control"><span>${app.esc(item.label || item.name)}</span><input type="number" data-lb-comp-override="${app.esc(item.name)}" value="${app.esc(v)}"></label>`;
+      if (type === "color")
+        return `<label class="lb-control"><span>${app.esc(item.label || item.name)}</span><input type="color" data-lb-comp-override="${app.esc(item.name)}" value="${app.esc(/^#[0-9a-f]{6}$/i.test(String(v)) ? v : "#000000")}"></label>`;
+      if (type === "textarea")
+        return `<label class="lb-control"><span>${app.esc(item.label || item.name)}</span><textarea data-lb-comp-override="${app.esc(item.name)}" rows="4">${app.esc(v)}</textarea></label>`;
       return `<label class="lb-control"><span>${app.esc(item.label || item.name)}</span><input type="text" data-lb-comp-override="${app.esc(item.name)}" value="${app.esc(v)}"></label>`;
     };
     app.lb111ComponentControl = function lb111ComponentControl(n) {
       const comps = Array.isArray(app.D.designSystem?.components) ? app.D.designSystem.components : [], s = n.settings || {}, c = comps.find((x) => Number(x.id) === Number(s.component_id));
       let fields = "";
-      if (c) fields = (c.exposed || []).map((x) => app.lb111TypeControl(x, s.overrides?.[x.name] ?? "")).join("") || '<p class="lb-muted">No exposed properties. Open Manage Components \u2192 Properties.</p>';
-      return app.lb09Section(app.t("Component"), `<label class="lb-control"><span>Component</span><select id="lb-component-select"><option value="0">Select component</option>${comps.map((x) => `<option value="${x.id}" ${Number(x.id) === Number(s.component_id) ? "selected" : ""}>${app.esc(x.title)} \xB7 v${app.esc(x.version || 1)}</option>`).join("")}</select></label>${fields}<button class="lb-btn" id="lb-component-library-open">Manage Components</button>`, true);
+      if (c)
+        fields = (c.exposed || []).map((x) => app.lb111TypeControl(x, s.overrides?.[x.name] ?? "")).join("") || '<p class="lb-muted">No exposed properties. Open Manage Components → Properties.</p>';
+      return app.lb09Section(
+        app.t("Component"),
+        `<label class="lb-control"><span>Component</span><select id="lb-component-select"><option value="0">Select component</option>${comps.map((x) => `<option value="${x.id}" ${Number(x.id) === Number(s.component_id) ? "selected" : ""}>${app.esc(x.title)} · v${app.esc(x.version || 1)}</option>`).join("")}</select></label>${fields}<button class="lb-btn" id="lb-component-library-open">Manage Components</button>`,
+        true
+      );
     };
     app.lb110ComponentControl = app.lb111ComponentControl;
     app.lb111BindComponentControl = function lb111BindComponentControl() {
@@ -6765,15 +8111,17 @@
         app.commit();
         app.update("component_id", Number(e.target.value || 0));
       });
-      app.root.querySelectorAll("[data-lb-comp-override]").forEach((x) => x.addEventListener("change", (e) => {
-        const r = app.selected && app.locate(app.state.root, app.selected);
-        if (!r) return;
-        const o = { ...r.node.settings.overrides || {} };
-        let v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
-        if (e.target.type === "number") v = e.target.value === "" ? "" : Number(e.target.value);
-        o[e.target.dataset.lbCompOverride] = v;
-        app.update("overrides", o);
-      }));
+      app.root.querySelectorAll("[data-lb-comp-override]").forEach(
+        (x) => x.addEventListener("change", (e) => {
+          const r = app.selected && app.locate(app.state.root, app.selected);
+          if (!r) return;
+          const o = { ...r.node.settings.overrides || {} };
+          let v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+          if (e.target.type === "number") v = e.target.value === "" ? "" : Number(e.target.value);
+          o[e.target.dataset.lbCompOverride] = v;
+          app.update("overrides", o);
+        })
+      );
       app.root.querySelector("#lb-component-library-open")?.addEventListener("click", app.openComponentLibrary110);
     };
     app.lb110BindComponentControl = app.lb111BindComponentControl;
@@ -6781,18 +8129,31 @@
       const nodes = app.lb110ComponentNodes(c.document), existing = {};
       (c.exposed || []).forEach((x) => existing[x.name] = x);
       const rows = [];
-      for (const x of nodes) Object.entries(x.node.settings || {}).forEach(([k, v]) => {
-        if (["css_id", "css_class", "global_class", "custom_css", "component_id", "overrides"].includes(k)) return;
-        const name = existing[`${x.path}_${k}`]?.name || `${x.path}_${k}`, old = existing[name] || {}, type = old.type || (typeof v === "number" ? "number" : typeof v === "boolean" ? "switch" : String(v).length > 120 ? "textarea" : "text"), label = old.label || `${app.meta(x.node.type).title || x.node.type}: ${k.replace(/_/g, " ")}`;
-        rows.push(`<div class="lb-ds-exposed-row lb-ds-exposed-editor-row"><input type="checkbox" data-lb-expose="${app.esc(name)}" data-lb-expose-path="${app.esc(x.path)}" data-lb-expose-setting="${app.esc(k)}" ${existing[name] ? "checked" : ""}><div><input class="lb-ds-expose-label" data-lb-expose-label="${app.esc(name)}" value="${app.esc(label)}"><small>${app.esc(x.path)} \xB7 ${app.esc(k)}</small></div><select data-lb-expose-type="${app.esc(name)}"><option value="text" ${type === "text" ? "selected" : ""}>Text</option><option value="textarea" ${type === "textarea" ? "selected" : ""}>Textarea</option><option value="number" ${type === "number" ? "selected" : ""}>Number</option><option value="color" ${type === "color" ? "selected" : ""}>Color</option><option value="switch" ${type === "switch" ? "selected" : ""}>Switch</option></select></div>`);
-      });
+      for (const x of nodes)
+        Object.entries(x.node.settings || {}).forEach(([k, v]) => {
+          if (["css_id", "css_class", "global_class", "custom_css", "component_id", "overrides"].includes(k)) return;
+          const name = existing[`${x.path}_${k}`]?.name || `${x.path}_${k}`, old = existing[name] || {}, type = old.type || (typeof v === "number" ? "number" : typeof v === "boolean" ? "switch" : String(v).length > 120 ? "textarea" : "text"), label = old.label || `${app.meta(x.node.type).title || x.node.type}: ${k.replace(/_/g, " ")}`;
+          rows.push(
+            `<div class="lb-ds-exposed-row lb-ds-exposed-editor-row"><input type="checkbox" data-lb-expose="${app.esc(name)}" data-lb-expose-path="${app.esc(x.path)}" data-lb-expose-setting="${app.esc(k)}" ${existing[name] ? "checked" : ""}><div><input class="lb-ds-expose-label" data-lb-expose-label="${app.esc(name)}" value="${app.esc(label)}"><small>${app.esc(x.path)} · ${app.esc(k)}</small></div><select data-lb-expose-type="${app.esc(name)}"><option value="text" ${type === "text" ? "selected" : ""}>Text</option><option value="textarea" ${type === "textarea" ? "selected" : ""}>Textarea</option><option value="number" ${type === "number" ? "selected" : ""}>Number</option><option value="color" ${type === "color" ? "selected" : ""}>Color</option><option value="switch" ${type === "switch" ? "selected" : ""}>Switch</option></select></div>`
+          );
+        });
       return `<div class="lb-ds-exposed-list">${rows.join("") || '<p class="lb-muted">No editable settings found.</p>'}</div>`;
     };
     app.lb110ExposedEditor = app.lb111ExposedEditor;
     app.lb111SaveComponentDefinition = async function lb111SaveComponentDefinition(c) {
-      const exposed = [...app.root.querySelectorAll("[data-lb-expose]:checked")].map((x) => ({ name: x.dataset.lbExpose, path: x.dataset.lbExposePath, setting: x.dataset.lbExposeSetting, label: app.root.querySelector(`[data-lb-expose-label="${CSS.escape(x.dataset.lbExpose)}"]`)?.value || x.dataset.lbExpose, type: app.root.querySelector(`[data-lb-expose-type="${CSS.escape(x.dataset.lbExpose)}"]`)?.value || "text" }));
+      const exposed = [...app.root.querySelectorAll("[data-lb-expose]:checked")].map((x) => ({
+        name: x.dataset.lbExpose,
+        path: x.dataset.lbExposePath,
+        setting: x.dataset.lbExposeSetting,
+        label: app.root.querySelector(`[data-lb-expose-label="${CSS.escape(x.dataset.lbExpose)}"]`)?.value || x.dataset.lbExpose,
+        type: app.root.querySelector(`[data-lb-expose-type="${CSS.escape(x.dataset.lbExpose)}"]`)?.value || "text"
+      }));
       const title = app.root.querySelector("#lb-comp-title")?.value || c.title;
-      const r = await fetch(`${app.D.api}/components/${c.id}`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ title, key: c.key || "", document: c.document, exposed }) });
+      const r = await fetch(`${app.D.api}/components/${c.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify({ title, key: c.key || "", document: c.document, exposed })
+      });
       if (!r.ok) {
         alert(app.t("Could not save component."));
         return;
@@ -6826,7 +8187,8 @@
     };
     app.lb111ComponentDepth = 0;
     app.lb111RenderComponent = function lb111RenderComponent(id, overrides) {
-      if (app.lb111ComponentDepth > 4) return '<div class="lb-component-placeholder">Nested component depth limit reached.</div>';
+      if (app.lb111ComponentDepth > 4)
+        return '<div class="lb-component-placeholder">Nested component depth limit reached.</div>';
       const c = (app.D.designSystem?.components || []).find((x) => Number(x.id) === Number(id));
       if (!c) return `<div class="lb-component-placeholder">Component #${app.esc(id)} not found.</div>`;
       const doc = app.lb111ApplyComponentOverrides(c.document, overrides || {}, c.exposed || []);
@@ -6849,91 +8211,123 @@
     app.nodeHTML = function(n) {
       const html = app.lb111NodeBefore(n), s = n.settings || {};
       if (!(app.D.atomicTypes || {})[n.type]) return html;
-      return html.replace(`data-type="${app.esc(n.type)}"`, `data-type="${app.esc(n.type)}" data-atomic="1" data-class-mode="${app.esc(s.class_mode || "inherit")}"`);
+      return html.replace(
+        `data-type="${app.esc(n.type)}"`,
+        `data-type="${app.esc(n.type)}" data-atomic="1" data-class-mode="${app.esc(s.class_mode || "inherit")}"`
+      );
     };
     app.lb111OpenDesignSystem = async function lb111OpenDesignSystem() {
       await app.lb110RefreshDesignData(false);
       const vars = app.D.variables || {}, comps = app.D.designSystem?.components || [];
-      app.showModal(app.t("Design System 2.1"), `<div class="lb-ds-overview"><div><strong>Global Classes</strong><span>${app.lb110ClassNames().length}</span><small>Reusable CSS states and inheritance</small></div><div><strong>${app.t("Variables")}</strong><span>${Object.values(vars).reduce((n, x) => n + (x && typeof x === "object" ? Object.keys(x).length : 0), 0)}</span><small>Design tokens</small></div><div><strong>${app.t("Components")}</strong><span>${comps.length}</span><small>Reusable structures</small></div><div><strong>Atomic types</strong><span>${Object.keys(app.D.atomicTypes || {}).length}</span><small>CSS-first units</small></div></div><div class="lb-ds-actions"><button class="lb-btn primary" id="lb111-classes">Global Classes</button><button class="lb-btn primary" id="lb111-vars">${app.t("Variables")}</button><button class="lb-btn primary" id="lb111-comps">${app.t("Components")}</button><button class="lb-btn" id="lb111-export">${app.t("Export")}</button><select id="lb111-import-mode"><option value="merge">Merge</option><option value="replace">Replace</option></select><button class="lb-btn" id="lb111-import">${app.t("Import")}</button><input id="lb111-import-file" type="file" accept="application/json" hidden></div><div class="lb-ds-feature-list"><div><strong>CSS-first architecture</strong><span>Classes and Variables are emitted to the editor iframe and frontend.</span></div><div><strong>Inheritance</strong><span>Class cycles are rejected when saved.</span></div><div><strong>Propagation</strong><span>Instances resolve the latest saved component definition and version.</span></div><div><strong>Exposed properties</strong><span>Instances can override only explicitly exposed settings.</span></div></div>`, () => {
-        app.$("#lb111-classes")?.addEventListener("click", app.openClassManager110);
-        app.$("#lb111-vars")?.addEventListener("click", app.openVariables);
-        app.$("#lb111-comps")?.addEventListener("click", app.openComponentLibrary110);
-        app.$("#lb111-export")?.addEventListener("click", async () => {
-          const r = await fetch(`${app.D.api}/design-system/export`, { headers: { "X-WP-Nonce": app.D.nonce } }), d = await r.json(), a = document.createElement("a");
-          a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-          a.download = "canvasly-lite-design-system-2.1.json";
-          a.click();
-          setTimeout(() => URL.revokeObjectURL(a.href), 1e3);
-        });
-        app.$("#lb111-import")?.addEventListener("click", () => app.$("#lb111-import-file")?.click());
-        app.$("#lb111-import-file")?.addEventListener("change", (e) => {
-          const f = e.target.files?.[0];
-          if (!f) return;
-          const rd = new FileReader();
-          rd.onload = async () => {
-            try {
-              const d = JSON.parse(rd.result), r = await fetch(`${app.D.api}/design-system/import`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ ...d, mode: app.$("#lb111-import-mode")?.value || "merge" }) });
-              if (!r.ok) throw new Error();
-              await app.lb110RefreshDesignData(true);
-              alert(app.t("Design system imported successfully."));
-            } catch (err) {
-              alert("Could not import the design system.");
-            }
-          };
-          rd.readAsText(f);
-        });
-      });
+      app.showModal(
+        app.t("Design System 2.1"),
+        `<div class="lb-ds-overview"><div><strong>Global Classes</strong><span>${app.lb110ClassNames().length}</span><small>Reusable CSS states and inheritance</small></div><div><strong>${app.t("Variables")}</strong><span>${Object.values(vars).reduce((n, x) => n + (x && typeof x === "object" ? Object.keys(x).length : 0), 0)}</span><small>Design tokens</small></div><div><strong>${app.t("Components")}</strong><span>${comps.length}</span><small>Reusable structures</small></div><div><strong>Atomic types</strong><span>${Object.keys(app.D.atomicTypes || {}).length}</span><small>CSS-first units</small></div></div><div class="lb-ds-actions"><button class="lb-btn primary" id="lb111-classes">Global Classes</button><button class="lb-btn primary" id="lb111-vars">${app.t("Variables")}</button><button class="lb-btn primary" id="lb111-comps">${app.t("Components")}</button><button class="lb-btn" id="lb111-export">${app.t("Export")}</button><select id="lb111-import-mode"><option value="merge">Merge</option><option value="replace">Replace</option></select><button class="lb-btn" id="lb111-import">${app.t("Import")}</button><input id="lb111-import-file" type="file" accept="application/json" hidden></div><div class="lb-ds-feature-list"><div><strong>CSS-first architecture</strong><span>Classes and Variables are emitted to the editor iframe and frontend.</span></div><div><strong>Inheritance</strong><span>Class cycles are rejected when saved.</span></div><div><strong>Propagation</strong><span>Instances resolve the latest saved component definition and version.</span></div><div><strong>Exposed properties</strong><span>Instances can override only explicitly exposed settings.</span></div></div>`,
+        () => {
+          app.$("#lb111-classes")?.addEventListener("click", app.openClassManager110);
+          app.$("#lb111-vars")?.addEventListener("click", app.openVariables);
+          app.$("#lb111-comps")?.addEventListener("click", app.openComponentLibrary110);
+          app.$("#lb111-export")?.addEventListener("click", async () => {
+            const r = await fetch(`${app.D.api}/design-system/export`, { headers: { "X-WP-Nonce": app.D.nonce } }), d = await r.json(), a = document.createElement("a");
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
+            a.download = "canvasly-lite-design-system-2.1.json";
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1e3);
+          });
+          app.$("#lb111-import")?.addEventListener("click", () => app.$("#lb111-import-file")?.click());
+          app.$("#lb111-import-file")?.addEventListener("change", (e) => {
+            const f = e.target.files?.[0];
+            if (!f) return;
+            const rd = new FileReader();
+            rd.onload = async () => {
+              try {
+                const d = JSON.parse(rd.result), r = await fetch(`${app.D.api}/design-system/import`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+                  body: JSON.stringify({ ...d, mode: app.$("#lb111-import-mode")?.value || "merge" })
+                });
+                if (!r.ok) throw new Error();
+                await app.lb110RefreshDesignData(true);
+                alert(app.t("Design system imported successfully."));
+              } catch (err) {
+                alert("Could not import the design system.");
+              }
+            };
+            rd.readAsText(f);
+          });
+        }
+      );
     };
     app.lb010OpenDesignSystem = app.lb111OpenDesignSystem;
     app.lb111VariableManager = function lb111VariableManager() {
       const v = JSON.parse(JSON.stringify(app.D.variables || {})), groups = ["colors", "sizes", "fonts", "effects"];
-      const sections = groups.map((g) => `<div class="lb-ds-variable-group"><h4>${app.esc(g)}</h4>${Object.entries(v[g] || {}).map(([k, val]) => `<label><span>${app.esc(k)}</span><input data-lb-var-group="${app.esc(g)}" data-lb-var-name="${app.esc(k)}" value="${app.esc(val)}" ${g === "colors" ? 'type="color"' : ""}></label>`).join("")}</div>`).join("");
-      const customRows = Object.entries(v.custom || {}).flatMap(([g, items]) => Object.entries(items || {}).map(([k, item]) => `<div class="lb-ds-custom-row"><label><span>${app.esc(g)}.${app.esc(k)}</span><input data-lb-custom-value="${app.esc(g)}.${app.esc(k)}" value="${app.esc(typeof item === "object" ? item.value || "" : item)}"></label><button class="lb-btn danger" data-lb-custom-delete="${app.esc(g)}.${app.esc(k)}">${app.t("Delete")}</button></div>`)).join("");
-      app.showModal(app.t("Global Variables 2.1"), `<p class="lb-muted">Variables are CSS custom properties. Use <code>{{var:group.name}}</code> in supported style fields or classes.</p><div class="lb-ds-variable-grid">${sections}</div><div class="lb-ds-variable-group"><h4>Custom Tokens</h4><div id="lb111-custom-list">${customRows || '<span class="lb-muted">No custom tokens.</span>'}</div><div class="lb-form-row lb111-token-add"><input id="lb111-token-group" placeholder="group"><input id="lb111-token-name" placeholder="token-name"><input id="lb111-token-value" placeholder="value"><select id="lb111-token-type"><option value="text">Text</option><option value="color">Color</option><option value="size">Size</option><option value="font">Font</option></select><button class="lb-btn" id="lb111-token-add">${app.t("Add")}</button></div></div><div class="lb-ds-actions"><button class="lb-btn primary" id="lb111-vars-save">Save Variables</button></div>`, () => {
-        app.$("#lb111-token-add")?.addEventListener("click", () => {
-          const g = app.$("#lb111-token-group")?.value.trim(), n = app.$("#lb111-token-name")?.value.trim(), val = app.$("#lb111-token-value")?.value || "", type = app.$("#lb111-token-type")?.value || "text";
-          if (!g || !n) {
-            alert("Group and token name are required.");
-            return;
-          }
-          v.custom = v.custom || {};
-          v.custom[g] = v.custom[g] || {};
-          v.custom[g][n] = { value: val, type, label: n };
-          app.closeModal();
-          app.openVariables();
-        });
-        app.$$("[data-lb-custom-delete]").forEach((b) => b.onclick = async () => {
-          const [g, n] = b.dataset.lbCustomDelete.split(".");
-          if (!confirm(`Delete ${g}.${n}?`)) return;
-          const r = await fetch(`${app.D.api}/variables/custom/${encodeURIComponent(g)}/${encodeURIComponent(n)}`, { method: "DELETE", headers: { "X-WP-Nonce": app.D.nonce } });
-          if (r.ok) {
-            await app.lb110RefreshDesignData(true);
-            app.closeModal();
-            app.openVariables();
-          }
-        });
-        app.$("#lb111-vars-save")?.addEventListener("click", async () => {
-          for (const el of app.root.querySelectorAll("[data-lb-var-group]")) {
-            const g = el.dataset.lbVarGroup, n = el.dataset.lbVarName;
-            v[g] = v[g] || {};
-            v[g][n] = el.value;
-          }
-          for (const el of app.root.querySelectorAll("[data-lb-custom-value]")) {
-            const [g, n] = el.dataset.lbCustomValue.split(".");
+      const sections = groups.map(
+        (g) => `<div class="lb-ds-variable-group"><h4>${app.esc(g)}</h4>${Object.entries(v[g] || {}).map(
+          ([k, val]) => `<label><span>${app.esc(k)}</span><input data-lb-var-group="${app.esc(g)}" data-lb-var-name="${app.esc(k)}" value="${app.esc(val)}" ${g === "colors" ? 'type="color"' : ""}></label>`
+        ).join("")}</div>`
+      ).join("");
+      const customRows = Object.entries(v.custom || {}).flatMap(
+        ([g, items]) => Object.entries(items || {}).map(
+          ([k, item]) => `<div class="lb-ds-custom-row"><label><span>${app.esc(g)}.${app.esc(k)}</span><input data-lb-custom-value="${app.esc(g)}.${app.esc(k)}" value="${app.esc(typeof item === "object" ? item.value || "" : item)}"></label><button class="lb-btn danger" data-lb-custom-delete="${app.esc(g)}.${app.esc(k)}">${app.t("Delete")}</button></div>`
+        )
+      ).join("");
+      app.showModal(
+        app.t("Global Variables 2.1"),
+        `<p class="lb-muted">Variables are CSS custom properties. Use <code>{{var:group.name}}</code> in supported style fields or classes.</p><div class="lb-ds-variable-grid">${sections}</div><div class="lb-ds-variable-group"><h4>Custom Tokens</h4><div id="lb111-custom-list">${customRows || '<span class="lb-muted">No custom tokens.</span>'}</div><div class="lb-form-row lb111-token-add"><input id="lb111-token-group" placeholder="group"><input id="lb111-token-name" placeholder="token-name"><input id="lb111-token-value" placeholder="value"><select id="lb111-token-type"><option value="text">Text</option><option value="color">Color</option><option value="size">Size</option><option value="font">Font</option></select><button class="lb-btn" id="lb111-token-add">${app.t("Add")}</button></div></div><div class="lb-ds-actions"><button class="lb-btn primary" id="lb111-vars-save">Save Variables</button></div>`,
+        () => {
+          app.$("#lb111-token-add")?.addEventListener("click", () => {
+            const g = app.$("#lb111-token-group")?.value.trim(), n = app.$("#lb111-token-name")?.value.trim(), val = app.$("#lb111-token-value")?.value || "", type = app.$("#lb111-token-type")?.value || "text";
+            if (!g || !n) {
+              alert("Group and token name are required.");
+              return;
+            }
             v.custom = v.custom || {};
             v.custom[g] = v.custom[g] || {};
-            const old = v.custom[g][n];
-            v.custom[g][n] = typeof old === "object" ? { ...old, value: el.value } : { value: el.value, type: "text", label: n };
-          }
-          const r = await fetch(`${app.D.api}/variables`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify(v) });
-          if (r.ok) {
-            app.D.variables = await r.json();
-            app.D.designCss = app.lb110DesignCss();
+            v.custom[g][n] = { value: val, type, label: n };
             app.closeModal();
-            app.render();
-          }
-        });
-      });
+            app.openVariables();
+          });
+          app.$$("[data-lb-custom-delete]").forEach(
+            (b) => b.onclick = async () => {
+              const [g, n] = b.dataset.lbCustomDelete.split(".");
+              if (!confirm(`Delete ${g}.${n}?`)) return;
+              const r = await fetch(`${app.D.api}/variables/custom/${encodeURIComponent(g)}/${encodeURIComponent(n)}`, {
+                method: "DELETE",
+                headers: { "X-WP-Nonce": app.D.nonce }
+              });
+              if (r.ok) {
+                await app.lb110RefreshDesignData(true);
+                app.closeModal();
+                app.openVariables();
+              }
+            }
+          );
+          app.$("#lb111-vars-save")?.addEventListener("click", async () => {
+            for (const el of app.root.querySelectorAll("[data-lb-var-group]")) {
+              const g = el.dataset.lbVarGroup, n = el.dataset.lbVarName;
+              v[g] = v[g] || {};
+              v[g][n] = el.value;
+            }
+            for (const el of app.root.querySelectorAll("[data-lb-custom-value]")) {
+              const [g, n] = el.dataset.lbCustomValue.split(".");
+              v.custom = v.custom || {};
+              v.custom[g] = v.custom[g] || {};
+              const old = v.custom[g][n];
+              v.custom[g][n] = typeof old === "object" ? { ...old, value: el.value } : { value: el.value, type: "text", label: n };
+            }
+            const r = await fetch(`${app.D.api}/variables`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+              body: JSON.stringify(v)
+            });
+            if (r.ok) {
+              app.D.variables = await r.json();
+              app.D.designCss = app.lb110DesignCss();
+              app.closeModal();
+              app.render();
+            }
+          });
+        }
+      );
     };
     app.openVariables = app.lb111VariableManager;
     app.lb111OldTinySettings = app.settingsHTML;
@@ -6942,7 +8336,10 @@
       if (!app.selected) return html;
       const r = app.locate(app.state.root, app.selected);
       if (r?.node?.type !== "tinymce_text_editor") return html;
-      return html.replace('<div class="lb-action-grid"><button class="lb-btn" id="lb-duplicate">' + app.t("Duplicate") + '</button><button class="lb-btn danger" id="lb-delete">' + app.t("Delete") + "</button></div>", '<div class="lb-action-grid lb-tinymce-actions-secondary"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">' + app.t("Duplicate") + '</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">' + app.t("Delete") + "</button></div>");
+      return html.replace(
+        '<div class="lb-action-grid"><button class="lb-btn" id="lb-duplicate">' + app.t("Duplicate") + '</button><button class="lb-btn danger" id="lb-delete">' + app.t("Delete") + "</button></div>",
+        '<div class="lb-action-grid lb-tinymce-actions-secondary"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">' + app.t("Duplicate") + '</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">' + app.t("Delete") + "</button></div>"
+      );
     };
     app.lb111BuildExposedFromState = function lb111BuildExposedFromState(oldExposed) {
       const labels = {};
@@ -6952,7 +8349,13 @@
         for (const [k, v] of Object.entries(x.node.settings || {})) {
           if (["css_id", "css_class", "global_class", "custom_css", "component_id", "overrides"].includes(k)) continue;
           const old = labels[x.path + "|" + k];
-          out.push({ name: old?.name || `${x.path}_${k}`, path: x.path, setting: k, label: old?.label || `${app.meta(x.node.type).title || x.node.type}: ${k.replace(/_/g, " ")}`, type: old?.type || (typeof v === "number" ? "number" : typeof v === "boolean" ? "switch" : "text") });
+          out.push({
+            name: old?.name || `${x.path}_${k}`,
+            path: x.path,
+            setting: k,
+            label: old?.label || `${app.meta(x.node.type).title || x.node.type}: ${k.replace(/_/g, " ")}`,
+            type: old?.type || (typeof v === "number" ? "number" : typeof v === "boolean" ? "switch" : "text")
+          });
         }
       }
       return out;
@@ -6961,8 +8364,17 @@
     app.lb110SaveComponentEdit = async function() {
       if (!app.lb110ComponentEdit) return;
       const exposed = app.lb111BuildExposedFromState(app.lb110ComponentEdit.exposed);
-      const payload = { title: app.lb110ComponentEdit.title, document: app.state, exposed, key: app.lb110ComponentEdit.key || "" };
-      const r = await fetch(`${app.D.api}/components/${app.lb110ComponentEdit.id}`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify(payload) });
+      const payload = {
+        title: app.lb110ComponentEdit.title,
+        document: app.state,
+        exposed,
+        key: app.lb110ComponentEdit.key || ""
+      };
+      const r = await fetch(`${app.D.api}/components/${app.lb110ComponentEdit.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
+        body: JSON.stringify(payload)
+      });
       if (!r.ok) {
         alert(app.t("Component could not be saved."));
         return;
@@ -6987,19 +8399,23 @@
             let h = `<div class="lb-selection-head"><strong>TinyMCE Text Editor</strong><span class="lb-selection-id">${app.esc(r.node.id)}</span></div>`;
             h += `<div class="lb-settings-tabs">${["content", "style", "advanced"].map((x) => `<button data-style-tab="${x}" class="${app.styleTab === x ? "active" : ""}">${x[0].toUpperCase() + x.slice(1)}</button>`).join("")}</div>`;
             if (app.styleTab === "content") {
-              h += `<div class="lb-section"><div class="lb-section-title"><span>\u25BE</span><strong>Content</strong></div><div class="lb-section-body"><label class="lb-control"><span>Content</span><textarea id="lb-tinymce-inline-content" rows="9" spellcheck="true">${app.esc(content)}</textarea><small class="lb-muted">Edit the content directly, or use Edit with TinyMCE for rich-text formatting.</small></label><button type="button" class="lb-btn primary lb-tinymce-open" id="lb-tinymce-open">Edit with TinyMCE</button></div></div>`;
+              h += `<div class="lb-section"><div class="lb-section-title"><span>▾</span><strong>Content</strong></div><div class="lb-section-body"><label class="lb-control"><span>Content</span><textarea id="lb-tinymce-inline-content" rows="9" spellcheck="true">${app.esc(content)}</textarea><small class="lb-muted">Edit the content directly, or use Edit with TinyMCE for rich-text formatting.</small></label><button type="button" class="lb-btn primary lb-tinymce-open" id="lb-tinymce-open">Edit with TinyMCE</button></div></div>`;
             } else {
               const e = app.meta(r.node.type), groups = { style: [], advanced: [] };
               Object.entries(e.controls || {}).forEach(([k, t3]) => {
                 if (k === "content") return;
                 const g = app.advancedKeys.has(k) ? "advanced" : "style";
-                groups[g].push([k, t3, s[k] ?? (t3 === "spacing" || t3 === "dimensions" || t3 === "box_shadow" ? {} : "")]);
+                groups[g].push([
+                  k,
+                  t3,
+                  s[k] ?? (t3 === "spacing" || t3 === "dimensions" || t3 === "box_shadow" ? {} : "")
+                ]);
               });
               h += groups[app.styleTab].map((x) => app.control(x[0], x[1], x[2])).join("");
               h += app.lb091Universal(r.node, app.styleTab);
               if (app.styleTab === "advanced") {
                 const warn = app.accessibilityWarnings(r.node);
-                h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div>`;
+                h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div>`;
               }
             }
             h += `<div class="lb-action-grid lb-tinymce-actions-secondary"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
@@ -7074,7 +8490,12 @@
         if (!rows && s.rows) rows = parse(s.rows).length;
         if (!rows) {
           const children = n.children || [];
-          rows = Math.max(4, ...children.map((c) => Number(c.settings?.grid_row_start || 0) + Math.max(1, Number(c.settings?.grid_row_span || 1))));
+          rows = Math.max(
+            4,
+            ...children.map(
+              (c) => Number(c.settings?.grid_row_start || 0) + Math.max(1, Number(c.settings?.grid_row_span || 1))
+            )
+          );
         }
         return { cols: Math.max(1, Math.min(12, cols)), rows: Math.max(4, Math.min(12, rows)) };
       }
@@ -7083,12 +8504,13 @@
         if (!p || p.type !== "grid") return "";
         const g = lb20GridMetrics(p), cs = Math.max(1, Math.min(g.cols, Number(lb20ResponsiveValue(s.grid_column_start) || 1))), rs = Math.max(1, Math.min(g.rows, Number(lb20ResponsiveValue(s.grid_row_start) || 1))), cspan = Math.max(1, Math.min(g.cols - cs + 1, Number(lb20ResponsiveValue(s.grid_column_span) || 1))), rspan = Math.max(1, Math.min(g.rows - rs + 1, Number(lb20ResponsiveValue(s.grid_row_span) || 1)));
         let html = '<div class="lb20-grid-placement">';
-        html += '<div class="lb20-grid-summary"><strong>Placement</strong><span>' + app.esc(`Column ${cs} \xB7 Row ${rs} \xB7 ${cspan} \xD7 ${rspan}`) + "</span></div>";
+        html += '<div class="lb20-grid-summary"><strong>Placement</strong><span>' + app.esc(`Column ${cs} · Row ${rs} · ${cspan} × ${rspan}`) + "</span></div>";
         html += '<div class="lb20-grid-matrix" data-grid-matrix="placement" style="--lb20-cols:' + g.cols + ";--lb20-rows:" + g.rows + '">';
-        for (let row = 1; row <= g.rows; row++) for (let col = 1; col <= g.cols; col++) {
-          const active = col >= cs && col < cs + cspan && row >= rs && row < rs + rspan;
-          html += `<button type="button" class="lb20-grid-cell ${active ? "is-active" : ""}" data-grid-cell data-row="${row}" data-col="${col}" aria-label="Column ${col}, Row ${row}">${active ? "\u2022" : ""}</button>`;
-        }
+        for (let row = 1; row <= g.rows; row++)
+          for (let col = 1; col <= g.cols; col++) {
+            const active = col >= cs && col < cs + cspan && row >= rs && row < rs + rspan;
+            html += `<button type="button" class="lb20-grid-cell ${active ? "is-active" : ""}" data-grid-cell data-row="${row}" data-col="${col}" aria-label="Column ${col}, Row ${row}">${active ? "•" : ""}</button>`;
+          }
         html += "</div>";
         html += '<div class="lb20-grid-placement-fields">' + app.lb09Responsive("grid_column_start", app.t("Column Start"), s.grid_column_start ?? 1) + app.lb09Responsive("grid_column_span", app.t("Column Span"), s.grid_column_span ?? 1) + app.lb09Responsive("grid_row_start", app.t("Row Start"), s.grid_row_start ?? 1) + app.lb09Responsive("grid_row_span", app.t("Row Span"), s.grid_row_span ?? 1) + "</div>";
         html += '<p class="lb20-grid-help">Drag across cells to place and span this item. Nested Grid units can be placed inside any grid cell.</p></div>';
@@ -7097,11 +8519,46 @@
       function lb20GridEditor(n) {
         const s = n.settings || {}, g = lb20GridMetrics(n);
         let h = '<div class="lb20-grid-editor">';
-        h += '<div class="lb20-grid-editor-head"><strong>Visual Grid Editor</strong><span>' + app.esc(`${g.cols} columns \xD7 ${g.rows} rows`) + "</span></div>";
-        h += '<div class="lb20-track-grid">' + app.lb09Field("grid_template_columns", app.t("Column Tracks"), "text", s.grid_template_columns || "", 'placeholder="repeat(3, 1fr)"') + app.lb09Field("grid_template_rows", app.t("Row Tracks"), "text", s.grid_template_rows || "", 'placeholder="auto auto"') + app.lb09Field("columns", app.t("Column Count"), "number", s.columns || 3, 'min="1" max="12"') + app.lb09Field("rows", app.t("Row Tracks (fallback)"), "text", s.rows || "", 'placeholder="auto auto auto"') + "</div>";
-        h += app.lb09Section(app.t("Track Sizing"), app.lb09Field("min_column", app.t("Minimum Column Size"), "text", s.min_column || "120px") + app.lb09Field("min_row", app.t("Minimum Auto Row Size"), "text", s.min_row || "auto") + app.lb09Field("grid_auto_columns", app.t("Implicit Column Size"), "text", s.grid_auto_columns || "auto") + app.lb09Field("grid_auto_rows", app.t("Implicit Row Size"), "text", s.grid_auto_rows || "auto"), true);
-        h += app.lb09Section(app.t("Auto Flow & Alignment"), app.lb09Select("auto_flow", app.t("Auto Flow"), s.auto_flow || "row", ["row", "column", "dense", "row dense", "column dense"]) + app.lb09Select("align", app.t("Align Items"), s.align || "stretch", ["stretch", "start", "center", "end"]) + app.lb09Select("justify", app.t("Justify Items"), s.justify || "stretch", ["stretch", "start", "center", "end"]), true);
-        h += app.lb09Section(app.t("Responsive Grid"), app.lb09Responsive("grid_template_columns", app.t("Column Tracks"), s.grid_template_columns || "") + app.lb09Responsive("grid_template_rows", app.t("Row Tracks"), s.grid_template_rows || "") + app.lb09Responsive("grid_auto_columns", app.t("Implicit Columns"), s.grid_auto_columns || "auto") + app.lb09Responsive("grid_auto_rows", app.t("Implicit Rows"), s.grid_auto_rows || "auto") + app.lb09Responsive("auto_flow", app.t("Auto Flow"), s.auto_flow || "row") + app.lb09Responsive("columns", app.t("Column Count"), s.columns || g.cols) + app.lb09Responsive("rows", app.t("Row Definition"), s.rows || ""), true);
+        h += '<div class="lb20-grid-editor-head"><strong>Visual Grid Editor</strong><span>' + app.esc(`${g.cols} columns × ${g.rows} rows`) + "</span></div>";
+        h += '<div class="lb20-track-grid">' + app.lb09Field(
+          "grid_template_columns",
+          app.t("Column Tracks"),
+          "text",
+          s.grid_template_columns || "",
+          'placeholder="repeat(3, 1fr)"'
+        ) + app.lb09Field(
+          "grid_template_rows",
+          app.t("Row Tracks"),
+          "text",
+          s.grid_template_rows || "",
+          'placeholder="auto auto"'
+        ) + app.lb09Field("columns", app.t("Column Count"), "number", s.columns || 3, 'min="1" max="12"') + app.lb09Field("rows", app.t("Row Tracks (fallback)"), "text", s.rows || "", 'placeholder="auto auto auto"') + "</div>";
+        h += app.lb09Section(
+          app.t("Track Sizing"),
+          app.lb09Field("min_column", app.t("Minimum Column Size"), "text", s.min_column || "120px") + app.lb09Field("min_row", app.t("Minimum Auto Row Size"), "text", s.min_row || "auto") + app.lb09Field("grid_auto_columns", app.t("Implicit Column Size"), "text", s.grid_auto_columns || "auto") + app.lb09Field("grid_auto_rows", app.t("Implicit Row Size"), "text", s.grid_auto_rows || "auto"),
+          true
+        );
+        h += app.lb09Section(
+          app.t("Auto Flow & Alignment"),
+          app.lb09Select("auto_flow", app.t("Auto Flow"), s.auto_flow || "row", [
+            "row",
+            "column",
+            "dense",
+            "row dense",
+            "column dense"
+          ]) + app.lb09Select("align", app.t("Align Items"), s.align || "stretch", ["stretch", "start", "center", "end"]) + app.lb09Select("justify", app.t("Justify Items"), s.justify || "stretch", [
+            "stretch",
+            "start",
+            "center",
+            "end"
+          ]),
+          true
+        );
+        h += app.lb09Section(
+          app.t("Responsive Grid"),
+          app.lb09Responsive("grid_template_columns", app.t("Column Tracks"), s.grid_template_columns || "") + app.lb09Responsive("grid_template_rows", app.t("Row Tracks"), s.grid_template_rows || "") + app.lb09Responsive("grid_auto_columns", app.t("Implicit Columns"), s.grid_auto_columns || "auto") + app.lb09Responsive("grid_auto_rows", app.t("Implicit Rows"), s.grid_auto_rows || "auto") + app.lb09Responsive("auto_flow", app.t("Auto Flow"), s.auto_flow || "row") + app.lb09Responsive("columns", app.t("Column Count"), s.columns || g.cols) + app.lb09Responsive("rows", app.t("Row Definition"), s.rows || ""),
+          true
+        );
         h += `<label class="lb-control lb-switch"><input data-setting="show_outline" type="checkbox" ${s.show_outline ? "checked" : ""}><span>Show Grid Guides on Canvas</span></label>`;
         h += '<p class="lb20-grid-help">Use explicit tracks for precise layouts. Auto-flow controls how unplaced children fill remaining cells. A Grid can contain another Grid for nested layouts.</p>';
         h += "</div>";
@@ -7130,7 +8587,9 @@
       function lb20ApplyGridGuides() {
         const fd = app.frameDoc();
         if (!fd) return;
-        fd.querySelectorAll(".lb-grid-editor-active,.lb-grid-item-active").forEach((x) => x.classList.remove("lb-grid-editor-active", "lb-grid-item-active"));
+        fd.querySelectorAll(".lb-grid-editor-active,.lb-grid-item-active").forEach(
+          (x) => x.classList.remove("lb-grid-editor-active", "lb-grid-item-active")
+        );
         fd.querySelectorAll(".lb-grid-inner").forEach((x) => x.style.removeProperty("--lb20-cols"));
         if (!app.selected) return;
         const r = app.locate(app.state.root, app.selected);
@@ -7201,7 +8660,9 @@
       function lb20BindGridUI() {
         lb20ApplyGridGuides();
         app.root.querySelectorAll(".lb20-grid-matrix").forEach(lb20BindMatrix);
-        app.root.querySelectorAll('.lb20-grid-editor input[data-setting="columns"],.lb20-grid-editor input[data-setting="rows"]').forEach((x) => x.addEventListener("change", () => setTimeout(lb20ApplyGridGuides, 0)));
+        app.root.querySelectorAll(
+          '.lb20-grid-editor input[data-setting="columns"],.lb20-grid-editor input[data-setting="rows"]'
+        ).forEach((x) => x.addEventListener("change", () => setTimeout(lb20ApplyGridGuides, 0)));
       }
     })();
     (function() {
@@ -7244,8 +8705,14 @@
       }
       function lb122Counts(n) {
         const s = n?.settings || {};
-        const cols = lb122RepeatCount(lb122Value(s.grid_template_columns), Math.max(1, parseInt(lb122Value(s.columns), 10) || 3));
-        const rows = lb122RepeatCount(lb122Value(s.grid_template_rows), Math.max(1, parseInt(lb122Value(s.rows), 10) || 3));
+        const cols = lb122RepeatCount(
+          lb122Value(s.grid_template_columns),
+          Math.max(1, parseInt(lb122Value(s.columns), 10) || 3)
+        );
+        const rows = lb122RepeatCount(
+          lb122Value(s.grid_template_rows),
+          Math.max(1, parseInt(lb122Value(s.rows), 10) || 3)
+        );
         return { cols, rows };
       }
       function lb122Node(fd, id) {
@@ -7382,7 +8849,13 @@
       }
       function lb123ParentMetrics(node) {
         const parentEl = node.parentElement;
-        if (!parentEl) return { w: node.getBoundingClientRect().width || 1, h: node.getBoundingClientRect().height || 1, gapX: 0, gapY: 0 };
+        if (!parentEl)
+          return {
+            w: node.getBoundingClientRect().width || 1,
+            h: node.getBoundingClientRect().height || 1,
+            gapX: 0,
+            gapY: 0
+          };
         const cs = parentEl.ownerDocument.defaultView.getComputedStyle(parentEl);
         return {
           w: parentEl.clientWidth || node.getBoundingClientRect().width || 1,
@@ -7401,7 +8874,9 @@
         if (!parent || parent.type !== "container") return false;
         const layout = parent.settings?.layout || "flex";
         if (layout === "grid") return false;
-        const dir = String((typeof app.resp === "function" ? app.resp(parent.settings?.direction) : parent.settings?.direction) || "row");
+        const dir = String(
+          (typeof app.resp === "function" ? app.resp(parent.settings?.direction) : parent.settings?.direction) || "row"
+        );
         if (axis === "x") return dir === "row" || dir === "row-reverse";
         return dir === "column" || dir === "column-reverse";
       }
@@ -7409,7 +8884,9 @@
         if (!parentNode || !lb123IsBoxType(node.dataset.type)) return null;
         const axis = edge === "e" || edge === "w" ? "x" : "y";
         if (!lb123CanSplit(parentNode, axis)) return null;
-        const kids = (parentNode.children || []).filter((c) => c && c.id && c.id !== node.dataset.id && lb123IsBoxType(c.type));
+        const kids = (parentNode.children || []).filter(
+          (c) => c && c.id && c.id !== node.dataset.id && lb123IsBoxType(c.type)
+        );
         if (!kids.length) return null;
         const my = node.getBoundingClientRect();
         const tol = Math.max(28, (gap || 0) + 20);
@@ -7490,7 +8967,9 @@
         return { rect, gap, total, tracks };
       }
       function lb123RemoveHandles(fd) {
-        fd?.querySelectorAll(".lb123-resize-handle,.lb123-box-handle,.lb123-grid-track-handle,.lb26-img-handle,.lb26-img-label,.lb-tiny-handle,.lb-tiny-label,.lb123-size-tip").forEach((x) => x.remove());
+        fd?.querySelectorAll(
+          ".lb123-resize-handle,.lb123-box-handle,.lb123-grid-track-handle,.lb26-img-handle,.lb26-img-label,.lb-tiny-handle,.lb-tiny-label,.lb123-size-tip"
+        ).forEach((x) => x.remove());
         fd?.getElementById("lb123-handle-layer")?.replaceChildren();
         fd?.querySelectorAll(".lb123-resize-active").forEach((x) => x.classList.remove("lb123-resize-active"));
       }
@@ -7613,46 +9092,48 @@
           h.style.height = Math.round(L.height) + "px";
         });
       }
-      // Edge grab strips straddle the border, so their inner half sits on top of the
-      // unit's content (a child widget, a menu link, an open dropdown). That blocked
-      // :hover there. While the pointer is over such content, let it fall through;
-      // the outer half of the strip and the corner squares still resize.
       function lb123BindHandlePassThrough(fd) {
         if (!fd || fd.__lb123PassThrough) return;
         fd.__lb123PassThrough = true;
         const INTERACTIVE = "a,button,input,select,textarea,summary,label,[role=button],[tabindex]:not(.lb-node)";
-        fd.addEventListener("pointermove", (e) => {
-          if (fd.body && fd.body.classList.contains("lb123-resizing")) return;
-          const strips = fd.querySelectorAll(".lb123-box-handle.n,.lb123-box-handle.s,.lb123-box-handle.e,.lb123-box-handle.w");
-          if (!strips.length) return;
-          const x = e.clientX, y = e.clientY;
-          let under = null, looked = false;
-          strips.forEach((h) => {
-            if (h.classList.contains("is-dragging")) return;
-            const r = h.getBoundingClientRect();
-            const inside = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-            let pass = false;
-            if (inside) {
-              if (!looked) {
-                looked = true;
-                const stack = typeof fd.elementsFromPoint === "function" ? fd.elementsFromPoint(x, y) : [];
-                under = stack.find((el) => !el.closest("#lb123-handle-layer")) || null;
+        fd.addEventListener(
+          "pointermove",
+          (e) => {
+            if (fd.body && fd.body.classList.contains("lb123-resizing")) return;
+            const strips = fd.querySelectorAll(
+              ".lb123-box-handle.n,.lb123-box-handle.s,.lb123-box-handle.e,.lb123-box-handle.w"
+            );
+            if (!strips.length) return;
+            const x = e.clientX, y = e.clientY;
+            let under = null, looked = false;
+            strips.forEach((h) => {
+              if (h.classList.contains("is-dragging")) return;
+              const r = h.getBoundingClientRect();
+              const inside = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+              let pass = false;
+              if (inside) {
+                if (!looked) {
+                  looked = true;
+                  const stack = typeof fd.elementsFromPoint === "function" ? fd.elementsFromPoint(x, y) : [];
+                  under = stack.find((el) => !el.closest("#lb123-handle-layer")) || null;
+                }
+                const sel2 = fd.querySelector(".lb-node.lb123-resize-active");
+                if (under && sel2 && sel2.contains(under) && under !== sel2) {
+                  const child = under.closest(".lb-node");
+                  pass = !!(child && child !== sel2) || !!under.closest(INTERACTIVE);
+                }
               }
-              const sel = fd.querySelector(".lb-node.lb123-resize-active");
-              if (under && sel && sel.contains(under) && under !== sel) {
-                const child = under.closest(".lb-node");
-                pass = !!(child && child !== sel) || !!under.closest(INTERACTIVE);
+              if (pass && !h.__lbPass) {
+                h.style.setProperty("pointer-events", "none", "important");
+                h.__lbPass = true;
+              } else if (!pass && h.__lbPass) {
+                h.style.removeProperty("pointer-events");
+                h.__lbPass = false;
               }
-            }
-            if (pass && !h.__lbPass) {
-              h.style.setProperty("pointer-events", "none", "important");
-              h.__lbPass = true;
-            } else if (!pass && h.__lbPass) {
-              h.style.removeProperty("pointer-events");
-              h.__lbPass = false;
-            }
-          });
-        }, true);
+            });
+          },
+          true
+        );
       }
       function lb123AddBoxHandles(fd, node) {
         if (!node) return;
@@ -7660,25 +9141,38 @@
         lb123BindHandlePassThrough(fd);
         node.classList.add("lb123-resize-active");
         const layer = lb123HandleLayer(fd) || fd.body;
-        const titles = { n: "Resize top", s: "Resize bottom", e: "Resize right", w: "Resize left", nw: "Resize top-left", ne: "Resize top-right", sw: "Resize bottom-left", se: "Resize bottom-right" };
+        const titles = {
+          n: "Resize top",
+          s: "Resize bottom",
+          e: "Resize right",
+          w: "Resize left",
+          nw: "Resize top-left",
+          ne: "Resize top-right",
+          sw: "Resize bottom-left",
+          se: "Resize bottom-right"
+        };
         ["n", "s", "e", "w", "nw", "ne", "se", "sw"].forEach((edge) => {
           const h = fd.createElement("span");
           h.className = "lb123-box-handle " + edge;
           h.dataset.edge = edge;
           h.title = titles[edge];
           h.setAttribute("aria-hidden", "true");
-          h.addEventListener("pointerdown", (e) => {
-            if (e.button != null && e.button !== 0) return;
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
-            try {
-              h.setPointerCapture(e.pointerId);
-            } catch (err) {
-            }
-            h.classList.add("is-dragging");
-            lb123StartUnitResize(e, node, edge, h);
-          }, true);
+          h.addEventListener(
+            "pointerdown",
+            (e) => {
+              if (e.button != null && e.button !== 0) return;
+              e.preventDefault();
+              e.stopPropagation();
+              if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
+              try {
+                h.setPointerCapture(e.pointerId);
+              } catch (err) {
+              }
+              h.classList.add("is-dragging");
+              lb123StartUnitResize(e, node, edge, h);
+            },
+            true
+          );
           layer.appendChild(h);
         });
         lb123PlaceBoxHandles(fd, node);
@@ -7762,7 +9256,7 @@
             };
             const label = () => {
               const b = img.getBoundingClientRect(), page = lb123Page(fd);
-              lab.textContent = Math.round(w) + " \xD7 " + Math.round(hgt) + " px  \xB7  " + Math.round(w / maxW * 100) + "%";
+              lab.textContent = Math.round(w) + " × " + Math.round(hgt) + " px  ·  " + Math.round(w / maxW * 100) + "%";
               lab.style.left = b.left + b.width / 2 + page.x + "px";
               lab.style.top = b.top + 8 + page.y + "px";
             };
@@ -7800,7 +9294,12 @@
                 return;
               }
               lb123HistoryStart();
-              if (touchW) lb123ResponsiveSet(r.node, "width", usePx ? Math.round(w) + "px" : w >= maxW - 1 ? "100%" : Math.round(w / maxW * 1e3) / 10 + "%");
+              if (touchW)
+                lb123ResponsiveSet(
+                  r.node,
+                  "width",
+                  usePx ? Math.round(w) + "px" : w >= maxW - 1 ? "100%" : Math.round(w / maxW * 1e3) / 10 + "%"
+                );
               if (touchH) lb123ResponsiveSet(r.node, "height", Math.round(hgt) + "px");
               app.selected = id;
               lb123Finish();
@@ -7878,7 +9377,7 @@
             };
             const label = () => {
               const b = box.getBoundingClientRect(), page = lb123Page(fd);
-              lab.textContent = Math.round(w) + " \xD7 " + Math.round(hgt) + " px  \xB7  " + Math.round(w / maxW * 100) + "%";
+              lab.textContent = Math.round(w) + " × " + Math.round(hgt) + " px  ·  " + Math.round(w / maxW * 100) + "%";
               lab.style.left = b.left + b.width / 2 + page.x + "px";
               lab.style.top = b.top + 8 + page.y + "px";
             };
@@ -7916,7 +9415,12 @@
                 return;
               }
               lb123HistoryStart();
-              if (touchW) lb123ResponsiveSet(r.node, "width", usePx ? Math.round(w) + "px" : w >= maxW - 1 ? "100%" : Math.round(w / maxW * 1e3) / 10 + "%");
+              if (touchW)
+                lb123ResponsiveSet(
+                  r.node,
+                  "width",
+                  usePx ? Math.round(w) + "px" : w >= maxW - 1 ? "100%" : Math.round(w / maxW * 1e3) / 10 + "%"
+                );
               if (touchH) lb123ResponsiveSet(r.node, "height", Math.round(hgt) + "px");
               app.selected = id;
               lb123Finish();
@@ -8049,7 +9553,14 @@
           lb123ApplySize(n, lb123Node(a.id), "x", w, a.parentW, a.curW);
           if (a.sibX) {
             const sib = app.locate(app.state.root, a.sibX.id)?.node;
-            lb123ApplySize(sib, lb123Node(a.sibX.id), "x", sibXW, a.parentW, app.resp?.(sib?.settings?.width) ?? sib?.settings?.width);
+            lb123ApplySize(
+              sib,
+              lb123Node(a.sibX.id),
+              "x",
+              sibXW,
+              a.parentW,
+              app.resp?.(sib?.settings?.width) ?? sib?.settings?.width
+            );
           } else if (a.xEdge === "w") {
             lb123SetMarginSide(n, "left", ml);
             const live2 = lb123Node(a.id);
@@ -8118,7 +9629,7 @@
           const bits = [];
           if (a.xEdge) bits.push(Math.round(w / a.parentW * 1e3) / 10 + "%");
           if (a.yEdge) bits.push(Math.round(h) + "px");
-          lb123Tip(a.doc, bits.join(" \xD7 ") || "", tx, ty);
+          lb123Tip(a.doc, bits.join(" × ") || "", tx, ty);
         }
       }
       function lb123UnitEnd(e, move, up) {
@@ -8148,7 +9659,11 @@
         if (fd.defaultView.getComputedStyle(inner).position === "static") inner.style.position = "relative";
         const s = app.locate(app.state.root, grid.dataset.id)?.node?.settings || {};
         const x = lb123TrackInfo(inner, "x", Math.max(1, Math.min(24, parseInt(app.resp(s.columns || 3), 10) || 3)));
-        const y = lb123TrackInfo(inner, "y", Math.max(1, Math.min(24, parseInt(app.resp(s.grid_rows || s.rows || 3), 10) || 3)));
+        const y = lb123TrackInfo(
+          inner,
+          "y",
+          Math.max(1, Math.min(24, parseInt(app.resp(s.grid_rows || s.rows || 3), 10) || 3))
+        );
         const rect = inner.getBoundingClientRect();
         const page = lb123Page(fd);
         const cols = x.tracks.length, rows = y.tracks.length;
@@ -8163,16 +9678,20 @@
           h.dataset.axis = "x";
           h.dataset.index = String(i);
           h.title = "Resize column boundary " + i;
-          h.addEventListener("pointerdown", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            try {
-              h.setPointerCapture(e.pointerId);
-            } catch (err) {
-            }
-            lb123StartTrackResize(e, inner, "x", i, cols, rows);
-          }, true);
+          h.addEventListener(
+            "pointerdown",
+            (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+              try {
+                h.setPointerCapture(e.pointerId);
+              } catch (err) {
+              }
+              lb123StartTrackResize(e, inner, "x", i, cols, rows);
+            },
+            true
+          );
           fd.body.appendChild(h);
         }
         pos = 0;
@@ -8186,16 +9705,20 @@
           h.dataset.axis = "y";
           h.dataset.index = String(i);
           h.title = "Resize row boundary " + i;
-          h.addEventListener("pointerdown", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            try {
-              h.setPointerCapture(e.pointerId);
-            } catch (err) {
-            }
-            lb123StartTrackResize(e, inner, "y", i, cols, rows);
-          }, true);
+          h.addEventListener(
+            "pointerdown",
+            (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+              try {
+                h.setPointerCapture(e.pointerId);
+              } catch (err) {
+              }
+              lb123StartTrackResize(e, inner, "y", i, cols, rows);
+            },
+            true
+          );
           fd.body.appendChild(h);
         }
       }
@@ -8211,7 +9734,21 @@
         const info = lb123TrackInfo(inner, axis, count);
         if (info.tracks.length < 2 || index < 1 || index >= info.tracks.length) return;
         lb123HistoryStart();
-        lb123Resize = { kind: "track", gridId: grid.dataset.id, inner, axis, index, cols, rows, startX: e.clientX, startY: e.clientY, tracks: info.tracks.slice(), gap: info.gap, doc: inner.ownerDocument, pointerId: e.pointerId };
+        lb123Resize = {
+          kind: "track",
+          gridId: grid.dataset.id,
+          inner,
+          axis,
+          index,
+          cols,
+          rows,
+          startX: e.clientX,
+          startY: e.clientY,
+          tracks: info.tracks.slice(),
+          gap: info.gap,
+          doc: inner.ownerDocument,
+          pointerId: e.pointerId
+        };
         inner.ownerDocument.body.classList.add("lb123-resizing", "lb123-resizing-" + axis);
         document.body.classList.add("lb123-resizing", "lb123-resizing-" + axis);
         (e.currentTarget || e.target)?.classList?.add("is-dragging");
@@ -8378,7 +9915,16 @@
       }
       function lb14NewChild(direction, size) {
         const e = app.meta("container");
-        return { id: app.eid(), type: "container", settings: lb14ChildSettings(direction, size), atomic: true, styles: { base: {} }, interactions: [], editor_settings: {}, children: [] };
+        return {
+          id: app.eid(),
+          type: "container",
+          settings: lb14ChildSettings(direction, size),
+          atomic: true,
+          styles: { base: {} },
+          interactions: [],
+          editor_settings: {},
+          children: []
+        };
       }
       function lb14StructurePanel(n) {
         if (!n || n.type !== "container" || app.styleTab !== "content") return "";
@@ -8392,9 +9938,9 @@
         <button type="button" class="lb14-preset" data-lb14-split="row:4"><span class="lb14-icon-grid cols4"></span><b>4 Columns</b><small>1 / 1 / 1 / 1</small></button>
         <button type="button" class="lb14-preset" data-lb14-split="column:2"><span class="lb14-icon-grid rows2"></span><b>2 Rows</b><small>50 / 50</small></button>
         <button type="button" class="lb14-preset" data-lb14-split="column:3"><span class="lb14-icon-grid rows3"></span><b>3 Rows</b><small>1 / 1 / 1</small></button>
-        <button type="button" class="lb14-preset" data-lb14-split="grid:2x2"><span class="lb14-icon-grid grid2x2"></span><b>2 \xD7 2</b><small>4 cells</small></button>
-        <button type="button" class="lb14-preset" data-lb14-split="grid:3x2"><span class="lb14-icon-grid grid3x2"></span><b>3 \xD7 2</b><small>6 cells</small></button>
-        <button type="button" class="lb14-preset" data-lb14-split="grid:2x3"><span class="lb14-icon-grid grid2x3"></span><b>2 \xD7 3</b><small>6 cells</small></button>
+        <button type="button" class="lb14-preset" data-lb14-split="grid:2x2"><span class="lb14-icon-grid grid2x2"></span><b>2 × 2</b><small>4 cells</small></button>
+        <button type="button" class="lb14-preset" data-lb14-split="grid:3x2"><span class="lb14-icon-grid grid3x2"></span><b>3 × 2</b><small>6 cells</small></button>
+        <button type="button" class="lb14-preset" data-lb14-split="grid:2x3"><span class="lb14-icon-grid grid2x3"></span><b>2 × 3</b><small>6 cells</small></button>
       </div>
       <div class="lb14-custom-split">
         <label>Custom columns <input type="number" min="1" max="12" value="2" data-lb14-cols></label>
@@ -8484,7 +10030,10 @@
             const r = app.locate(app.state.root, app.selected);
             if (!r || r.node.type !== "container") return;
             const [mode, val] = btn.dataset.lb14Split.split(":");
-            if ((r.node.children || []).length && !window.confirm("This container already contains content. Keep it by moving the existing content into the first new cell?")) return;
+            if ((r.node.children || []).length && !window.confirm(
+              "This container already contains content. Keep it by moving the existing content into the first new cell?"
+            ))
+              return;
             if (mode === "grid") {
               const [c, rr] = val.split("x").map(Number);
               lb14SplitContainer(app.selected, "grid", c, rr);
@@ -8497,7 +10046,10 @@
           const rr = Math.max(1, Math.min(12, Number(app.root.querySelector("[data-lb14-rows]")?.value) || 1));
           const r = app.locate(app.state.root, app.selected);
           if (!r || r.node.type !== "container") return;
-          if ((r.node.children || []).length && !window.confirm("This container already contains content. Keep it by moving the existing content into the first new cell?")) return;
+          if ((r.node.children || []).length && !window.confirm(
+            "This container already contains content. Keep it by moving the existing content into the first new cell?"
+          ))
+            return;
           if (rr === 1) lb14SplitContainer(app.selected, "row", c);
           else lb14SplitContainer(app.selected, "grid", c, rr);
         });
@@ -8543,7 +10095,10 @@
         const cs = inner.ownerDocument.defaultView.getComputedStyle(inner), rect = inner.getBoundingClientRect();
         const cols = String(cs.gridTemplateColumns || "").match(/-?\d*\.?\d+px/g)?.map(parseFloat).filter(Number.isFinite) || [];
         const rows = String(cs.gridTemplateRows || "").match(/-?\d*\.?\d+px/g)?.map(parseFloat).filter(Number.isFinite) || [];
-        const cCount = Math.max(1, cols.length || parseInt(inner.closest(".lb-node")?.querySelector(":scope > .lb-grid-inner")?.dataset?.cols || "", 10) || 3);
+        const cCount = Math.max(
+          1,
+          cols.length || parseInt(inner.closest(".lb-node")?.querySelector(":scope > .lb-grid-inner")?.dataset?.cols || "", 10) || 3
+        );
         const rCount = Math.max(1, rows.length || 3);
         const gapX = parseFloat(cs.columnGap) || 0, gapY = parseFloat(cs.rowGap) || 0;
         const contentW = rect.width - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0) - (parseFloat(cs.borderLeftWidth) || 0) - (parseFloat(cs.borderRightWidth) || 0);
@@ -8553,7 +10108,15 @@
           const v = Math.max(1, (total - gap * Math.max(0, count - 1)) / count);
           return Array(count).fill(v);
         };
-        return { rect, cols: norm(cols, cCount, contentW, gapX), rows: norm(rows, rCount, contentH, gapY), gapX, gapY, contentLeft: rect.left + (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.borderLeftWidth) || 0), contentTop: rect.top + (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.borderTopWidth) || 0) };
+        return {
+          rect,
+          cols: norm(cols, cCount, contentW, gapX),
+          rows: norm(rows, rCount, contentH, gapY),
+          gapX,
+          gapY,
+          contentLeft: rect.left + (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.borderLeftWidth) || 0),
+          contentTop: rect.top + (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.borderTopWidth) || 0)
+        };
       }
       function lb15TrackAt(value, tracks, gap) {
         let p = 0;
@@ -8566,7 +10129,10 @@
       }
       function lb15CellFromPoint(inner, x, y) {
         const g = lb15GridMetrics2(inner);
-        return { row: lb15TrackAt(y - g.contentTop, g.rows, g.gapY), col: lb15TrackAt(x - g.contentLeft, g.cols, g.gapX) };
+        return {
+          row: lb15TrackAt(y - g.contentTop, g.rows, g.gapY),
+          col: lb15TrackAt(x - g.contentLeft, g.cols, g.gapX)
+        };
       }
       function lb15SetCellVisual2(inner, cell) {
         let guide = inner.querySelector(":scope > .lb15-cell-target");
@@ -8596,11 +10162,24 @@
         if (!p || p.node.type !== "grid") return;
         const e = app.meta(type);
         if (!e.type) return;
-        const n = { id: app.eid(), type, settings: app.defaults(type), atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type), styles: { base: {} }, interactions: [], editor_settings: {} };
+        const n = {
+          id: app.eid(),
+          type,
+          settings: app.defaults(type),
+          atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type),
+          styles: { base: {} },
+          interactions: [],
+          editor_settings: {}
+        };
         if (e.children) n.children = [];
         app.commit();
         p.node.children = p.node.children || [];
-        const cols = Math.max(1, lb15GridMetrics2(lb15GridNode2(gridId)?.querySelector(":scope > .lb-grid-inner") || document.createElement("div")).cols.length);
+        const cols = Math.max(
+          1,
+          lb15GridMetrics2(
+            lb15GridNode2(gridId)?.querySelector(":scope > .lb-grid-inner") || document.createElement("div")
+          ).cols.length
+        );
         n.settings.grid_column_start = Math.max(1, Math.min(cols, cell.col));
         n.settings.grid_column_span = 1;
         n.settings.grid_row_start = Math.max(1, cell.row);
@@ -8658,7 +10237,10 @@
         const selfJ = rv("justify_self") || "stretch", selfA = rv("align_self") || "stretch";
         const placement = `grid-column:${cs} / span ${cspan};grid-row:${rs} / span ${rspan};justify-self:${app.esc(selfJ)};align-self:${app.esc(selfA)};min-width:0;box-sizing:border-box;`;
         html = html.replace(/\sstyle="[^"]*"(?=\s|>)/, "");
-        return html.replace(' data-id="' + app.esc(n.id) + '"', ' data-id="' + app.esc(n.id) + '" style="' + placement + '"');
+        return html.replace(
+          ' data-id="' + app.esc(n.id) + '"',
+          ' data-id="' + app.esc(n.id) + '" style="' + placement + '"'
+        );
       };
       function lb16GridDropPlacement(inner, x, y) {
         const g = lb15GridMetrics2(inner);
@@ -8687,9 +10269,11 @@
       }
       function lb16GridChildResizeStart(e, node) {
         if (document.body.classList.contains("lb123-resizing")) return false;
-        if (e.target && e.target.closest && e.target.closest(".lb123-grid-track-handle,.lb123-box-handle,.lb123-resize-handle")) return false;
+        if (e.target && e.target.closest && e.target.closest(".lb123-grid-track-handle,.lb123-box-handle,.lb123-resize-handle"))
+          return false;
         const selectedNode = app.selected && app.locate(app.state.root, app.selected)?.node;
-        if (selectedNode && (selectedNode.type === "grid" || selectedNode.type === "container" && selectedNode.settings?.layout === "grid")) return false;
+        if (selectedNode && (selectedNode.type === "grid" || selectedNode.type === "container" && selectedNode.settings?.layout === "grid"))
+          return false;
         const r = app.locate(app.state.root, node.dataset.id);
         if (!r || r.parent?.type !== "grid") return false;
         if (r.node.type === "tinymce_text_editor" || r.node.type === "image") return false;
@@ -8702,13 +10286,24 @@
         e.stopImmediatePropagation();
         const gm = lb15GridMetrics2(inner), start = { ...lb16GridDropPlacement(inner, e.clientX, e.clientY) };
         const s = r.node.settings || {};
-        const original = { cs: Number(lb15Value(s.grid_column_start) || start.col), rs: Number(lb15Value(s.grid_row_start) || start.row), cspan: Number(lb15Value(s.grid_column_span) || 1), rspan: Number(lb15Value(s.grid_row_span) || 1) };
+        const original = {
+          cs: Number(lb15Value(s.grid_column_start) || start.col),
+          rs: Number(lb15Value(s.grid_row_start) || start.row),
+          cspan: Number(lb15Value(s.grid_column_span) || 1),
+          rspan: Number(lb15Value(s.grid_row_span) || 1)
+        };
         const startX = e.clientX, startY = e.clientY;
         node.ownerDocument.body.classList.add("lb123-resizing");
         const move = (ev) => {
           const dx = ev.clientX - startX, dy = ev.clientY - startY;
-          const colStep = Math.max(20, (gm.cols.reduce((a, b) => a + b, 0) + gm.gapX * (gm.cols.length - 1)) / gm.cols.length + gm.gapX);
-          const rowStep = Math.max(20, (gm.rows.reduce((a, b) => a + b, 0) + gm.gapY * (gm.rows.length - 1)) / gm.rows.length + gm.gapY);
+          const colStep = Math.max(
+            20,
+            (gm.cols.reduce((a, b) => a + b, 0) + gm.gapX * (gm.cols.length - 1)) / gm.cols.length + gm.gapX
+          );
+          const rowStep = Math.max(
+            20,
+            (gm.rows.reduce((a, b) => a + b, 0) + gm.gapY * (gm.rows.length - 1)) / gm.rows.length + gm.gapY
+          );
           let cs = original.cs, rs = original.rs, csn = original.cspan, rsn = original.rspan;
           if (side === "e") csn = Math.max(1, Math.min(gm.cols - cs + 1, original.cspan + Math.round(dx / colStep)));
           if (side === "w") {
@@ -8745,9 +10340,13 @@
         fd.querySelectorAll(".lb-grid-inner > .lb-node").forEach((node) => {
           if (node.__lb16Resize) return;
           node.__lb16Resize = true;
-          node.addEventListener("pointerdown", (e) => {
-            if (lb16GridChildResizeStart(e, node)) e.stopImmediatePropagation();
-          }, true);
+          node.addEventListener(
+            "pointerdown",
+            (e) => {
+              if (lb16GridChildResizeStart(e, node)) e.stopImmediatePropagation();
+            },
+            true
+          );
         });
       }
       function lb16Refresh() {
@@ -8758,14 +10357,18 @@
         const fd = app.frameDoc();
         if (!fd) return;
         fd.querySelectorAll(".lb-grid-inner").forEach((inner) => {
-          inner.addEventListener("dragover", (e) => {
-            const v = e.dataTransfer?.getData("text/plain") || "";
-            if (!v.startsWith("unit:")) return;
-            const grid = inner.closest(".lb-node");
-            if (!grid) return;
-            const cell = lb16GridDropPlacement(inner, e.clientX, e.clientY);
-            lb15CellTarget = { gridId: grid.dataset.id, row: cell.row, col: cell.col };
-          }, true);
+          inner.addEventListener(
+            "dragover",
+            (e) => {
+              const v = e.dataTransfer?.getData("text/plain") || "";
+              if (!v.startsWith("unit:")) return;
+              const grid = inner.closest(".lb-node");
+              if (!grid) return;
+              const cell = lb16GridDropPlacement(inner, e.clientX, e.clientY);
+              lb15CellTarget = { gridId: grid.dataset.id, row: cell.row, col: cell.col };
+            },
+            true
+          );
         });
       }
       const lb16OldRender = app.render;
@@ -8809,12 +10412,19 @@
         cards.forEach((card) => {
           if (card.__lb16) return;
           card.__lb16 = true;
-          card.addEventListener("dblclick", (e) => {
-            if (e.target.closest("[data-fav]") || !lb15CellTarget) return;
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            lb15AddAtGridCell(card.dataset.type, lb15CellTarget.gridId, { row: lb15CellTarget.row, col: lb15CellTarget.col });
-          }, true);
+          card.addEventListener(
+            "dblclick",
+            (e) => {
+              if (e.target.closest("[data-fav]") || !lb15CellTarget) return;
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              lb15AddAtGridCell(card.dataset.type, lb15CellTarget.gridId, {
+                row: lb15CellTarget.row,
+                col: lb15CellTarget.col
+              });
+            },
+            true
+          );
         });
       }
       let lb16PanelRaf = 0;
@@ -8833,61 +10443,88 @@
         fd.querySelectorAll(".lb-grid-inner").forEach((inner) => {
           if (inner.__lb15) return;
           inner.__lb15 = true;
-          inner.addEventListener("pointermove", (e) => {
-            if (e.target.closest(".lb-node") && e.target.closest(".lb-node") !== inner.closest(".lb-node")) return;
-            const cell = lb15CellFromPoint(inner, e.clientX, e.clientY);
-            lb15CellTarget = { gridId: inner.closest(".lb-node")?.dataset.id, row: cell.row, col: cell.col };
-            lb15SetCellVisual2(inner, cell);
-          }, true);
-          inner.addEventListener("pointerleave", () => {
-            lb15CellTarget = null;
-            lb15ClearCellVisual2(inner);
-          }, true);
-          inner.addEventListener("click", (e) => {
-            if (e.target.closest(".lb-node") && e.target.closest(".lb-node") !== inner.closest(".lb-node")) return;
-            const grid = inner.closest(".lb-node");
-            if (!grid) return;
-            const cell = lb15CellFromPoint(inner, e.clientX, e.clientY);
-            lb15CellTarget = { gridId: grid.dataset.id, row: cell.row, col: cell.col };
-            app.selectNode(grid.dataset.id);
-            lb15SetCellVisual2(inner, cell);
-          }, true);
-          inner.addEventListener("dragover", (e) => {
-            const v = e.dataTransfer?.getData("text/plain") || "";
-            if (!v.startsWith("unit:")) return;
-            e.preventDefault();
-            e.stopPropagation();
-            const grid = inner.closest(".lb-node");
-            if (!grid) return;
-            const cell = lb15CellFromPoint(inner, e.clientX, e.clientY);
-            lb15CellTarget = { gridId: grid.dataset.id, row: cell.row, col: cell.col };
-            lb15SetCellVisual2(inner, cell);
-            e.dataTransfer.dropEffect = "copy";
-          }, true);
-          inner.addEventListener("drop", (e) => {
-            const v = e.dataTransfer?.getData("text/plain") || "";
-            if (!v.startsWith("unit:")) return;
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            const grid = inner.closest(".lb-node");
-            if (!grid) return;
-            const cell = lb15CellFromPoint(inner, e.clientX, e.clientY);
-            lb15AddAtGridCell(v.slice(5), grid.dataset.id, cell);
-          }, true);
+          inner.addEventListener(
+            "pointermove",
+            (e) => {
+              if (e.target.closest(".lb-node") && e.target.closest(".lb-node") !== inner.closest(".lb-node")) return;
+              const cell = lb15CellFromPoint(inner, e.clientX, e.clientY);
+              lb15CellTarget = { gridId: inner.closest(".lb-node")?.dataset.id, row: cell.row, col: cell.col };
+              lb15SetCellVisual2(inner, cell);
+            },
+            true
+          );
+          inner.addEventListener(
+            "pointerleave",
+            () => {
+              lb15CellTarget = null;
+              lb15ClearCellVisual2(inner);
+            },
+            true
+          );
+          inner.addEventListener(
+            "click",
+            (e) => {
+              if (e.target.closest(".lb-node") && e.target.closest(".lb-node") !== inner.closest(".lb-node")) return;
+              const grid = inner.closest(".lb-node");
+              if (!grid) return;
+              const cell = lb15CellFromPoint(inner, e.clientX, e.clientY);
+              lb15CellTarget = { gridId: grid.dataset.id, row: cell.row, col: cell.col };
+              app.selectNode(grid.dataset.id);
+              lb15SetCellVisual2(inner, cell);
+            },
+            true
+          );
+          inner.addEventListener(
+            "dragover",
+            (e) => {
+              const v = e.dataTransfer?.getData("text/plain") || "";
+              if (!v.startsWith("unit:")) return;
+              e.preventDefault();
+              e.stopPropagation();
+              const grid = inner.closest(".lb-node");
+              if (!grid) return;
+              const cell = lb15CellFromPoint(inner, e.clientX, e.clientY);
+              lb15CellTarget = { gridId: grid.dataset.id, row: cell.row, col: cell.col };
+              lb15SetCellVisual2(inner, cell);
+              e.dataTransfer.dropEffect = "copy";
+            },
+            true
+          );
+          inner.addEventListener(
+            "drop",
+            (e) => {
+              const v = e.dataTransfer?.getData("text/plain") || "";
+              if (!v.startsWith("unit:")) return;
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              const grid = inner.closest(".lb-node");
+              if (!grid) return;
+              const cell = lb15CellFromPoint(inner, e.clientX, e.clientY);
+              lb15AddAtGridCell(v.slice(5), grid.dataset.id, cell);
+            },
+            true
+          );
         });
       }
       function lb15InstallPanelHandler() {
         if (lb15Bound) return;
         lb15Bound = true;
-        app.root.addEventListener("dblclick", (e) => {
-          const card = e.target.closest(".lb-unit-card");
-          if (!card || e.target.closest("[data-fav]")) return;
-          if (lb15CellTarget) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            lb15AddAtGridCell(card.dataset.type, lb15CellTarget.gridId, { row: lb15CellTarget.row, col: lb15CellTarget.col });
-          }
-        }, true);
+        app.root.addEventListener(
+          "dblclick",
+          (e) => {
+            const card = e.target.closest(".lb-unit-card");
+            if (!card || e.target.closest("[data-fav]")) return;
+            if (lb15CellTarget) {
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              lb15AddAtGridCell(card.dataset.type, lb15CellTarget.gridId, {
+                row: lb15CellTarget.row,
+                col: lb15CellTarget.col
+              });
+            }
+          },
+          true
+        );
       }
       function lb15HideGridInsertZone() {
         const fd = app.frameDoc();
@@ -8938,7 +10575,11 @@
               const m2 = html.match(/^<div\b[^>]*>/);
               if (m2) {
                 let tag2 = m2[0].replace(/\sstyle="[^"]*"/, "");
-                const extra = [w ? "width:" + lb17Esc(w) + ";" : "", mh ? "min-height:" + lb17Esc(mh) + ";" : "", mw ? "max-width:" + lb17Esc(mw) + ";" : ""].join("");
+                const extra = [
+                  w ? "width:" + lb17Esc(w) + ";" : "",
+                  mh ? "min-height:" + lb17Esc(mh) + ";" : "",
+                  mw ? "max-width:" + lb17Esc(mw) + ";" : ""
+                ].join("");
                 tag2 = tag2.replace(/>$/, ' style="' + extra + '">');
                 html = tag2 + html.slice(m2[0].length);
               }
@@ -8978,9 +10619,19 @@
         if (!p || p.node.type !== "grid") return;
         const e = app.meta(type);
         if (!e.type) return;
-        const n = { id: app.eid(), type, settings: app.defaults(type), atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type), styles: { base: {} }, interactions: [], editor_settings: {} };
+        const n = {
+          id: app.eid(),
+          type,
+          settings: app.defaults(type),
+          atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type),
+          styles: { base: {} },
+          interactions: [],
+          editor_settings: {}
+        };
         if (e.children) n.children = [];
-        const g = lb15GridMetrics(lb15GridNode(gridId)?.querySelector(":scope > .lb-grid-inner") || document.createElement("div"));
+        const g = lb15GridMetrics(
+          lb15GridNode(gridId)?.querySelector(":scope > .lb-grid-inner") || document.createElement("div")
+        );
         const cols = g.cols.length, rows = g.rows.length;
         n.settings.grid_column_start = Math.max(1, Math.min(cols, Number(cell.col) || 1));
         n.settings.grid_row_start = Math.max(1, Math.min(rows, Number(cell.row) || 1));
@@ -9002,43 +10653,55 @@
         fd.querySelectorAll(".lb-grid-inner").forEach((inner) => {
           if (inner.__lb17Drop) return;
           inner.__lb17Drop = true;
-          inner.addEventListener("dragover", (e) => {
-            const v = e.dataTransfer?.getData("text/plain") || "";
-            if (!v.startsWith("unit:")) return;
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            const grid = inner.closest(".lb-node");
-            if (!grid) return;
-            const cell = lb17GridAtPoint(inner, e.clientX, e.clientY);
-            window.__lb17Target = { grid: grid.dataset.id, col: cell.col, row: cell.row };
-            if (typeof lb15SetCellVisual === "function") lb15SetCellVisual(inner, { col: cell.col, row: cell.row });
-            e.dataTransfer.dropEffect = "copy";
-          }, true);
-          inner.addEventListener("drop", (e) => {
-            const v = e.dataTransfer?.getData("text/plain") || "";
-            if (!v.startsWith("unit:")) return;
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            const grid = inner.closest(".lb-node");
-            if (!grid) return;
-            const cell = lb17GridAtPoint(inner, e.clientX, e.clientY);
-            window.__lb17Target = { grid: grid.dataset.id, col: cell.col, row: cell.row };
-            lb17Add(v.slice(5), grid.dataset.id, cell);
-          }, true);
+          inner.addEventListener(
+            "dragover",
+            (e) => {
+              const v = e.dataTransfer?.getData("text/plain") || "";
+              if (!v.startsWith("unit:")) return;
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              const grid = inner.closest(".lb-node");
+              if (!grid) return;
+              const cell = lb17GridAtPoint(inner, e.clientX, e.clientY);
+              window.__lb17Target = { grid: grid.dataset.id, col: cell.col, row: cell.row };
+              if (typeof lb15SetCellVisual === "function") lb15SetCellVisual(inner, { col: cell.col, row: cell.row });
+              e.dataTransfer.dropEffect = "copy";
+            },
+            true
+          );
+          inner.addEventListener(
+            "drop",
+            (e) => {
+              const v = e.dataTransfer?.getData("text/plain") || "";
+              if (!v.startsWith("unit:")) return;
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              const grid = inner.closest(".lb-node");
+              if (!grid) return;
+              const cell = lb17GridAtPoint(inner, e.clientX, e.clientY);
+              window.__lb17Target = { grid: grid.dataset.id, col: cell.col, row: cell.row };
+              lb17Add(v.slice(5), grid.dataset.id, cell);
+            },
+            true
+          );
         });
       }
       function lb17BindCards() {
         app.root.querySelectorAll(".lb-unit-card").forEach((card) => {
           if (card.__lb17Card) return;
           card.__lb17Card = true;
-          card.addEventListener("dblclick", (e) => {
-            if (e.target.closest("[data-fav]")) return;
-            const t3 = window.__lb17Target;
-            if (!t3) return;
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            lb17Add(card.dataset.type, t3.grid, { col: t3.col, row: t3.row });
-          }, true);
+          card.addEventListener(
+            "dblclick",
+            (e) => {
+              if (e.target.closest("[data-fav]")) return;
+              const t3 = window.__lb17Target;
+              if (!t3) return;
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              lb17Add(card.dataset.type, t3.grid, { col: t3.col, row: t3.row });
+            },
+            true
+          );
         });
       }
       function lb17BindGridPointer() {
@@ -9047,19 +10710,27 @@
         fd.querySelectorAll(".lb-grid-inner").forEach((inner) => {
           if (inner.__lb17Pointer) return;
           inner.__lb17Pointer = true;
-          inner.addEventListener("pointermove", (e) => {
-            if (e.target.closest(".lb-node") && e.target.closest(".lb-node") !== inner.closest(".lb-node")) return;
-            const grid = inner.closest(".lb-node");
-            if (!grid) return;
-            const c = lb17GridAtPoint(inner, e.clientX, e.clientY);
-            window.__lb17Target = { grid: grid.dataset.id, col: c.col, row: c.row };
-            if (typeof lb15SetCellVisual === "function") lb15SetCellVisual(inner, c);
-          }, true);
-          inner.addEventListener("pointerleave", () => {
-            const grid = inner.closest(".lb-node");
-            if (grid && window.__lb17Target?.grid === grid.dataset.id) window.__lb17Target = null;
-            if (typeof lb15ClearCellVisual === "function") lb15ClearCellVisual(inner);
-          }, true);
+          inner.addEventListener(
+            "pointermove",
+            (e) => {
+              if (e.target.closest(".lb-node") && e.target.closest(".lb-node") !== inner.closest(".lb-node")) return;
+              const grid = inner.closest(".lb-node");
+              if (!grid) return;
+              const c = lb17GridAtPoint(inner, e.clientX, e.clientY);
+              window.__lb17Target = { grid: grid.dataset.id, col: c.col, row: c.row };
+              if (typeof lb15SetCellVisual === "function") lb15SetCellVisual(inner, c);
+            },
+            true
+          );
+          inner.addEventListener(
+            "pointerleave",
+            () => {
+              const grid = inner.closest(".lb-node");
+              if (grid && window.__lb17Target?.grid === grid.dataset.id) window.__lb17Target = null;
+              if (typeof lb15ClearCellVisual === "function") lb15ClearCellVisual(inner);
+            },
+            true
+          );
         });
       }
       function lb17Css() {
@@ -9106,9 +10777,9 @@
         <button type="button" data-lb17-split="4x1">4 Columns</button>
         <button type="button" data-lb17-split="1x2">2 Rows</button>
         <button type="button" data-lb17-split="1x3">3 Rows</button>
-        <button type="button" data-lb17-split="2x2">2 \xD7 2</button>
-        <button type="button" data-lb17-split="3x2">3 \xD7 2</button>
-        <button type="button" data-lb17-split="2x3">2 \xD7 3</button>
+        <button type="button" data-lb17-split="2x2">2 × 2</button>
+        <button type="button" data-lb17-split="3x2">3 × 2</button>
+        <button type="button" data-lb17-split="2x3">2 × 3</button>
       </div>
     </section>`;
       }
@@ -9122,7 +10793,29 @@
         return h;
       };
       function lb17MakeChild() {
-        return { id: app.eid(), type: "container", settings: { layout: "flex", direction: "column", wrap: "nowrap", justify: "flex-start", align: "stretch", gap: 16, width: "auto", flex_grow: 1, flex_shrink: 1, flex_basis: "0px", padding: [], margin: [] }, atomic: true, styles: { base: {} }, interactions: [], editor_settings: {}, children: [] };
+        return {
+          id: app.eid(),
+          type: "container",
+          settings: {
+            layout: "flex",
+            direction: "column",
+            wrap: "nowrap",
+            justify: "flex-start",
+            align: "stretch",
+            gap: 16,
+            width: "auto",
+            flex_grow: 1,
+            flex_shrink: 1,
+            flex_basis: "0px",
+            padding: [],
+            margin: []
+          },
+          atomic: true,
+          styles: { base: {} },
+          interactions: [],
+          editor_settings: {},
+          children: []
+        };
       }
       function lb17Split(id, cols, rows) {
         const r = app.locate(app.state.root, id);
@@ -9262,7 +10955,15 @@
         if (!r || !gridParent21(r.node)) return false;
         const e = app.meta(type);
         if (!e.type) return false;
-        const n = { id: app.eid(), type, settings: app.defaults(type), atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type), styles: { base: {} }, interactions: [], editor_settings: {} };
+        const n = {
+          id: app.eid(),
+          type,
+          settings: app.defaults(type),
+          atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type),
+          styles: { base: {} },
+          interactions: [],
+          editor_settings: {}
+        };
         if (e.children) n.children = [];
         placement21(n, c);
         app.commit();
@@ -9337,31 +11038,43 @@
         fd.__lb21Drop = true;
         fd.addEventListener("dragover", routeDrop21, true);
         fd.addEventListener("drop", routeDrop21, true);
-        fd.addEventListener("dragend", () => {
-          window.__lbDragPayload = null;
-          clearGuide21();
-        }, true);
-        fd.addEventListener("dragleave", (e) => {
-          if (e.target === fd.documentElement || e.target === fd.body) clearGuide21();
-        }, true);
+        fd.addEventListener(
+          "dragend",
+          () => {
+            window.__lbDragPayload = null;
+            clearGuide21();
+          },
+          true
+        );
+        fd.addEventListener(
+          "dragleave",
+          (e) => {
+            if (e.target === fd.documentElement || e.target === fd.body) clearGuide21();
+          },
+          true
+        );
       }
       function bindPanel21() {
         if (app.root.__lb21Panel) return;
         app.root.__lb21Panel = true;
-        app.root.addEventListener("dblclick", (e) => {
-          const card = e.target?.closest?.(".lb-unit-card");
-          if (!card || e.target.closest("[data-fav]")) return;
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          const t3 = window.__lb21Target;
-          if (t3 && node21(t3.parentId) && gridParent21(node21(t3.parentId))) {
-            addAt21(card.dataset.type, t3.parentId, { col: t3.col, row: t3.row });
-            clearGuide21();
-            return;
-          }
-          const r = app.selected && app.locate(app.state.root, app.selected);
-          app.add(card.dataset.type, r && app.acceptsInside(r.node) ? app.selected : null);
-        }, true);
+        app.root.addEventListener(
+          "dblclick",
+          (e) => {
+            const card = e.target?.closest?.(".lb-unit-card");
+            if (!card || e.target.closest("[data-fav]")) return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            const t3 = window.__lb21Target;
+            if (t3 && node21(t3.parentId) && gridParent21(node21(t3.parentId))) {
+              addAt21(card.dataset.type, t3.parentId, { col: t3.col, row: t3.row });
+              clearGuide21();
+              return;
+            }
+            const r = app.selected && app.locate(app.state.root, app.selected);
+            app.add(card.dataset.type, r && app.acceptsInside(r.node) ? app.selected : null);
+          },
+          true
+        );
       }
       function renderPlacement21() {
         const old = app.nodeHTML;
@@ -9396,7 +11109,7 @@
         if (!tab) {
           tab = fd.createElement("div");
           tab.className = "lb21-hover-tab";
-          tab.innerHTML = '<button type="button" class="lb21-plus" title="Add">+</button><button type="button" class="lb21-grip" title="Unit menu" aria-label="Unit menu"><i></i><i></i><i></i><i></i><i></i><i></i></button><button type="button" class="lb21-close" title="' + app.t("Delete") + '">\xD7</button>';
+          tab.innerHTML = '<button type="button" class="lb21-plus" title="Add">+</button><button type="button" class="lb21-grip" title="Unit menu" aria-label="Unit menu"><i></i><i></i><i></i><i></i><i></i><i></i></button><button type="button" class="lb21-close" title="' + app.t("Delete") + '">×</button>';
           fd.body.appendChild(tab);
           tab.querySelector(".lb21-plus").onclick = (e) => {
             e.preventDefault();
@@ -9411,7 +11124,13 @@
             e.stopPropagation();
             const id = tab.dataset.for, n = tabNode21(fd, id);
             if (!n) return;
-            app.showContextMenu("unit", { id: n.dataset.id, type: n.dataset.type, x: e.clientX, y: e.clientY, inFrame: true });
+            app.showContextMenu("unit", {
+              id: n.dataset.id,
+              type: n.dataset.type,
+              x: e.clientX,
+              y: e.clientY,
+              inFrame: true
+            });
           };
           tab.querySelector(".lb21-close").onclick = (e) => {
             e.preventDefault();
@@ -9464,14 +11183,22 @@
       function bindHover21(fd) {
         if (!fd || fd.__lb21Hover) return;
         fd.__lb21Hover = true;
-        fd.addEventListener("pointerover", (e) => {
-          if (e.target.closest?.(".lb21-hover-tab")) return;
-          const n = e.target.closest?.(".lb-node");
-          if (n) showTabFor21(fd, n);
-        }, true);
-        fd.addEventListener("pointerleave", () => {
-          showTabFor21(fd, tabNode21(fd, app.selected));
-        }, true);
+        fd.addEventListener(
+          "pointerover",
+          (e) => {
+            if (e.target.closest?.(".lb21-hover-tab")) return;
+            const n = e.target.closest?.(".lb-node");
+            if (n) showTabFor21(fd, n);
+          },
+          true
+        );
+        fd.addEventListener(
+          "pointerleave",
+          () => {
+            showTabFor21(fd, tabNode21(fd, app.selected));
+          },
+          true
+        );
       }
       function bindScroll21(fd) {
         if (!fd || fd.__lb21Scroll) return;
@@ -9573,7 +11300,9 @@
       };
       function cleanOldGridEditor22(fd) {
         if (!fd) return;
-        fd.querySelectorAll(".lb122-grid-guide,.lb15-cell-target,.lb21-grid-overlay,.lb22-grid-guide").forEach((x) => x.remove());
+        fd.querySelectorAll(".lb122-grid-guide,.lb15-cell-target,.lb21-grid-overlay,.lb22-grid-guide").forEach(
+          (x) => x.remove()
+        );
         fd.querySelectorAll(".lb122-grid-active").forEach((x) => {
           x.classList.remove("lb122-grid-active");
           x.style.removeProperty("--lb122-cols");
@@ -9602,7 +11331,22 @@
         const fc = Math.max(1, parseInt(app.resp(s.columns || 3), 10) || 3), fr = Math.max(1, parseInt(app.resp(s.grid_rows || s.rows || 3), 10) || 3);
         const cols = tracks22(cs.gridTemplateColumns, contentW, gx, fc);
         const rows = tracks22(cs.gridTemplateRows, contentH, gy, fr);
-        return { r, cs, bl, bt, pl, pt, gx, gy, cols, rows, left: bl + pl, top: bt + pt, width: contentW, height: contentH };
+        return {
+          r,
+          cs,
+          bl,
+          bt,
+          pl,
+          pt,
+          gx,
+          gy,
+          cols,
+          rows,
+          left: bl + pl,
+          top: bt + pt,
+          width: contentW,
+          height: contentH
+        };
       }
       function trackAt22(v, a, gap) {
         if (v <= 0) return 1;
@@ -9645,12 +11389,13 @@
         guide.style.gridTemplateRows = g.rows.map((v) => v + "px").join(" ");
         guide.style.columnGap = g.gx + "px";
         guide.style.rowGap = g.gy + "px";
-        for (let row = 1; row <= g.rows.length; row++) for (let col = 1; col <= g.cols.length; col++) {
-          const c = fd.createElement("div");
-          c.className = "lb22-grid-cell" + (active && active.col === col && active.row === row ? " is-active" : "");
-          c.textContent = col + "/" + row;
-          guide.appendChild(c);
-        }
+        for (let row = 1; row <= g.rows.length; row++)
+          for (let col = 1; col <= g.cols.length; col++) {
+            const c = fd.createElement("div");
+            c.className = "lb22-grid-cell" + (active && active.col === col && active.row === row ? " is-active" : "");
+            c.textContent = col + "/" + row;
+            guide.appendChild(c);
+          }
       }
       function removeGuide22(fd) {
         fd?.querySelectorAll(".lb22-grid-guide").forEach((x) => x.remove());
@@ -9671,7 +11416,15 @@
         if (!r || !isGridParent22(r.node)) return false;
         const e = app.meta(type);
         if (!e.type) return false;
-        const n = { id: app.eid(), type, settings: app.defaults(type), atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type), styles: { base: {} }, interactions: [], editor_settings: {} };
+        const n = {
+          id: app.eid(),
+          type,
+          settings: app.defaults(type),
+          atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type),
+          styles: { base: {} },
+          interactions: [],
+          editor_settings: {}
+        };
         if (e.children) n.children = [];
         placement22(n, c);
         app.commit();
@@ -9684,7 +11437,8 @@
       }
       function moveAtCell22(id, parentId, c) {
         const src = app.locate(app.state.root, id), dst = app.locate(app.state.root, parentId);
-        if (!src || !dst || !isGridParent22(dst.node) || id === parentId || app.contains(src.node, parentId)) return false;
+        if (!src || !dst || !isGridParent22(dst.node) || id === parentId || app.contains(src.node, parentId))
+          return false;
         app.commit();
         src.nodes.splice(src.index, 1);
         dst.node.children = dst.node.children || [];
@@ -9719,19 +11473,23 @@
           const clone = card.cloneNode(true);
           clone.__lb22Clean = true;
           card.replaceWith(clone);
-          clone.addEventListener("dblclick", (e) => {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            if (e.target.closest("[data-fav]")) return;
-            const t3 = window.__lb22CellTarget;
-            if (t3 && node22(t3.parentId) && isGridParent22(node22(t3.parentId))) {
-              addAtCell22(clone.dataset.type, t3.parentId, { col: t3.col, row: t3.row });
-              window.__lb22CellTarget = null;
-              return;
-            }
-            const r = app.selected && app.locate(app.state.root, app.selected);
-            app.add(clone.dataset.type, r && app.acceptsInside(r.node) ? app.selected : null);
-          }, true);
+          clone.addEventListener(
+            "dblclick",
+            (e) => {
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              if (e.target.closest("[data-fav]")) return;
+              const t3 = window.__lb22CellTarget;
+              if (t3 && node22(t3.parentId) && isGridParent22(node22(t3.parentId))) {
+                addAtCell22(clone.dataset.type, t3.parentId, { col: t3.col, row: t3.row });
+                window.__lb22CellTarget = null;
+                return;
+              }
+              const r = app.selected && app.locate(app.state.root, app.selected);
+              app.add(clone.dataset.type, r && app.acceptsInside(r.node) ? app.selected : null);
+            },
+            true
+          );
           clone.addEventListener("dragstart", (e) => {
             if (app.proUnitLocked(clone.dataset.type)) {
               e.preventDefault();
@@ -9750,15 +11508,17 @@
             app.showContextMenu("unit-card", { type: clone.dataset.type, x: e.clientX, y: e.clientY });
           });
           const fav = clone.querySelector("[data-fav]");
-          if (fav) fav.addEventListener("click", (e) => {
-            e.stopPropagation();
-            app.toggleFavorite(fav.dataset.fav);
-          });
+          if (fav)
+            fav.addEventListener("click", (e) => {
+              e.stopPropagation();
+              app.toggleFavorite(fav.dataset.fav);
+            });
         });
       }
       function dropTarget22(e) {
         const cell = e.target?.closest?.(".lb22-grid-cell");
-        if (cell) return { parentId: cell.dataset.parentId, col: Number(cell.dataset.col), row: Number(cell.dataset.row) };
+        if (cell)
+          return { parentId: cell.dataset.parentId, col: Number(cell.dataset.col), row: Number(cell.dataset.row) };
         const t3 = e.target?.nodeType === 1 ? e.target : null, inner = t3?.closest?.(".lb-grid-inner,.lb-container-inner");
         if (!inner) return null;
         const pe = inner.closest(".lb-node"), p = node22(pe?.dataset?.id);
@@ -9767,42 +11527,56 @@
         return { parentId: pe.dataset.id, col: c.col, row: c.row, inner };
       }
       function removeAllGuideLabels22(fd) {
-        fd?.querySelectorAll(".lb122-grid-guide,.lb15-cell-target,.lb20-grid-guide,.lb21-grid-guide").forEach((x) => x.remove());
+        fd?.querySelectorAll(".lb122-grid-guide,.lb15-cell-target,.lb20-grid-guide,.lb21-grid-guide").forEach(
+          (x) => x.remove()
+        );
         fd?.querySelectorAll(".lb122-grid-active").forEach((x) => x.classList.remove("lb122-grid-active"));
       }
       function bindDrop22() {
         const fd = frame22();
         if (!fd || fd.__lb22Drop) return;
         fd.__lb22Drop = true;
-        fd.addEventListener("dragover", (e) => {
-          const v = e.dataTransfer?.getData("text/plain") || "";
-          if (!(v.startsWith("unit:") || v.startsWith("node:"))) return;
-          const t3 = dropTarget22(e);
-          if (!t3) return;
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          if (t3.inner) {
-            guide22(t3.inner, { col: t3.col, row: t3.row });
-            window.__lb22CellTarget = { parentId: t3.parentId, col: t3.col, row: t3.row };
-          }
-          e.dataTransfer.dropEffect = v.startsWith("node:") ? "move" : "copy";
-        }, true);
-        fd.addEventListener("drop", (e) => {
-          const v = e.dataTransfer?.getData("text/plain") || "";
-          if (!(v.startsWith("unit:") || v.startsWith("node:"))) return;
-          const t3 = dropTarget22(e);
-          if (!t3) return;
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          if (v.startsWith("unit:")) addAtCell22(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
-          else moveAtCell22(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
-          window.__lb22CellTarget = null;
-          removeGuide22(fd);
-        }, true);
-        fd.addEventListener("dragend", () => {
-          window.__lb22CellTarget = null;
-          removeGuide22(fd);
-        }, true);
+        fd.addEventListener(
+          "dragover",
+          (e) => {
+            const v = e.dataTransfer?.getData("text/plain") || "";
+            if (!(v.startsWith("unit:") || v.startsWith("node:"))) return;
+            const t3 = dropTarget22(e);
+            if (!t3) return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if (t3.inner) {
+              guide22(t3.inner, { col: t3.col, row: t3.row });
+              window.__lb22CellTarget = { parentId: t3.parentId, col: t3.col, row: t3.row };
+            }
+            e.dataTransfer.dropEffect = v.startsWith("node:") ? "move" : "copy";
+          },
+          true
+        );
+        fd.addEventListener(
+          "drop",
+          (e) => {
+            const v = e.dataTransfer?.getData("text/plain") || "";
+            if (!(v.startsWith("unit:") || v.startsWith("node:"))) return;
+            const t3 = dropTarget22(e);
+            if (!t3) return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if (v.startsWith("unit:")) addAtCell22(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
+            else moveAtCell22(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
+            window.__lb22CellTarget = null;
+            removeGuide22(fd);
+          },
+          true
+        );
+        fd.addEventListener(
+          "dragend",
+          () => {
+            window.__lb22CellTarget = null;
+            removeGuide22(fd);
+          },
+          true
+        );
       }
       function css22(fd) {
         if (!fd || fd.getElementById("lb22-style")) return;
@@ -9855,10 +11629,14 @@
     };
     app.lb23CleanGuides = function lb23CleanGuides(fd) {
       if (!fd) return;
-      fd.querySelectorAll(".lb122-grid-guide,.lb15-cell-target,.lb18-grid-overlay,.lb19-grid-overlay,.lb20-grid-overlay,.lb20-grid-guide,.lb21-grid-overlay,.lb21-grid-guide,.lb22-grid-guide,.lb23-grid-overlay").forEach((x) => x.remove());
+      fd.querySelectorAll(
+        ".lb122-grid-guide,.lb15-cell-target,.lb18-grid-overlay,.lb19-grid-overlay,.lb20-grid-overlay,.lb20-grid-guide,.lb21-grid-overlay,.lb21-grid-guide,.lb22-grid-guide,.lb23-grid-overlay"
+      ).forEach((x) => x.remove());
       fd.querySelectorAll(".lb122-grid-active,.lb21-grid-target,.lb22-grid-host").forEach((x) => {
         x.classList.remove("lb122-grid-active", "lb21-grid-target", "lb22-grid-host");
-        ["--lb122-cols", "--lb122-rows", "--lb21-left", "--lb21-top", "--lb21-width", "--lb21-height"].forEach((k) => x.style.removeProperty(k));
+        ["--lb122-cols", "--lb122-rows", "--lb21-left", "--lb21-top", "--lb21-width", "--lb21-height"].forEach(
+          (k) => x.style.removeProperty(k)
+        );
       });
     };
     app.lb23Node = function lb23Node(id) {
@@ -9933,26 +11711,27 @@
       overlay.style.gridTemplateRows = rows.map((v) => v + "px").join(" ");
       overlay.style.columnGap = g.gx + "px";
       overlay.style.rowGap = g.gy + "px";
-      for (let row = 1; row <= g.rows.length; row++) for (let col = 1; col <= g.cols.length; col++) {
-        const c = fd.createElement("div");
-        c.className = "lb23-grid-cell";
-        c.textContent = col + "/" + row;
-        c.style.boxSizing = "border-box";
-        c.style.minWidth = "0";
-        c.style.minHeight = "0";
-        c.style.padding = "4px";
-        c.style.border = "1px dashed rgba(45,114,217,.42)";
-        c.style.color = "#2467c5";
-        c.style.font = "700 10px/1 system-ui,sans-serif";
-        c.style.textShadow = "0 1px #fff";
-        c.style.background = "rgba(63,127,223,.035)";
-        if (active && active.col === col && active.row === row) {
-          c.classList.add("is-active");
-          c.style.border = "2px solid rgba(220,166,239,.98)";
-          c.style.background = "rgba(220,166,239,.18)";
+      for (let row = 1; row <= g.rows.length; row++)
+        for (let col = 1; col <= g.cols.length; col++) {
+          const c = fd.createElement("div");
+          c.className = "lb23-grid-cell";
+          c.textContent = col + "/" + row;
+          c.style.boxSizing = "border-box";
+          c.style.minWidth = "0";
+          c.style.minHeight = "0";
+          c.style.padding = "4px";
+          c.style.border = "1px dashed rgba(45,114,217,.42)";
+          c.style.color = "#2467c5";
+          c.style.font = "700 10px/1 system-ui,sans-serif";
+          c.style.textShadow = "0 1px #fff";
+          c.style.background = "rgba(63,127,223,.035)";
+          if (active && active.col === col && active.row === row) {
+            c.classList.add("is-active");
+            c.style.border = "2px solid rgba(220,166,239,.98)";
+            c.style.background = "rgba(220,166,239,.18)";
+          }
+          overlay.appendChild(c);
         }
-        overlay.appendChild(c);
-      }
       fd.body.appendChild(overlay);
       return overlay;
     };
@@ -9971,7 +11750,15 @@
       if (!r || !app.lb23IsGrid(r.node)) return false;
       const e = app.meta(type);
       if (!e.type) return false;
-      const n = { id: app.eid(), type, settings: app.defaults(type), atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type), styles: { base: {} }, interactions: [], editor_settings: {} };
+      const n = {
+        id: app.eid(),
+        type,
+        settings: app.defaults(type),
+        atomic: ["container", "grid", "heading", "text", "image", "button", "icon", "spacer", "divider"].includes(type),
+        styles: { base: {} },
+        interactions: [],
+        editor_settings: {}
+      };
       if (e.children) n.children = [];
       app.lb23Placement(n, c);
       app.commit();
@@ -10010,33 +11797,45 @@
       const fd = app.lb23Frame();
       if (!fd || fd.__lb23Drop) return;
       fd.__lb23Drop = true;
-      fd.addEventListener("dragover", (e) => {
-        const v = e.dataTransfer?.getData("text/plain") || window.__lbDragPayload || "";
-        if (!/^unit:|^node:/.test(v)) return;
-        const t3 = app.lb23DropTarget(e);
-        if (!t3) return;
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.lb23ShowGrid(t3.inner, { col: t3.col, row: t3.row });
-        window.__lb23CellTarget = { parentId: t3.parentId, col: t3.col, row: t3.row };
-        e.dataTransfer.dropEffect = v.startsWith("node:") ? "move" : "copy";
-      }, true);
-      fd.addEventListener("drop", (e) => {
-        const v = e.dataTransfer?.getData("text/plain") || window.__lbDragPayload || "";
-        if (!/^unit:|^node:/.test(v)) return;
-        const t3 = app.lb23DropTarget(e);
-        if (!t3) return;
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        if (v.startsWith("unit:")) app.lb23AddAtCell(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
-        else app.lb23MoveAtCell(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
-        window.__lb23CellTarget = null;
-        app.lb23CleanGuides(fd);
-      }, true);
-      fd.addEventListener("dragend", () => {
-        window.__lb23CellTarget = null;
-        app.lb23CleanGuides(fd);
-      }, true);
+      fd.addEventListener(
+        "dragover",
+        (e) => {
+          const v = e.dataTransfer?.getData("text/plain") || window.__lbDragPayload || "";
+          if (!/^unit:|^node:/.test(v)) return;
+          const t3 = app.lb23DropTarget(e);
+          if (!t3) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.lb23ShowGrid(t3.inner, { col: t3.col, row: t3.row });
+          window.__lb23CellTarget = { parentId: t3.parentId, col: t3.col, row: t3.row };
+          e.dataTransfer.dropEffect = v.startsWith("node:") ? "move" : "copy";
+        },
+        true
+      );
+      fd.addEventListener(
+        "drop",
+        (e) => {
+          const v = e.dataTransfer?.getData("text/plain") || window.__lbDragPayload || "";
+          if (!/^unit:|^node:/.test(v)) return;
+          const t3 = app.lb23DropTarget(e);
+          if (!t3) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (v.startsWith("unit:")) app.lb23AddAtCell(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
+          else app.lb23MoveAtCell(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
+          window.__lb23CellTarget = null;
+          app.lb23CleanGuides(fd);
+        },
+        true
+      );
+      fd.addEventListener(
+        "dragend",
+        () => {
+          window.__lb23CellTarget = null;
+          app.lb23CleanGuides(fd);
+        },
+        true
+      );
     };
     app.lb23BindCards = function lb23BindCards() {
       app.root.querySelectorAll(".lb-unit-card").forEach((card) => {
@@ -10044,19 +11843,23 @@
         const clone = card.cloneNode(true);
         clone.__lb23Card = true;
         card.replaceWith(clone);
-        clone.addEventListener("dblclick", (e) => {
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          if (e.target.closest("[data-fav]")) return;
-          const t3 = window.__lb23CellTarget;
-          if (t3 && app.lb23Node(t3.parentId) && app.lb23IsGrid(app.lb23Node(t3.parentId))) {
-            app.lb23AddAtCell(clone.dataset.type, t3.parentId, t3);
-            window.__lb23CellTarget = null;
-            return;
-          }
-          const r = app.selected && app.locate(app.state.root, app.selected);
-          app.add(clone.dataset.type, r && app.acceptsInside(r.node) ? app.selected : null);
-        }, true);
+        clone.addEventListener(
+          "dblclick",
+          (e) => {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if (e.target.closest("[data-fav]")) return;
+            const t3 = window.__lb23CellTarget;
+            if (t3 && app.lb23Node(t3.parentId) && app.lb23IsGrid(app.lb23Node(t3.parentId))) {
+              app.lb23AddAtCell(clone.dataset.type, t3.parentId, t3);
+              window.__lb23CellTarget = null;
+              return;
+            }
+            const r = app.selected && app.locate(app.state.root, app.selected);
+            app.add(clone.dataset.type, r && app.acceptsInside(r.node) ? app.selected : null);
+          },
+          true
+        );
         clone.addEventListener("dragstart", (e) => {
           if (app.proUnitLocked(clone.dataset.type)) {
             e.preventDefault();
@@ -10077,10 +11880,11 @@
           app.showContextMenu("unit-card", { type: clone.dataset.type, x: e.clientX, y: e.clientY });
         });
         const favBtn = clone.querySelector("[data-fav]");
-        if (favBtn) favBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          app.toggleFavorite(favBtn.dataset.fav);
-        });
+        if (favBtn)
+          favBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            app.toggleFavorite(favBtn.dataset.fav);
+          });
       });
     };
     app.lb23GridRefresh = function lb23GridRefresh() {
@@ -10113,7 +11917,9 @@
     app.lb23DisableLegacyGuides = function lb23DisableLegacyGuides() {
       const fd = app.lb23Frame();
       if (!fd) return;
-      fd.querySelectorAll(".lb122-grid-guide,.lb15-cell-target,.lb18-grid-overlay,.lb19-grid-overlay,.lb20-grid-overlay,.lb20-grid-guide,.lb21-grid-overlay,.lb21-grid-guide,.lb22-grid-guide").forEach((x) => x.remove());
+      fd.querySelectorAll(
+        ".lb122-grid-guide,.lb15-cell-target,.lb18-grid-overlay,.lb19-grid-overlay,.lb20-grid-overlay,.lb20-grid-guide,.lb21-grid-overlay,.lb21-grid-guide,.lb22-grid-guide"
+      ).forEach((x) => x.remove());
     };
     app.lb23Export = function lb23Export() {
       fetch(`${app.D.api}/document/${app.D.postId}/export`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json()).then((d) => {
@@ -10156,23 +11962,52 @@
       app.root.querySelector(".lb-top")?.appendChild(m);
       const action = (a) => {
         m.remove();
-        ({ page: app.openPageSettings, site: app.openNavigation, history: app.openRevisions, icons: app.openIconLibrary, classes: app.openClassManager, components: app.openComponentLibrary, variables: app.openVariables, "save-template": app.saveTemplate, templates: app.openTemplateLibrary, "save-component": app.saveComponent, export: app.lb23Export, import: app.lb23Import, breakpoints: () => app.openBreakpointsModal(), audit: () => {
-          const issues = [];
-          const walk = (nodes) => nodes.forEach((n) => {
-            issues.push(...app.accessibilityWarnings(n).map((x) => ({ node: n, type: n.type, msg: x })));
-            if (n.children) walk(n.children);
-          });
-          walk(app.state.root);
-          app.showModal(app.t("Accessibility Audit"), issues.length ? issues.map((i) => `<div class="lb-library-row"><strong>${app.esc(app.meta(i.type).title || i.type)}</strong><span>${app.esc(i.msg)}</span></div>`).join("") : "<p>\u2713 No obvious issues detected in the current document.</p>");
-        }, assets: app.openPerformance, shortcuts: () => app.handleMainMenu("shortcuts") })[a]?.();
+        ({
+          page: app.openPageSettings,
+          site: app.openNavigation,
+          history: app.openRevisions,
+          icons: app.openIconLibrary,
+          classes: app.openClassManager,
+          components: app.openComponentLibrary,
+          variables: app.openVariables,
+          "save-template": app.saveTemplate,
+          templates: app.openTemplateLibrary,
+          "save-component": app.saveComponent,
+          export: app.lb23Export,
+          import: app.lb23Import,
+          breakpoints: () => app.openBreakpointsModal(),
+          audit: () => {
+            const issues = [];
+            const walk = (nodes) => nodes.forEach((n) => {
+              issues.push(...app.accessibilityWarnings(n).map((x) => ({ node: n, type: n.type, msg: x })));
+              if (n.children) walk(n.children);
+            });
+            walk(app.state.root);
+            app.showModal(
+              app.t("Accessibility Audit"),
+              issues.length ? issues.map(
+                (i) => `<div class="lb-library-row"><strong>${app.esc(app.meta(i.type).title || i.type)}</strong><span>${app.esc(i.msg)}</span></div>`
+              ).join("") : "<p>✓ No obvious issues detected in the current document.</p>"
+            );
+          },
+          assets: app.openPerformance,
+          shortcuts: () => app.handleMainMenu("shortcuts")
+        })[a]?.();
       };
       m.querySelectorAll("[data-more]").forEach((b) => b.onclick = () => action(b.dataset.more));
-      setTimeout(() => document.addEventListener("mousedown", function f(e) {
-        if (!m.contains(e.target) && !e.target.closest("#lb-more")) {
-          m.remove();
-          document.removeEventListener("mousedown", f, true);
-        }
-      }, true), 0);
+      setTimeout(
+        () => document.addEventListener(
+          "mousedown",
+          function f(e) {
+            if (!m.contains(e.target) && !e.target.closest("#lb-more")) {
+              m.remove();
+              document.removeEventListener("mousedown", f, true);
+            }
+          },
+          true
+        ),
+        0
+      );
     };
     app.lb23Topbar = function lb23Topbar() {
       const top = app.root.querySelector(".lb-top");
@@ -10187,7 +12022,7 @@
         if (app.applyCanvasWidth) app.applyCanvasWidth();
         return;
       }
-      top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">\u21B6</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">\u21B7</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">\u2637</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">\u22EE</button></div>`;
+      top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">↶</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">↷</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">☷</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">⋮</button></div>`;
       app.$("#lb-main-menu-button").onclick = (e) => {
         e.stopPropagation();
         app.openMainMenu();
@@ -10215,10 +12050,12 @@
         e.stopPropagation();
         app.lb23More();
       };
-      app.$$("[data-device]").forEach((b) => b.onclick = () => {
-        app.device = b.dataset.device;
-        app.render();
-      });
+      app.$$("[data-device]").forEach(
+        (b) => b.onclick = () => {
+          app.device = b.dataset.device;
+          app.render();
+        }
+      );
       if (app.applyCanvasWidth) app.applyCanvasWidth();
     };
     app.lb23BaseRender = app.render;
@@ -10227,137 +12064,144 @@
       setTimeout(app.lb23Topbar, 0);
       setTimeout(app.lb23GridRefresh, 40);
     };
-    document.addEventListener("keydown", (e) => {
-      if (app.lbShortcutOwner) return;
-      const mod = e.ctrlKey || e.metaKey, key = e.key.toLowerCase(), editing = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable;
-      if (e.key === "Escape") {
-        app.root.querySelector(".lb23-more-menu")?.remove();
-        return;
-      }
-      if (!mod) return;
-      if (editing && ["c", "v", "x", "z", "y", "u", "i"].includes(key)) return;
-      if (key === "c" && app.selected) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.copy();
-        return;
-      }
-      if (key === "v" && e.shiftKey && app.selected && app.styleClipboard) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.pasteStyle();
-        return;
-      }
-      if (key === "v" && app.clipboard) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.paste();
-        return;
-      }
-      if (key === "x" && app.selected) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.copy();
-        app.remove();
-        return;
-      }
-      if (key === "d" && app.selected) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.duplicate();
-        return;
-      }
-      if (key === "s") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.save(false);
-        return;
-      }
-      if (key === "p") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.leftHidden = !app.leftHidden;
-        app.rightHidden = !app.rightHidden;
-        app.render();
-        return;
-      }
-      if (key === "i") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.activeTab = "navigator";
-        app.rightHidden = false;
-        app.render();
-        return;
-      }
-      if (key === "u") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.handleMainMenu("preferences");
-        return;
-      }
-      if (key === "k") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.handleMainMenu("site-settings");
-        return;
-      }
-      if (key === "e") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.leftHidden = false;
-        app.render();
-        setTimeout(() => app.$("#lb-unit-search")?.focus(), 20);
-        return;
-      }
-      if (key === "z") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        e.shiftKey ? app.redo() : app.undo();
-        return;
-      }
-      if (key === "y") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.redo();
-        return;
-      }
-      if (e.shiftKey && key === "m") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        if (app.cycleDevice) app.cycleDevice();
-        else app.device = app.device === "desktop" ? "tablet" : app.device === "tablet" ? "mobile" : "desktop";
-        app.render();
-        return;
-      }
-      if (e.shiftKey && key === "l") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.openTemplateLibrary();
-        return;
-      }
-      if (e.shiftKey && key === "h") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        (app.toggleHistory || app.openRevisions)();
-        return;
-      }
-      if (e.shiftKey && key === "y") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.openPageSettings();
-        return;
-      }
-      if (e.key === "?") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.handleMainMenu("shortcuts");
-        return;
-      }
-    }, true);
+    document.addEventListener(
+      "keydown",
+      (e) => {
+        if (app.lbShortcutOwner) return;
+        const mod = e.ctrlKey || e.metaKey, key = e.key.toLowerCase(), editing = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable;
+        if (e.key === "Escape") {
+          app.root.querySelector(".lb23-more-menu")?.remove();
+          return;
+        }
+        if (!mod) return;
+        if (editing && ["c", "v", "x", "z", "y", "u", "i"].includes(key)) return;
+        if (key === "c" && app.selected) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.copy();
+          return;
+        }
+        if (key === "v" && e.shiftKey && app.selected && app.styleClipboard) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.pasteStyle();
+          return;
+        }
+        if (key === "v" && app.clipboard) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.paste();
+          return;
+        }
+        if (key === "x" && app.selected) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.copy();
+          app.remove();
+          return;
+        }
+        if (key === "d" && app.selected) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.duplicate();
+          return;
+        }
+        if (key === "s") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.save(false);
+          return;
+        }
+        if (key === "p") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.leftHidden = !app.leftHidden;
+          app.rightHidden = !app.rightHidden;
+          app.render();
+          return;
+        }
+        if (key === "i") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.activeTab = "navigator";
+          app.rightHidden = false;
+          app.render();
+          return;
+        }
+        if (key === "u") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.handleMainMenu("preferences");
+          return;
+        }
+        if (key === "k") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.handleMainMenu("site-settings");
+          return;
+        }
+        if (key === "e") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.leftHidden = false;
+          app.render();
+          setTimeout(() => app.$("#lb-unit-search")?.focus(), 20);
+          return;
+        }
+        if (key === "z") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          e.shiftKey ? app.redo() : app.undo();
+          return;
+        }
+        if (key === "y") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.redo();
+          return;
+        }
+        if (e.shiftKey && key === "m") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (app.cycleDevice) app.cycleDevice();
+          else app.device = app.device === "desktop" ? "tablet" : app.device === "tablet" ? "mobile" : "desktop";
+          app.render();
+          return;
+        }
+        if (e.shiftKey && key === "l") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.openTemplateLibrary();
+          return;
+        }
+        if (e.shiftKey && key === "h") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          (app.toggleHistory || app.openRevisions)();
+          return;
+        }
+        if (e.shiftKey && key === "y") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.openPageSettings();
+          return;
+        }
+        if (e.key === "?") {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.handleMainMenu("shortcuts");
+          return;
+        }
+      },
+      true
+    );
     app.lb23OldShortcut = app.handleMainMenu;
     app.handleMainMenu = function(action) {
       if (action === "shortcuts") {
-        app.showMenuDialog(app.t("Keyboard Shortcuts"), '<div class="lb-shortcuts"><div><kbd>Ctrl / Cmd + Z</kbd><span>Undo</span></div><div><kbd>Ctrl / Cmd + Shift + Z</kbd><span>Redo</span></div><div><kbd>Ctrl / Cmd + C</kbd><span>Copy selected unit</span></div><div><kbd>Ctrl / Cmd + V</kbd><span>Paste unit</span></div><div><kbd>Ctrl / Cmd + X</kbd><span>Cut selected unit</span></div><div><kbd>Ctrl / Cmd + Shift + V</kbd><span>Paste Style</span></div><div><kbd>Ctrl / Cmd + D</kbd><span>Duplicate selected unit</span></div><div><kbd>Ctrl / Cmd + S</kbd><span>' + app.t("Save") + "</span></div><div><kbd>Delete</kbd><span>Delete selected unit</span></div><div><kbd>Ctrl / Cmd + P</kbd><span>Show / hide panels</span></div><div><kbd>Ctrl / Cmd + E</kbd><span>Focus Units / Finder</span></div><div><kbd>Ctrl / Cmd + I</kbd><span>Open Structure / Navigator</span></div><div><kbd>Ctrl / Cmd + U</kbd><span>Open User Preferences</span></div><div><kbd>Ctrl / Cmd + K</kbd><span>Open Site Settings</span></div><div><kbd>Ctrl / Cmd + Shift + M</kbd><span>Cycle enabled breakpoints</span></div><div><kbd>Ctrl / Cmd + Shift + L</kbd><span>Open Templates</span></div><div><kbd>Ctrl / Cmd + Shift + H</kbd><span>Open History</span></div><div><kbd>Esc</kbd><span>Close menus and dialogs</span></div></div>");
+        app.showMenuDialog(
+          app.t("Keyboard Shortcuts"),
+          '<div class="lb-shortcuts"><div><kbd>Ctrl / Cmd + Z</kbd><span>Undo</span></div><div><kbd>Ctrl / Cmd + Shift + Z</kbd><span>Redo</span></div><div><kbd>Ctrl / Cmd + C</kbd><span>Copy selected unit</span></div><div><kbd>Ctrl / Cmd + V</kbd><span>Paste unit</span></div><div><kbd>Ctrl / Cmd + X</kbd><span>Cut selected unit</span></div><div><kbd>Ctrl / Cmd + Shift + V</kbd><span>Paste Style</span></div><div><kbd>Ctrl / Cmd + D</kbd><span>Duplicate selected unit</span></div><div><kbd>Ctrl / Cmd + S</kbd><span>' + app.t("Save") + "</span></div><div><kbd>Delete</kbd><span>Delete selected unit</span></div><div><kbd>Ctrl / Cmd + P</kbd><span>Show / hide panels</span></div><div><kbd>Ctrl / Cmd + E</kbd><span>Focus Units / Finder</span></div><div><kbd>Ctrl / Cmd + I</kbd><span>Open Structure / Navigator</span></div><div><kbd>Ctrl / Cmd + U</kbd><span>Open User Preferences</span></div><div><kbd>Ctrl / Cmd + K</kbd><span>Open Site Settings</span></div><div><kbd>Ctrl / Cmd + Shift + M</kbd><span>Cycle enabled breakpoints</span></div><div><kbd>Ctrl / Cmd + Shift + L</kbd><span>Open Templates</span></div><div><kbd>Ctrl / Cmd + Shift + H</kbd><span>Open History</span></div><div><kbd>Esc</kbd><span>Close menus and dialogs</span></div></div>"
+        );
         return;
       }
       return app.lb23OldShortcut(action);
@@ -10379,7 +12223,12 @@
           if (!def || !def.bind || w.__lbBound) return;
           w.__lbBound = true;
           try {
-            def.bind(w, { key: w.dataset.lbKey, type: w.dataset.lbControl, node: app.LB.getNode(), update: (v) => app.update(w.dataset.lbKey, v) });
+            def.bind(w, {
+              key: w.dataset.lbKey,
+              type: w.dataset.lbControl,
+              node: app.LB.getNode(),
+              update: (v) => app.update(w.dataset.lbKey, v)
+            });
           } catch (e) {
             console.error('[Canvasly] control "' + w.dataset.lbControl + '" bind failed:', e);
           }
@@ -10405,7 +12254,18 @@
       app.LB.save = () => app.save(false);
       const lbExtCtx = (k, t3, v, label) => {
         const def = app.lbCtrlDef(t3), type = def.type || "text", r = app.selected && app.locate(app.state.root, app.selected), node = r ? r.node : null;
-        return { key: k, type, value: v, label: label || def.label || k.replace(/_/g, " "), node, settings: node ? node.settings || {} : {}, esc: app.esc, meta: app.LB.controlTypes[type] || {}, schema: def, update: (val) => app.update(k, val) };
+        return {
+          key: k,
+          type,
+          value: v,
+          label: label || def.label || k.replace(/_/g, " "),
+          node,
+          settings: node ? node.settings || {} : {},
+          esc: app.esc,
+          meta: app.LB.controlTypes[type] || {},
+          schema: def,
+          update: (val) => app.update(k, val)
+        };
       };
       const lbExtOldControl = app.control;
       app.control = function(k, t3, v, label) {
@@ -10429,7 +12289,12 @@
         if (!def || !def.read || t3.hasAttribute("data-setting")) return;
         let v;
         try {
-          v = def.read(wrap, { key: wrap.dataset.lbKey, type: wrap.dataset.lbControl, target: t3, node: app.LB.getNode() });
+          v = def.read(wrap, {
+            key: wrap.dataset.lbKey,
+            type: wrap.dataset.lbControl,
+            target: t3,
+            node: app.LB.getNode()
+          });
         } catch (err) {
           console.error('[Canvasly] control "' + wrap.dataset.lbControl + '" read failed:', err);
           return;
@@ -10438,7 +12303,13 @@
       });
       const lbExtOldBody = app.bodyHTML;
       app.bodyHTML = function(n) {
-        const helpers = { esc: app.esc, styleInline: app.styleInline, meta: app.meta, t: app.t, nodeHTML: (child) => app.nodeHTML(child) };
+        const helpers = {
+          esc: app.esc,
+          styleInline: app.styleInline,
+          meta: app.meta,
+          t: app.t,
+          nodeHTML: (child) => app.nodeHTML(child)
+        };
         const own = app.LB.hooks.applyFilters("editor/node/body_html/" + n.type, void 0, n, helpers);
         const html = typeof own === "string" ? own : lbExtOldBody(n);
         return app.LB.hooks.applyFilters("editor/node/body_html", html, n, helpers);
@@ -10483,7 +12354,10 @@
         app.LB._ready = true;
         app.LB.hooks.doAction("editor/init", app.LB);
         const f = app.LB.hooks._store.filters;
-        if (Object.keys(app.LB.controls).length || Object.keys(f).some((n) => n.indexOf("editor/node/body_html") === 0 || n === "editor/settings/html" || n === "editor/control/html")) app.render();
+        if (Object.keys(app.LB.controls).length || Object.keys(f).some(
+          (n) => n.indexOf("editor/node/body_html") === 0 || n === "editor/settings/html" || n === "editor/control/html"
+        ))
+          app.render();
       };
       if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", lbExtInit, { once: true });
       else setTimeout(lbExtInit, 0);
@@ -10539,7 +12413,8 @@
     const parts = social_brand_icons_default[id];
     if (!Array.isArray(parts) || !parts.length) return "";
     const inner = parts.map((p) => {
-      if (p.text) return `<text x="${p.x ?? 12}" y="${p.y ?? 16}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${p.size ?? 10}" font-weight="700" fill="currentColor">${String(p.text)}</text>`;
+      if (p.text)
+        return `<text x="${p.x ?? 12}" y="${p.y ?? 16}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${p.size ?? 10}" font-weight="700" fill="currentColor">${String(p.text)}</text>`;
       if (!p.d) return "";
       const cls = p.class ? ` class="${p.class}"` : "";
       const rule = p.rule ? ` fill-rule="${p.rule}"` : "";
@@ -10553,30 +12428,139 @@
   // src/editor/widget-depth.js
   function installWidgetDepth() {
     (function() {
-      const HOVER = ["", "zoom", "grow", "shrink", "lift", "sink", "fade", "rotate", "float", "pulse", "skew", "wobble", "buzz"];
+      const HOVER = [
+        "",
+        "zoom",
+        "grow",
+        "shrink",
+        "lift",
+        "sink",
+        "fade",
+        "rotate",
+        "float",
+        "pulse",
+        "skew",
+        "wobble",
+        "buzz"
+      ];
       const LCR = ["left", "center", "right"], TITLE = ["h1", "h2", "h3", "h4", "h5", "h6", "div", "span", "p"], TARGET = ["_self", "_blank"], VIEW = ["default", "stacked", "framed"], SHAPE = ["circle", "rounded", "square"];
       const SIZES = ["thumbnail", "medium", "medium_large", "large", "1536x1536", "2048x2048", "full"], WEIGHT = ["", "100", "200", "300", "400", "500", "600", "700", "800", "900"], CAPTION = ["none", "title", "caption", "description"];
       const SHAPES = ["", "wave", "tilt", "triangle", "curve", "arrow", "zigzag", "mountains"];
-      const BLEND = ["", "normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"];
+      const BLEND = [
+        "",
+        "normal",
+        "multiply",
+        "screen",
+        "overlay",
+        "darken",
+        "lighten",
+        "color-dodge",
+        "color-burn",
+        "hard-light",
+        "soft-light",
+        "difference",
+        "exclusion",
+        "hue",
+        "saturation",
+        "color",
+        "luminosity"
+      ];
       const widgetIds = () => (app.D.widgets || []).map((x) => x.id), sidebarIds = () => (app.D.sidebars || []).map((x) => x.id);
       const OPTIONS = {
-        text: { align: ["left", "center", "right", "justify"], weight: WEIGHT, drop_cap_view: VIEW, text_columns: ["1", "2", "3", "4", "5", "6"] },
+        text: {
+          align: ["left", "center", "right", "justify"],
+          weight: WEIGHT,
+          drop_cap_view: VIEW,
+          text_columns: ["1", "2", "3", "4", "5", "6"]
+        },
         accordion: { title_tag: TITLE, icon_position: ["left", "right"] },
         toggle: { title_tag: TITLE, icon_position: ["left", "right"] },
-        tabs: { orientation: ["horizontal", "vertical"], tabs_align: ["start", "center", "end", "stretch"], title_tag: TITLE },
+        tabs: {
+          orientation: ["horizontal", "vertical"],
+          tabs_align: ["start", "center", "end", "stretch"],
+          title_tag: TITLE
+        },
         alert: { type: ["info", "success", "warning", "danger"] },
-        video: { source: ["youtube", "vimeo", "dailymotion", "videopress", "hosted"], preload: ["none", "metadata", "auto"], aspect_ratio: ["16:9", "21:9", "4:3", "3:2", "1:1", "9:16"] },
-        counter: { separator_char: [",", ".", " ", "'"], title_tag: TITLE, title_position: ["before", "after"], align: LCR },
+        video: {
+          source: ["youtube", "vimeo", "dailymotion", "videopress", "hosted"],
+          preload: ["none", "metadata", "auto"],
+          aspect_ratio: ["16:9", "21:9", "4:3", "3:2", "1:1", "9:16"]
+        },
+        counter: {
+          separator_char: [",", ".", " ", "'"],
+          title_tag: TITLE,
+          title_position: ["before", "after"],
+          align: LCR
+        },
         progress: { title_tag: TITLE, bar_style: ["default", "info", "success", "warning", "danger"] },
-        divider: { style: ["solid", "double", "dotted", "dashed", "wavy", "zigzag", "curly", "slashes", "squared", "multiple"], align: LCR, look: ["line", "line_text", "line_icon"], text_tag: TITLE, unit_align: LCR, icon_view: VIEW },
-        icon_box: { icon_view: VIEW, shape: SHAPE, title_tag: TITLE, link_target: TARGET, box_layout: ["top", "left", "right"], content_align: LCR, vertical_align: ["top", "middle", "bottom"], hover_animation: HOVER },
-        image_box: { image_size: SIZES, title_tag: TITLE, link_target: TARGET, box_layout: ["top", "left", "right"], content_align: LCR, vertical_align: ["top", "middle", "bottom"], hover_animation: HOVER },
-        icon_list: { list_layout: ["traditional", "inline"], link_target: TARGET, icon_align: LCR, divider_style: ["solid", "double", "dotted", "dashed"] },
-        social: { target: TARGET, shape: ["square", "rounded", "circle"], color_scheme: ["official", "custom"], align: LCR, hover_animation: HOVER },
+        divider: {
+          style: ["solid", "double", "dotted", "dashed", "wavy", "zigzag", "curly", "slashes", "squared", "multiple"],
+          align: LCR,
+          look: ["line", "line_text", "line_icon"],
+          text_tag: TITLE,
+          unit_align: LCR,
+          icon_view: VIEW
+        },
+        icon_box: {
+          icon_view: VIEW,
+          shape: SHAPE,
+          title_tag: TITLE,
+          link_target: TARGET,
+          box_layout: ["top", "left", "right"],
+          content_align: LCR,
+          vertical_align: ["top", "middle", "bottom"],
+          hover_animation: HOVER
+        },
+        image_box: {
+          image_size: SIZES,
+          title_tag: TITLE,
+          link_target: TARGET,
+          box_layout: ["top", "left", "right"],
+          content_align: LCR,
+          vertical_align: ["top", "middle", "bottom"],
+          hover_animation: HOVER
+        },
+        icon_list: {
+          list_layout: ["traditional", "inline"],
+          link_target: TARGET,
+          icon_align: LCR,
+          divider_style: ["solid", "double", "dotted", "dashed"]
+        },
+        social: {
+          target: TARGET,
+          shape: ["square", "rounded", "circle"],
+          color_scheme: ["official", "custom"],
+          align: LCR,
+          hover_animation: HOVER
+        },
         star_rating: { scale: ["5", "10"], unmarked_style: ["solid", "outline"], align: LCR },
-        testimonial: { image_size: SIZES, image_position: ["aside", "top"], align: LCR, link_target: TARGET, name_tag: TITLE },
-        gallery: { mode: ["single", "multiple"], gallery_layout: ["justified", "grid", "masonry"], link: ["none", "file", "attachment"], size: SIZES, caption: CAPTION, hover_animation: HOVER, caption_align: LCR, order_by: ["default", "random", "date", "title"], last_row: ["auto", "fit", "grow"] },
-        carousel: { image_size: SIZES, navigation: ["both", "arrows", "dots", "none"], link: ["none", "file", "custom"], caption: CAPTION, effect: ["slide", "fade"], slide_direction: ["ltr", "rtl"], caption_align: LCR }
+        testimonial: {
+          image_size: SIZES,
+          image_position: ["aside", "top"],
+          align: LCR,
+          link_target: TARGET,
+          name_tag: TITLE
+        },
+        gallery: {
+          mode: ["single", "multiple"],
+          gallery_layout: ["justified", "grid", "masonry"],
+          link: ["none", "file", "attachment"],
+          size: SIZES,
+          caption: CAPTION,
+          hover_animation: HOVER,
+          caption_align: LCR,
+          order_by: ["default", "random", "date", "title"],
+          last_row: ["auto", "fit", "grow"]
+        },
+        carousel: {
+          image_size: SIZES,
+          navigation: ["both", "arrows", "dots", "none"],
+          link: ["none", "file", "custom"],
+          caption: CAPTION,
+          effect: ["slide", "fade"],
+          slide_direction: ["ltr", "rtl"],
+          caption_align: LCR
+        }
       };
       const lb28OldOptions = app.optionsFor;
       app.optionsFor = function(k) {
@@ -10591,10 +12575,18 @@
         return lb28OldOptions(k);
       };
       const STYLE_RE = /(_color|_background|_size|_gap|_space|_spacing|_padding|_radius|_width|_height|_opacity|_weight|_indent|_style|_stretch|_shadow|_filter|_transform|_decoration)$|^(hover_|secondary_color|unmarked_color|space_between|unit_spacing|thickness|pattern_size|nav_width|overlay_color|overlay_opacity|overlay_blend_mode|shape_top|shape_bottom|dots_|arrows_|typography|caption_align|shadow|filter)/;
-      const CONTENT_KEYS = /* @__PURE__ */ new Set(["image_size", "size", "dismiss_icon", "background_video", "background_video_poster"]);
-      (app.D.units || []).forEach((e) => Object.keys(e.controls || {}).forEach((k) => {
-        if (STYLE_RE.test(k) && !app.advancedKeys.has(k) && !CONTENT_KEYS.has(k)) app.styleKeys.add(k);
-      }));
+      const CONTENT_KEYS = /* @__PURE__ */ new Set([
+        "image_size",
+        "size",
+        "dismiss_icon",
+        "background_video",
+        "background_video_poster"
+      ]);
+      (app.D.units || []).forEach(
+        (e) => Object.keys(e.controls || {}).forEach((k) => {
+          if (STYLE_RE.test(k) && !app.advancedKeys.has(k) && !CONTENT_KEYS.has(k)) app.styleKeys.add(k);
+        })
+      );
       const val = (x) => app.resp(x);
       const unit = (x, u = "px") => {
         x = val(x);
@@ -10609,7 +12601,16 @@
       };
       const typoCss = (v) => {
         if (!v || typeof v !== "object") return "";
-        const map = { font_family: "font-family", font_size: "font-size", font_weight: "font-weight", font_style: "font-style", text_transform: "text-transform", text_decoration: "text-decoration", line_height: "line-height", letter_spacing: "letter-spacing" };
+        const map = {
+          font_family: "font-family",
+          font_size: "font-size",
+          font_weight: "font-weight",
+          font_style: "font-style",
+          text_transform: "text-transform",
+          text_decoration: "text-decoration",
+          line_height: "line-height",
+          letter_spacing: "letter-spacing"
+        };
         return Object.keys(map).map((k) => {
           let x = val(v[k]);
           if (x === "" || x == null) return "";
@@ -10661,7 +12662,17 @@
         t3 = String(t3 || "");
         return /<(p|div|ul|ol|h\d|blockquote)\b/i.test(t3) ? t3 : "<p>" + t3.split(/\n{2,}/).join("</p><p>") + "</p>";
       };
-      const iconVars = (s, sizeKey = "icon_size", colorKey = "icon_color") => ({ "--lb-icon-size": unit(s[sizeKey]), "--lb-icon-primary": s[colorKey] || "", "--lb-icon-secondary": s.secondary_color || "", "--lb-icon-hover-primary": s.hover_color || "", "--lb-icon-hover-secondary": s.hover_secondary_color || "", "--lb-icon-padding": unit(s.icon_padding), "--lb-icon-border": unit(s.icon_border_width), "--lb-icon-radius": unit(s.icon_radius), "--lb-icon-rotate": unit(s.rotate, "deg") });
+      const iconVars = (s, sizeKey = "icon_size", colorKey = "icon_color") => ({
+        "--lb-icon-size": unit(s[sizeKey]),
+        "--lb-icon-primary": s[colorKey] || "",
+        "--lb-icon-secondary": s.secondary_color || "",
+        "--lb-icon-hover-primary": s.hover_color || "",
+        "--lb-icon-hover-secondary": s.hover_secondary_color || "",
+        "--lb-icon-padding": unit(s.icon_padding),
+        "--lb-icon-border": unit(s.icon_border_width),
+        "--lb-icon-radius": unit(s.icon_radius),
+        "--lb-icon-rotate": unit(s.rotate, "deg")
+      });
       const attCache = {};
       let attPending = {};
       function attUrl(id, size) {
@@ -10685,9 +12696,20 @@
           const sizes = {};
           const md = j.media_details && j.media_details.sizes || {};
           Object.keys(md).forEach((k) => {
-            if (md[k] && md[k].source_url) sizes[k] = { url: md[k].source_url, width: md[k].width, height: md[k].height };
+            if (md[k] && md[k].source_url)
+              sizes[k] = { url: md[k].source_url, width: md[k].width, height: md[k].height };
           });
-          return { id: j.id, url: j.source_url || "", sizes, width: j.media_details && j.media_details.width, height: j.media_details && j.media_details.height, title: j.title && j.title.rendered || "", alt: j.alt_text || "", caption: j.caption && j.caption.rendered || "", description: j.description && j.description.rendered || "" };
+          return {
+            id: j.id,
+            url: j.source_url || "",
+            sizes,
+            width: j.media_details && j.media_details.width,
+            height: j.media_details && j.media_details.height,
+            title: j.title && j.title.rendered || "",
+            alt: j.alt_text || "",
+            caption: j.caption && j.caption.rendered || "",
+            description: j.description && j.description.rendered || ""
+          };
         });
       }
       function fetchAtt(id) {
@@ -10721,7 +12743,10 @@
             s.media_urls = Object.assign({}, s.media_urls && typeof s.media_urls === "object" ? s.media_urls : {});
             s.media_urls[id] = url;
             if (hit.width && hit.height) {
-              s.media_ratios = Object.assign({}, s.media_ratios && typeof s.media_ratios === "object" ? s.media_ratios : {});
+              s.media_ratios = Object.assign(
+                {},
+                s.media_ratios && typeof s.media_ratios === "object" ? s.media_ratios : {}
+              );
               s.media_ratios[id] = hit.width / hit.height;
             }
           }
@@ -10758,14 +12783,15 @@
           if (c && app.lbCtrlType(c[idKey]) === "media") return "";
         }
         if (type === "repeater") return lb28OldControl(k, t3, v, label);
-        if (type === "icon") return `<div class="lb-control lb-icon-control"><span>${app.esc(l)}</span><button type="button" class="lb-icon-picker lb-icon-picker-visual" data-icon-picker="1" data-icon-key="${app.esc(k)}" title="Choose icon"><span class="lb-icon-picker-preview">${svg(v || "star")}</span><span class="lb-icon-picker-name">${app.esc(typeof app.lb101IconTitle === "function" ? app.lb101IconTitle(v || "star") : v || "star")}</span><span class="lb-icon-picker-arrow">\u2304</span></button></div>`;
+        if (type === "icon")
+          return `<div class="lb-control lb-icon-control"><span>${app.esc(l)}</span><button type="button" class="lb-icon-picker lb-icon-picker-visual" data-icon-picker="1" data-icon-key="${app.esc(k)}" title="Choose icon"><span class="lb-icon-picker-preview">${svg(v || "star")}</span><span class="lb-icon-picker-name">${app.esc(typeof app.lb101IconTitle === "function" ? app.lb101IconTitle(v || "star") : v || "star")}</span><span class="lb-icon-picker-arrow">⌄</span></button></div>`;
         if (type === "media") {
           const def = app.lbCtrlDef(t3), id = parseInt(v, 10) || 0, urlKey = k.replace(/_id$/, "_url"), s = app.selected && app.locate(app.state.root, app.selected)?.node?.settings || {}, url = deepGet(s, urlKey) || attUrl(id, "thumbnail"), lib = Array.isArray(def.media_types) ? def.media_types.join(",") : def.media_types || "image", video = /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i.test(String(url || "")), label2 = lib === "video" ? app.t("Choose video") : String(lib).indexOf("video") >= 0 ? app.t("Choose image or video") : app.t("Choose image");
           return `<div class="lb-control lb32-media"><span>${app.esc(l)}</span><div class="lb32-media-row"><button type="button" class="lb32-media-preview lb-media-open" data-media-key="${app.esc(k)}" data-media-library="${app.esc(lib)}" title="${app.esc(label2)}">${id || url ? video ? `<span>${app.esc(app.t("Video"))}</span>` : `<img src="${app.esc(url)}" alt="" data-lb28-att="${app.esc(id)}" data-lb28-size="thumbnail">` : "<span>" + app.esc(label2) + "</span>"}</button><input data-setting="${app.esc(k)}" type="hidden" value="${app.esc(id || 0)}">${id || url ? `<button type="button" class="lb-btn lb28-media-clear" data-media-key="${app.esc(k)}">${app.t("Remove")}</button>` : ""}</div></div>`;
         }
         if (type === "select" && (k === "widget" || k === "sidebar")) {
           const list = k === "widget" ? app.D.widgets || [] : app.D.sidebars || [];
-          return `<label class="lb-control"><span>${app.esc(l)}</span><select data-setting="${app.esc(k)}"><option value="">\u2014 ${k === "widget" ? "Choose a widget" : "Choose a sidebar"} \u2014</option>${list.map((x) => `<option value="${app.esc(x.id)}" ${String(x.id) === String(v) ? "selected" : ""}>${app.esc(x.name || x.id)}</option>`).join("")}</select></label>`;
+          return `<label class="lb-control"><span>${app.esc(l)}</span><select data-setting="${app.esc(k)}"><option value="">— ${k === "widget" ? "Choose a widget" : "Choose a sidebar"} —</option>${list.map((x) => `<option value="${app.esc(x.id)}" ${String(x.id) === String(v) ? "selected" : ""}>${app.esc(x.name || x.id)}</option>`).join("")}</select></label>`;
         }
         if (type === "select" && k === "menu") {
           const r = app.selected && app.locate(app.state.root, app.selected);
@@ -10788,7 +12814,12 @@
       };
       function openMediaFor(key) {
         if (!window.wp || !wp.media || !app.selected) return;
-        const f = wp.media({ title: app.t("Select Image"), button: { text: app.t("Use Image") }, multiple: false, library: { type: "image" } });
+        const f = wp.media({
+          title: app.t("Select Image"),
+          button: { text: app.t("Use Image") },
+          multiple: false,
+          library: { type: "image" }
+        });
         f.on("select", () => {
           const a = f.state().get("selection").first().toJSON(), r = app.locate(app.state.root, app.selected);
           if (!r) return;
@@ -10796,7 +12827,8 @@
           attCache[a.id] = a;
           deepSet(r.node.settings, key, a.id);
           const urlKey = key.replace(/_id$/, "_url");
-          if (urlKey !== key) deepSet(r.node.settings, urlKey, a.sizes && a.sizes.medium && a.sizes.medium.url || a.url || "");
+          if (urlKey !== key)
+            deepSet(r.node.settings, urlKey, a.sizes && a.sizes.medium && a.sizes.medium.url || a.url || "");
           if (key === "image_id" && !r.node.settings.alt) r.node.settings.alt = a.alt || "";
           app.render();
         });
@@ -10837,7 +12869,12 @@
         if (!window.wp || !wp.media || !app.selected) return;
         const r = app.locate(app.state.root, app.selected);
         if (!r) return;
-        const f = wp.media({ title: app.t("Select Gallery Images"), button: { text: app.t("Use Images") }, multiple: true, library: { type: "image" } });
+        const f = wp.media({
+          title: app.t("Select Gallery Images"),
+          button: { text: app.t("Use Images") },
+          multiple: true,
+          library: { type: "image" }
+        });
         f.on("select", () => {
           const items = app.mediaSelectionItems(f), ids = items.map((x) => x.id).filter(Boolean);
           items.forEach((j) => {
@@ -10871,7 +12908,15 @@
             if (!s.gallery_layout || s.gallery_layout === "grid") s.gallery_layout = "justified";
             s.gallery_layout_set = true;
           }
-          const pipe = { accordion: ["items", ["title", "content"]], toggle: ["items", ["title", "content"]], tabs: ["tabs", ["title", "content"]], icon_list: ["items", ["text", "icon", "url"]], social: ["links", ["network", "url", "icon"]], price_table: ["features", ["text", "icon"]], form: ["fields", ["label", "type", "required", "placeholder"]] };
+          const pipe = {
+            accordion: ["items", ["title", "content"]],
+            toggle: ["items", ["title", "content"]],
+            tabs: ["tabs", ["title", "content"]],
+            icon_list: ["items", ["text", "icon", "url"]],
+            social: ["links", ["network", "url", "icon"]],
+            price_table: ["features", ["text", "icon"]],
+            form: ["fields", ["label", "type", "required", "placeholder"]]
+          };
           const spec = pipe[n.type];
           if (spec && typeof s[spec[0]] === "string") {
             s[spec[0]] = rows(s[spec[0]]).map((r) => {
@@ -10885,12 +12930,30 @@
             });
           }
           if (n.type === "testimonial" && !Array.isArray(s.items) && (s.quote || s.author || s.image_id)) {
-            s.items = [{ _id: "r_" + Math.random().toString(36).slice(2, 10), quote: s.quote || "", author: s.author || "", role: s.role || "", image_id: s.image_id || 0, image_url: s.image_url || "", link: s.link || "", link_target: s.link_target || "_self" }];
+            s.items = [
+              {
+                _id: "r_" + Math.random().toString(36).slice(2, 10),
+                quote: s.quote || "",
+                author: s.author || "",
+                role: s.role || "",
+                image_id: s.image_id || 0,
+                image_url: s.image_url || "",
+                link: s.link || "",
+                link_target: s.link_target || "_self"
+              }
+            ];
           }
-          if (n.type === "carousel" && typeof s.link === "string" && /^https?:\/\/(none|file|custom)\/?$/i.test(s.link)) s.link = s.link.replace(/^https?:\/\/|\/$/gi, "").toLowerCase();
+          if (n.type === "carousel" && typeof s.link === "string" && /^https?:\/\/(none|file|custom)\/?$/i.test(s.link))
+            s.link = s.link.replace(/^https?:\/\/|\/$/gi, "").toLowerCase();
           if (n.type === "carousel" && !Array.isArray(s.slides)) {
             const ids = String(s.ids || "").split(/[,\s]+/).filter(Boolean), urls = String(s.custom_urls || "").split(/\r?\n/);
-            s.slides = ids.map((id, i) => ({ _id: "r_sl" + i, image_id: parseInt(id, 10) || 0, caption: "", link: String(urls[i] || "").trim(), alt: "" }));
+            s.slides = ids.map((id, i) => ({
+              _id: "r_sl" + i,
+              image_id: parseInt(id, 10) || 0,
+              caption: "",
+              link: String(urls[i] || "").trim(),
+              alt: ""
+            }));
           }
           migrate(n.children);
         });
@@ -10919,8 +12982,10 @@
             const style2 = pick(s.style, OPTIONS.divider.style, "solid"), align = pick(s.align, LCR, "center"), look = pick(s.look, ["line", "line_text", "line_icon"], "line"), ealign = pick(s.unit_align, LCR, "center"), view = pick(s.icon_view, VIEW, "default");
             const line = '<span class="lb-divider-line" aria-hidden="true"></span>';
             let el = "";
-            if (look === "line_text" && s.text) el = `<${tagOf(s.text_tag, "span")} class="lb-divider-text" data-inline="text">${app.esc(s.text)}</${tagOf(s.text_tag, "span")}>`;
-            else if (look === "line_icon") el = `<span class="lb-divider-icon lb-icon-view-${view}">${svg(s.icon || "star")}</span>`;
+            if (look === "line_text" && s.text)
+              el = `<${tagOf(s.text_tag, "span")} class="lb-divider-text" data-inline="text">${app.esc(s.text)}</${tagOf(s.text_tag, "span")}>`;
+            else if (look === "line_icon")
+              el = `<span class="lb-divider-icon lb-icon-view-${view}">${svg(s.icon || "star")}</span>`;
             return `<div class="lb-divider lb-divider-${style2} lb-divider-align-${align} lb-divider-look-${look.replace("_", "-")} lb-divider-unit-${ealign}"${styleAttr({ "--lb-divider-width": s.divider_width || "100%", "--lb-divider-color": s.color || "", "--lb-divider-weight": unit(Math.max(1, parseFloat(s.thickness) || 1)), "--lb-divider-gap": unit(s.divider_gap), "--lb-divider-pattern": unit(s.pattern_size), "--lb-divider-spacing": unit(s.unit_spacing), "--lb-divider-text-color": s.text_color || "", "--lb-divider-icon-color": s.icon_color || "", "--lb-divider-icon-size": unit(s.icon_size) })}>${line}${el ? el + line : ""}</div>`;
           }
           case "icon": {
@@ -10971,13 +13036,25 @@
           case "testimonial": {
             const pos = s.image_position === "top" ? "top" : "aside", align = pick(s.align, LCR, "center"), tag = tagOf(s.name_tag, "div");
             const people = repeaterItems(s.items, ["quote", "author", "role"]);
-            const one = people[0] || { quote: s.quote || "", author: s.author || "", role: s.role || "", image_id: s.image_id, image_url: s.image_url };
+            const one = people[0] || {
+              quote: s.quote || "",
+              author: s.author || "",
+              role: s.role || "",
+              image_id: s.image_id,
+              image_url: s.image_url
+            };
             const card = (it) => {
               const u = mediaUrl(it.image_id, it.image_url, s.image_size || "thumbnail");
               const img = u || it.image_id ? `<div class="lb-testimonial-image">${attImgOrUrl(it.image_id, u, s.image_size || "thumbnail", "", it.author)}</div>` : "";
               return `<figure class="lb-testimonial lb-testimonial-image-${pos} lb-testimonial-align-${align}">${it.quote ? `<blockquote class="lb-testimonial-quote">${it.quote}</blockquote>` : ""}<figcaption class="lb-testimonial-meta">${img}<div class="lb-testimonial-details">${it.author ? `<${tag} class="lb-testimonial-name">${app.esc(it.author)}</${tag}>` : ""}${it.role ? `<div class="lb-testimonial-role">${app.esc(it.role)}</div>` : ""}</div></figcaption></figure>`;
             };
-            const wrap = styleAttr({ "--lb-testimonial-quote-color": s.quote_color || "", "--lb-testimonial-name-color": s.name_color || "", "--lb-testimonial-role-color": s.role_color || "", "--lb-testimonial-image-width": unit(s.image_width), "--lb-testimonial-image-radius": unit(s.image_radius) });
+            const wrap = styleAttr({
+              "--lb-testimonial-quote-color": s.quote_color || "",
+              "--lb-testimonial-name-color": s.name_color || "",
+              "--lb-testimonial-role-color": s.role_color || "",
+              "--lb-testimonial-image-width": unit(s.image_width),
+              "--lb-testimonial-image-radius": unit(s.image_radius)
+            });
             return people.length > 1 ? `<div class="lb-testimonial-list"${wrap}>${people.map(card).join("")}</div>` : `<div${wrap}>${card(one)}</div>`;
           }
           case "accordion":
@@ -10996,7 +13073,11 @@
             const list = repeaterItems(s.tabs, ["title", "content"]);
             if (!list.length) return '<div class="lb-embed-placeholder">Add tabs</div>';
             const active = Math.max(0, Math.min(list.length - 1, parseInt(s.active, 10) || 0)), vertical = s.orientation === "vertical", align = pick(s.tabs_align, ["start", "center", "end", "stretch"], "start"), tag = tagOf(s.title_tag, "div");
-            const nav = list.map((r, i) => `<${tag} class="lb-tab-button${i === active ? " is-active" : ""}" role="tab" aria-selected="${i === active}">${r.title || ""}</${tag}>`).join(""), panels = list.map((r, i) => `<div class="lb-tab-panel" role="tabpanel"${i === active ? "" : " hidden"}>${para(r.content || "")}</div>`).join("");
+            const nav = list.map(
+              (r, i) => `<${tag} class="lb-tab-button${i === active ? " is-active" : ""}" role="tab" aria-selected="${i === active}">${r.title || ""}</${tag}>`
+            ).join(""), panels = list.map(
+              (r, i) => `<div class="lb-tab-panel" role="tabpanel"${i === active ? "" : " hidden"}>${para(r.content || "")}</div>`
+            ).join("");
             return `<div class="lb-tabs-widget lb-tabs-${vertical ? "vertical" : "horizontal"} lb-tabs-align-${align}" data-active="${active}"${styleAttr({ "--lb-tabs-nav-width": vertical ? s.nav_width || "25%" : "", "--lb-tab-color": s.tab_color || "", "--lb-tab-active-color": s.tab_active_color || "", "--lb-tab-bg": s.tab_background || "", "--lb-tab-active-bg": s.tab_active_background || "", "--lb-tab-content-color": s.content_color || "", "--lb-tab-content-bg": s.content_background || "", "--lb-tab-border-color": s.border_color || "", "--lb-tab-border-width": unit(s.border_width), "--lb-tab-padding": s.tab_padding || "", "--lb-tab-content-padding": s.content_padding || "" })}><div class="lb-tabs-nav" role="tablist">${nav}</div><div class="lb-tabs-panels">${panels}</div></div>`;
           }
           case "alert": {
@@ -11009,7 +13090,7 @@
             const src = embedUrl(s), hosted = src === "hosted";
             const overlay = s.show_overlay ? mediaUrl(s.overlay_image_id, s.overlay_image_url, "large") : "";
             const play = (s.show_play_icon || s.lightbox) && (overlay || s.lightbox) ? `<button type="button" class="lb-video-play" aria-label="Play video" tabindex="-1">${svg(s.play_icon || "play")}</button>` : "";
-            const media = overlay ? "" : hosted ? `<video class="lb-video-media" src="${app.esc(s.url)}" preload="metadata"${mediaUrl(s.poster_id, s.poster_url, "large") ? ` poster="${app.esc(mediaUrl(s.poster_id, s.poster_url, "large"))}"` : ""}${s.controls ? " controls" : ""} muted playsinline></video>` : `<div class="lb-video-media lb28-video-embed" style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font:13px/1.4 system-ui">${app.esc(hostLabel(s.url))} video \xB7 plays on the live page</div>`;
+            const media = overlay ? "" : hosted ? `<video class="lb-video-media" src="${app.esc(s.url)}" preload="metadata"${mediaUrl(s.poster_id, s.poster_url, "large") ? ` poster="${app.esc(mediaUrl(s.poster_id, s.poster_url, "large"))}"` : ""}${s.controls ? " controls" : ""} muted playsinline></video>` : `<div class="lb-video-media lb28-video-embed" style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font:13px/1.4 system-ui">${app.esc(hostLabel(s.url))} video · plays on the live page</div>`;
             return `<div class="lb-video lb-video-${hosted ? "hosted" : src ? "embed" : "oembed"}${overlay ? " lb-video-has-overlay" : ""}${s.lightbox ? " lb-video-lightbox" : ""}"${styleAttr({ "--lb-video-ratio": ratio, "--lb-play-color": s.play_icon_color || "", "--lb-play-size": unit(s.play_icon_size) })}><div class="lb-video-frame${overlay || s.lightbox ? " lb-video-overlay" : ""}"${overlay ? ` style="background-image:url(${app.esc(overlay)})"` : ""}>${media}${play}</div></div>`;
           }
           case "counter": {
@@ -11034,17 +13115,19 @@
             const slideItems = repeaterItems(s.slides, []);
             const rows2 = slideItems.length ? slideItems : String(s.ids || "").split(/[ ,]+/).filter(Boolean).map((id) => ({ image_id: id }));
             const ready = rows2.filter((x) => x && (x.image_id || x.image_url));
-            if (!ready.length) return '<div class="lb-carousel-placeholder">' + app.t("Choose images for the carousel") + "</div>";
+            if (!ready.length)
+              return '<div class="lb-carousel-placeholder">' + app.t("Choose images for the carousel") + "</div>";
             const show = Math.max(1, Math.min(10, parseInt(s.slides_to_show, 10) || 1)), effect = s.effect === "fade" && show === 1 ? "fade" : "slide", dir = s.slide_direction === "rtl" ? "rtl" : "ltr", capAlign = pick(s.caption_align, LCR, "center"), nav = pick(s.navigation, ["both", "arrows", "dots", "none"], "both");
             let anyCap = false;
             const slides = ready.map((row, i) => {
               const id = row.image_id, file = row.image_url || "", video = /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i.test(String(file)), cap = row.caption || (s.caption && s.caption !== "none" && id ? captionOf(id, s.caption) : "");
               let media = video ? `<video class="lb-carousel-video" src="${app.esc(file)}" controls playsinline muted></video>` : id ? attImg(id, s.image_size || "large", "", row.alt || "") : file ? `<img src="${app.esc(file)}" alt="${app.esc(row.alt || "")}">` : "";
               if (cap) anyCap = true;
-              if (id && file && !video && media.indexOf("lb28-att-loading") >= 0) media = media.replace(/src="[^"]*"/, `src="${app.esc(file)}"`);
+              if (id && file && !video && media.indexOf("lb28-att-loading") >= 0)
+                media = media.replace(/src="[^"]*"/, `src="${app.esc(file)}"`);
               return `<figure class="lb-carousel-slide${effect === "fade" && i === 0 ? " is-active" : ""}" role="group">${media}${cap ? `<figcaption class="lb-carousel-caption">${app.esc(cap)}</figcaption>` : ""}</figure>`;
             }).join("");
-            const arrows = ["both", "arrows"].includes(nav) ? '<button type="button" class="lb-carousel-prev" tabindex="-1" aria-label="${app.esc(app.t("Previous slide"))}">${dir === "rtl" ? "\u203A" : "\u2039"}</button><button type="button" class="lb-carousel-next" tabindex="-1" aria-label="${app.esc(app.t("Next slide"))}">${dir === "rtl" ? "\u2039" : "\u203A"}</button>' : "";
+            const arrows = ["both", "arrows"].includes(nav) ? '<button type="button" class="lb-carousel-prev" tabindex="-1" aria-label="${app.esc(app.t("Previous slide"))}">${dir === "rtl" ? "›" : "‹"}</button><button type="button" class="lb-carousel-next" tabindex="-1" aria-label="${app.esc(app.t("Next slide"))}">${dir === "rtl" ? "‹" : "›"}</button>' : "";
             const scroll = Math.max(1, Math.min(show, parseInt(s.slides_to_scroll, 10) || 1));
             const pages = Math.max(1, Math.ceil((ready.length - show) / scroll) + 1);
             const on = (v, d) => v === void 0 || v === null || v === "" ? d : !(v === false || v === 0 || v === "0" || v === "false");
@@ -11055,21 +13138,23 @@
           case "soundcloud": {
             if (!s.url) return '<div class="lb-embed-placeholder">Add a SoundCloud track or playlist URL</div>';
             const h = s.visual ? 450 : Math.max(80, parseInt(val(s.height), 10) || 166);
-            return `<div class="lb-soundcloud${s.visual ? " lb-soundcloud-visual" : ""}"><div class="lb-embed-placeholder" style="height:${h}px;display:flex;align-items:center;justify-content:center;background:${app.esc(s.player_color || "#ff5500")}22;border-color:${app.esc(s.player_color || "#ff5500")}">\u266B SoundCloud ${s.visual ? "visual" : "classic"} player \xB7 ${app.esc(s.url)}</div></div>`;
+            return `<div class="lb-soundcloud${s.visual ? " lb-soundcloud-visual" : ""}"><div class="lb-embed-placeholder" style="height:${h}px;display:flex;align-items:center;justify-content:center;background:${app.esc(s.player_color || "#ff5500")}22;border-color:${app.esc(s.player_color || "#ff5500")}">♫ SoundCloud ${s.visual ? "visual" : "classic"} player · ${app.esc(s.url)}</div></div>`;
           }
           case "audio": {
             if (!s.url) return '<div class="lb-embed-placeholder">Add an audio file URL</div>';
-            if (/\.(mp3|wav|ogg|oga|opus|m4a|aac|flac|wma)(\?|#|$)/i.test(String(s.url))) return `<audio class="lb-audio" preload="${app.esc(s.preload || "metadata")}"${s.controls !== false ? " controls" : ""} src="${app.esc(s.url)}"></audio>`;
-            return `<div class="lb-audio-embed"><div class="lb-embed-placeholder">\u266B ${app.esc(hostLabel(s.url))} \xB7 ${app.esc(s.url)} \xB7 plays on the live page</div></div>`;
+            if (/\.(mp3|wav|ogg|oga|opus|m4a|aac|flac|wma)(\?|#|$)/i.test(String(s.url)))
+              return `<audio class="lb-audio" preload="${app.esc(s.preload || "metadata")}"${s.controls !== false ? " controls" : ""} src="${app.esc(s.url)}"></audio>`;
+            return `<div class="lb-audio-embed"><div class="lb-embed-placeholder">♫ ${app.esc(hostLabel(s.url))} · ${app.esc(s.url)} · plays on the live page</div></div>`;
           }
           case "embed": {
             if (!s.url) return '<div class="lb-embed-placeholder">Paste a URL to embed</div>';
             const er = { "16:9": "16 / 9", "21:9": "21 / 9", "4:3": "4 / 3", "1:1": "1 / 1", "9:16": "9 / 16" }[s.aspect_ratio] || "";
-            return `<div class="lb-embed-wrap"><div class="lb-embed${er ? " lb-embed-has-ratio" : ""}"${styleAttr({ "--lb-embed-ratio": er, "max-width": unit(s.max_width) })}><div class="lb-embed-placeholder">${app.esc(hostLabel(s.url))} \xB7 ${app.esc(s.url)} \xB7 plays on the live page</div></div></div>`;
+            return `<div class="lb-embed-wrap"><div class="lb-embed${er ? " lb-embed-has-ratio" : ""}"${styleAttr({ "--lb-embed-ratio": er, "max-width": unit(s.max_width) })}><div class="lb-embed-placeholder">${app.esc(hostLabel(s.url))} · ${app.esc(s.url)} · plays on the live page</div></div></div>`;
           }
           case "html": {
             const raw = String(s.html || "").trim();
-            if (/^https?:\/\/\S+$/i.test(raw) && raw.indexOf("<") < 0) return `<div class="lb-html lb-html-embed"><div class="lb-embed-placeholder">${app.esc(hostLabel(raw))} \xB7 ${app.esc(raw)} \xB7 plays on the live page</div></div>`;
+            if (/^https?:\/\/\S+$/i.test(raw) && raw.indexOf("<") < 0)
+              return `<div class="lb-html lb-html-embed"><div class="lb-embed-placeholder">${app.esc(hostLabel(raw))} · ${app.esc(raw)} · plays on the live page</div></div>`;
             return `<div class="lb-html">${s.html || ""}</div>`;
           }
           case "menu_anchor":
@@ -11079,14 +13164,16 @@
           case "wordpress_widget": {
             const w = (app.D.widgets || []).find((x) => x.id === s.widget);
             const label = w ? w.name : s.sidebar ? "Sidebar: " + s.sidebar : "";
-            return `<div class="lb-wordpress-widget">${s.title ? `<h3 class="lb-wp-widget-title">${app.esc(s.title)}</h3>` : ""}<div class="lb-embed-placeholder">${label ? "WordPress Widget \xB7 " + app.esc(label) : "Choose a WordPress widget"}</div></div>`;
+            return `<div class="lb-wordpress-widget">${s.title ? `<h3 class="lb-wp-widget-title">${app.esc(s.title)}</h3>` : ""}<div class="lb-embed-placeholder">${label ? "WordPress Widget · " + app.esc(label) : "Choose a WordPress widget"}</div></div>`;
           }
           case "sidebar": {
             const sb = (app.D.sidebars || []).find((x) => x.id === s.sidebar);
-            return `<aside class="lb-sidebar"><div class="lb-embed-placeholder">${sb ? "Sidebar \xB7 " + app.esc(sb.name) : "Choose an active sidebar"}</div></aside>`;
+            return `<aside class="lb-sidebar"><div class="lb-embed-placeholder">${sb ? "Sidebar · " + app.esc(sb.name) : "Choose an active sidebar"}</div></aside>`;
           }
           case "price_table": {
-            const feats = repeaterItems(s.features, ["text", "icon"]).map((r) => `<li${styleAttr({ color: s.feature_color || "" })}>${r.icon ? `<span class="lb-price-feature-icon"${styleAttr({ color: s.feature_icon_color || "" })}>${svg(r.icon)}</span>` : ""}${app.esc(r.text || "")}</li>`).join("");
+            const feats = repeaterItems(s.features, ["text", "icon"]).map(
+              (r) => `<li${styleAttr({ color: s.feature_color || "" })}>${r.icon ? `<span class="lb-price-feature-icon"${styleAttr({ color: s.feature_icon_color || "" })}>${svg(r.icon)}</span>` : ""}${app.esc(r.text || "")}</li>`
+            ).join("");
             const btnBg = s.button_background || "#222222", btnFg = s.button_text_color || "#ffffff";
             const piece = (color, typo) => [color ? `color:${color}` : "", typoCss(typo)].filter(Boolean).join(";");
             return `<div class="lb-price-table"${styleAttr({ "--lb-btn-radius": unit(s.button_radius), "--lb-price-btn": btnBg, "--lb-price-btn-text": btnFg, "--lb-price-btn-hover": s.button_hover_background || "", "--lb-price-btn-hover-text": s.button_hover_color || "", background: s.table_background || "", "text-align": s.align || "" })}><h3 style="${app.esc(piece(s.title_color, s.title_typography))}">${app.esc(s.title || "Plan")}</h3><div class="lb-price"><strong style="${app.esc(piece(s.price_color, s.price_typography))}">${app.esc(s.price || "$0")}</strong><span style="${app.esc(piece(s.period_color, s.period_typography))}">${app.esc(s.period || "")}</span></div><ul style="${app.esc(typoCss(s.feature_typography))}">${feats}</ul><a href="${app.esc(s.url || "#")}" style="${app.esc(["background:" + btnBg, "color:" + btnFg, typoCss(s.button_typography), ((p) => p && p !== "0 0 0 0" ? "padding:" + p : "")(app.formatBox(s.button_padding)), unit(s.button_border_radius) ? "border-radius:" + unit(s.button_border_radius) : ""].filter(Boolean).join(";"))}">${app.esc(s.button || "Get Started")}</a></div>`;
@@ -11101,12 +13188,13 @@
               const label = String(r.label || "").trim();
               if (!label) return "";
               const raw = String(r.type || "text"), type = known.includes(raw) ? raw : "text", req = r.required === true || r.required === "required" || r.required === "1" || r.required === "true" ? " required" : "", ph = r.placeholder ? ` placeholder="${app.esc(r.placeholder)}"` : "";
-              if (type === "checkbox") return `<div class="lb-form-field"><label><input type="checkbox" tabindex="-1"${req}> ${app.esc(label)}</label></div>`;
+              if (type === "checkbox")
+                return `<div class="lb-form-field"><label><input type="checkbox" tabindex="-1"${req}> ${app.esc(label)}</label></div>`;
               let input = "";
               if (type === "textarea") input = `<textarea tabindex="-1" readonly${req}${ph}></textarea>`;
               else if (type === "select") {
                 const opts = String(r.options || "").split(/\r?\n/).map((x) => x.trim()).filter(Boolean).map((o) => `<option>${app.esc(o)}</option>`).join("");
-                input = `<select tabindex="-1"${req}><option>${app.esc(app.t("Select\u2026"))}</option>${opts}</select>`;
+                input = `<select tabindex="-1"${req}><option>${app.esc(app.t("Select…"))}</option>${opts}</select>`;
               } else input = `<input type="${app.esc(type)}" tabindex="-1" readonly${req}${ph}>`;
               return `<div class="lb-form-field"><label>${app.esc(label)}</label>${input}</div>`;
             }).join("");
@@ -11117,7 +13205,10 @@
             let html = lb28OldBody(n);
             const layers = containerLayers(s);
             if (!layers) return html;
-            return html.replace(/<div class="lb-container-inner([^"]*)"([^>]*)>/, (m, extra, rest) => `<div class="lb-container-inner${extra} lb-has-layers"${rest}>${layers}`);
+            return html.replace(
+              /<div class="lb-container-inner([^"]*)"([^>]*)>/,
+              (m, extra, rest) => `<div class="lb-container-inner${extra} lb-has-layers"${rest}>${layers}`
+            );
           }
         }
         return lb28OldBody(n);
@@ -11126,7 +13217,8 @@
         const title = String(s.title || "").trim();
         const text = String(s.description || "").trim();
         const button = String(s.button || "").trim();
-        if (!title && !text && !button) return '<div class="lb-embed-placeholder">' + app.t("Add a title, description, and button") + "</div>";
+        if (!title && !text && !button)
+          return '<div class="lb-embed-placeholder">' + app.t("Add a title, description, and button") + "</div>";
         let url = String(s.url || "").trim();
         if (url && !/^(https?:|mailto:|tel:|\/|#)/i.test(url)) url = "https://" + url;
         const target = s.target === "_blank" ? "_blank" : "_self";
@@ -11134,7 +13226,8 @@
         let inner = "";
         if (title) inner += `<h2 class="cp-cta-title">${app.esc(title)}</h2>`;
         if (text) inner += `<p class="cp-cta-text">${app.esc(text)}</p>`;
-        if (button) inner += `<a class="cp-cta-button" href="${app.esc(url || "#")}" target="${app.esc(target)}" data-lb-editor-link="1"${rel}>${app.esc(button)}</a>`;
+        if (button)
+          inner += `<a class="cp-cta-button" href="${app.esc(url || "#")}" target="${app.esc(target)}" data-lb-editor-link="1"${rel}>${app.esc(button)}</a>`;
         return `<div class="cp-cta">${inner}</div>`;
       }
       function anchorSlug(v) {
@@ -11147,9 +13240,12 @@
         const menuId = String(s.menu || "");
         if (!menuId) return anchor;
         const menu = (app.D.menus || []).find((x) => String(x.id) === menuId);
-        if (!menu) return anchor + `<nav class="lb-anchor-menu"><div class="lb-embed-placeholder">${app.esc(app.t("Missing menu"))}</div></nav>`;
+        if (!menu)
+          return anchor + `<nav class="lb-anchor-menu"><div class="lb-embed-placeholder">${app.esc(app.t("Missing menu"))}</div></nav>`;
         const items = (menu.items || []).filter((it) => !parseInt(it.parent, 10));
-        const links = items.length ? items.map((it) => `<li class="lb-anchor-menu-item"><a href="${app.esc(it.url || "#")}" data-lb-editor-link="1">${app.esc(it.title || "")}</a></li>`).join("") : `<li class="lb-anchor-menu-item"><span>${app.esc(menu.name || "")}</span></li>`;
+        const links = items.length ? items.map(
+          (it) => `<li class="lb-anchor-menu-item"><a href="${app.esc(it.url || "#")}" data-lb-editor-link="1">${app.esc(it.title || "")}</a></li>`
+        ).join("") : `<li class="lb-anchor-menu-item"><span>${app.esc(menu.name || "")}</span></li>`;
         return anchor + `<nav class="lb-anchor-menu" aria-label="${app.esc(menu.name || app.t("Menu"))}"><ul class="lb-anchor-menu-list">${links}</ul></nav>`;
       }
       app.menuAnchorInPlace = function menuAnchorInPlace(n) {
@@ -11192,9 +13288,19 @@
         const device = app.device || "desktop";
         const previewOpen = layout === "dropdown" || device === "mobile" || device === "mobile_extra";
         const radius = navRadius(s.radius);
-        const vars2 = ["--lb-nav-color:" + (s.color || ""), "--lb-nav-hover:" + (s.hover_color || ""), "--lb-nav-bg:" + (s.background || ""),"--lb-nav-btn-color:" + (s.button_color || ""), "--lb-nav-btn-border:" + (s.button_border_color || ""), "--lb-nav-btn-hover-color:" + (s.button_hover_color || ""), "--lb-nav-btn-hover-bg:" + (s.button_hover_background || ""), "--lb-nav-btn-hover-border:" + (s.button_hover_border || ""),  "--lb-nav-radius:" + radius].filter((bit) => !bit.endsWith(":"));
+        const vars2 = [
+          "--lb-nav-color:" + (s.color || ""),
+          "--lb-nav-hover:" + (s.hover_color || ""),
+          "--lb-nav-bg:" + (s.background || ""),
+          "--lb-nav-btn-color:" + (s.button_color || ""),
+          "--lb-nav-btn-border:" + (s.button_border_color || ""),
+          "--lb-nav-btn-hover-color:" + (s.button_hover_color || ""),
+          "--lb-nav-btn-hover-bg:" + (s.button_hover_background || ""),
+          "--lb-nav-btn-hover-border:" + (s.button_hover_border || ""),
+          "--lb-nav-radius:" + radius
+        ].filter((bit) => !bit.endsWith(":"));
         const style2 = vars2.length ? ` style="${vars2.map((bit) => app.esc(bit)).join(";")}"` : "";
-        const inner = `<button type="button" class="lb-site-nav__toggle" aria-expanded="${previewOpen ? "true" : "false"}" aria-controls="lb-site-nav-preview" tabindex="-1"><span class="lb-site-nav__burger" aria-hidden="true"></span><span class="lb-site-nav__toggle-text">${app.esc(toggle)}</span><span class="lb-site-nav__caret" aria-hidden="true">\u25BE</span></button>${list}`;
+        const inner = `<button type="button" class="lb-site-nav__toggle" aria-expanded="${previewOpen ? "true" : "false"}" aria-controls="lb-site-nav-preview" tabindex="-1"><span class="lb-site-nav__burger" aria-hidden="true"></span><span class="lb-site-nav__toggle-text">${app.esc(toggle)}</span><span class="lb-site-nav__caret" aria-hidden="true">▾</span></button>${list}`;
         const body = layout === "dropdown" ? `<div class="lb-site-nav__drop">${inner}</div>` : inner;
         return `<nav class="lb-site-nav lb-site-nav--${layout}${custom}${previewOpen ? " is-open" : ""}" data-breakpoint="${bp}" aria-label="${app.esc(toggle)}"${style2}>${body}</nav>`;
       }
@@ -11207,7 +13313,7 @@
         };
         const known = !v || menus.some((m) => String(m.id) === String(v));
         const missing = v && !known ? `<option value="${app.esc(v)}" selected>${app.esc(app.t("Missing menu"))}</option>` : "";
-        return `<label class="lb-control"><span>${app.esc(label)}</span><select data-setting="${app.esc(k)}"><option value="">${app.esc(app.t("Select a menu"))}</option>${missing}${group("menu", app.t("Menus"))}${group("nav", app.t("Navigation"))}</select></label><p class="lb-control-desc">${app.esc(app.t("Classic menus (Appearance \u2192 Menus) and Navigation (Appearance \u2192 Editor)."))}</p>`;
+        return `<label class="lb-control"><span>${app.esc(label)}</span><select data-setting="${app.esc(k)}"><option value="">${app.esc(app.t("Select a menu"))}</option>${missing}${group("menu", app.t("Menus"))}${group("nav", app.t("Navigation"))}</select></label><p class="lb-control-desc">${app.esc(app.t("Classic menus (Appearance → Menus) and Navigation (Appearance → Editor)."))}</p>`;
       };
       function flipBoxCanvas(n, s) {
         const effect = pick(s.flip_effect, ["flip", "slide", "push", "zoom", "fade"], "flip");
@@ -11219,13 +13325,28 @@
           const n2 = parseFloat(x);
           return (isNaN(n2) || n2 <= 0 ? 0.8 : n2) + "s";
         })();
-        const wrapVars = styleAttr({ "--lb-flip-height": unit(s.box_height || 280), "--lb-el-w": unit(s.width), "--lb-el-max-w": unit(s.max_width), "--lb-el-h": unit(s.height), "--lb-el-min-h": unit(s.min_height), "--lb-flip-duration": dur, "--lb-flip-depth": unit(s.flip_depth || 50), "--lb-flip-perspective": effect === "flip" ? "1000px" : "none", "--lb-btn-radius": unit(s.button_radius) });
+        const wrapVars = styleAttr({
+          "--lb-flip-height": unit(s.box_height || 280),
+          "--lb-el-w": unit(s.width),
+          "--lb-el-max-w": unit(s.max_width),
+          "--lb-el-h": unit(s.height),
+          "--lb-el-min-h": unit(s.min_height),
+          "--lb-flip-duration": dur,
+          "--lb-flip-depth": unit(s.flip_depth || 50),
+          "--lb-flip-perspective": effect === "flip" ? "1000px" : "none",
+          "--lb-btn-radius": unit(s.button_radius)
+        });
         const face = (side) => {
           const align = pick(s[side + "_align"], LCR, "center"), valign = pick(s[side + "_valign"], ["top", "middle", "bottom"], "middle");
           const view = pick(s[side + "_icon_view"], VIEW, "default"), shape = pick(s[side + "_shape"], SHAPE, "circle");
           const graphic = pick(s[side + "_graphic"], ["none", "icon", "image"], "none");
           const bg = typeof app.lbCompileBackground === "function" ? app.lbCompileBackground(s[side + "_background"] || {}) : {};
-          const pad = s[side + "_padding"] && typeof s[side + "_padding"] === "object" ? [s[side + "_padding"].top || "0", s[side + "_padding"].right || "0", s[side + "_padding"].bottom || "0", s[side + "_padding"].left || "0"].join(" ") : "";
+          const pad = s[side + "_padding"] && typeof s[side + "_padding"] === "object" ? [
+            s[side + "_padding"].top || "0",
+            s[side + "_padding"].right || "0",
+            s[side + "_padding"].bottom || "0",
+            s[side + "_padding"].left || "0"
+          ].join(" ") : "";
           const extra = {
             "--lb-flip-title-color": s[side + "_title_color"] || "",
             "--lb-flip-desc-color": s[side + "_desc_color"] || "",
@@ -11246,10 +13367,12 @@
           const faceStyle = styleAttr(Object.assign({}, bg, extra));
           const layers = typeof app.lbBgLayersHTML === "function" ? app.lbBgLayersHTML({ background: s[side + "_background"] || {} }) : "";
           let g = "";
-          if (graphic === "icon") g = `<div class="lb-flip-graphic"${styleAttr({ "--lb-icon-size": unit(s[side + "_icon_size"] || 40), "--lb-icon-primary": s[side + "_icon_color"] || "" })}><span class="lb-icon-glyph">${svg(s[side + "_icon"] || "star")}</span></div>`;
+          if (graphic === "icon")
+            g = `<div class="lb-flip-graphic"${styleAttr({ "--lb-icon-size": unit(s[side + "_icon_size"] || 40), "--lb-icon-primary": s[side + "_icon_color"] || "" })}><span class="lb-icon-glyph">${svg(s[side + "_icon"] || "star")}</span></div>`;
           else if (graphic === "image") {
             const u = mediaUrl(s[side + "_image_id"], s[side + "_image_url"], s[side + "_image_size"] || "large");
-            if (u || s[side + "_image_id"]) g = `<div class="lb-flip-graphic">${attImgOrUrl(s[side + "_image_id"], u, s[side + "_image_size"] || "large", "lb-flip-image", s[side + "_title"])}</div>`;
+            if (u || s[side + "_image_id"])
+              g = `<div class="lb-flip-graphic">${attImgOrUrl(s[side + "_image_id"], u, s[side + "_image_size"] || "large", "lb-flip-image", s[side + "_title"])}</div>`;
           }
           const tag = tagOf(s[side + "_title_tag"], "h3");
           const title = s[side + "_title"] ? `<${tag} class="lb-flip-title">${app.esc(s[side + "_title"])}</${tag}>` : "";
@@ -11260,8 +13383,10 @@
         return `<div class="lb-flip-box lb-flip-effect-${effect} lb-flip-dir-${dir} lb-flip-trigger-${trigger}${depth ? " lb-flip-3d" : ""}" data-lb-flip="${trigger}"${wrapVars}><div class="lb-flip-layer">${face("front")}${face("back")}</div></div>`;
       }
       function attImgOrUrl(id, url, size, cls, alt) {
-        if (url && !parseInt(id, 10)) return `<img class="${app.esc(cls || "")}" src="${app.esc(url)}" alt="${app.esc(alt || "")}" loading="lazy">`;
-        if (url) return `<img class="${app.esc(cls || "")}" data-lb28-att="${app.esc(id)}" data-lb28-size="${app.esc(size || "")}" src="${app.esc(url)}" alt="${app.esc(alt || "")}" loading="lazy">`;
+        if (url && !parseInt(id, 10))
+          return `<img class="${app.esc(cls || "")}" src="${app.esc(url)}" alt="${app.esc(alt || "")}" loading="lazy">`;
+        if (url)
+          return `<img class="${app.esc(cls || "")}" data-lb28-att="${app.esc(id)}" data-lb28-size="${app.esc(size || "")}" src="${app.esc(url)}" alt="${app.esc(alt || "")}" loading="lazy">`;
         return attImg(id, size, cls, alt);
       }
       function captionOf(id, mode) {
@@ -11294,7 +13419,9 @@
         const u = String(s.url || "");
         if (/\.(mp4|webm|ogv|ogg|m4v|mov)(\?|#|$)/i.test(u)) return "hosted";
         if (/youtu/i.test(u)) {
-          const m = u.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([A-Za-z0-9_-]{6,})/);
+          const m = u.match(
+            /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([A-Za-z0-9_-]{6,})/
+          );
           return m ? "youtube:" + m[1] : "";
         }
         if (/vimeo/i.test(u)) {
@@ -11311,7 +13438,50 @@
         }
         return s.source === "hosted" ? "hosted" : "";
       }
-      const NETWORKS = { facebook: ["facebook-f", "#1877f2"], x: ["x-twitter", "#1da1f2"], twitter: ["twitter", "#1da1f2"], instagram: ["instagram", "#e4405f"], linkedin: ["linkedin-in", "#0a66c2"], youtube: ["youtube", "#ff0000"], tiktok: ["tiktok", "#010101"], pinterest: ["pinterest", "#e60023"], github: ["github", "#181717"], whatsapp: ["whatsapp", "#25d366"], telegram: ["telegram", "#2aabee"], googleplus: ["google-plus", "#db4437"], "google-plus": ["google-plus", "#db4437"], discord: ["discord", "#5865f2"], reddit: ["reddit", "#ff4500"], snapchat: ["snapchat", "#fffc00"], spotify: ["spotify", "#1db954"], twitch: ["twitch", "#9146ff"], vimeo: ["vimeo", "#1ab7ea"], dribbble: ["dribbble", "#ea4c89"], behance: ["behance", "#1769ff"], medium: ["medium", "#000000"], threads: ["threads", "#000000"], mastodon: ["mastodon", "#6364ff"], soundcloud: ["soundcloud", "#ff5500"], rss: ["rss", "#f26522"], skype: ["skype", "#00aff0"], slack: ["slack", "#4a154b"], tumblr: ["tumblr", "#36465d"], flickr: ["flickr", "#0063dc"], apple: ["apple", "#000000"], android: ["android", "#3ddc84"], yelp: ["yelp", "#d32323"], steam: ["steam", "#000000"], xing: ["xing", "#006567"], weibo: ["weibo", "#df2029"], vk: ["vk", "#0077ff"], wordpress: ["wordpress", "#21759b"], email: ["envelope", "#ea4335"], mail: ["envelope", "#ea4335"], website: ["globe", "#3f7fdf"], link: ["link", "#3f7fdf"] };
+      const NETWORKS = {
+        facebook: ["facebook-f", "#1877f2"],
+        x: ["x-twitter", "#1da1f2"],
+        twitter: ["twitter", "#1da1f2"],
+        instagram: ["instagram", "#e4405f"],
+        linkedin: ["linkedin-in", "#0a66c2"],
+        youtube: ["youtube", "#ff0000"],
+        tiktok: ["tiktok", "#010101"],
+        pinterest: ["pinterest", "#e60023"],
+        github: ["github", "#181717"],
+        whatsapp: ["whatsapp", "#25d366"],
+        telegram: ["telegram", "#2aabee"],
+        googleplus: ["google-plus", "#db4437"],
+        "google-plus": ["google-plus", "#db4437"],
+        discord: ["discord", "#5865f2"],
+        reddit: ["reddit", "#ff4500"],
+        snapchat: ["snapchat", "#fffc00"],
+        spotify: ["spotify", "#1db954"],
+        twitch: ["twitch", "#9146ff"],
+        vimeo: ["vimeo", "#1ab7ea"],
+        dribbble: ["dribbble", "#ea4c89"],
+        behance: ["behance", "#1769ff"],
+        medium: ["medium", "#000000"],
+        threads: ["threads", "#000000"],
+        mastodon: ["mastodon", "#6364ff"],
+        soundcloud: ["soundcloud", "#ff5500"],
+        rss: ["rss", "#f26522"],
+        skype: ["skype", "#00aff0"],
+        slack: ["slack", "#4a154b"],
+        tumblr: ["tumblr", "#36465d"],
+        flickr: ["flickr", "#0063dc"],
+        apple: ["apple", "#000000"],
+        android: ["android", "#3ddc84"],
+        yelp: ["yelp", "#d32323"],
+        steam: ["steam", "#000000"],
+        xing: ["xing", "#006567"],
+        weibo: ["weibo", "#df2029"],
+        vk: ["vk", "#0077ff"],
+        wordpress: ["wordpress", "#21759b"],
+        email: ["envelope", "#ea4335"],
+        mail: ["envelope", "#ea4335"],
+        website: ["globe", "#3f7fdf"],
+        link: ["link", "#3f7fdf"]
+      };
       function hostHas(host, k) {
         if (!host || !k) return false;
         if (host === k) return true;
@@ -11332,11 +13502,19 @@
         if (String(url).startsWith("mailto:")) return ["email", "envelope", app.t("#ea4335")];
         return ["custom", "link", app.t("#3f7fdf")];
       }
-      const SHAPE_PATHS = { wave: "M0,60 C150,110 350,10 500,60 C650,110 850,10 1000,60 L1000,100 L0,100 Z", tilt: "M0,100 L1000,0 L1000,100 Z", triangle: "M0,100 L500,0 L1000,100 Z", curve: "M0,100 C250,0 750,0 1000,100 Z", arrow: "M0,100 L0,60 L450,60 L500,20 L550,60 L1000,60 L1000,100 Z", mountains: "M0,100 L0,70 L200,30 L350,65 L500,15 L700,60 L850,35 L1000,75 L1000,100 Z", zigzag: (() => {
-        let d = "M0,100 L0,50";
-        for (let x = 0; x < 1e3; x += 100) d += ` L${x + 50},100 L${x + 100},50`;
-        return d + " L1000,100 Z";
-      })() };
+      const SHAPE_PATHS = {
+        wave: "M0,60 C150,110 350,10 500,60 C650,110 850,10 1000,60 L1000,100 L0,100 Z",
+        tilt: "M0,100 L1000,0 L1000,100 Z",
+        triangle: "M0,100 L500,0 L1000,100 Z",
+        curve: "M0,100 C250,0 750,0 1000,100 Z",
+        arrow: "M0,100 L0,60 L450,60 L500,20 L550,60 L1000,60 L1000,100 Z",
+        mountains: "M0,100 L0,70 L200,30 L350,65 L500,15 L700,60 L850,35 L1000,75 L1000,100 Z",
+        zigzag: (() => {
+          let d = "M0,100 L0,50";
+          for (let x = 0; x < 1e3; x += 100) d += ` L${x + 50},100 L${x + 100},50`;
+          return d + " L1000,100 Z";
+        })()
+      };
       function containerLayers(s) {
         let out = typeof app.lbBgLayersHTML === "function" ? app.lbBgLayersHTML(s) : "";
         if (!out) {
@@ -11355,25 +13533,35 @@
           const h = s["shape_" + side + "_height"], w = s["shape_" + side + "_width"] || "100%";
           out += `<div class="lb-shape lb-shape-${side}${s["shape_" + side + "_front"] ? " lb-shape-front" : ""}${s["shape_" + side + "_flip"] ? " lb-shape-flip" : ""}" aria-hidden="true" style="--lb-shape-height:${app.esc(unit(h) || "80px")};--lb-shape-width:${app.esc(w)}"><svg viewBox="0 0 1000 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="${SHAPE_PATHS[shape]}" fill="${app.esc(s["shape_" + side + "_color"] || "#ffffff")}"/></svg></div>`;
         });
-        if (s.link) out += `<span class="lb-container-link lb28-container-link" title="${app.t("Links to %s", s.link)}"></span>`;
+        if (s.link)
+          out += `<span class="lb-container-link lb28-container-link" title="${app.t("Links to %s", s.link)}"></span>`;
         return out;
       }
       const lb28OldFrameHTML = app.frameHTML;
       app.frameHTML = function() {
         let html = lb28OldFrameHTML();
         const css = app.D.frontendCss || "";
-        if (css && !html.includes(css)) html = html.replace('<link rel="stylesheet"', `<link rel="stylesheet" href="${app.esc(css)}"><link rel="stylesheet"`);
-        return html.replace("</style></head>", ".lb-heading-wrap{display:block}.lb-heading-size-small>*{font-size:15px}.lb-heading-size-medium>*{font-size:19px}.lb-heading-size-large>*{font-size:29px}.lb-heading-size-xl>*{font-size:39px}.lb-heading-size-xxl>*{font-size:59px}.lb-heading-wrap .lb-heading-link{color:inherit;text-decoration:none}.lb-text-wrap.lb-text-columns>.lb-text-content{column-count:var(--lb-text-columns,1);column-gap:var(--lb-text-column-gap,2em)}.lb-text-wrap>.lb-text-content p{margin:0 0 var(--lb-paragraph-spacing,1em)}.lb-text-wrap>.lb-text-content a{color:var(--lb-link-color,inherit)}.lb-text-drop-cap>.lb-text-content>p:first-of-type::first-letter,.lb-text-drop-cap>.lb-text-content::first-letter{float:left;font-size:var(--lb-drop-cap-size,3.4em);line-height:.8;margin:.08em var(--lb-drop-cap-space,10px) 0 0;font-weight:700;color:var(--lb-drop-cap-color,inherit)}.lb-drop-cap-stacked>.lb-text-content>p:first-of-type::first-letter,.lb-drop-cap-stacked>.lb-text-content::first-letter{background:var(--lb-drop-cap-color,#222);color:var(--lb-drop-cap-secondary,#fff);padding:.15em .3em;border-radius:var(--lb-drop-cap-radius,4px)}.lb-drop-cap-framed>.lb-text-content>p:first-of-type::first-letter,.lb-drop-cap-framed>.lb-text-content::first-letter{border:var(--lb-drop-cap-border,3px) solid var(--lb-drop-cap-color,#222);padding:.1em .25em;border-radius:var(--lb-drop-cap-radius,4px)}.lb-editor-button.lb-button{cursor:default}.lb28-container-link{pointer-events:none;background:transparent}.lb-has-layers>.lb-node,.lb-has-layers>.lb-insert-zone{position:relative;z-index:1}.lb-video-overlay,.lb-video-play,.lb-alert-dismiss,.lb-carousel-prev,.lb-carousel-next,.lb-carousel-dots button,.lb-tab-button,.lb-collapse-title{cursor:default}.lb28-att-loading{background:#e5e8ec;min-height:60px}.lb28-video-embed{font-size:13px}.cp-cta{display:flex;flex-direction:column;align-items:flex-start;gap:.55rem}.cp-cta-title,.cp-cta-text{margin:0}.cp-cta-button{display:inline-flex;align-items:center;padding:.45rem .8rem;border:1px solid currentColor;border-radius:var(--lb-btn-radius,0);background:transparent;color:inherit;font:inherit;text-decoration:none;cursor:pointer}</style></head>");
+        if (css && !html.includes(css))
+          html = html.replace(
+            '<link rel="stylesheet"',
+            `<link rel="stylesheet" href="${app.esc(css)}"><link rel="stylesheet"`
+          );
+        return html.replace(
+          "</style></head>",
+          ".lb-heading-wrap{display:block}.lb-heading-size-small>*{font-size:15px}.lb-heading-size-medium>*{font-size:19px}.lb-heading-size-large>*{font-size:29px}.lb-heading-size-xl>*{font-size:39px}.lb-heading-size-xxl>*{font-size:59px}.lb-heading-wrap .lb-heading-link{color:inherit;text-decoration:none}.lb-text-wrap.lb-text-columns>.lb-text-content{column-count:var(--lb-text-columns,1);column-gap:var(--lb-text-column-gap,2em)}.lb-text-wrap>.lb-text-content p{margin:0 0 var(--lb-paragraph-spacing,1em)}.lb-text-wrap>.lb-text-content a{color:var(--lb-link-color,inherit)}.lb-text-drop-cap>.lb-text-content>p:first-of-type::first-letter,.lb-text-drop-cap>.lb-text-content::first-letter{float:left;font-size:var(--lb-drop-cap-size,3.4em);line-height:.8;margin:.08em var(--lb-drop-cap-space,10px) 0 0;font-weight:700;color:var(--lb-drop-cap-color,inherit)}.lb-drop-cap-stacked>.lb-text-content>p:first-of-type::first-letter,.lb-drop-cap-stacked>.lb-text-content::first-letter{background:var(--lb-drop-cap-color,#222);color:var(--lb-drop-cap-secondary,#fff);padding:.15em .3em;border-radius:var(--lb-drop-cap-radius,4px)}.lb-drop-cap-framed>.lb-text-content>p:first-of-type::first-letter,.lb-drop-cap-framed>.lb-text-content::first-letter{border:var(--lb-drop-cap-border,3px) solid var(--lb-drop-cap-color,#222);padding:.1em .25em;border-radius:var(--lb-drop-cap-radius,4px)}.lb-editor-button.lb-button{cursor:default}.lb28-container-link{pointer-events:none;background:transparent}.lb-has-layers>.lb-node,.lb-has-layers>.lb-insert-zone{position:relative;z-index:1}.lb-video-overlay,.lb-video-play,.lb-alert-dismiss,.lb-carousel-prev,.lb-carousel-next,.lb-carousel-dots button,.lb-tab-button,.lb-collapse-title{cursor:default}.lb28-att-loading{background:#e5e8ec;min-height:60px}.lb28-video-embed{font-size:13px}.cp-cta{display:flex;flex-direction:column;align-items:flex-start;gap:.55rem}.cp-cta-title,.cp-cta-text{margin:0}.cp-cta-button{display:inline-flex;align-items:center;padding:.45rem .8rem;border:1px solid currentColor;border-radius:var(--lb-btn-radius,0);background:transparent;color:inherit;font:inherit;text-decoration:none;cursor:pointer}</style></head>"
+        );
       };
       const style = document.createElement("style");
       style.textContent = '.lb28-media-control .lb-media-row{display:flex;align-items:center;gap:6px}.lb28-media-control .lb-media-row input[type="number"]{display:none}.lb28-media-thumb{flex:0 0 auto;width:72px;height:72px;border-radius:6px;object-fit:cover;background:#eef0f3;border:1px solid #d9dee5;display:inline-block}.lb28-media-clear{padding:0 8px}.lb32-media-row{display:flex;align-items:flex-start;gap:8px}.lb32-media-preview{display:flex;align-items:center;justify-content:center;width:96px;height:96px;padding:0;margin:0;border:1px dashed #c5ccd4;border-radius:6px;background:#f4f6f8;overflow:hidden;cursor:pointer;color:#6b7280;font-size:12px;text-align:center}.lb32-media-preview img{width:100%;height:100%;object-fit:cover;display:block;background:#eef0f3}.lb32-thumbs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.lb32-thumb{width:56px;height:56px;object-fit:cover;border-radius:4px;background:#e5e8ec;border:1px solid #d9dee5}.lb32-thumbs-empty{color:#8a919a;font-size:12px}';
       document.head.appendChild(style);
       function hydrateAtt() {
         const run = () => {
-          [document, app.frameDoc()].forEach((doc) => doc && doc.querySelectorAll && doc.querySelectorAll("[data-lb28-att]").forEach((el) => {
-            const id = parseInt(el.dataset.lb28Att, 10);
-            if (id) fetchAtt(id);
-          }));
+          [document, app.frameDoc()].forEach(
+            (doc) => doc && doc.querySelectorAll && doc.querySelectorAll("[data-lb28-att]").forEach((el) => {
+              const id = parseInt(el.dataset.lb28Att, 10);
+              if (id) fetchAtt(id);
+            })
+          );
         };
         run();
         [50, 160, 400, 900].forEach((ms) => setTimeout(run, ms));
@@ -11386,17 +13574,19 @@
         setTimeout(hydrateAtt, 0);
       };
       const lb28OldRefresh = typeof app.refreshRightPanel === "function" ? app.refreshRightPanel : null;
-      if (lb28OldRefresh) app.refreshRightPanel = function() {
-        lb28OldRefresh();
-        setTimeout(bindControls, 0);
-      };
+      if (lb28OldRefresh)
+        app.refreshRightPanel = function() {
+          lb28OldRefresh();
+          setTimeout(bindControls, 0);
+        };
       window.CanvaslyLite1228 = { attCache, migrate, OPTIONS, attImg, captionOf };
     })();
     (function() {
       const lb30OldStyle = app.styleInline;
       app.styleInline = function(n) {
         let css = lb30OldStyle(n);
-        if (n.type === "image") css = css.replace(/(?:^|;)\s*width:[^;]+/g, "").replace(/(?:^|;)\s*height:[^;]+/g, "").replace(/^;+/, "");
+        if (n.type === "image")
+          css = css.replace(/(?:^|;)\s*width:[^;]+/g, "").replace(/(?:^|;)\s*height:[^;]+/g, "").replace(/^;+/, "");
         return css;
       };
       const lb30OldNode = app.nodeHTML;
@@ -11406,7 +13596,15 @@
         const w = String(app.resp((n.settings || {}).width) || "100%").trim() || "100%";
         const h = String(app.resp((n.settings || {}).height) || "").trim();
         const just = { left: "start", center: "center", right: "end", start: "start", end: "end", stretch: "stretch" }[String(app.resp((n.settings || {}).alignment || (n.settings || {}).justify_self) || "start")] || "start";
-        const aln = { top: "start", middle: "center", bottom: "end", start: "start", center: "center", end: "end", stretch: "stretch" }[String(app.resp((n.settings || {}).align_self) || "start")] || "start";
+        const aln = {
+          top: "start",
+          middle: "center",
+          bottom: "end",
+          start: "start",
+          center: "center",
+          end: "end",
+          stretch: "stretch"
+        }[String(app.resp((n.settings || {}).align_self) || "start")] || "start";
         const extra = "max-width:100%;min-width:0;overflow:hidden;justify-self:stretch;align-self:" + aln + ";text-align:" + ({ start: "left", center: "center", end: "right" }[just] || "left") + ";--lb-img-w:" + app.esc(w) + ";--lb-img-h:" + app.esc(h || "auto") + ";--lb-media-items:" + (just === "center" ? "center" : just === "end" ? "flex-end" : "flex-start") + ";";
         const m = html.match(/^<div\b[^>]*>/);
         if (!m) return html;
@@ -11506,9 +13704,17 @@
       const api = () => window.CanvaslyLite1228 || {};
       function groupsOf(s) {
         if ((s.mode || "single") === "multiple" && Array.isArray(s.collections) && s.collections.length) {
-          return s.collections.map((c, i) => ({ label: String(c.label || "").trim() || "Gallery " + (i + 1), ids: String(c.ids || "").split(/[,\s]+/).filter(Boolean) }));
+          return s.collections.map((c, i) => ({
+            label: String(c.label || "").trim() || "Gallery " + (i + 1),
+            ids: String(c.ids || "").split(/[,\s]+/).filter(Boolean)
+          }));
         }
-        return [{ label: "", ids: String(s.ids || "").split(/[,\s]+/).filter(Boolean) }];
+        return [
+          {
+            label: "",
+            ids: String(s.ids || "").split(/[,\s]+/).filter(Boolean)
+          }
+        ];
       }
       function galleryMarkup(s) {
         return app.galleryCanvasHTML(s);
@@ -11534,23 +13740,27 @@
           s.collections.push({ label: app.t("Gallery %s", s.collections.length + 1), ids: "" });
           app.render();
         });
-        app.root.querySelectorAll(".lb31-gal-del").forEach((b) => b.onclick = () => {
-          const i = Number(b.closest("[data-gal-index]")?.dataset.galIndex);
-          if (!Number.isFinite(i)) return;
-          app.commit();
-          s.collections = Array.isArray(s.collections) ? s.collections.slice() : [];
-          s.collections.splice(i, 1);
-          app.render();
-        });
-        app.root.querySelectorAll(".lb31-gal-dup").forEach((b) => b.onclick = () => {
-          const i = Number(b.closest("[data-gal-index]")?.dataset.galIndex);
-          if (!Number.isFinite(i)) return;
-          app.commit();
-          s.collections = Array.isArray(s.collections) ? s.collections.slice() : [];
-          const src = s.collections[i] || { label: "", ids: "" };
-          s.collections.splice(i + 1, 0, { label: (src.label || "Gallery") + " copy", ids: src.ids || "" });
-          app.render();
-        });
+        app.root.querySelectorAll(".lb31-gal-del").forEach(
+          (b) => b.onclick = () => {
+            const i = Number(b.closest("[data-gal-index]")?.dataset.galIndex);
+            if (!Number.isFinite(i)) return;
+            app.commit();
+            s.collections = Array.isArray(s.collections) ? s.collections.slice() : [];
+            s.collections.splice(i, 1);
+            app.render();
+          }
+        );
+        app.root.querySelectorAll(".lb31-gal-dup").forEach(
+          (b) => b.onclick = () => {
+            const i = Number(b.closest("[data-gal-index]")?.dataset.galIndex);
+            if (!Number.isFinite(i)) return;
+            app.commit();
+            s.collections = Array.isArray(s.collections) ? s.collections.slice() : [];
+            const src = s.collections[i] || { label: "", ids: "" };
+            s.collections.splice(i + 1, 0, { label: (src.label || "Gallery") + " copy", ids: src.ids || "" });
+            app.render();
+          }
+        );
         app.root.querySelectorAll(".lb31-gal-label").forEach((inp) => {
           if (inp.__lbLiveBound) return;
           inp.__lbLiveBound = true;
@@ -11574,21 +13784,23 @@
             started = false;
           });
         });
-        app.root.querySelectorAll(".lb31-gal-pick").forEach((b) => b.onclick = () => {
-          const i = Number(b.closest("[data-gal-index]")?.dataset.galIndex);
-          if (!Number.isFinite(i)) return;
-          app.openCollectionPicker(s, i, (items, ids) => {
-            items.forEach((j) => {
-              if (j && j.id && api().attCache) api().attCache[j.id] = j;
+        app.root.querySelectorAll(".lb31-gal-pick").forEach(
+          (b) => b.onclick = () => {
+            const i = Number(b.closest("[data-gal-index]")?.dataset.galIndex);
+            if (!Number.isFinite(i)) return;
+            app.openCollectionPicker(s, i, (items, ids) => {
+              items.forEach((j) => {
+                if (j && j.id && api().attCache) api().attCache[j.id] = j;
+              });
+              app.commit();
+              app.rememberGalleryUrls(s, items);
+              s.collections = Array.isArray(s.collections) ? s.collections.slice() : [];
+              s.collections[i] = Object.assign({}, s.collections[i], { ids: ids.join(",") });
+              app.persistGalleryIds(s);
+              app.render();
             });
-            app.commit();
-            app.rememberGalleryUrls(s, items);
-            s.collections = Array.isArray(s.collections) ? s.collections.slice() : [];
-            s.collections[i] = Object.assign({}, s.collections[i], { ids: ids.join(",") });
-            app.persistGalleryIds(s);
-            app.render();
-          });
-        });
+          }
+        );
       }
       function bindGalleryFilters(fd) {
         fd = fd || app.frameDoc();
@@ -11610,7 +13822,8 @@
         const r = app.selected && app.locate(app.state.root, app.selected);
         if (r && r.node.type === "gallery" && path === "mode" && v === "multiple") {
           const s = r.node.settings = r.node.settings || {};
-          if (!Array.isArray(s.collections) || !s.collections.length) s.collections = [{ label: app.t("Gallery 1"), ids: s.ids || "" }];
+          if (!Array.isArray(s.collections) || !s.collections.length)
+            s.collections = [{ label: app.t("Gallery 1"), ids: s.ids || "" }];
         }
         return lb31OldUpdate(path, v);
       };
@@ -11620,7 +13833,8 @@
       const lb31OldRender = app.render;
       app.render = function() {
         const frame = document.getElementById("lb-editor-frame"), fd = frame && frame.contentDocument;
-        if (document.body.classList.contains("lb123-resizing") || fd && fd.body && fd.body.classList.contains("lb123-resizing")) return;
+        if (document.body.classList.contains("lb123-resizing") || fd && fd.body && fd.body.classList.contains("lb123-resizing"))
+          return;
         lb31OldRender();
         setTimeout(bindGalleryPanel, 0);
         setTimeout(() => {
@@ -11650,7 +13864,18 @@
         const extra = ["width", "height", "max_width", "min_height"].map((k) => {
           const v = String(app.resp(s[k]) || "").trim();
           if (!v) return "";
-          if (["image", "video", "carousel", "audio", "image_box", "gallery", "soundcloud", "embed", "tinymce_text_editor"].includes(n.type) && (k === "width" || k === "height" || k === "max_width" || k === "min_height")) return "";
+          if ([
+            "image",
+            "video",
+            "carousel",
+            "audio",
+            "image_box",
+            "gallery",
+            "soundcloud",
+            "embed",
+            "tinymce_text_editor"
+          ].includes(n.type) && (k === "width" || k === "height" || k === "max_width" || k === "min_height"))
+            return "";
           return k.replace(/_/g, "-") + ":" + app.esc(v) + ";";
         }).join("");
         if (!extra) return html;
@@ -11773,13 +13998,15 @@
           const fd = typeof app.frameDoc === "function" ? app.frameDoc() : null;
           if (fd) docs.push(fd);
         }
-        docs.forEach((doc) => doc.querySelectorAll && doc.querySelectorAll(".lb-gallery.is-justified,.lb-gallery.is-masonry").forEach((gal) => {
-          packOne(gal);
-          gal.querySelectorAll("img").forEach((img) => {
-            if (img.complete) return;
-            img.addEventListener("load", () => packOne(gal), { once: true });
-          });
-        }));
+        docs.forEach(
+          (doc) => doc.querySelectorAll && doc.querySelectorAll(".lb-gallery.is-justified,.lb-gallery.is-masonry").forEach((gal) => {
+            packOne(gal);
+            gal.querySelectorAll("img").forEach((img) => {
+              if (img.complete) return;
+              img.addEventListener("load", () => packOne(gal), { once: true });
+            });
+          })
+        );
       }
       window.lbPackGalleries = function(target) {
         if (target && target.classList && target.classList.contains("lb-gallery")) packOne(target);
@@ -12076,7 +14303,70 @@
         back_valign: "Vertical Align"
       };
       const STYLE_KEY = /(_color|_background|_size|_gap|_space|_spacing|_padding|_radius|_width|_height|_opacity|_weight|_indent|_stretch)$|^(hover_|secondary_color|unmarked_color|space_between|unit_spacing|thickness|pattern_size|nav_width|overlay_|shape_|dots_|arrows_|font_|weight|color|background|border|shadow|opacity|filter|transform)/;
-      const SKIP = /* @__PURE__ */ new Set(["image_url", "poster_url", "overlay_image_url", "css_class", "css_id", "global_class", "custom_css", "html_attributes", "hide_desktop", "hide_laptop", "hide_tablet_extra", "hide_tablet", "hide_mobile_extra", "hide_mobile", "hide_widescreen", "class_mode", "variable_ref", "width", "height", "max_width", "min_height", "margin", "padding", "opacity", "overflow", "position", "z_index", "top", "right", "bottom", "left", "display", "visibility", "background", "background_image", "background_size", "background_position", "background_repeat", "background_gradient", "background_overlay", "border_width", "border_style", "border_color", "border_radius", "shadow", "box_shadow", "filter", "transform", "mix_blend_mode", "font_family", "font_size", "font_weight", "font_style", "text_transform", "text_decoration", "line_height", "letter_spacing", "text_shadow", "mask_shape", "collections", "media_urls", "media_ratios"]);
+      const SKIP = /* @__PURE__ */ new Set([
+        "image_url",
+        "poster_url",
+        "overlay_image_url",
+        "css_class",
+        "css_id",
+        "global_class",
+        "custom_css",
+        "html_attributes",
+        "hide_desktop",
+        "hide_laptop",
+        "hide_tablet_extra",
+        "hide_tablet",
+        "hide_mobile_extra",
+        "hide_mobile",
+        "hide_widescreen",
+        "class_mode",
+        "variable_ref",
+        "width",
+        "height",
+        "max_width",
+        "min_height",
+        "margin",
+        "padding",
+        "opacity",
+        "overflow",
+        "position",
+        "z_index",
+        "top",
+        "right",
+        "bottom",
+        "left",
+        "display",
+        "visibility",
+        "background",
+        "background_image",
+        "background_size",
+        "background_position",
+        "background_repeat",
+        "background_gradient",
+        "background_overlay",
+        "border_width",
+        "border_style",
+        "border_color",
+        "border_radius",
+        "shadow",
+        "box_shadow",
+        "filter",
+        "transform",
+        "mix_blend_mode",
+        "font_family",
+        "font_size",
+        "font_weight",
+        "font_style",
+        "text_transform",
+        "text_decoration",
+        "line_height",
+        "letter_spacing",
+        "text_shadow",
+        "mask_shape",
+        "collections",
+        "media_urls",
+        "media_ratios"
+      ]);
       const SLIDER = {
         size: { unitless: true, min: 8, max: 200 },
         font_size: { units: ["px", "em", "rem"], min: 6, max: 200 },
@@ -12159,7 +14449,8 @@
           return app.menuAnchorSelect(k, label, v ?? "");
         }
         if (t3 === "slider") return app.control(k, raw || t3, v ?? "", label);
-        if (t3 === "icon" || k === "icon" || /_icon$/.test(k)) return app.control(k, t3 === "icon" && raw ? raw : "icon", v || "", label);
+        if (t3 === "icon" || k === "icon" || /_icon$/.test(k))
+          return app.control(k, t3 === "icon" && raw ? raw : "icon", v || "", label);
         if (t3 !== "select" && t3 !== "choose" && t3 !== "switch" && t3 !== "color" && t3 !== "media" && t3 !== "gallery" && t3 !== "wysiwyg" && t3 !== "textarea" && t3 !== "code" && t3 !== "icon" && (t3 === "number" || SLIDER[k])) {
           const spec = SLIDER[k] || { unitless: true, min: 0, max: 200, step: 1 };
           return app.lbSlider(k, label, v ?? "", spec);
@@ -12170,52 +14461,525 @@
           if (!opts || !opts.length) opts = [""];
           return app.lb09Select(k, label, v ?? opts[0] ?? "", opts);
         }
-        if (t3 === "switch") return `<label class="lb-control lb-switch"><input data-setting="${app.esc(k)}" type="checkbox" ${v ? "checked" : ""}><span>${app.esc(label)}</span></label>`;
-        return app.control(k, raw || t3, v ?? (t3 === "spacing" || t3 === "dimensions" || t3 === "box_shadow" ? {} : ""), label);
+        if (t3 === "switch")
+          return `<label class="lb-control lb-switch"><input data-setting="${app.esc(k)}" type="checkbox" ${v ? "checked" : ""}><span>${app.esc(label)}</span></label>`;
+        return app.control(
+          k,
+          raw || t3,
+          v ?? (t3 === "spacing" || t3 === "dimensions" || t3 === "box_shadow" ? {} : ""),
+          label
+        );
       }
       const UI = {
-        text: { content: [["Text Editor", ["text", "drop_cap", "text_columns", "column_gap"]]], style: [["Text Editor", ["align", "color", "font_family", "font_size", "weight", "line_height", "letter_spacing", "paragraph_spacing", "link_color", "link_hover_color"]], ["Drop Cap", ["drop_cap_view", "drop_cap_color", "drop_cap_secondary_color", "drop_cap_size", "drop_cap_space", "drop_cap_radius", "drop_cap_border_width"]]] },
-        tinymce_text_editor: { content: [["Text Editor", ["content"]]], style: [["Layout", ["width", "max_width", "height", "min_height"]], ["Text Editor", ["align", "color", "font_family", "font_size", "font_weight", "weight"]]] },
-        divider: { content: [["Divider", ["style", "look", "text", "text_tag", "icon", "icon_view", "align", "unit_align"]]], style: [["Divider", ["color", "thickness", "divider_width", "divider_gap", "pattern_size", "unit_spacing", "text_color", "icon_color", "icon_size"]]] },
+        text: {
+          content: [["Text Editor", ["text", "drop_cap", "text_columns", "column_gap"]]],
+          style: [
+            [
+              "Text Editor",
+              [
+                "align",
+                "color",
+                "font_family",
+                "font_size",
+                "weight",
+                "line_height",
+                "letter_spacing",
+                "paragraph_spacing",
+                "link_color",
+                "link_hover_color"
+              ]
+            ],
+            [
+              "Drop Cap",
+              [
+                "drop_cap_view",
+                "drop_cap_color",
+                "drop_cap_secondary_color",
+                "drop_cap_size",
+                "drop_cap_space",
+                "drop_cap_radius",
+                "drop_cap_border_width"
+              ]
+            ]
+          ]
+        },
+        tinymce_text_editor: {
+          content: [["Text Editor", ["content"]]],
+          style: [
+            ["Layout", ["width", "max_width", "height", "min_height"]],
+            ["Text Editor", ["align", "color", "font_family", "font_size", "font_weight", "weight"]]
+          ]
+        },
+        divider: {
+          content: [["Divider", ["style", "look", "text", "text_tag", "icon", "icon_view", "align", "unit_align"]]],
+          style: [
+            [
+              "Divider",
+              [
+                "color",
+                "thickness",
+                "divider_width",
+                "divider_gap",
+                "pattern_size",
+                "unit_spacing",
+                "text_color",
+                "icon_color",
+                "icon_size"
+              ]
+            ]
+          ]
+        },
         spacer: { content: [["Spacer", ["height"]]] },
-        icon_box: { content: [["Icon Box", ["icon", "icon_view", "shape", "title", "title_tag", "text", "link", "link_target", "box_layout", "content_align", "vertical_align", "hover_animation"]]], style: [["Icon", ["icon_size", "icon_space", "icon_color", "secondary_color", "hover_color", "hover_secondary_color", "icon_padding", "icon_border_width", "icon_radius", "rotate"]], ["Content", ["title_space", "title_color", "title_hover_color", "text_color"]]] },
-        image_box: { content: [["Image Box", ["image_id", "image_size", "alt", "title", "title_tag", "text", "link", "link_target", "box_layout", "content_align", "vertical_align", "hover_animation"]]], style: [["Image", ["image_width", "image_space", "image_radius", "image_opacity", "image_hover_opacity"]], ["Content", ["title_space", "title_color", "title_hover_color", "text_color"]]] },
-        icon_list: { content: [["Icon List", ["items", "icon", "list_layout", "link_target", "icon_align", "divider"]]], style: [["List", ["space_between", "icon_size", "icon_color", "icon_hover_color", "text_color", "text_hover_color", "text_indent"]], ["Divider", ["divider_style", "divider_weight", "divider_color", "divider_width"]]] },
-        social: { content: [["Social Icons", ["links", "target", "shape", "color_scheme", "align", "columns", "hover_animation"]]], style: [["Icon", ["color", "icon_color", "hover_color", "hover_icon_color", "size", "icon_padding", "gap", "row_gap", "icon_radius"]]] },
-        star_rating: { content: [["Star Rating", ["scale", "rating", "unmarked_style", "title", "align"]]], style: [["Title", ["title_color", "title_gap"]], ["Stars", ["size", "star_gap", "color", "unmarked_color"]]] },
-        rating: { content: [["Rating", ["rating", "max", "label", "icon", "empty_icon"]]], style: [["Stars", ["color", "size"]]] },
-        testimonial: { content: [["Testimonial", ["quote", "image_id", "image_size", "author", "role", "link", "link_target", "image_position", "align", "name_tag"]]], style: [["Content", ["quote_color"]], ["Image", ["image_width", "image_radius"]], ["Name", ["name_color"]], ["Title", ["role_color"]]] },
-        video: { content: [["Video", ["source", "url", "start", "end", "autoplay", "play_on_mobile", "mute", "loop", "controls", "show_related", "privacy_mode", "lazy_load", "preload", "download_button", "poster_id"]], ["Image Overlay", ["show_overlay", "overlay_image_id", "show_play_icon", "play_icon", "lightbox"]]], style: [["Video", ["aspect_ratio"]], ["Play Icon", ["play_icon_color", "play_icon_size"]]] },
-        progress: { content: [["Progress Bar", ["label", "title_tag", "bar_style", "value", "show_percentage", "inner_text"]]], style: [["Progress Bar", ["title_color", "color", "background", "bar_height", "bar_radius", "inner_color"]]] },
-        counter: { content: [["Counter", ["start", "number", "prefix", "suffix", "duration", "thousand_separator", "separator_char", "title", "title_tag", "title_position", "align"]]], style: [["Number", ["number_color", "number_size"]], ["Title", ["title_color", "title_gap"]]] },
-        alert: { content: [["Alert", ["title", "text", "type", "dismissible", "dismiss_icon"]]], style: [["Alert", ["background", "border_color", "title_color", "text_color", "dismiss_color", "dismiss_size"]]] },
-        accordion: { content: [["Accordion", ["items", "title_tag", "icon", "active_icon", "icon_position", "first_open", "faq_schema"]]], style: [["Title", ["title_color", "active_color", "title_background", "title_padding"]], ["Content", ["content_color", "content_background", "content_padding"]], ["Icon", ["icon_color", "icon_active_color", "icon_space"]], ["Border", ["border_color", "border_width", "space_between"]]] },
-        toggle: { content: [["Toggle", ["items", "title_tag", "icon", "active_icon", "icon_position", "first_open"]]], style: [["Title", ["title_color", "active_color", "title_background", "title_padding"]], ["Content", ["content_color", "content_background", "content_padding"]], ["Icon", ["icon_color", "icon_active_color", "icon_space"]], ["Border", ["border_color", "border_width", "space_between"]]] },
-        tabs: { content: [["Tabs", ["tabs", "orientation", "tabs_align", "title_tag"]]], style: [["Tabs", ["nav_width", "border_width", "border_color", "tab_background"]], ["Title", ["tab_color", "tab_active_color", "tab_active_background", "tab_padding"]], ["Content", ["content_color", "content_background", "content_padding"]]] },
-        carousel: { content: [["Image Carousel", ["ids", "image_size", "slides_to_show", "slides_to_scroll", "image_stretch", "navigation", "link", "custom_urls", "lightbox", "caption", "lazyload", "autoplay", "pause_on_hover", "pause_on_interaction", "interval", "loop", "effect", "speed", "slide_direction"]]], style: [["Images", ["height", "image_spacing", "image_radius"]], ["Arrows", ["arrows_size", "arrows_color"]], ["Dots", ["dots_size", "dots_color"]], ["Caption", ["caption_align", "caption_color"]]] },
+        icon_box: {
+          content: [
+            [
+              "Icon Box",
+              [
+                "icon",
+                "icon_view",
+                "shape",
+                "title",
+                "title_tag",
+                "text",
+                "link",
+                "link_target",
+                "box_layout",
+                "content_align",
+                "vertical_align",
+                "hover_animation"
+              ]
+            ]
+          ],
+          style: [
+            [
+              "Icon",
+              [
+                "icon_size",
+                "icon_space",
+                "icon_color",
+                "secondary_color",
+                "hover_color",
+                "hover_secondary_color",
+                "icon_padding",
+                "icon_border_width",
+                "icon_radius",
+                "rotate"
+              ]
+            ],
+            ["Content", ["title_space", "title_color", "title_hover_color", "text_color"]]
+          ]
+        },
+        image_box: {
+          content: [
+            [
+              "Image Box",
+              [
+                "image_id",
+                "image_size",
+                "alt",
+                "title",
+                "title_tag",
+                "text",
+                "link",
+                "link_target",
+                "box_layout",
+                "content_align",
+                "vertical_align",
+                "hover_animation"
+              ]
+            ]
+          ],
+          style: [
+            ["Image", ["image_width", "image_space", "image_radius", "image_opacity", "image_hover_opacity"]],
+            ["Content", ["title_space", "title_color", "title_hover_color", "text_color"]]
+          ]
+        },
+        icon_list: {
+          content: [["Icon List", ["items", "icon", "list_layout", "link_target", "icon_align", "divider"]]],
+          style: [
+            [
+              "List",
+              [
+                "space_between",
+                "icon_size",
+                "icon_color",
+                "icon_hover_color",
+                "text_color",
+                "text_hover_color",
+                "text_indent"
+              ]
+            ],
+            ["Divider", ["divider_style", "divider_weight", "divider_color", "divider_width"]]
+          ]
+        },
+        social: {
+          content: [
+            ["Social Icons", ["links", "target", "shape", "color_scheme", "align", "columns", "hover_animation"]]
+          ],
+          style: [
+            [
+              "Icon",
+              [
+                "color",
+                "icon_color",
+                "hover_color",
+                "hover_icon_color",
+                "size",
+                "icon_padding",
+                "gap",
+                "row_gap",
+                "icon_radius"
+              ]
+            ]
+          ]
+        },
+        star_rating: {
+          content: [["Star Rating", ["scale", "rating", "unmarked_style", "title", "align"]]],
+          style: [
+            ["Title", ["title_color", "title_gap"]],
+            ["Stars", ["size", "star_gap", "color", "unmarked_color"]]
+          ]
+        },
+        rating: {
+          content: [["Rating", ["rating", "max", "label", "icon", "empty_icon"]]],
+          style: [["Stars", ["color", "size"]]]
+        },
+        testimonial: {
+          content: [
+            [
+              "Testimonial",
+              [
+                "quote",
+                "image_id",
+                "image_size",
+                "author",
+                "role",
+                "link",
+                "link_target",
+                "image_position",
+                "align",
+                "name_tag"
+              ]
+            ]
+          ],
+          style: [
+            ["Content", ["quote_color"]],
+            ["Image", ["image_width", "image_radius"]],
+            ["Name", ["name_color"]],
+            ["Title", ["role_color"]]
+          ]
+        },
+        video: {
+          content: [
+            [
+              "Video",
+              [
+                "source",
+                "url",
+                "start",
+                "end",
+                "autoplay",
+                "play_on_mobile",
+                "mute",
+                "loop",
+                "controls",
+                "show_related",
+                "privacy_mode",
+                "lazy_load",
+                "preload",
+                "download_button",
+                "poster_id"
+              ]
+            ],
+            ["Image Overlay", ["show_overlay", "overlay_image_id", "show_play_icon", "play_icon", "lightbox"]]
+          ],
+          style: [
+            ["Video", ["aspect_ratio"]],
+            ["Play Icon", ["play_icon_color", "play_icon_size"]]
+          ]
+        },
+        progress: {
+          content: [["Progress Bar", ["label", "title_tag", "bar_style", "value", "show_percentage", "inner_text"]]],
+          style: [["Progress Bar", ["title_color", "color", "background", "bar_height", "bar_radius", "inner_color"]]]
+        },
+        counter: {
+          content: [
+            [
+              "Counter",
+              [
+                "start",
+                "number",
+                "prefix",
+                "suffix",
+                "duration",
+                "thousand_separator",
+                "separator_char",
+                "title",
+                "title_tag",
+                "title_position",
+                "align"
+              ]
+            ]
+          ],
+          style: [
+            ["Number", ["number_color", "number_size"]],
+            ["Title", ["title_color", "title_gap"]]
+          ]
+        },
+        alert: {
+          content: [["Alert", ["title", "text", "type", "dismissible", "dismiss_icon"]]],
+          style: [
+            ["Alert", ["background", "border_color", "title_color", "text_color", "dismiss_color", "dismiss_size"]]
+          ]
+        },
+        accordion: {
+          content: [
+            ["Accordion", ["items", "title_tag", "icon", "active_icon", "icon_position", "first_open", "faq_schema"]]
+          ],
+          style: [
+            ["Title", ["title_color", "active_color", "title_background", "title_padding"]],
+            ["Content", ["content_color", "content_background", "content_padding"]],
+            ["Icon", ["icon_color", "icon_active_color", "icon_space"]],
+            ["Border", ["border_color", "border_width", "space_between"]]
+          ]
+        },
+        toggle: {
+          content: [["Toggle", ["items", "title_tag", "icon", "active_icon", "icon_position", "first_open"]]],
+          style: [
+            ["Title", ["title_color", "active_color", "title_background", "title_padding"]],
+            ["Content", ["content_color", "content_background", "content_padding"]],
+            ["Icon", ["icon_color", "icon_active_color", "icon_space"]],
+            ["Border", ["border_color", "border_width", "space_between"]]
+          ]
+        },
+        tabs: {
+          content: [["Tabs", ["tabs", "orientation", "tabs_align", "title_tag"]]],
+          style: [
+            ["Tabs", ["nav_width", "border_width", "border_color", "tab_background"]],
+            ["Title", ["tab_color", "tab_active_color", "tab_active_background", "tab_padding"]],
+            ["Content", ["content_color", "content_background", "content_padding"]]
+          ]
+        },
+        carousel: {
+          content: [
+            [
+              "Image Carousel",
+              [
+                "ids",
+                "image_size",
+                "slides_to_show",
+                "slides_to_scroll",
+                "image_stretch",
+                "navigation",
+                "link",
+                "custom_urls",
+                "lightbox",
+                "caption",
+                "lazyload",
+                "autoplay",
+                "pause_on_hover",
+                "pause_on_interaction",
+                "interval",
+                "loop",
+                "effect",
+                "speed",
+                "slide_direction"
+              ]
+            ]
+          ],
+          style: [
+            ["Images", ["height", "image_spacing", "image_radius"]],
+            ["Arrows", ["arrows_size", "arrows_color"]],
+            ["Dots", ["dots_size", "dots_color"]],
+            ["Caption", ["caption_align", "caption_color"]]
+          ]
+        },
         google_maps: { content: [["Map", ["address", "zoom", "height"]]] },
         audio: { content: [["Audio", ["url", "preload", "autoplay", "loop", "controls"]]] },
-        soundcloud: { content: [["SoundCloud", ["url", "visual", "height", "auto_play", "buying", "liking", "download", "show_artwork", "sharing", "show_comments", "show_playcount", "show_user", "player_color"]]] },
+        soundcloud: {
+          content: [
+            [
+              "SoundCloud",
+              [
+                "url",
+                "visual",
+                "height",
+                "auto_play",
+                "buying",
+                "liking",
+                "download",
+                "show_artwork",
+                "sharing",
+                "show_comments",
+                "show_playcount",
+                "show_user",
+                "player_color"
+              ]
+            ]
+          ]
+        },
         html: { content: [["HTML", ["html"]]] },
         embed: { content: [["Embed", ["url"]]], style: [["Embed", ["aspect_ratio", "max_width"]]] },
         shortcode: { content: [["Shortcode", ["shortcode"]]] },
         code: { content: [["Code", ["code", "language"]]] },
         menu_anchor: { content: [["Menu Anchor", ["menu", "anchor"]]] },
-        site_nav: { content: [["Site Menu", ["menu", "display_name", "layout", "breakpoint"]]], style: [["Site Menu", ["color", "hover_color", "background", "radius"]], ["Menu Button", ["button_color", "button_border_color", "button_hover_color", "button_hover_background", "button_hover_border"]]] },
+        site_nav: {
+          content: [["Site Menu", ["menu", "display_name", "layout", "breakpoint"]]],
+          style: [
+            ["Site Menu", ["color", "hover_color", "background", "radius"]],
+            [
+              "Menu Button",
+              [
+                "button_color",
+                "button_border_color",
+                "button_hover_color",
+                "button_hover_background",
+                "button_hover_border"
+              ]
+            ]
+          ]
+        },
         read_more: { content: [["Read More", ["text", "url", "target"]]] },
         sidebar: { content: [["Sidebar", ["sidebar"]]] },
         wordpress: { content: [["WordPress Widget", ["widget", "title", "widget_options", "sidebar"]]] },
         wordpress_widget: { content: [["WordPress Widget", ["widget", "title", "widget_options", "sidebar"]]] },
         link_in_bio: { content: [["Link In Bio", ["title", "subtitle", "avatar", "links", "layout"]]] },
-        text_path: { content: [["Text Path", ["text", "link", "link_target", "path", "show_path", "speed"]]], style: [["Text", ["align", "color", "hover_color", "font_family", "font_size", "font_weight", "font_style", "text_transform", "text_decoration", "line_height", "letter_spacing", "word_spacing"]], ["Stroke", ["stroke_width", "stroke_color"]], ["Path", ["size", "path_color", "path_width"]]] },
+        text_path: {
+          content: [["Text Path", ["text", "link", "link_target", "path", "show_path", "speed"]]],
+          style: [
+            [
+              "Text",
+              [
+                "align",
+                "color",
+                "hover_color",
+                "font_family",
+                "font_size",
+                "font_weight",
+                "font_style",
+                "text_transform",
+                "text_decoration",
+                "line_height",
+                "letter_spacing",
+                "word_spacing"
+              ]
+            ],
+            ["Stroke", ["stroke_width", "stroke_color"]],
+            ["Path", ["size", "path_color", "path_width"]]
+          ]
+        },
         price_table: { content: [["Price Table", ["title", "price", "period", "features", "button", "url"]]] },
         login: { content: [["Login", ["title", "button", "redirect"]]] },
         form: { content: [["Form", ["title", "fields", "submit", "success", "email", "honeypot", "layout"]]] },
-        flip_box: { content: [["Front", ["front_graphic", "front_icon", "front_icon_view", "front_shape", "front_image_id", "front_image_size", "front_title", "front_title_tag", "front_text"]], ["Back", ["back_graphic", "back_icon", "back_icon_view", "back_shape", "back_image_id", "back_image_size", "back_title", "back_title_tag", "back_text", "show_button", "back_button_text", "back_button_url", "back_button_target", "button_background", "button_text_color"]], ["Settings", ["flip_effect", "flip_direction", "flip_3d", "flip_depth", "flip_duration", "flip_trigger", "box_height"]]], style: [["Front", ["front_background", "front_align", "front_valign", "front_padding", "front_title_color", "front_title_typography", "front_title_space", "front_desc_color", "front_desc_typography", "front_icon_size", "front_icon_color", "front_icon_space", "front_image_width", "front_image_radius"]], ["Back", ["back_background", "back_align", "back_valign", "back_padding", "back_title_color", "back_title_typography", "back_title_space", "back_desc_color", "back_desc_typography", "back_icon_size", "back_icon_color", "back_icon_space", "back_image_width", "back_image_radius"]], ["Button", ["button_typography", "button_hover_background", "button_hover_color", "button_padding"]]] },
+        flip_box: {
+          content: [
+            [
+              "Front",
+              [
+                "front_graphic",
+                "front_icon",
+                "front_icon_view",
+                "front_shape",
+                "front_image_id",
+                "front_image_size",
+                "front_title",
+                "front_title_tag",
+                "front_text"
+              ]
+            ],
+            [
+              "Back",
+              [
+                "back_graphic",
+                "back_icon",
+                "back_icon_view",
+                "back_shape",
+                "back_image_id",
+                "back_image_size",
+                "back_title",
+                "back_title_tag",
+                "back_text",
+                "show_button",
+                "back_button_text",
+                "back_button_url",
+                "back_button_target",
+                "button_background",
+                "button_text_color"
+              ]
+            ],
+            [
+              "Settings",
+              ["flip_effect", "flip_direction", "flip_3d", "flip_depth", "flip_duration", "flip_trigger", "box_height"]
+            ]
+          ],
+          style: [
+            [
+              "Front",
+              [
+                "front_background",
+                "front_align",
+                "front_valign",
+                "front_padding",
+                "front_title_color",
+                "front_title_typography",
+                "front_title_space",
+                "front_desc_color",
+                "front_desc_typography",
+                "front_icon_size",
+                "front_icon_color",
+                "front_icon_space",
+                "front_image_width",
+                "front_image_radius"
+              ]
+            ],
+            [
+              "Back",
+              [
+                "back_background",
+                "back_align",
+                "back_valign",
+                "back_padding",
+                "back_title_color",
+                "back_title_typography",
+                "back_title_space",
+                "back_desc_color",
+                "back_desc_typography",
+                "back_icon_size",
+                "back_icon_color",
+                "back_icon_space",
+                "back_image_width",
+                "back_image_radius"
+              ]
+            ],
+            ["Button", ["button_typography", "button_hover_background", "button_hover_color", "button_padding"]]
+          ]
+        },
         component: { content: [["Component", ["component_id"]]] },
         template: { content: [["Template", ["template_id"]]] },
-        inner_section: { content: [["Inner Section", ["layout", "direction", "wrap", "justify", "align", "gap", "columns"]]] },
-        grid: { content: [["Grid", ["columns", "rows", "grid_template_columns", "grid_template_rows", "column_gap", "row_gap", "auto_flow", "align", "justify", "min_column", "min_row", "show_outline"]]] }
+        inner_section: {
+          content: [["Inner Section", ["layout", "direction", "wrap", "justify", "align", "gap", "columns"]]]
+        },
+        grid: {
+          content: [
+            [
+              "Grid",
+              [
+                "columns",
+                "rows",
+                "grid_template_columns",
+                "grid_template_rows",
+                "column_gap",
+                "row_gap",
+                "auto_flow",
+                "align",
+                "justify",
+                "min_column",
+                "min_row",
+                "show_outline"
+              ]
+            ]
+          ]
+        }
       };
       function leftovers(n, tab, used) {
         const e = app.meta(n.type), s = n.settings || {};
@@ -12246,7 +15010,52 @@
       function lbParityChrome(n) {
         const s = n.settings || {};
         const family = typeof app.lb104FontOptions === "function" ? `<label class="lb-control lb-font-family-control"><span>${app.esc(app.t("Font Family"))} <small>${app.esc(app.t("Google Fonts"))}</small></span><select data-setting="font_family" class="lb-font-family-select">${app.lb104FontOptions(s.font_family || "")}</select></label>` : app.lb09Field("font_family", app.t("Font Family"), "text", s.font_family);
-        return app.lb09Section(app.t("Typography"), family + `<label class="lb-control"><span>${app.esc(app.t("Text Color"))}</span><input data-setting="color" type="color" value="${app.esc(s.color || s.text_color || "#222222")}"></label>` + app.lb09Select("font_weight", app.t("Weight"), s.font_weight || s.weight || "", ["", "300", "400", "500", "600", "700", "800", "900"]) + app.lb09Select("font_style", app.t("Style"), s.font_style || "", ["", "normal", "italic", "oblique"]) + app.lb09Select("text_transform", app.t("Transform"), s.text_transform || "", ["", "none", "uppercase", "lowercase", "capitalize"]) + app.lb09Select("text_decoration", app.t("Decoration"), s.text_decoration || "", ["", "none", "underline", "overline", "line-through"]) + app.control("text_shadow", "text_shadow", s.text_shadow || {}, app.t("Text Shadow")), true) + app.lb09Section(app.t("Background"), app.control("background", "background", typeof s.background === "object" ? s.background : s.background ? { type: "classic", color: s.background } : {}, app.t("Background")), false) + app.lb09Section(app.t("Border"), app.lb09Box("border_width", app.t("Border Width"), s.border_width) + app.lb09Select("border_style", app.t("Border Style"), s.border_style || "", ["", "solid", "dashed", "dotted", "double", "none"]) + `<label class="lb-control"><span>Border Color</span><input data-setting="border_color" type="color" value="${app.esc(s.border_color || "#dddddd")}"></label>` + app.lb09Box("border_radius", app.t("Radius"), s.border_radius) + app.control("shadow", "box_shadow", s.shadow || {}, "Shadow"), false);
+        return app.lb09Section(
+          app.t("Typography"),
+          family + `<label class="lb-control"><span>${app.esc(app.t("Text Color"))}</span><input data-setting="color" type="color" value="${app.esc(s.color || s.text_color || "#222222")}"></label>` + app.lb09Select("font_weight", app.t("Weight"), s.font_weight || s.weight || "", [
+            "",
+            "300",
+            "400",
+            "500",
+            "600",
+            "700",
+            "800",
+            "900"
+          ]) + app.lb09Select("font_style", app.t("Style"), s.font_style || "", ["", "normal", "italic", "oblique"]) + app.lb09Select("text_transform", app.t("Transform"), s.text_transform || "", [
+            "",
+            "none",
+            "uppercase",
+            "lowercase",
+            "capitalize"
+          ]) + app.lb09Select("text_decoration", app.t("Decoration"), s.text_decoration || "", [
+            "",
+            "none",
+            "underline",
+            "overline",
+            "line-through"
+          ]) + app.control("text_shadow", "text_shadow", s.text_shadow || {}, app.t("Text Shadow")),
+          true
+        ) + app.lb09Section(
+          app.t("Background"),
+          app.control(
+            "background",
+            "background",
+            typeof s.background === "object" ? s.background : s.background ? { type: "classic", color: s.background } : {},
+            app.t("Background")
+          ),
+          false
+        ) + app.lb09Section(
+          app.t("Border"),
+          app.lb09Box("border_width", app.t("Border Width"), s.border_width) + app.lb09Select("border_style", app.t("Border Style"), s.border_style || "", [
+            "",
+            "solid",
+            "dashed",
+            "dotted",
+            "double",
+            "none"
+          ]) + `<label class="lb-control"><span>Border Color</span><input data-setting="border_color" type="color" value="${app.esc(s.border_color || "#dddddd")}"></label>` + app.lb09Box("border_radius", app.t("Radius"), s.border_radius) + app.control("shadow", "box_shadow", s.shadow || {}, "Shadow"),
+          false
+        );
       }
       function lbParitySettings(n) {
         const e = app.meta(n.type), s = n.settings || {}, spec = UI[n.type] || {};
@@ -12261,13 +15070,69 @@
           h += lbParityAdvanced(n);
         }
         const warn = app.accessibilityWarnings(n);
-        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
+        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
         return h;
       }
-      const MASK = { circle: "circle(50% at 50% 50%)", ellipse: "ellipse(50% 42% at 50% 50%)", hexagon: "polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)", triangle: "polygon(50% 0%,0% 100%,100% 100%)", diamond: "polygon(50% 0%,100% 50%,50% 100%,0% 50%)", pill: "inset(0 round 999px)" };
+      const MASK = {
+        circle: "circle(50% at 50% 50%)",
+        ellipse: "ellipse(50% 42% at 50% 50%)",
+        hexagon: "polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)",
+        triangle: "polygon(50% 0%,0% 100%,100% 100%)",
+        diamond: "polygon(50% 0%,100% 50%,50% 100%,0% 50%)",
+        pill: "inset(0 round 999px)"
+      };
       const lb35OldLabel = app.optionLabel;
       app.optionLabel = function(k, o) {
-        const extra = { youtube: "YouTube", vimeo: "Vimeo", dailymotion: "Dailymotion", videopress: "VideoPress", hosted: "Self Hosted", info: "Info", success: "Success", warning: "Warning", danger: "Danger", xs: "Extra Small", xl: "Extra Large", xxl: "XXL", before: "Before", after: "After", traditional: "Traditional", inline: "Inline", aside: "Aside", official: "Official", custom: "Custom", solid: "Solid", outline: "Outline", horizontal: "Horizontal", vertical: "Vertical", both: "Arrows and Dots", arrows: "Arrows", dots: "Dots", slide: "Slide", fade: "Fade", ltr: "Left to Right", rtl: "Right to Left", circle: "Circle", ellipse: "Ellipse", hexagon: "Hexagon", triangle: "Triangle", diamond: "Diamond", pill: "Pill", line: "None", line_text: "Text", line_icon: "Icon", stacked: "Stacked", framed: "Framed", file: "Media File", attachment: "Attachment Page", none: "None", pop: "Pop", "grow-rotate": "Grow Rotate", stack: "Stacked", two_column: "Two Columns" };
+        const extra = {
+          youtube: "YouTube",
+          vimeo: "Vimeo",
+          dailymotion: "Dailymotion",
+          videopress: "VideoPress",
+          hosted: "Self Hosted",
+          info: "Info",
+          success: "Success",
+          warning: "Warning",
+          danger: "Danger",
+          xs: "Extra Small",
+          xl: "Extra Large",
+          xxl: "XXL",
+          before: "Before",
+          after: "After",
+          traditional: "Traditional",
+          inline: "Inline",
+          aside: "Aside",
+          official: "Official",
+          custom: "Custom",
+          solid: "Solid",
+          outline: "Outline",
+          horizontal: "Horizontal",
+          vertical: "Vertical",
+          both: "Arrows and Dots",
+          arrows: "Arrows",
+          dots: "Dots",
+          slide: "Slide",
+          fade: "Fade",
+          ltr: "Left to Right",
+          rtl: "Right to Left",
+          circle: "Circle",
+          ellipse: "Ellipse",
+          hexagon: "Hexagon",
+          triangle: "Triangle",
+          diamond: "Diamond",
+          pill: "Pill",
+          line: "None",
+          line_text: "Text",
+          line_icon: "Icon",
+          stacked: "Stacked",
+          framed: "Framed",
+          file: "Media File",
+          attachment: "Attachment Page",
+          none: "None",
+          pop: "Pop",
+          "grow-rotate": "Grow Rotate",
+          stack: "Stacked",
+          two_column: "Two Columns"
+        };
         return extra[o] || lb35OldLabel(k, o);
       };
       const lb35OldOpts = app.optionsFor;
@@ -12281,12 +15146,41 @@
         if (type === "form" && k === "layout") return ["stack", "inline", "two-column"];
         if (k === "hover_animation") {
           const base = lb35OldOpts(k) || [];
-          return [...new Set(base.concat(["", "zoom", "grow", "shrink", "lift", "sink", "fade", "rotate", "float", "pulse", "skew", "wobble", "buzz", "pop", "grow-rotate"]))];
+          return [
+            ...new Set(
+              base.concat([
+                "",
+                "zoom",
+                "grow",
+                "shrink",
+                "lift",
+                "sink",
+                "fade",
+                "rotate",
+                "float",
+                "pulse",
+                "skew",
+                "wobble",
+                "buzz",
+                "pop",
+                "grow-rotate"
+              ])
+            )
+          ];
         }
         const got = lb35OldOpts(k);
         return got && got.length ? got : [];
       };
-      const BUTTON_TYPES = /* @__PURE__ */ new Set(["button", "form", "flip_box", "price_table", "login", "read_more", "link_in_bio", "collection_loop"]);
+      const BUTTON_TYPES = /* @__PURE__ */ new Set([
+        "button",
+        "form",
+        "flip_box",
+        "price_table",
+        "login",
+        "read_more",
+        "link_in_bio",
+        "collection_loop"
+      ]);
       function usesButton(n) {
         const e = app.meta(n && n.type) || {};
         if (Object.prototype.hasOwnProperty.call(e, "uses_button")) return !!e.uses_button;
@@ -12295,9 +15189,66 @@
       const lb35OldAdv = app.lb09AdvancedTab;
       app.lb09AdvancedTab = function(n) {
         const s = n.settings || {}, pos = s.position || "";
-        const offset = pos && pos !== "relative" ? app.lb09Section(app.t("Offset"), app.lbSlider("top", "Top", s.top || "", { units: ["px", app.t("%"), "em"], min: -400, max: 400 }) + app.lbSlider("right", "Right", s.right || "", { units: ["px", app.t("%"), "em"], min: -400, max: 400 }) + app.lbSlider("bottom", "Bottom", s.bottom || "", { units: ["px", app.t("%"), "em"], min: -400, max: 400 }) + app.lbSlider("left", "Left", s.left || "", { units: ["px", app.t("%"), "em"], min: -400, max: 400 }), false) : "";
-        const btnRadius = usesButton(n) ? app.lbSlider("button_radius", app.t("Button Radius"), s.button_radius || "", { units: ["px", app.t("%")], min: 0, max: 80 }) : "";
-        return lb35OldAdv(n) + offset + app.lb09Section(app.t("Transform"), app.control("transform", "transform", s.transform || {}, app.t("Transform")) + app.control("filter", "css_filter", s.filter || {}, app.t("CSS Filter")) + app.control("transition", "transition", s.transition || {}, app.t("Transition")) + app.lb09Select("mix_blend_mode", app.t("Blend Mode"), s.mix_blend_mode || "", ["", "normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion"]), false) + app.lb09Section(app.t("Mask"), app.lb09Select("mask_shape", app.t("Shape"), s.mask_shape || "", ["", "circle", "ellipse", "hexagon", "triangle", "diamond", "pill"]), false) + app.lb09Section(app.t("Border"), app.lb09Box("border_width", app.t("Border Width"), s.border_width) + app.lb09Select("border_style", app.t("Border Style"), s.border_style || "", ["", "solid", "dashed", "dotted", "double", "none"]) + `<label class="lb-control"><span>Border Color</span><input data-setting="border_color" type="color" value="${app.esc(s.border_color || "#dddddd")}"></label>` + app.lb09Box("border_radius", app.t("Radius"), s.border_radius) + btnRadius + app.control("shadow", "box_shadow", s.shadow || {}, "Shadow"), false) + app.lb09GridChild(n);
+        const offset = pos && pos !== "relative" ? app.lb09Section(
+          app.t("Offset"),
+          app.lbSlider("top", "Top", s.top || "", { units: ["px", app.t("%"), "em"], min: -400, max: 400 }) + app.lbSlider("right", "Right", s.right || "", {
+            units: ["px", app.t("%"), "em"],
+            min: -400,
+            max: 400
+          }) + app.lbSlider("bottom", "Bottom", s.bottom || "", {
+            units: ["px", app.t("%"), "em"],
+            min: -400,
+            max: 400
+          }) + app.lbSlider("left", "Left", s.left || "", { units: ["px", app.t("%"), "em"], min: -400, max: 400 }),
+          false
+        ) : "";
+        const btnRadius = usesButton(n) ? app.lbSlider("button_radius", app.t("Button Radius"), s.button_radius || "", {
+          units: ["px", app.t("%")],
+          min: 0,
+          max: 80
+        }) : "";
+        return lb35OldAdv(n) + offset + app.lb09Section(
+          app.t("Transform"),
+          app.control("transform", "transform", s.transform || {}, app.t("Transform")) + app.control("filter", "css_filter", s.filter || {}, app.t("CSS Filter")) + app.control("transition", "transition", s.transition || {}, app.t("Transition")) + app.lb09Select("mix_blend_mode", app.t("Blend Mode"), s.mix_blend_mode || "", [
+            "",
+            "normal",
+            "multiply",
+            "screen",
+            "overlay",
+            "darken",
+            "lighten",
+            "color-dodge",
+            "color-burn",
+            "hard-light",
+            "soft-light",
+            "difference",
+            "exclusion"
+          ]),
+          false
+        ) + app.lb09Section(
+          app.t("Mask"),
+          app.lb09Select("mask_shape", app.t("Shape"), s.mask_shape || "", [
+            "",
+            "circle",
+            "ellipse",
+            "hexagon",
+            "triangle",
+            "diamond",
+            "pill"
+          ]),
+          false
+        ) + app.lb09Section(
+          app.t("Border"),
+          app.lb09Box("border_width", app.t("Border Width"), s.border_width) + app.lb09Select("border_style", app.t("Border Style"), s.border_style || "", [
+            "",
+            "solid",
+            "dashed",
+            "dotted",
+            "double",
+            "none"
+          ]) + `<label class="lb-control"><span>Border Color</span><input data-setting="border_color" type="color" value="${app.esc(s.border_color || "#dddddd")}"></label>` + app.lb09Box("border_radius", app.t("Radius"), s.border_radius) + btnRadius + app.control("shadow", "box_shadow", s.shadow || {}, "Shadow"),
+          false
+        ) + app.lb09GridChild(n);
       };
       const lb35OldStyle = app.styleInline;
       app.styleInline = function(n) {
@@ -12340,7 +15291,8 @@
       };
       const lb35OldSettings = app.settingsHTML;
       app.settingsHTML = function() {
-        if (!app.selected) return '<div class="lb-empty-settings">' + app.t("Select a unit to edit its settings.") + "</div>";
+        if (!app.selected)
+          return '<div class="lb-empty-settings">' + app.t("Select a unit to edit its settings.") + "</div>";
         const r = app.locate(app.state.root, app.selected);
         if (!r) return lb35OldSettings();
         if (r.node.type === "gallery") return app.lb09GallerySettings(r.node);
@@ -12458,7 +15410,8 @@
     (function() {
       function lbSchemaEmpty(def) {
         const t3 = def.type || "text";
-        if (t3 === "spacing" || t3 === "dimensions" || t3 === "box_shadow" || t3 === "typography" || t3 === "border" || t3 === "background" || t3 === "text_shadow" || t3 === "css_filter" || t3 === "transform" || t3 === "transition" || t3 === "gaps") return {};
+        if (t3 === "spacing" || t3 === "dimensions" || t3 === "box_shadow" || t3 === "typography" || t3 === "border" || t3 === "background" || t3 === "text_shadow" || t3 === "css_filter" || t3 === "transform" || t3 === "transition" || t3 === "gaps")
+          return {};
         if (t3 === "switch") return false;
         if (t3 === "repeater") return Array.isArray(def.default) ? JSON.parse(JSON.stringify(def.default)) : [];
         return Object.prototype.hasOwnProperty.call(def, "default") ? def.default : "";
@@ -12500,12 +15453,13 @@
           return body ? app.lb09Section(title, body, true) : "";
         }).join("");
         const warn = app.accessibilityWarnings(n);
-        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
+        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
         return h;
       }
       const lb02OldSettings = app.settingsHTML;
       app.settingsHTML = function() {
-        if (!app.selected) return '<div class="lb-empty-settings">' + app.t("Select a unit to edit its settings.") + "</div>";
+        if (!app.selected)
+          return '<div class="lb-empty-settings">' + app.t("Select a unit to edit its settings.") + "</div>";
         const r = app.locate(app.state.root, app.selected);
         if (!r) return lb02OldSettings();
         const html = app.meta(r.node.type).schema ? lbSchemaSettings(r.node) : lb02OldSettings();
@@ -12575,13 +15529,16 @@
           const content = String(s.content || "<p>Start writing your content here.</p>");
           let h = `<div class="lb-selection-head"><strong>TinyMCE Text Editor</strong><span class="lb-selection-id">${app.esc(r.node.id)}</span></div>`;
           h += `<div class="lb-settings-tabs">${["content", "style", "advanced"].map((x) => `<button data-style-tab="${x}" class="${app.styleTab === x ? "active" : ""}">${x[0].toUpperCase() + x.slice(1)}</button>`).join("")}</div>`;
-          h += `<div class="lb-section"><div class="lb-section-title"><span>\u25BE</span><strong>Content</strong></div><div class="lb-section-body"><label class="lb-control"><span>Content</span><textarea id="lb-tinymce-inline-content" rows="9" spellcheck="true">${app.esc(content)}</textarea><small class="lb-muted">Edit the content directly, or use Edit with TinyMCE for rich-text formatting.</small></label><button type="button" class="lb-btn primary lb-tinymce-open" id="lb-tinymce-open">Edit with TinyMCE</button></div></div>`;
+          h += `<div class="lb-section"><div class="lb-section-title"><span>▾</span><strong>Content</strong></div><div class="lb-section-body"><label class="lb-control"><span>Content</span><textarea id="lb-tinymce-inline-content" rows="9" spellcheck="true">${app.esc(content)}</textarea><small class="lb-muted">Edit the content directly, or use Edit with TinyMCE for rich-text formatting.</small></label><button type="button" class="lb-btn primary lb-tinymce-open" id="lb-tinymce-open">Edit with TinyMCE</button></div></div>`;
           h += `<div class="lb-action-grid lb-tinymce-actions-secondary"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
           return h;
         }
         let html = oldSettings();
         if (app.styleTab === "style" && !/data-slider-key="width/.test(html)) {
-          html = html.replace('<div class="lb-action-grid"', app.lb09LayoutSliders(r.node.settings || {}) + '<div class="lb-action-grid"');
+          html = html.replace(
+            '<div class="lb-action-grid"',
+            app.lb09LayoutSliders(r.node.settings || {}) + '<div class="lb-action-grid"'
+          );
         }
         return html;
       };
@@ -12824,9 +15781,9 @@
         <button type="button" data-lb-split="4x1"><i class="lb-structure-icon cols-4"></i><b>4 Columns</b></button>
         <button type="button" data-lb-split="1x2"><i class="lb-structure-icon rows-2"></i><b>2 Rows</b></button>
         <button type="button" data-lb-split="1x3"><i class="lb-structure-icon rows-3"></i><b>3 Rows</b></button>
-        <button type="button" data-lb-split="2x2"><i class="lb-structure-icon grid-2"></i><b>2 \xD7 2</b></button>
-        <button type="button" data-lb-split="3x2"><i class="lb-structure-icon grid-3"></i><b>3 \xD7 2</b></button>
-        <button type="button" data-lb-split="2x3"><i class="lb-structure-icon grid-2x3"></i><b>2 \xD7 3</b></button>
+        <button type="button" data-lb-split="2x2"><i class="lb-structure-icon grid-2"></i><b>2 × 2</b></button>
+        <button type="button" data-lb-split="3x2"><i class="lb-structure-icon grid-3"></i><b>3 × 2</b></button>
+        <button type="button" data-lb-split="2x3"><i class="lb-structure-icon grid-2x3"></i><b>2 × 3</b></button>
       </div>
       <div class="lb-structure-custom">
         <label>Columns <input type="number" min="1" max="12" value="2" data-lb-split-cols></label>
@@ -12848,7 +15805,42 @@
             const family = typeof app.lb104FontOptions === "function" ? `<label class="lb-control lb-font-family-control"><span>${app.esc(app.t("Font Family"))} <small>${app.esc(app.t("Google Fonts"))}</small></span><select data-setting="font_family" class="lb-font-family-select">${app.lb104FontOptions(s.font_family || "")}</select></label>` : app.lb09Field("font_family", app.t("Font Family"), "text", s.font_family || "");
             extra += app.lb09Section(
               app.t("Typography"),
-              family + app.lbSlider("font_size", app.t("Size"), s.font_size ?? s.size ?? "", { units: ["px", "em", "rem"], min: 6, max: 200 }) + app.lb09Select("font_weight", app.t("Weight"), s.font_weight || s.weight || "", ["", "300", "400", "500", "600", "700", "800", "900"]) + app.lb09Select("font_style", app.t("Style"), s.font_style || "", ["", "normal", "italic", "oblique"]) + app.lb09Select("text_transform", app.t("Transform"), s.text_transform || "", ["", "none", "uppercase", "lowercase", "capitalize"]) + app.lb09Select("text_decoration", app.t("Decoration"), s.text_decoration || "", ["", "none", "underline", "overline", "line-through"]) + app.lbSlider("line_height", app.t("Line Height"), s.line_height ?? "", { unitless: true, min: 0.6, max: 3, step: 0.05 }) + app.lbSlider("letter_spacing", app.t("Letter Spacing"), s.letter_spacing ?? "", { units: ["px", "em"], min: -5, max: 20, step: 0.1 }) + (html.includes('data-setting="color"') ? "" : `<label class="lb-control"><span>${app.esc(app.t("Text Color"))}</span><input data-setting="color" type="color" value="${app.esc(s.color || s.text_color || "#30343a")}"></label>`),
+              family + app.lbSlider("font_size", app.t("Size"), s.font_size ?? s.size ?? "", {
+                units: ["px", "em", "rem"],
+                min: 6,
+                max: 200
+              }) + app.lb09Select("font_weight", app.t("Weight"), s.font_weight || s.weight || "", [
+                "",
+                "300",
+                "400",
+                "500",
+                "600",
+                "700",
+                "800",
+                "900"
+              ]) + app.lb09Select("font_style", app.t("Style"), s.font_style || "", ["", "normal", "italic", "oblique"]) + app.lb09Select("text_transform", app.t("Transform"), s.text_transform || "", [
+                "",
+                "none",
+                "uppercase",
+                "lowercase",
+                "capitalize"
+              ]) + app.lb09Select("text_decoration", app.t("Decoration"), s.text_decoration || "", [
+                "",
+                "none",
+                "underline",
+                "overline",
+                "line-through"
+              ]) + app.lbSlider("line_height", app.t("Line Height"), s.line_height ?? "", {
+                unitless: true,
+                min: 0.6,
+                max: 3,
+                step: 0.05
+              }) + app.lbSlider("letter_spacing", app.t("Letter Spacing"), s.letter_spacing ?? "", {
+                units: ["px", "em"],
+                min: -5,
+                max: 20,
+                step: 0.1
+              }) + (html.includes('data-setting="color"') ? "" : `<label class="lb-control"><span>${app.esc(app.t("Text Color"))}</span><input data-setting="color" type="color" value="${app.esc(s.color || s.text_color || "#30343a")}"></label>`),
               true
             );
           }
@@ -12868,25 +15860,65 @@
           }
           if (schema) {
             if (!extra) return html;
-            if (html.includes('<div class="lb-a11y-box"')) return html.replace('<div class="lb-a11y-box"', extra + '<div class="lb-a11y-box"');
-            if (html.includes('<div class="lb-action-grid"')) return html.replace('<div class="lb-action-grid"', extra + '<div class="lb-action-grid"');
+            if (html.includes('<div class="lb-a11y-box"'))
+              return html.replace('<div class="lb-a11y-box"', extra + '<div class="lb-a11y-box"');
+            if (html.includes('<div class="lb-action-grid"'))
+              return html.replace('<div class="lb-action-grid"', extra + '<div class="lb-action-grid"');
             return html + extra;
           }
           if (!html.includes('data-setting="align"') && n.type !== "container" && n.type !== "grid") {
-            extra += app.lb09Section(app.t("Alignment"), app.lb09Select("align", app.t("Align"), s.align || "", ["", "left", "center", "right", "justify"]), false);
+            extra += app.lb09Section(
+              app.t("Alignment"),
+              app.lb09Select("align", app.t("Align"), s.align || "", ["", "left", "center", "right", "justify"]),
+              false
+            );
           }
           if (!html.includes("lb-background") && !html.includes('data-setting="background"') && !html.includes('name="background"')) {
-            extra += app.lb09Section(app.t("Background"), app.control("background", "background", typeof s.background === "object" ? s.background : s.background ? { type: "classic", color: s.background } : {}, app.t("Background")), false);
+            extra += app.lb09Section(
+              app.t("Background"),
+              app.control(
+                "background",
+                "background",
+                typeof s.background === "object" ? s.background : s.background ? { type: "classic", color: s.background } : {},
+                app.t("Background")
+              ),
+              false
+            );
           }
           if (!html.includes('data-setting="border_style"')) {
             extra += app.lb09Section(
               app.t("Border"),
-              app.lb09Select("border_style", app.t("Border Style"), s.border_style || "", ["", "solid", "dashed", "dotted", "double", "none"]) + app.lb09Box("border_width", app.t("Border Width"), s.border_width) + `<label class="lb-control"><span>${app.esc(app.t("Border Color"))}</span><input data-setting="border_color" type="color" value="${app.esc(s.border_color || "#d0d5dd")}"></label>` + app.lb09Box("border_radius", app.t("Border Radius"), s.border_radius) + app.control("shadow", "box_shadow", s.shadow || {}, app.t("Box Shadow")),
+              app.lb09Select("border_style", app.t("Border Style"), s.border_style || "", [
+                "",
+                "solid",
+                "dashed",
+                "dotted",
+                "double",
+                "none"
+              ]) + app.lb09Box("border_width", app.t("Border Width"), s.border_width) + `<label class="lb-control"><span>${app.esc(app.t("Border Color"))}</span><input data-setting="border_color" type="color" value="${app.esc(s.border_color || "#d0d5dd")}"></label>` + app.lb09Box("border_radius", app.t("Border Radius"), s.border_radius) + app.control("shadow", "box_shadow", s.shadow || {}, app.t("Box Shadow")),
               false
             );
           }
           if (!html.includes('data-setting="hover_animation"')) {
-            extra += app.lb09Section(app.t("Hover"), app.lb09Select("hover_animation", app.t("Hover Animation"), s.hover_animation || "", ["", "zoom", "grow", "shrink", "lift", "sink", "fade", "rotate", "float", "pulse", "skew", "wobble", "buzz"]), false);
+            extra += app.lb09Section(
+              app.t("Hover"),
+              app.lb09Select("hover_animation", app.t("Hover Animation"), s.hover_animation || "", [
+                "",
+                "zoom",
+                "grow",
+                "shrink",
+                "lift",
+                "sink",
+                "fade",
+                "rotate",
+                "float",
+                "pulse",
+                "skew",
+                "wobble",
+                "buzz"
+              ]),
+              false
+            );
           }
         }
         if (app.styleTab === "advanced") {
@@ -12895,14 +15927,23 @@
           if (inFlex && !html.includes('data-setting="flex_grow"') && !html.includes('data-setting="align_self"')) {
             extra += app.lb09Section(
               app.t("Flex Item"),
-              app.lb09Select("align_self", app.t("Align Self"), s.align_self || "", ["", "auto", "stretch", "flex-start", "center", "flex-end"]) + app.lb09Field("order", app.t("Order"), "number", s.order ?? "") + app.lb09Field("flex_grow", app.t("Flex Grow"), "number", s.flex_grow ?? "") + app.lb09Field("flex_shrink", app.t("Flex Shrink"), "number", s.flex_shrink ?? "") + app.lb09Field("flex_basis", app.t("Flex Basis"), "text", s.flex_basis || ""),
+              app.lb09Select("align_self", app.t("Align Self"), s.align_self || "", [
+                "",
+                "auto",
+                "stretch",
+                "flex-start",
+                "center",
+                "flex-end"
+              ]) + app.lb09Field("order", app.t("Order"), "number", s.order ?? "") + app.lb09Field("flex_grow", app.t("Flex Grow"), "number", s.flex_grow ?? "") + app.lb09Field("flex_shrink", app.t("Flex Shrink"), "number", s.flex_shrink ?? "") + app.lb09Field("flex_basis", app.t("Flex Basis"), "text", s.flex_basis || ""),
               false
             );
           }
         }
         if (!extra) return html;
-        if (html.includes('<div class="lb-a11y-box"')) return html.replace('<div class="lb-a11y-box"', extra + '<div class="lb-a11y-box"');
-        if (html.includes('<div class="lb-action-grid"')) return html.replace('<div class="lb-action-grid"', extra + '<div class="lb-action-grid"');
+        if (html.includes('<div class="lb-a11y-box"'))
+          return html.replace('<div class="lb-a11y-box"', extra + '<div class="lb-a11y-box"');
+        if (html.includes('<div class="lb-action-grid"'))
+          return html.replace('<div class="lb-action-grid"', extra + '<div class="lb-action-grid"');
         return html + extra;
       }
       const prevSettings = app.settingsHTML;
@@ -13009,21 +16050,26 @@
           const revealed = showBack && node.classList.contains("is-selected");
           node.classList.toggle("lb-flip-show-back", revealed);
           const box = node.querySelector(":scope > .lb-flip-box");
-          if (box && box.getAttribute("data-lb-flip") === "click") box.classList.toggle("is-flipped", !!(revealed || app.lbFlipClicked[node.dataset.id]));
+          if (box && box.getAttribute("data-lb-flip") === "click")
+            box.classList.toggle("is-flipped", !!(revealed || app.lbFlipClicked[node.dataset.id]));
         });
         if (!fd.__lbFlipClick) {
           fd.__lbFlipClick = true;
-          fd.addEventListener("click", function(e) {
-            const box = e.target.closest && e.target.closest('.lb-flip-box[data-lb-flip="click"]');
-            if (!box) return;
-            if (e.target.closest("a,button,input,textarea,select")) return;
-            const node = box.closest(".lb-node-flip_box");
-            const id = node && node.dataset.id;
-            if (!id) return;
-            app.lbFlipClicked[id] = !app.lbFlipClicked[id];
-            const revealed = app.lbFlipSide === "back" && node.classList.contains("is-selected");
-            box.classList.toggle("is-flipped", !!(app.lbFlipClicked[id] || revealed));
-          }, true);
+          fd.addEventListener(
+            "click",
+            function(e) {
+              const box = e.target.closest && e.target.closest('.lb-flip-box[data-lb-flip="click"]');
+              if (!box) return;
+              if (e.target.closest("a,button,input,textarea,select")) return;
+              const node = box.closest(".lb-node-flip_box");
+              const id = node && node.dataset.id;
+              if (!id) return;
+              app.lbFlipClicked[id] = !app.lbFlipClicked[id];
+              const revealed = app.lbFlipSide === "back" && node.classList.contains("is-selected");
+              box.classList.toggle("is-flipped", !!(app.lbFlipClicked[id] || revealed));
+            },
+            true
+          );
         }
       };
       function sideOf(target) {
@@ -13260,14 +16306,26 @@
     function slotHit(target) {
       const el = target && target.nodeType === 1 ? target : target && target.parentElement;
       if (!el || !el.closest) return null;
-      if (el.closest(".lb-node-toolbar,.cp-slides-prev,.cp-slides-next,.cp-ncarousel-dots,.cp-ncarousel-nav,.lb21-hover-tab,[data-lb-loop-drop]")) return null;
+      if (el.closest(
+        ".lb-node-toolbar,.cp-slides-prev,.cp-slides-next,.cp-ncarousel-dots,.cp-ncarousel-nav,.lb21-hover-tab,[data-lb-loop-drop]"
+      ))
+        return null;
       let zone = el.closest("[data-lb-slot-drop]");
       if (!zone) {
-        const host = el.closest(".lb-node-nested_carousel,.lb-node-nested_tabs,.lb-node-nested_accordion,.lb-node-nested_toggle");
-        zone = host && host.querySelector('.cp-ncarousel-slide[aria-hidden="false"] [data-lb-slot-drop], .cp-ncarousel-slide[aria-hidden="false"], .lb-slot-panel:not([hidden]) [data-lb-slot-drop], [data-lb-slot-drop]');
+        const host = el.closest(
+          ".lb-node-nested_carousel,.lb-node-nested_tabs,.lb-node-nested_accordion,.lb-node-nested_toggle"
+        );
+        zone = host && host.querySelector(
+          '.cp-ncarousel-slide[aria-hidden="false"] [data-lb-slot-drop], .cp-ncarousel-slide[aria-hidden="false"], .lb-slot-panel:not([hidden]) [data-lb-slot-drop], [data-lb-slot-drop]'
+        );
       }
       if (!zone || !zone.dataset || !zone.dataset.lbSlotDrop) return null;
-      return { kind: "slot", parentId: zone.dataset.lbSlotDrop, slot: zone.dataset.slot || zone.dataset.lbSlot || "", el: zone };
+      return {
+        kind: "slot",
+        parentId: zone.dataset.lbSlotDrop,
+        slot: zone.dataset.slot || zone.dataset.lbSlot || "",
+        el: zone
+      };
     }
     app.dropLanding = function dropLanding(e, hostNode) {
       const direct = e && e.target && e.target.nodeType === 1 ? e.target : null;
@@ -13281,7 +16339,8 @@
       if (slot && slot.parentId) return slot;
       const loop = el && el.closest && el.closest("[data-lb-loop-drop]");
       if (loop && loop.dataset.lbLoopDrop) return { kind: "loop", parentId: loop.dataset.lbLoopDrop, slot: "", el: loop };
-      if (hostNode && hostNode.dataset && hostNode.dataset.type === "collection_loop") return { kind: "loop", parentId: hostNode.dataset.id, slot: "", el: hostNode };
+      if (hostNode && hostNode.dataset && hostNode.dataset.type === "collection_loop")
+        return { kind: "loop", parentId: hostNode.dataset.id, slot: "", el: hostNode };
       return null;
     };
     function clearSlotOver(fd) {
@@ -13335,19 +16394,21 @@
         const inner = kidsInSlot(n, slot.id).map(app.nodeHTML).join("");
         return `<div class="lb-tab-panel lb-slot-panel" role="tabpanel" data-lb-slot="${app.esc(slot.id)}" data-lb-host="${app.esc(n.id)}"${on ? "" : " hidden"}>${inner}${dropZone(n, slot)}</div>`;
       }).join("");
-      return `<div class="lb-tabs-widget lb-nested-tabs lb-tabs-${vertical ? "vertical" : "horizontal"} lb-tabs-align-${align}" data-active="${slots.findIndex((x) => x.id === activeId)}"${styleAttr({
-        "--lb-tabs-nav-width": vertical ? s.nav_width || "25%" : "",
-        "--lb-tab-color": s.tab_color || "",
-        "--lb-tab-active-color": s.tab_active_color || "",
-        "--lb-tab-bg": s.tab_background || "",
-        "--lb-tab-active-bg": s.tab_active_background || "",
-        "--lb-tab-content-color": s.content_color || "",
-        "--lb-tab-content-bg": s.content_background || "",
-        "--lb-tab-border-color": s.border_color || "",
-        "--lb-tab-border-width": unit(s.border_width),
-        "--lb-tab-padding": s.tab_padding || "",
-        "--lb-tab-content-padding": s.content_padding || ""
-      })}><div class="lb-tabs-nav" role="tablist">${nav}</div><div class="lb-tabs-panels">${panels}</div></div>`;
+      return `<div class="lb-tabs-widget lb-nested-tabs lb-tabs-${vertical ? "vertical" : "horizontal"} lb-tabs-align-${align}" data-active="${slots.findIndex((x) => x.id === activeId)}"${styleAttr(
+        {
+          "--lb-tabs-nav-width": vertical ? s.nav_width || "25%" : "",
+          "--lb-tab-color": s.tab_color || "",
+          "--lb-tab-active-color": s.tab_active_color || "",
+          "--lb-tab-bg": s.tab_background || "",
+          "--lb-tab-active-bg": s.tab_active_background || "",
+          "--lb-tab-content-color": s.content_color || "",
+          "--lb-tab-content-bg": s.content_background || "",
+          "--lb-tab-border-color": s.border_color || "",
+          "--lb-tab-border-width": unit(s.border_width),
+          "--lb-tab-padding": s.tab_padding || "",
+          "--lb-tab-content-padding": s.content_padding || ""
+        }
+      )}><div class="lb-tabs-nav" role="tablist">${nav}</div><div class="lb-tabs-panels">${panels}</div></div>`;
     }
     function nestedCollapseHTML(n) {
       const s = n.settings || {};
@@ -13367,21 +16428,23 @@
         const inner = kidsInSlot(n, slot.id).map(app.nodeHTML).join("");
         return `<div class="lb-collapse-item${open ? " is-open" : ""}" data-lb-slot="${app.esc(slot.id)}"><${tag} class="lb-collapse-title" role="button" tabindex="0" aria-expanded="${open ? "true" : "false"}" data-lb-nested-acc="${app.esc(n.id)}" data-slot="${app.esc(slot.id)}">${pos === "left" ? icon2 : ""}<span class="lb-collapse-heading">${app.esc(title)}</span>${pos === "right" ? icon2 : ""}</${tag}><div class="lb-collapse-content lb-slot-panel" data-lb-slot="${app.esc(slot.id)}" data-lb-host="${app.esc(n.id)}"${open ? "" : " hidden"}>${inner}${dropZone(n, slot)}</div></div>`;
       }).join("");
-      return `<div class="${single ? "lb-accordion lb-nested-accordion" : "lb-toggle lb-nested-toggle"} lb-collapse lb-collapse-icon-${pos}" data-lb-collapse="${single ? "single" : "multi"}"${styleAttr({
-        "--lb-acc-title-color": s.title_color || "",
-        "--lb-acc-active-color": s.active_color || "",
-        "--lb-acc-title-bg": s.title_background || "",
-        "--lb-acc-content-color": s.content_color || "",
-        "--lb-acc-content-bg": s.content_background || "",
-        "--lb-acc-icon-color": s.icon_color || "",
-        "--lb-acc-icon-active-color": s.icon_active_color || "",
-        "--lb-acc-border-color": s.border_color || "",
-        "--lb-acc-border-width": unit(s.border_width),
-        "--lb-acc-title-padding": s.title_padding || "",
-        "--lb-acc-content-padding": s.content_padding || "",
-        "--lb-acc-icon-space": unit(s.icon_space),
-        "--lb-acc-gap": unit(s.space_between)
-      })}>${items || '<div class="lb-embed-placeholder">' + app.t("Add items") + "</div>"}</div>`;
+      return `<div class="${single ? "lb-accordion lb-nested-accordion" : "lb-toggle lb-nested-toggle"} lb-collapse lb-collapse-icon-${pos}" data-lb-collapse="${single ? "single" : "multi"}"${styleAttr(
+        {
+          "--lb-acc-title-color": s.title_color || "",
+          "--lb-acc-active-color": s.active_color || "",
+          "--lb-acc-title-bg": s.title_background || "",
+          "--lb-acc-content-color": s.content_color || "",
+          "--lb-acc-content-bg": s.content_background || "",
+          "--lb-acc-icon-color": s.icon_color || "",
+          "--lb-acc-icon-active-color": s.icon_active_color || "",
+          "--lb-acc-border-color": s.border_color || "",
+          "--lb-acc-border-width": unit(s.border_width),
+          "--lb-acc-title-padding": s.title_padding || "",
+          "--lb-acc-content-padding": s.content_padding || "",
+          "--lb-acc-icon-space": unit(s.icon_space),
+          "--lb-acc-gap": unit(s.space_between)
+        }
+      )}>${items || '<div class="lb-embed-placeholder">' + app.t("Add items") + "</div>"}</div>`;
     }
     function intSetting(s, key, fallback, max) {
       let v = s && s[key];
@@ -13496,7 +16559,7 @@
         } else if (n.children && n.children.length) {
           kids = treeHTML(n.children, depth + 1);
         }
-        return `<div class="lb-tree-item"><div class="lb-tree-row ${app.selected === n.id ? "active" : ""}" data-tree-id="${app.esc(n.id)}" style="padding-left:${8 + depth * 15}px"><span class="lb-tree-grip">\u22EE\u22EE</span><span>${app.esc(app.meta(n.type).title || n.type)}</span></div>${kids}</div>`;
+        return `<div class="lb-tree-item"><div class="lb-tree-row ${app.selected === n.id ? "active" : ""}" data-tree-id="${app.esc(n.id)}" style="padding-left:${8 + depth * 15}px"><span class="lb-tree-grip">⋮⋮</span><span>${app.esc(app.meta(n.type).title || n.type)}</span></div>${kids}</div>`;
       }).join("");
     };
     app.convertToNested = function convertToNested(id) {
@@ -13521,7 +16584,14 @@
         const content = copy.content != null ? String(copy.content) : "";
         delete copy.content;
         if (content.trim()) {
-          const text = app.makeNode("text") || { id: app.eid(), type: "text", settings: app.defaults("text") || {}, styles: { base: {} }, interactions: [], editor_settings: {} };
+          const text = app.makeNode("text") || {
+            id: app.eid(),
+            type: "text",
+            settings: app.defaults("text") || {},
+            styles: { base: {} },
+            interactions: [],
+            editor_settings: {}
+          };
           text.settings = Object.assign({}, text.settings || {}, { text: content });
           text.slot = slot;
           children.push(text);
@@ -13541,65 +16611,82 @@
     function bindSlotDrops(fd) {
       if (!fd.__lbSlotDrop) {
         fd.__lbSlotDrop = true;
-        fd.addEventListener("dragover", (e) => {
-          if (!dragMightLand(e)) return;
-          const hit = slotHit(pointed(e));
-          if (!hit) return;
-          e.preventDefault();
-          clearSlotOver(fd);
-          hit.el.classList.add("is-over");
-          const payload = readDragPayload(e);
-          if (e.dataTransfer) e.dataTransfer.dropEffect = payload.startsWith("node:") ? "move" : "copy";
-        }, true);
-        fd.addEventListener("drop", (e) => {
-          const hit = slotHit(pointed(e));
-          if (!hit) return;
-          const payload = readDragPayload(e);
-          if (!/^unit:|^node:/.test(payload)) return;
-          e.preventDefault();
-          e.stopPropagation();
-          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-          clearSlotOver(fd);
-          placeDrag(payload, hit);
-        }, true);
+        fd.addEventListener(
+          "dragover",
+          (e) => {
+            if (!dragMightLand(e)) return;
+            const hit = slotHit(pointed(e));
+            if (!hit) return;
+            e.preventDefault();
+            clearSlotOver(fd);
+            hit.el.classList.add("is-over");
+            const payload = readDragPayload(e);
+            if (e.dataTransfer) e.dataTransfer.dropEffect = payload.startsWith("node:") ? "move" : "copy";
+          },
+          true
+        );
+        fd.addEventListener(
+          "drop",
+          (e) => {
+            const hit = slotHit(pointed(e));
+            if (!hit) return;
+            const payload = readDragPayload(e);
+            if (!/^unit:|^node:/.test(payload)) return;
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+            clearSlotOver(fd);
+            placeDrag(payload, hit);
+          },
+          true
+        );
         fd.addEventListener("dragend", () => clearSlotOver(fd), true);
-        fd.addEventListener("mousedown", (e) => {
-          const btn = e.target && e.target.closest && e.target.closest("[data-lb-ncarousel]");
-          if (!btn) return;
-          e.preventDefault();
-        }, true);
-        fd.addEventListener("click", (e) => {
-          const btn = e.target && e.target.closest && e.target.closest("[data-lb-ncarousel]");
-          if (!btn || !fd.contains(btn)) return;
-          e.preventDefault();
-          e.stopPropagation();
-          const hostId = btn.dataset.lbNcarousel;
-          const root = btn.closest("[data-cp-nested]");
-          if (!root || root.dataset.lbHost !== hostId) return;
-          const loc = app.locate(app.state.root, hostId);
-          holdScroll(fd, () => {
-            const show = Math.max(1, parseInt(root.dataset.show, 10) || 1);
-            const scroll = Math.max(1, Math.min(show, parseInt(root.dataset.scroll, 10) || 1));
-            const track = root.querySelector(":scope > .cp-ncarousel-viewport > .cp-ncarousel-track");
-            const count = track ? track.querySelectorAll(":scope > .cp-ncarousel-slide").length : 0;
-            const maxStart = Math.max(0, count - show);
-            let index = parseInt(root.dataset.index, 10) || 0;
-            if (btn.dataset.lbNcarouselPage != null && btn.dataset.lbNcarouselPage !== "") {
-              index = (parseInt(btn.dataset.lbNcarouselPage, 10) || 0) * scroll;
-            } else {
-              const dir = parseInt(btn.dataset.lbNcarouselDir, 10) || 1;
-              index += dir * scroll;
-              if (index > maxStart) index = 0;
-              if (index < 0) index = maxStart;
-            }
-            root.dataset.index = String(Math.max(0, Math.min(maxStart, index)));
-            const at = applyEditorCarousel(root);
-            const slide = track && track.querySelectorAll(":scope > .cp-ncarousel-slide")[at];
-            if (slide && slide.dataset.lbSlot) app.nestedActive[hostId] = slide.dataset.lbSlot;
-            if (loc) app.nestedActive[hostId] = app.nestedActive[hostId] || app.slotList(loc.node)[at] && app.slotList(loc.node)[at].id;
-            if (loc) app.selectNode(hostId);
-          });
-        }, true);
+        fd.addEventListener(
+          "mousedown",
+          (e) => {
+            const btn = e.target && e.target.closest && e.target.closest("[data-lb-ncarousel]");
+            if (!btn) return;
+            e.preventDefault();
+          },
+          true
+        );
+        fd.addEventListener(
+          "click",
+          (e) => {
+            const btn = e.target && e.target.closest && e.target.closest("[data-lb-ncarousel]");
+            if (!btn || !fd.contains(btn)) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const hostId = btn.dataset.lbNcarousel;
+            const root = btn.closest("[data-cp-nested]");
+            if (!root || root.dataset.lbHost !== hostId) return;
+            const loc = app.locate(app.state.root, hostId);
+            holdScroll(fd, () => {
+              const show = Math.max(1, parseInt(root.dataset.show, 10) || 1);
+              const scroll = Math.max(1, Math.min(show, parseInt(root.dataset.scroll, 10) || 1));
+              const track = root.querySelector(":scope > .cp-ncarousel-viewport > .cp-ncarousel-track");
+              const count = track ? track.querySelectorAll(":scope > .cp-ncarousel-slide").length : 0;
+              const maxStart = Math.max(0, count - show);
+              let index = parseInt(root.dataset.index, 10) || 0;
+              if (btn.dataset.lbNcarouselPage != null && btn.dataset.lbNcarouselPage !== "") {
+                index = (parseInt(btn.dataset.lbNcarouselPage, 10) || 0) * scroll;
+              } else {
+                const dir = parseInt(btn.dataset.lbNcarouselDir, 10) || 1;
+                index += dir * scroll;
+                if (index > maxStart) index = 0;
+                if (index < 0) index = maxStart;
+              }
+              root.dataset.index = String(Math.max(0, Math.min(maxStart, index)));
+              const at = applyEditorCarousel(root);
+              const slide = track && track.querySelectorAll(":scope > .cp-ncarousel-slide")[at];
+              if (slide && slide.dataset.lbSlot) app.nestedActive[hostId] = slide.dataset.lbSlot;
+              if (loc)
+                app.nestedActive[hostId] = app.nestedActive[hostId] || app.slotList(loc.node)[at] && app.slotList(loc.node)[at].id;
+              if (loc) app.selectNode(hostId);
+            });
+          },
+          true
+        );
       }
       fd.querySelectorAll("[data-cp-nested]").forEach((root) => applyEditorCarousel(root));
       if (fd.defaultView) {
@@ -13683,15 +16770,19 @@
     }
     if (!window.__lbSlotInsert) {
       window.__lbSlotInsert = true;
-      document.addEventListener("dblclick", (e) => {
-        const card = e.target && e.target.closest && e.target.closest(".lb-unit-card");
-        if (!card || app.proUnitLocked && app.proUnitLocked(card.dataset.type)) return;
-        const where = insertionForSelection();
-        if (!where) return;
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        app.add(card.dataset.type, where.parentId, where.index, where.slot);
-      }, true);
+      document.addEventListener(
+        "dblclick",
+        (e) => {
+          const card = e.target && e.target.closest && e.target.closest(".lb-unit-card");
+          if (!card || app.proUnitLocked && app.proUnitLocked(card.dataset.type)) return;
+          const where = insertionForSelection();
+          if (!where) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          app.add(card.dataset.type, where.parentId, where.index, where.slot);
+        },
+        true
+      );
     }
     const prevPatch = app.patchCanvasNode;
     if (typeof prevPatch === "function") {
@@ -13734,7 +16825,16 @@
   function installSiteSettings() {
     const SYSTEM_COLORS = ["primary", "secondary", "text", "accent"];
     const SYSTEM_TYPO = ["primary", "secondary", "text", "accent"];
-    const TYPO_PROPS = ["font_family", "font_size", "font_weight", "font_style", "text_transform", "text_decoration", "line_height", "letter_spacing"];
+    const TYPO_PROPS = [
+      "font_family",
+      "font_size",
+      "font_weight",
+      "font_style",
+      "text_transform",
+      "text_decoration",
+      "line_height",
+      "letter_spacing"
+    ];
     const PREFIX = { colors: "color", fonts: "font", sizes: "size", effects: "effect", typography: "typo", typo: "typo" };
     const GLOBE = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.3"/><ellipse cx="8" cy="8" rx="2.4" ry="6.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.8 8h12.4M8 1.8c1.8 2 2.7 4.1 2.7 6.2S9.8 12.2 8 14.2C6.2 12.2 5.3 10.1 5.3 8S6.2 3.8 8 1.8z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>';
     app.siteSettingsOpen = false;
@@ -13746,7 +16846,10 @@
     app.lbResolveToken = function lbResolveTokenAliased(v) {
       if (typeof v !== "string") return v;
       let out = oldResolve ? oldResolve(v) : v;
-      out = String(out).replace(/\{\{var:([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\}\}/g, (_, g, k) => `var(--lb-${PREFIX[g] || g}-${k})`);
+      out = String(out).replace(
+        /\{\{var:([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\}\}/g,
+        (_, g, k) => `var(--lb-${PREFIX[g] || g}-${k})`
+      );
       return out.replace(/var\(--lb-colors-/g, "var(--lb-color-").replace(/var\(--lb-fonts-/g, "var(--lb-font-").replace(/var\(--lb-sizes-/g, "var(--lb-size-").replace(/var\(--lb-effects-/g, "var(--lb-effect-").replace(/var\(--lb-typography-/g, "var(--lb-typo-");
     };
     app.parseColorGlobal = function parseColorGlobal(v) {
@@ -13762,12 +16865,16 @@
     app.globalColors = function globalColors() {
       const v = app.D.variables || {};
       const map = v.colors && typeof v.colors === "object" ? v.colors : {};
-      const titles = Object.assign({}, {
-        primary: app.t("Primary"),
-        secondary: app.t("Secondary"),
-        text: app.t("Text"),
-        accent: app.t("Accent")
-      }, v.color_titles || {});
+      const titles = Object.assign(
+        {},
+        {
+          primary: app.t("Primary"),
+          secondary: app.t("Secondary"),
+          text: app.t("Text"),
+          accent: app.t("Accent")
+        },
+        v.color_titles || {}
+      );
       const customIds = Object.keys(map).filter((id) => !SYSTEM_COLORS.includes(id));
       const ids = SYSTEM_COLORS.concat(customIds);
       return ids.map((id) => {
@@ -13941,9 +17048,13 @@
       const boundTypo = String(settings.typography_global || "");
       let items = "";
       if (kind === "color") {
-        items = app.globalColors().map((c) => `<button type="button" class="lb-globals-item${boundColor === c.id ? " is-active" : ""}" data-global-id="${app.esc(c.id)}"><i style="background:${app.esc(c.value)}"></i><span>${app.esc(c.title)}</span></button>`).join("");
+        items = app.globalColors().map(
+          (c) => `<button type="button" class="lb-globals-item${boundColor === c.id ? " is-active" : ""}" data-global-id="${app.esc(c.id)}"><i style="background:${app.esc(c.value)}"></i><span>${app.esc(c.title)}</span></button>`
+        ).join("");
       } else {
-        items = app.globalTypography().map((t3) => `<button type="button" class="lb-globals-item${boundTypo === t3.id ? " is-active" : ""}" data-global-id="${app.esc(t3.id)}"><span class="lb-globals-typo-preview" style="font-family:${app.esc(t3.font_family || "inherit")};font-weight:${app.esc(t3.font_weight || "600")}">Aa</span><span>${app.esc(t3.title)}</span></button>`).join("");
+        items = app.globalTypography().map(
+          (t3) => `<button type="button" class="lb-globals-item${boundTypo === t3.id ? " is-active" : ""}" data-global-id="${app.esc(t3.id)}"><span class="lb-globals-typo-preview" style="font-family:${app.esc(t3.font_family || "inherit")};font-weight:${app.esc(t3.font_weight || "600")}">Aa</span><span>${app.esc(t3.title)}</span></button>`
+        ).join("");
       }
       const bound = kind === "color" ? boundColor : boundTypo;
       const pop = document.createElement("div");
@@ -14018,14 +17129,18 @@
         const created = wrap.previousElementSibling;
         wrap.remove();
         if (created && typeof app.bindSettingInputs === "function") app.bindSettingInputs(created);
-        else created?.querySelector("[data-setting]")?.addEventListener("input", (e) => {
-          const el = e.currentTarget;
-          app.update(el.dataset.setting, el.value);
-        });
+        else
+          created?.querySelector("[data-setting]")?.addEventListener("input", (e) => {
+            const el = e.currentTarget;
+            app.update(el.dataset.setting, el.value);
+          });
       });
       root.querySelectorAll(".lb-control-section").forEach((sec) => {
         if (sec.querySelector(":scope > summary .lb-globals-btn")) return;
-        if (!sec.querySelector('[data-setting="font_family"], .lb-font-family-select, [data-setting="font_weight"], [data-setting="weight"]')) return;
+        if (!sec.querySelector(
+          '[data-setting="font_family"], .lb-font-family-select, [data-setting="font_weight"], [data-setting="weight"]'
+        ))
+          return;
         const summary = sec.querySelector(":scope > summary");
         if (!summary) return;
         const r = app.selected && app.locate(app.state.root, app.selected);
@@ -14062,10 +17177,21 @@
     };
     app.siteSettingsHTML = function siteSettingsHTML() {
       const tab = app.siteSettingsTabs[app.siteSettingsTab] ? app.siteSettingsTab : "colors";
-      let blurb = app.t("Global colors and typography presets are stored as CSS variables and can be bound from any color or typography control.");
-      if (tab === "theme") blurb = app.t("Theme Style sets site-wide defaults for body text, headings, links, buttons, images and form fields. Individual units can still override them.");
-      if (tab === "site") blurb = app.t("Layout, site identity, lightbox and background apply across the site. Title, tagline, logo and favicon write to WordPress settings.");
-      if (tab === "kit") blurb = app.t("Export or import a ZIP kit of site settings, design tokens, templates and optional content with media.");
+      let blurb = app.t(
+        "Global colors and typography presets are stored as CSS variables and can be bound from any color or typography control."
+      );
+      if (tab === "theme")
+        blurb = app.t(
+          "Theme Style sets site-wide defaults for body text, headings, links, buttons, images and form fields. Individual units can still override them."
+        );
+      if (tab === "site")
+        blurb = app.t(
+          "Layout, site identity, lightbox and background apply across the site. Title, tagline, logo and favicon write to WordPress settings."
+        );
+      if (tab === "kit")
+        blurb = app.t(
+          "Export or import a ZIP kit of site settings, design tokens, templates and optional content with media."
+        );
       let body = "";
       if (tab === "theme") {
         body = typeof app.themeStyleHTML === "function" ? app.themeStyleHTML() : "";
@@ -14086,16 +17212,16 @@
         body += `<div class="lb-ss-section"><h4>${app.t("System Typography")}</h4>${system.map((t3) => app.siteTypoRow(t3)).join("")}</div>`;
         body += `<div class="lb-ss-section"><h4>${app.t("Custom Typography")}</h4>${custom.map((t3) => app.siteTypoRow(t3)).join("") || '<p class="lb-muted">' + app.t("No custom typography yet.") + "</p>"}<button type="button" class="lb-btn" id="lb-ss-add-typo">+ ${app.t("Add Typography")}</button></div>`;
       }
-      return `<div class="lb-site-settings"><div class="lb-ss-head"><button type="button" class="lb-btn" id="lb-ss-back" aria-label="${app.t("Back")}">\u2190</button><strong>${app.t("Site Settings")}</strong></div><p class="lb-muted">${blurb}</p><div class="lb-settings-tabs lb-ss-tabs"><button type="button" data-site-tab="colors" class="${tab === "colors" ? "active" : ""}">${app.t("Global Colors")}</button><button type="button" data-site-tab="typography" class="${tab === "typography" ? "active" : ""}">${app.t("Global Typography")}</button><button type="button" data-site-tab="theme" class="${tab === "theme" ? "active" : ""}">${app.t("Theme Style")}</button><button type="button" data-site-tab="site" class="${tab === "site" ? "active" : ""}">${app.t("Layout")}</button><button type="button" data-site-tab="kit" class="${tab === "kit" ? "active" : ""}">${app.t("Kit")}</button></div>${body}</div>`;
+      return `<div class="lb-site-settings"><div class="lb-ss-head"><button type="button" class="lb-btn" id="lb-ss-back" aria-label="${app.t("Back")}">←</button><strong>${app.t("Site Settings")}</strong></div><p class="lb-muted">${blurb}</p><div class="lb-settings-tabs lb-ss-tabs"><button type="button" data-site-tab="colors" class="${tab === "colors" ? "active" : ""}">${app.t("Global Colors")}</button><button type="button" data-site-tab="typography" class="${tab === "typography" ? "active" : ""}">${app.t("Global Typography")}</button><button type="button" data-site-tab="theme" class="${tab === "theme" ? "active" : ""}">${app.t("Theme Style")}</button><button type="button" data-site-tab="site" class="${tab === "site" ? "active" : ""}">${app.t("Layout")}</button><button type="button" data-site-tab="kit" class="${tab === "kit" ? "active" : ""}">${app.t("Kit")}</button></div>${body}</div>`;
     };
     app.siteColorRow = function siteColorRow(c) {
-      return `<div class="lb-ss-row" data-color-id="${app.esc(c.id)}"><input type="color" class="lb-ss-color" value="${app.esc(c.value)}"><input type="text" class="lb-ss-title" value="${app.esc(c.title)}" ${c.system ? "readonly" : ""}><code>${app.esc(c.id)}</code>${c.system ? "" : `<button type="button" class="lb-btn lb-ss-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}">\xD7</button>`}</div>`;
+      return `<div class="lb-ss-row" data-color-id="${app.esc(c.id)}"><input type="color" class="lb-ss-color" value="${app.esc(c.value)}"><input type="text" class="lb-ss-title" value="${app.esc(c.title)}" ${c.system ? "readonly" : ""}><code>${app.esc(c.id)}</code>${c.system ? "" : `<button type="button" class="lb-btn lb-ss-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}">×</button>`}</div>`;
     };
     app.siteTypoRow = function siteTypoRow(t3) {
       const open = app.siteSettingsOpenId === t3.id ? " open" : "";
       const fonts = typeof app.lb104FontOptions === "function" ? app.lb104FontOptions(t3.font_family || "") : `<option value="">${app.t("Default")}</option>`;
       const weights = ["", "300", "400", "500", "600", "700", "800", "900"];
-      return `<details class="lb-ss-typo" data-typo-id="${app.esc(t3.id)}"${open}><summary><span class="lb-ss-typo-preview" style="font-family:${app.esc(t3.font_family || "inherit")};font-weight:${app.esc(t3.font_weight || "600")};font-size:16px">Aa</span><input type="text" class="lb-ss-typo-title" value="${app.esc(t3.title)}" ${t3.system ? "readonly" : ""}>${t3.system ? "" : `<button type="button" class="lb-btn lb-ss-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}">\xD7</button>`}</summary><div class="lb-ss-typo-body"><label class="lb-control"><span>${app.t("Font Family")}</span><select class="lb-ss-typo-font">${fonts}</select></label><label class="lb-control"><span>${app.t("Size")}</span><input class="lb-ss-typo-size" value="${app.esc(t3.font_size || "")}" placeholder="16px"></label><label class="lb-control"><span>${app.t("Weight")}</span><select class="lb-ss-typo-weight">${weights.map((w) => `<option value="${w}" ${String(t3.font_weight || "") === w ? "selected" : ""}>${w || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Line Height")}</span><input class="lb-ss-typo-lh" value="${app.esc(t3.line_height || "")}" placeholder="1.4"></label><label class="lb-control"><span>${app.t("Letter Spacing")}</span><input class="lb-ss-typo-ls" value="${app.esc(t3.letter_spacing || "")}" placeholder="0"></label><label class="lb-control"><span>${app.t("Transform")}</span><select class="lb-ss-typo-tt">${["", "none", "uppercase", "lowercase", "capitalize"].map((o) => `<option value="${o}" ${String(t3.text_transform || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Style")}</span><select class="lb-ss-typo-fs">${["", "normal", "italic", "oblique"].map((o) => `<option value="${o}" ${String(t3.font_style || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Decoration")}</span><select class="lb-ss-typo-td">${["", "none", "underline", "overline", "line-through"].map((o) => `<option value="${o}" ${String(t3.text_decoration || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label></div></details>`;
+      return `<details class="lb-ss-typo" data-typo-id="${app.esc(t3.id)}"${open}><summary><span class="lb-ss-typo-preview" style="font-family:${app.esc(t3.font_family || "inherit")};font-weight:${app.esc(t3.font_weight || "600")};font-size:16px">Aa</span><input type="text" class="lb-ss-typo-title" value="${app.esc(t3.title)}" ${t3.system ? "readonly" : ""}>${t3.system ? "" : `<button type="button" class="lb-btn lb-ss-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}">×</button>`}</summary><div class="lb-ss-typo-body"><label class="lb-control"><span>${app.t("Font Family")}</span><select class="lb-ss-typo-font">${fonts}</select></label><label class="lb-control"><span>${app.t("Size")}</span><input class="lb-ss-typo-size" value="${app.esc(t3.font_size || "")}" placeholder="16px"></label><label class="lb-control"><span>${app.t("Weight")}</span><select class="lb-ss-typo-weight">${weights.map((w) => `<option value="${w}" ${String(t3.font_weight || "") === w ? "selected" : ""}>${w || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Line Height")}</span><input class="lb-ss-typo-lh" value="${app.esc(t3.line_height || "")}" placeholder="1.4"></label><label class="lb-control"><span>${app.t("Letter Spacing")}</span><input class="lb-ss-typo-ls" value="${app.esc(t3.letter_spacing || "")}" placeholder="0"></label><label class="lb-control"><span>${app.t("Transform")}</span><select class="lb-ss-typo-tt">${["", "none", "uppercase", "lowercase", "capitalize"].map((o) => `<option value="${o}" ${String(t3.text_transform || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Style")}</span><select class="lb-ss-typo-fs">${["", "normal", "italic", "oblique"].map((o) => `<option value="${o}" ${String(t3.font_style || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Decoration")}</span><select class="lb-ss-typo-td">${["", "none", "underline", "overline", "line-through"].map((o) => `<option value="${o}" ${String(t3.text_decoration || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label></div></details>`;
     };
     app.readSiteSettingsFromPanel = function readSiteSettingsFromPanel() {
       const v = app.D.variables || (app.D.variables = {});
@@ -14139,19 +17265,25 @@
         app.siteSettingsOpen = false;
         app.refreshRightPanel();
       });
-      app.root.querySelectorAll("[data-site-tab]").forEach((b) => b.addEventListener("click", () => {
-        if (app.siteSettingsTab === "theme" && typeof app.saveThemeStyle === "function") app.saveThemeStyle(app.readThemeStyleFromPanel());
-        else if (app.siteSettingsTab === "site" && typeof app.saveKitSettings === "function") app.saveKitSettings(app.readKitSettingsFromPanel());
-        else if (app.siteSettingsTab !== "kit") persist();
-        app.siteSettingsTab = b.dataset.siteTab;
-        app.refreshRightPanel();
-      }));
+      app.root.querySelectorAll("[data-site-tab]").forEach(
+        (b) => b.addEventListener("click", () => {
+          if (app.siteSettingsTab === "theme" && typeof app.saveThemeStyle === "function")
+            app.saveThemeStyle(app.readThemeStyleFromPanel());
+          else if (app.siteSettingsTab === "site" && typeof app.saveKitSettings === "function")
+            app.saveKitSettings(app.readKitSettingsFromPanel());
+          else if (app.siteSettingsTab !== "kit") persist();
+          app.siteSettingsTab = b.dataset.siteTab;
+          app.refreshRightPanel();
+        })
+      );
       app.root.querySelectorAll(".lb-ss-row input").forEach((el) => el.addEventListener("change", persist));
       app.root.querySelectorAll('.lb-ss-row input[type="color"]').forEach((el) => el.addEventListener("input", persist));
       app.root.querySelectorAll(".lb-ss-typo input, .lb-ss-typo select").forEach((el) => el.addEventListener("change", persist));
-      app.root.querySelectorAll(".lb-ss-typo").forEach((d) => d.addEventListener("toggle", () => {
-        if (d.open) app.siteSettingsOpenId = d.dataset.typoId;
-      }));
+      app.root.querySelectorAll(".lb-ss-typo").forEach(
+        (d) => d.addEventListener("toggle", () => {
+          if (d.open) app.siteSettingsOpenId = d.dataset.typoId;
+        })
+      );
       app.root.querySelectorAll(".lb-ss-typo-title").forEach((el) => el.addEventListener("click", (e) => e.stopPropagation()));
       app.root.querySelector("#lb-ss-add-color")?.addEventListener("click", () => {
         const v = app.readSiteSettingsFromPanel();
@@ -14167,30 +17299,45 @@
         const v = app.readSiteSettingsFromPanel();
         v.typography = Object.assign({}, v.typography || {});
         const id = app.uniqueTokenId("custom", v.typography);
-        v.typography[id] = { title: app.t("Custom"), system: false, font_family: "", font_size: "16px", font_weight: "400", font_style: "", text_transform: "", text_decoration: "", line_height: "1.5", letter_spacing: "" };
+        v.typography[id] = {
+          title: app.t("Custom"),
+          system: false,
+          font_family: "",
+          font_size: "16px",
+          font_weight: "400",
+          font_style: "",
+          text_transform: "",
+          text_decoration: "",
+          line_height: "1.5",
+          letter_spacing: ""
+        };
         app.siteSettingsOpenId = id;
         app.saveVariables(v);
         app.refreshRightPanel();
       });
-      app.root.querySelectorAll(".lb-ss-row .lb-ss-del").forEach((b) => b.addEventListener("click", () => {
-        const id = b.closest("[data-color-id]")?.dataset.colorId;
-        if (!id || SYSTEM_COLORS.includes(id)) return;
-        const v = app.readSiteSettingsFromPanel();
-        delete v.colors[id];
-        delete v.color_titles[id];
-        app.saveVariables(v);
-        app.refreshRightPanel();
-      }));
-      app.root.querySelectorAll(".lb-ss-typo .lb-ss-del").forEach((b) => b.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const id = b.closest("[data-typo-id]")?.dataset.typoId;
-        if (!id || SYSTEM_TYPO.includes(id)) return;
-        const v = app.readSiteSettingsFromPanel();
-        delete v.typography[id];
-        app.saveVariables(v);
-        app.refreshRightPanel();
-      }));
+      app.root.querySelectorAll(".lb-ss-row .lb-ss-del").forEach(
+        (b) => b.addEventListener("click", () => {
+          const id = b.closest("[data-color-id]")?.dataset.colorId;
+          if (!id || SYSTEM_COLORS.includes(id)) return;
+          const v = app.readSiteSettingsFromPanel();
+          delete v.colors[id];
+          delete v.color_titles[id];
+          app.saveVariables(v);
+          app.refreshRightPanel();
+        })
+      );
+      app.root.querySelectorAll(".lb-ss-typo .lb-ss-del").forEach(
+        (b) => b.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const id = b.closest("[data-typo-id]")?.dataset.typoId;
+          if (!id || SYSTEM_TYPO.includes(id)) return;
+          const v = app.readSiteSettingsFromPanel();
+          delete v.typography[id];
+          app.saveVariables(v);
+          app.refreshRightPanel();
+        })
+      );
     };
     app.openSiteSettings = function openSiteSettings(tab) {
       app.closeMainMenu?.();
@@ -14243,7 +17390,16 @@
       const s = n.settings || {};
       const id = String(s.typography_global || "");
       if (id) {
-        const extra = ["font-family", "font-size", "font-weight", "font-style", "text-transform", "text-decoration", "line-height", "letter-spacing"].map((p) => `${p}:var(--lb-typo-${id}-${p})`).join(";");
+        const extra = [
+          "font-family",
+          "font-size",
+          "font-weight",
+          "font-style",
+          "text-transform",
+          "text-decoration",
+          "line-height",
+          "letter-spacing"
+        ].map((p) => `${p}:var(--lb-typo-${id}-${p})`).join(";");
         css = (css ? css.replace(/;?$/, ";") : "") + extra;
       }
       return css;
@@ -14262,7 +17418,8 @@
       };
     }
     document.addEventListener("click", (e) => {
-      if (app.globalsPopover && !e.target.closest(".lb-globals-popover") && !e.target.closest(".lb-globals-btn")) app.closeGlobalsPopover();
+      if (app.globalsPopover && !e.target.closest(".lb-globals-popover") && !e.target.closest(".lb-globals-btn"))
+        app.closeGlobalsPopover();
     });
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") app.closeGlobalsPopover();
@@ -14276,7 +17433,16 @@
   // src/editor/theme-style.js
   function installThemeStyle() {
     const ROOT = ".lb-page, .lb-frame-root";
-    const TYPO_PROPS = ["font_family", "font_size", "font_weight", "font_style", "text_transform", "text_decoration", "line_height", "letter_spacing"];
+    const TYPO_PROPS = [
+      "font_family",
+      "font_size",
+      "font_weight",
+      "font_style",
+      "text_transform",
+      "text_decoration",
+      "line_height",
+      "letter_spacing"
+    ];
     const TYPO_TARGETS = ["body", "paragraph", "h1", "h2", "h3", "h4", "h5", "h6", "link"];
     const WEIGHTS = ["", "300", "400", "500", "600", "700", "800", "900"];
     const TRANSFORMS = ["", "none", "uppercase", "lowercase", "capitalize"];
@@ -14284,7 +17450,19 @@
     const DECOS = ["", "none", "underline", "overline", "line-through"];
     const BORDERS = ["", "none", "solid", "dashed", "dotted", "double"];
     const GLOBE = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.3"/><ellipse cx="8" cy="8" rx="2.4" ry="6.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.8 8h12.4M8 1.8c1.8 2 2.7 4.1 2.7 6.2S9.8 12.2 8 14.2C6.2 12.2 5.3 10.1 5.3 8S6.2 3.8 8 1.8z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>';
-    const COLOR_KEYS = { color: 1, background: 1, border_color: 1, hover_color: 1, hover_background: 1, hover_border_color: 1, focus_background: 1, focus_border_color: 1, caption_color: 1, label_color: 1, placeholder_color: 1 };
+    const COLOR_KEYS = {
+      color: 1,
+      background: 1,
+      border_color: 1,
+      hover_color: 1,
+      hover_background: 1,
+      hover_border_color: 1,
+      focus_background: 1,
+      focus_border_color: 1,
+      caption_color: 1,
+      label_color: 1,
+      placeholder_color: 1
+    };
     app.themeStyleOpenId = app.themeStyleOpenId || "typography.body";
     function emptyTypo(extra) {
       const o = { color: "" };
@@ -14296,13 +17474,58 @@
     app.themeStyleDefaults = function themeStyleDefaults() {
       const typography = {};
       TYPO_TARGETS.forEach((id) => {
-        typography[id] = emptyTypo(id === "paragraph" ? { margin_bottom: "" } : id === "link" ? { hover_color: "", hover_text_decoration: "" } : {});
+        typography[id] = emptyTypo(
+          id === "paragraph" ? { margin_bottom: "" } : id === "link" ? { hover_color: "", hover_text_decoration: "" } : {}
+        );
       });
       return {
         typography,
-        buttons: Object.assign(emptyTypo(), { background: "", border_width: "", border_style: "", border_color: "", border_radius: "", padding: "", shadow: "", hover_color: "", hover_background: "", hover_border_color: "", hover_shadow: "", transition: "" }),
-        images: { border_width: "", border_style: "", border_color: "", border_radius: "", opacity: "", shadow: "", css_filter: "", hover_opacity: "", hover_shadow: "", hover_css_filter: "", caption_color: "", caption_spacing: "" },
-        form_fields: Object.assign(emptyTypo(), { background: "", placeholder_color: "", border_width: "", border_style: "", border_color: "", border_radius: "", padding: "", shadow: "", label_color: "", label_spacing: "", hover_background: "", hover_border_color: "", focus_background: "", focus_border_color: "", focus_shadow: "", transition: "" })
+        buttons: Object.assign(emptyTypo(), {
+          background: "",
+          border_width: "",
+          border_style: "",
+          border_color: "",
+          border_radius: "",
+          padding: "",
+          shadow: "",
+          hover_color: "",
+          hover_background: "",
+          hover_border_color: "",
+          hover_shadow: "",
+          transition: ""
+        }),
+        images: {
+          border_width: "",
+          border_style: "",
+          border_color: "",
+          border_radius: "",
+          opacity: "",
+          shadow: "",
+          css_filter: "",
+          hover_opacity: "",
+          hover_shadow: "",
+          hover_css_filter: "",
+          caption_color: "",
+          caption_spacing: ""
+        },
+        form_fields: Object.assign(emptyTypo(), {
+          background: "",
+          placeholder_color: "",
+          border_width: "",
+          border_style: "",
+          border_color: "",
+          border_radius: "",
+          padding: "",
+          shadow: "",
+          label_color: "",
+          label_spacing: "",
+          hover_background: "",
+          hover_border_color: "",
+          focus_background: "",
+          focus_border_color: "",
+          focus_shadow: "",
+          transition: ""
+        })
       };
     };
     app.themeStyleData = function themeStyleData() {
@@ -14344,7 +17567,16 @@
     }
     function typoDecls(item, includeColor) {
       item = item || {};
-      const map = { font_family: "font-family", font_size: "font-size", font_weight: "font-weight", font_style: "font-style", text_transform: "text-transform", text_decoration: "text-decoration", line_height: "line-height", letter_spacing: "letter-spacing" };
+      const map = {
+        font_family: "font-family",
+        font_size: "font-size",
+        font_weight: "font-weight",
+        font_style: "font-style",
+        text_transform: "text-transform",
+        text_decoration: "text-decoration",
+        line_height: "line-height",
+        letter_spacing: "letter-spacing"
+      };
       const d = [];
       Object.keys(map).forEach((k) => {
         const v = cssVal(item[k], k === "font_family");
@@ -14398,7 +17630,21 @@
     }
     function collectBoxVars(vars, prefix, item) {
       item = item || {};
-      ["color", "background", "border_width", "border_style", "border_color", "border_radius", "padding", "shadow", "transition", "hover_color", "hover_background", "hover_border_color", "hover_shadow"].forEach((k) => {
+      [
+        "color",
+        "background",
+        "border_width",
+        "border_style",
+        "border_color",
+        "border_radius",
+        "padding",
+        "shadow",
+        "transition",
+        "hover_color",
+        "hover_background",
+        "hover_border_color",
+        "hover_shadow"
+      ].forEach((k) => {
         const v = cssVal(item[k]);
         if (v) vars[prefix + "-" + k.replace(/_/g, "-")] = v;
       });
@@ -14425,7 +17671,9 @@
         collectVars(vars, tag, item);
       });
       const link = d.typography.link || {};
-      const linkSel = sel2(" a:not(.lb-button):not(.lb-tab-button):not(:where(.lb-flip-button)):not(:where(.lb-social-item)):not(:where(.lb-icon-glyph)):not(:where(.lb-heading-link)):not(:where(.lb-site-nav a)):not(:where(.lb-icon-box-title a)):not(:where(.lb-image-box-title a)):not(:where(.lb-icon-list-item>a)):not(:where(.lb-testimonial-name a)):not(:where(.lb-anchor-menu a))");
+      const linkSel = sel2(
+        " a:not(.lb-button):not(.lb-tab-button):not(:where(.lb-flip-button)):not(:where(.lb-social-item)):not(:where(.lb-icon-glyph)):not(:where(.lb-heading-link)):not(:where(.lb-site-nav a)):not(:where(.lb-icon-box-title a)):not(:where(.lb-image-box-title a)):not(:where(.lb-icon-list-item>a)):not(:where(.lb-testimonial-name a)):not(:where(.lb-anchor-menu a))"
+      );
       out += rule(linkSel, typoDecls(link));
       const linkHover = [];
       const hc = cssVal(link.hover_color);
@@ -14447,7 +17695,13 @@
       collectBoxVars(vars, "button", btn);
       const img = d.images || {};
       const imgSel = sel2(" .lb-image-img") + "," + sel2(" .lb-image img") + "," + sel2(" .lb-node-image img");
-      const imgDecl = boxDecls({ border_width: img.border_width, border_style: img.border_style, border_color: img.border_color, border_radius: img.border_radius, shadow: img.shadow });
+      const imgDecl = boxDecls({
+        border_width: img.border_width,
+        border_style: img.border_style,
+        border_color: img.border_color,
+        border_radius: img.border_radius,
+        shadow: img.shadow
+      });
       const iop = cssVal(img.opacity);
       if (iop) imgDecl.push("opacity:" + iop);
       const ift = cssVal(img.css_filter);
@@ -14473,7 +17727,15 @@
       const ph = cssVal(form.placeholder_color);
       if (ph) out += rule(each(fieldSel, "::placeholder"), ["color:" + ph]);
       out += rule(each(fieldSel, ":hover"), hoverDecls(form));
-      out += rule(each(fieldSel, ":focus") + "," + each(fieldSel, ":focus-visible"), hoverDecls({ hover_color: "", hover_background: form.focus_background, hover_border_color: form.focus_border_color, hover_shadow: form.focus_shadow }));
+      out += rule(
+        each(fieldSel, ":focus") + "," + each(fieldSel, ":focus-visible"),
+        hoverDecls({
+          hover_color: "",
+          hover_background: form.focus_background,
+          hover_border_color: form.focus_border_color,
+          hover_shadow: form.focus_shadow
+        })
+      );
       const lab = [];
       const lbc = cssVal(form.label_color);
       if (lbc) lab.push("color:" + lbc);
@@ -14482,7 +17744,14 @@
       out += rule(sel2(" .lb-form-field > label") + "," + sel2(" .lb-form-field label"), lab);
       collectVars(vars, "form", form);
       collectBoxVars(vars, "form", form);
-      ["placeholder_color", "label_color", "label_spacing", "focus_background", "focus_border_color", "focus_shadow"].forEach((k) => {
+      [
+        "placeholder_color",
+        "label_color",
+        "label_spacing",
+        "focus_background",
+        "focus_border_color",
+        "focus_shadow"
+      ].forEach((k) => {
         const v = cssVal(form[k]);
         if (v) vars["form-" + k.replace(/_/g, "-")] = v;
       });
@@ -14499,14 +17768,18 @@
     app.applyThemeStyleCss = function applyThemeStyleCss() {
       const css = app.themeStyleCss();
       const wrapped = css ? "/*lb-theme-style*/" + css + "/*lb-theme-style-end*/" : "";
-      app.D.designCss = String(app.D.designCss || "").replace(/\/\*lb-theme-style\*\/[\s\S]*?\/\*lb-theme-style-end\*\//g, "");
+      app.D.designCss = String(app.D.designCss || "").replace(
+        /\/\*lb-theme-style\*\/[\s\S]*?\/\*lb-theme-style-end\*\//g,
+        ""
+      );
       app.D.designCss += wrapped;
       const fd = app.frameDoc();
       if (!fd || !fd.head) return;
       [...fd.querySelectorAll("style")].forEach((el) => {
         if (el.id === "lb-theme-style") return;
         const t3 = el.textContent || "";
-        if (/\/\*lb-theme-style\*\//.test(t3)) el.textContent = t3.replace(/\/\*lb-theme-style\*\/[\s\S]*?\/\*lb-theme-style-end\*\//g, wrapped);
+        if (/\/\*lb-theme-style\*\//.test(t3))
+          el.textContent = t3.replace(/\/\*lb-theme-style\*\/[\s\S]*?\/\*lb-theme-style-end\*\//g, wrapped);
       });
       let st = fd.getElementById("lb-theme-style");
       if (!st) {
@@ -14538,16 +17811,26 @@
       }, 350);
     };
     function selectOpts(list, cur, emptyLabel) {
-      return list.map((o) => `<option value="${app.esc(o)}" ${String(cur || "") === o ? "selected" : ""}>${o || emptyLabel}</option>`).join("");
+      return list.map(
+        (o) => `<option value="${app.esc(o)}" ${String(cur || "") === o ? "selected" : ""}>${o || emptyLabel}</option>`
+      ).join("");
     }
     function field(path, label, control) {
       return `<label class="lb-control"><span>${app.esc(label)}</span>${control}</label>`;
     }
     function textField(path, label, value, placeholder) {
-      return field(path, label, `<input data-ts-path="${app.esc(path)}" value="${app.esc(value || "")}" placeholder="${app.esc(placeholder || "")}">`);
+      return field(
+        path,
+        label,
+        `<input data-ts-path="${app.esc(path)}" value="${app.esc(value || "")}" placeholder="${app.esc(placeholder || "")}">`
+      );
     }
     function selectField(path, label, value, options, emptyLabel) {
-      return field(path, label, `<select data-ts-path="${app.esc(path)}">${selectOpts(options, value, emptyLabel || app.t("Default"))}</select>`);
+      return field(
+        path,
+        label,
+        `<select data-ts-path="${app.esc(path)}">${selectOpts(options, value, emptyLabel || app.t("Default"))}</select>`
+      );
     }
     app.themeColorField = function themeColorField(path, value, label) {
       const bound = app.parseColorGlobal ? app.parseColorGlobal(value) : "";
@@ -14558,7 +17841,11 @@
     function typoFields(path, item, extras) {
       item = item || {};
       const fonts = typeof app.lb104FontOptions === "function" ? app.lb104FontOptions(item.font_family || "") : `<option value="">${app.t("Default")}</option>`;
-      let h = field(path + ".font_family", app.t("Font Family"), `<select data-ts-path="${app.esc(path + ".font_family")}">${fonts}</select>`);
+      let h = field(
+        path + ".font_family",
+        app.t("Font Family"),
+        `<select data-ts-path="${app.esc(path + ".font_family")}">${fonts}</select>`
+      );
       h += textField(path + ".font_size", app.t("Size"), item.font_size, "16px");
       h += selectField(path + ".font_weight", app.t("Weight"), item.font_weight, WEIGHTS);
       h += textField(path + ".line_height", app.t("Line Height"), item.line_height, "1.4");
@@ -14592,7 +17879,15 @@
       item = item || {};
       let h = `<div class="lb-ss-subhead">${app.t("Hover")}</div>`;
       (keys || ["hover_color", "hover_background", "hover_border_color", "hover_shadow"]).forEach((k) => {
-        const label = { hover_color: app.t("Hover Text Color"), hover_background: app.t("Hover Background"), hover_border_color: app.t("Hover Border Color"), hover_shadow: app.t("Hover Shadow"), hover_opacity: app.t("Hover Opacity"), hover_css_filter: app.t("Hover CSS Filter"), hover_text_decoration: app.t("Hover Decoration") }[k] || k;
+        const label = {
+          hover_color: app.t("Hover Text Color"),
+          hover_background: app.t("Hover Background"),
+          hover_border_color: app.t("Hover Border Color"),
+          hover_shadow: app.t("Hover Shadow"),
+          hover_opacity: app.t("Hover Opacity"),
+          hover_css_filter: app.t("Hover CSS Filter"),
+          hover_text_decoration: app.t("Hover Decoration")
+        }[k] || k;
         if (COLOR_KEYS[k]) h += app.themeColorField(path + "." + k, item[k], label);
         else if (k === "hover_text_decoration") h += selectField(path + "." + k, label, item[k], DECOS);
         else h += textField(path + "." + k, label, item[k], "");
@@ -14620,7 +17915,10 @@
       TYPO_TARGETS.forEach((id) => {
         const item = d.typography[id] || {};
         const extra = [];
-        if (id === "paragraph") extra.push(textField("typography.paragraph.margin_bottom", app.t("Paragraph Spacing"), item.margin_bottom, "1em"));
+        if (id === "paragraph")
+          extra.push(
+            textField("typography.paragraph.margin_bottom", app.t("Paragraph Spacing"), item.margin_bottom, "1em")
+          );
         if (id === "link") extra.push(hoverFields("typography.link", item, ["hover_color", "hover_text_decoration"]));
         typo += details("typography." + id, labels[id] || id, typoFields("typography." + id, item, extra));
       });
@@ -14672,14 +17970,17 @@
       };
       app.root.querySelectorAll(".lb-ss-theme-panel [data-ts-path]").forEach((el) => {
         el.addEventListener("change", persist);
-        if (el.type === "color") el.addEventListener("input", () => {
-          el.dataset.tsEmpty = "0";
-          persist();
-        });
+        if (el.type === "color")
+          el.addEventListener("input", () => {
+            el.dataset.tsEmpty = "0";
+            persist();
+          });
       });
-      app.root.querySelectorAll(".lb-ss-theme").forEach((d) => d.addEventListener("toggle", () => {
-        if (d.open) app.themeStyleOpenId = d.dataset.tsId;
-      }));
+      app.root.querySelectorAll(".lb-ss-theme").forEach(
+        (d) => d.addEventListener("toggle", () => {
+          if (d.open) app.themeStyleOpenId = d.dataset.tsId;
+        })
+      );
       app.root.querySelectorAll(".lb-ss-theme-panel .lb-globals-btn").forEach((b) => {
         if (b.__lbThemeGlobals) return;
         b.__lbThemeGlobals = true;
@@ -14697,7 +17998,9 @@
       app.closeGlobalsPopover();
       const settings = app.themeStyleData();
       const boundColor = app.parseColorGlobal(app.getPath(settings, themePath));
-      const items = app.globalColors().map((c) => `<button type="button" class="lb-globals-item${boundColor === c.id ? " is-active" : ""}" data-global-id="${app.esc(c.id)}"><i style="background:${app.esc(c.value)}"></i><span>${app.esc(c.title)}</span></button>`).join("");
+      const items = app.globalColors().map(
+        (c) => `<button type="button" class="lb-globals-item${boundColor === c.id ? " is-active" : ""}" data-global-id="${app.esc(c.id)}"><i style="background:${app.esc(c.value)}"></i><span>${app.esc(c.title)}</span></button>`
+      ).join("");
       const pop = document.createElement("div");
       pop.className = "lb-globals-popover";
       pop.innerHTML = `<header>${app.esc(app.t("Global Colors"))}</header><div class="lb-globals-list">${items || '<p class="lb-muted">' + app.t("No globals yet.") + "</p>"}</div><div class="lb-globals-actions">${boundColor ? `<button type="button" class="lb-btn" data-global-clear>${app.t("Unlink")}</button>` : ""}<button type="button" class="lb-btn" data-open-site-settings>${app.t("Manage Globals")}</button></div>`;
@@ -14747,7 +18050,10 @@
     if (typeof app.lb110DesignCss === "function") {
       const oldDesignCss = app.lb110DesignCss;
       app.lb110DesignCss = function lb110DesignCssWithTheme() {
-        const rest = String(oldDesignCss() || "").replace(/\/\*lb-theme-style\*\/[\s\S]*?\/\*lb-theme-style-end\*\//g, "");
+        const rest = String(oldDesignCss() || "").replace(
+          /\/\*lb-theme-style\*\/[\s\S]*?\/\*lb-theme-style-end\*\//g,
+          ""
+        );
         const css = app.themeStyleCss();
         return rest + (css ? "/*lb-theme-style*/" + css + "/*lb-theme-style-end*/" : "");
       };
@@ -14791,8 +18097,23 @@
       return {
         layout: { content_width: "", widgets_space: "", page_title_selector: "", default_template: "default" },
         identity: { title: "", description: "", logo_id: 0, logo_url: "", favicon_id: 0, favicon_url: "" },
-        lightbox: { overlay_color: "", ui_color: "", show_close: true, show_counter: false, show_fullscreen: false, caption_source: "caption" },
-        background: { color: "", image_id: 0, image_url: "", size: "cover", position: "center center", repeat: "no-repeat", attachment: "scroll" }
+        lightbox: {
+          overlay_color: "",
+          ui_color: "",
+          show_close: true,
+          show_counter: false,
+          show_fullscreen: false,
+          caption_source: "caption"
+        },
+        background: {
+          color: "",
+          image_id: 0,
+          image_url: "",
+          size: "cover",
+          position: "center center",
+          repeat: "no-repeat",
+          attachment: "scroll"
+        }
       };
     };
     app.kitSettingsData = function kitSettingsData() {
@@ -14879,14 +18200,18 @@
     app.applyKitSettingsCss = function applyKitSettingsCss() {
       const css = app.kitSettingsCss();
       const wrapped = css ? "/*lb-kit-style*/" + css + "/*lb-kit-style-end*/" : "";
-      app.D.designCss = String(app.D.designCss || "").replace(/\/\*lb-kit-style\*\/[\s\S]*?\/\*lb-kit-style-end\*\//g, "");
+      app.D.designCss = String(app.D.designCss || "").replace(
+        /\/\*lb-kit-style\*\/[\s\S]*?\/\*lb-kit-style-end\*\//g,
+        ""
+      );
       app.D.designCss += wrapped;
       const fd = app.frameDoc();
       if (!fd || !fd.head) return;
       [...fd.querySelectorAll("style")].forEach((el) => {
         if (el.id === "lb-kit-style") return;
         const t3 = el.textContent || "";
-        if (/\/\*lb-kit-style\*\//.test(t3)) el.textContent = t3.replace(/\/\*lb-kit-style\*\/[\s\S]*?\/\*lb-kit-style-end\*\//g, wrapped);
+        if (/\/\*lb-kit-style\*\//.test(t3))
+          el.textContent = t3.replace(/\/\*lb-kit-style\*\/[\s\S]*?\/\*lb-kit-style-end\*\//g, wrapped);
       });
       let st = fd.getElementById("lb-kit-style");
       if (!st) {
@@ -14931,17 +18256,23 @@
       return `<label class="lb-control"><span>${app.esc(label)}</span>${control}</label>`;
     }
     function textField(path, label, value, placeholder) {
-      return field(label, `<input data-kit-path="${app.esc(path)}" value="${app.esc(value || "")}" placeholder="${app.esc(placeholder || "")}">`);
+      return field(
+        label,
+        `<input data-kit-path="${app.esc(path)}" value="${app.esc(value || "")}" placeholder="${app.esc(placeholder || "")}">`
+      );
     }
     function selectField(path, label, value, options, labels) {
-      const opts = options.map((o) => `<option value="${app.esc(o)}" ${String(value || "") === o ? "selected" : ""}>${app.esc(labels && labels[o] || o)}</option>`).join("");
+      const opts = options.map(
+        (o) => `<option value="${app.esc(o)}" ${String(value || "") === o ? "selected" : ""}>${app.esc(labels && labels[o] || o)}</option>`
+      ).join("");
       return field(label, `<select data-kit-path="${app.esc(path)}">${opts}</select>`);
     }
     function switchField(path, label, on) {
       return `<label class="lb-control lb-switch"><input data-kit-path="${app.esc(path)}" type="checkbox" ${on ? "checked" : ""}><span>${app.esc(label)}</span></label>`;
     }
     function colorField(path, value, label) {
-      if (typeof app.themeColorField === "function") return app.themeColorField(path, value, label).replace(/data-ts-path=/g, "data-kit-path=").replace(/data-ts-color=/g, "data-kit-color=").replace(/data-ts-empty=/g, "data-kit-empty=").replace(/data-globals-theme=/g, "data-globals-kit=");
+      if (typeof app.themeColorField === "function")
+        return app.themeColorField(path, value, label).replace(/data-ts-path=/g, "data-kit-path=").replace(/data-ts-color=/g, "data-kit-color=").replace(/data-ts-empty=/g, "data-kit-empty=").replace(/data-globals-theme=/g, "data-globals-kit=");
       const hex = app.isHexColor && app.isHexColor(value) ? value : "#000000";
       return `<div class="lb-control lb-color-control" data-kit-color="${app.esc(path)}" style="--lb-picked:${app.esc(hex)}"><div class="lb-control-head"><span>${app.esc(label)}</span></div><div class="lb-color-row"><input data-kit-path="${app.esc(path)}" type="color" value="${app.esc(hex)}" data-kit-empty="${value && String(value).trim() ? "0" : "1"}"><span class="lb-color-hex">${app.esc(value || app.t("Default"))}</span></div></div>`;
     }
@@ -14953,7 +18284,9 @@
     app.kitSettingsHTML = function kitSettingsHTML() {
       const d = app.kitSettingsData();
       const capLabels = { none: app.t("None"), alt: app.t("Alt Text"), caption: app.t("Caption"), title: app.t("Title") };
-      const tplOpts = TEMPLATES.map((t3) => `<option value="${t3.id}" ${d.layout.default_template === t3.id ? "selected" : ""}>${app.t(t3.label)}</option>`).join("");
+      const tplOpts = TEMPLATES.map(
+        (t3) => `<option value="${t3.id}" ${d.layout.default_template === t3.id ? "selected" : ""}>${app.t(t3.label)}</option>`
+      ).join("");
       return `<div class="lb-ss-kit-panel">
 			<div class="lb-ss-section"><h4>${app.t("Layout")}</h4>
 				${textField("layout.content_width", app.t("Content Width"), d.layout.content_width, app.D.globals?.content_width || "1180px")}
@@ -15014,7 +18347,12 @@
     };
     function openKitMedia(idPath, urlPath) {
       if (!window.wp?.media) return;
-      const f = wp.media({ title: app.t("Select Image"), button: { text: app.t("Use Image") }, multiple: false, library: { type: "image" } });
+      const f = wp.media({
+        title: app.t("Select Image"),
+        button: { text: app.t("Use Image") },
+        multiple: false,
+        library: { type: "image" }
+      });
       f.on("select", () => {
         const a = f.state().get("selection").first().toJSON();
         const d = app.kitSettingsData();
@@ -15068,7 +18406,9 @@
       app.closeGlobalsPopover();
       const settings = app.kitSettingsData();
       const boundColor = app.parseColorGlobal(app.getPath(settings, kitPath));
-      const items = app.globalColors().map((c) => `<button type="button" class="lb-globals-item${boundColor === c.id ? " is-active" : ""}" data-global-id="${app.esc(c.id)}"><i style="background:${app.esc(c.value)}"></i><span>${app.esc(c.title)}</span></button>`).join("");
+      const items = app.globalColors().map(
+        (c) => `<button type="button" class="lb-globals-item${boundColor === c.id ? " is-active" : ""}" data-global-id="${app.esc(c.id)}"><i style="background:${app.esc(c.value)}"></i><span>${app.esc(c.title)}</span></button>`
+      ).join("");
       const pop = document.createElement("div");
       pop.className = "lb-globals-popover";
       pop.innerHTML = `<header>${app.esc(app.t("Global Colors"))}</header><div class="lb-globals-list">${items || '<p class="lb-muted">' + app.t("No globals yet.") + "</p>"}</div><div class="lb-globals-actions">${boundColor ? `<button type="button" class="lb-btn" data-global-clear>${app.t("Unlink")}</button>` : ""}<button type="button" class="lb-btn" data-open-site-settings>${app.t("Manage Globals")}</button></div>`;
@@ -15156,7 +18496,9 @@
     app.kitExportBusy = false;
     app.kitExportHTML = function kitExportHTML() {
       const pages = Array.isArray(app.D.navigation) ? app.D.navigation : [];
-      const rows = pages.map((p) => `<label class="lb-kit-page"><input type="checkbox" data-kit-page="${app.esc(String(p.id))}"> <span>${app.esc(p.title || app.t("Untitled Page"))}</span> <small>${app.esc(p.type || "page")}</small></label>`).join("");
+      const rows = pages.map(
+        (p) => `<label class="lb-kit-page"><input type="checkbox" data-kit-page="${app.esc(String(p.id))}"> <span>${app.esc(p.title || app.t("Untitled Page"))}</span> <small>${app.esc(p.type || "page")}</small></label>`
+      ).join("");
       return `<div class="lb-ss-kit">
 <div class="lb-ss-section">
 <h4>${app.t("Export Kit")}</h4>
@@ -15190,7 +18532,7 @@
     app.exportKitZip = async function exportKitZip() {
       if (app.kitExportBusy) return;
       app.kitExportBusy = true;
-      app.kitExportStatus(app.t("Exporting kit\u2026"));
+      app.kitExportStatus(app.t("Exporting kit…"));
       try {
         const includeContent = !!app.root.querySelector("#lb-kit-ex-content")?.checked;
         const ids = includeContent ? [...app.root.querySelectorAll("[data-kit-page]:checked")].map((el) => Number(el.dataset.kitPage)).filter(Boolean) : [];
@@ -15223,7 +18565,7 @@
     app.importKitZip = async function importKitZip(file) {
       if (!file || app.kitExportBusy) return;
       app.kitExportBusy = true;
-      app.kitExportStatus(app.t("Importing kit\u2026"));
+      app.kitExportStatus(app.t("Importing kit…"));
       try {
         const fd = new FormData();
         fd.append("file", file);
@@ -15268,30 +18610,40 @@
   // src/editor/groups.js
   function installGroups() {
     const ICONS = {
-      left: "\u2B05",
-      center: "\u2194",
-      right: "\u27A1",
-      justify: "\u2630",
-      flex: "\u25A4",
-      grid: "\u25A6",
-      block: "\u25A0",
-      row: "\u2194",
-      column: "\u2195",
-      "top": "\u2B06",
-      middle: "\u25CF",
-      bottom: "\u2B07",
-      stretch: "\u2922",
-      solid: "\u2014",
+      left: "⬅",
+      center: "↔",
+      right: "➡",
+      justify: "☰",
+      flex: "▤",
+      grid: "▦",
+      block: "■",
+      row: "↔",
+      column: "↕",
+      top: "⬆",
+      middle: "●",
+      bottom: "⬇",
+      stretch: "⤢",
+      solid: "—",
       dashed: "- -",
-      dotted: "\xB7\xB7\xB7",
-      none: "\u25CB",
-      linear: "\u2571",
-      radial: "\u25CE"
+      dotted: "···",
+      none: "○",
+      linear: "╱",
+      radial: "◎"
     };
     app.lbGroupVal = function lbGroupVal(v) {
       return v && typeof v === "object" && !Array.isArray(v) ? v : {};
     };
-    const GRAD_POS = ["center center", "center left", "center right", "top center", "top left", "top right", "bottom center", "bottom left", "bottom right"];
+    const GRAD_POS = [
+      "center center",
+      "center left",
+      "center right",
+      "top center",
+      "top left",
+      "top right",
+      "bottom center",
+      "bottom left",
+      "bottom right"
+    ];
     app.lbColorInputValue = function lbColorInputValue(c, fallback) {
       const v = String(c || "").trim();
       if (/^#([A-Fa-f0-9]{3})$/.test(v)) return "#" + v[1] + v[1] + v[2] + v[2] + v[3] + v[3];
@@ -15301,7 +18653,9 @@
     app.lbParseGradientString = function lbParseGradientString(css) {
       const raw = String(css || "").trim();
       const out = { type: "gradient", custom: raw };
-      let m = raw.match(/linear-gradient\s*\(\s*(-?\d+(?:\.\d+)?)deg\s*,\s*([^,]+?)\s+(\d+%)?\s*,\s*([^,)]+?)\s+(\d+%)?\s*\)/i);
+      let m = raw.match(
+        /linear-gradient\s*\(\s*(-?\d+(?:\.\d+)?)deg\s*,\s*([^,]+?)\s+(\d+%)?\s*,\s*([^,)]+?)\s+(\d+%)?\s*\)/i
+      );
       if (m) {
         out.gradient_type = "linear";
         out.gradient_angle = parseInt(m[1], 10);
@@ -15352,7 +18706,9 @@
     app.lbGradientFieldsHTML = function lbGradientFieldsHTML(k, v) {
       const g = app.lbNormGradient(v);
       const bar = "linear-gradient(90deg, " + g.gradient_a + " " + g.gradient_a_pos + "%, " + g.gradient_b + " " + g.gradient_b_pos + "%)";
-      const posOpts = GRAD_POS.map((p) => `<option value="${app.esc(p)}" ${p === g.gradient_position ? "selected" : ""}>${app.esc(app.t(p.replace(/\b\w/g, (c) => c.toUpperCase())))}</option>`).join("");
+      const posOpts = GRAD_POS.map(
+        (p) => `<option value="${app.esc(p)}" ${p === g.gradient_position ? "selected" : ""}>${app.esc(app.t(p.replace(/\b\w/g, (c) => c.toUpperCase())))}</option>`
+      ).join("");
       return `<div class="lb-gradient" data-grad-key="${app.esc(k)}" data-grad-active="a">
 			${app.lbChooseHTML(k + ".gradient_type", { options: { linear: app.t("Linear"), radial: app.t("Radial") } }, g.gradient_type, app.t("Type"))}
 			<div class="lb-grad-bar-wrap"><span>${app.t("Location")}</span>
@@ -15384,7 +18740,8 @@
       const key = box.dataset.gradKey;
       const g = app.lbNormGradient(settings ? app.getPath(settings, key) : {});
       const bar = box.querySelector(".lb-grad-bar");
-      if (bar) bar.style.background = "linear-gradient(90deg, " + g.gradient_a + " " + g.gradient_a_pos + "%, " + g.gradient_b + " " + g.gradient_b_pos + "%)";
+      if (bar)
+        bar.style.background = "linear-gradient(90deg, " + g.gradient_a + " " + g.gradient_a_pos + "%, " + g.gradient_b + " " + g.gradient_b_pos + "%)";
       const a = box.querySelector('.lb-grad-stop[data-grad-stop="a"]');
       const b = box.querySelector('.lb-grad-stop[data-grad-stop="b"]');
       if (a) {
@@ -15409,9 +18766,10 @@
           if (String(field).indexOf("gradient_") === 0) app.setPath(settings, bgPath + ".custom", "");
           const compiled = app.lbCompileBackground(Object.assign({}, bg, { type: bg.type || "gradient" }), settings);
           const target = app.lbPaintTargetForSetting(node, bgPath);
-          if (target) Object.keys(compiled).forEach((p) => {
-            if (compiled[p] != null && compiled[p] !== "") target.style.setProperty(p, compiled[p]);
-          });
+          if (target)
+            Object.keys(compiled).forEach((p) => {
+              if (compiled[p] != null && compiled[p] !== "") target.style.setProperty(p, compiled[p]);
+            });
         }
       }
       const barKey = bgPath || key;
@@ -15457,9 +18815,15 @@
         "lbi-align-baseline": sv('<path d="M3 13h14"/>' + bar(4.5, 5, 4.5, 8) + bar(11, 8.5, 4.5, 4.5)),
         "lbi-nowrap": sv('<path d="M3.5 5v10M7 10h9.5M12.5 6l4 4-4 4"/>'),
         "lbi-wrap": sv('<path d="M3.5 5v10M7 6h6.5a3.25 3.25 0 0 1 0 6.5H8M10.5 10 8 12.5l2.5 2.5"/>'),
-        "lbi-link": sv('<path d="M8.5 11.5a3 3 0 0 0 4.24 0l2.5-2.5a3 3 0 0 0-4.24-4.24l-.9.9M11.5 8.5a3 3 0 0 0-4.24 0l-2.5 2.5a3 3 0 0 0 4.24 4.24l.9-.9"/>'),
-        "lbi-unlink": sv('<path d="M8.5 11.5a3 3 0 0 0 4.24 0l2.5-2.5a3 3 0 0 0-4.24-4.24M11.5 8.5a3 3 0 0 0-4.24 0l-2.5 2.5a3 3 0 0 0 4.24 4.24M4 4l2 2M16 16l-2-2"/>'),
-        "lbi-desktop": sv('<rect x="2.75" y="3.75" width="14.5" height="9.5" rx="1"/><path d="M7.5 16.25h5M10 13.25v3"/>'),
+        "lbi-link": sv(
+          '<path d="M8.5 11.5a3 3 0 0 0 4.24 0l2.5-2.5a3 3 0 0 0-4.24-4.24l-.9.9M11.5 8.5a3 3 0 0 0-4.24 0l-2.5 2.5a3 3 0 0 0 4.24 4.24l.9-.9"/>'
+        ),
+        "lbi-unlink": sv(
+          '<path d="M8.5 11.5a3 3 0 0 0 4.24 0l2.5-2.5a3 3 0 0 0-4.24-4.24M11.5 8.5a3 3 0 0 0-4.24 0l-2.5 2.5a3 3 0 0 0 4.24 4.24M4 4l2 2M16 16l-2-2"/>'
+        ),
+        "lbi-desktop": sv(
+          '<rect x="2.75" y="3.75" width="14.5" height="9.5" rx="1"/><path d="M7.5 16.25h5M10 13.25v3"/>'
+        ),
         "lbi-tablet": sv('<rect x="4.75" y="2.75" width="10.5" height="14.5" rx="1.25"/><path d="M9 14.75h2"/>'),
         "lbi-mobile": sv('<rect x="6.25" y="2.75" width="7.5" height="14.5" rx="1.25"/><path d="M9.25 14.75h1.5"/>')
       };
@@ -15467,15 +18831,13 @@
     app.lbSvgIcon = function lbSvgIcon(name) {
       return SVG_ICONS[name] || "";
     };
-    /** Device glyph for responsive controls. Clicking it steps the canvas to the next enabled breakpoint. */
     app.lbRespDeviceHTML = function lbRespDeviceHTML() {
       const dev = String(app.device || "desktop");
-      const icon = /mobile/.test(dev) ? "lbi-mobile" : /tablet/.test(dev) ? "lbi-tablet" : "lbi-desktop";
+      const icon2 = /mobile/.test(dev) ? "lbi-mobile" : /tablet/.test(dev) ? "lbi-tablet" : "lbi-desktop";
       const bp = typeof app.breakpoint === "function" ? app.breakpoint(dev) : null;
       const name = bp && bp.label ? app.t(bp.label) || bp.label : dev;
-      return `<button type="button" class="lb-resp-device" data-lb-resp-cycle="1" title="${app.esc(app.t("Responsive") + ": " + name)}" aria-label="${app.esc(app.t("Responsive") + ": " + name)}">${SVG_ICONS[icon]}</button>`;
+      return `<button type="button" class="lb-resp-device" data-lb-resp-cycle="1" title="${app.esc(app.t("Responsive") + ": " + name)}" aria-label="${app.esc(app.t("Responsive") + ": " + name)}">${SVG_ICONS[icon2]}</button>`;
     };
-    /** Current flex direction of the node that owns an Items control (drives icon orientation). */
     app.lbAxisDirection = function lbAxisDirection(def, s) {
       if (!def || !def.axis_key) return "";
       if (!s) {
@@ -15525,7 +18887,7 @@
       const x = app.lbGroupVal(v);
       const linked = !!x.linked;
       const lock = linked ? "is-linked" : "";
-      return `<div class="lb-control lb-dimensions ${lock}" data-dim-key="${app.esc(k)}"><div class="lb-control-head"><span>${app.esc(l)}</span><button type="button" class="lb-link-btn${linked ? " is-active" : ""}" data-link-key="${app.esc(k)}" title="${app.t("Link sides")}" aria-pressed="${linked ? "true" : "false"}">${linked ? "\u{1F517}" : "\u22B6"}</button></div><div class="lb-box-grid lb-box-grid-labeled"><input data-setting="${k}.top" value="${app.esc(x.top ?? "")}" placeholder="${app.t("Top")}"><input data-setting="${k}.right" value="${app.esc(x.right ?? "")}" placeholder="${app.t("Right")}" ${linked ? "disabled" : ""}><input data-setting="${k}.bottom" value="${app.esc(x.bottom ?? "")}" placeholder="${app.t("Bottom")}" ${linked ? "disabled" : ""}><input data-setting="${k}.left" value="${app.esc(x.left ?? "")}" placeholder="${app.t("Left")}" ${linked ? "disabled" : ""}></div></div>`;
+      return `<div class="lb-control lb-dimensions ${lock}" data-dim-key="${app.esc(k)}"><div class="lb-control-head"><span>${app.esc(l)}</span><button type="button" class="lb-link-btn${linked ? " is-active" : ""}" data-link-key="${app.esc(k)}" title="${app.t("Link sides")}" aria-pressed="${linked ? "true" : "false"}">${linked ? "🔗" : "⊶"}</button></div><div class="lb-box-grid lb-box-grid-labeled"><input data-setting="${k}.top" value="${app.esc(x.top ?? "")}" placeholder="${app.t("Top")}"><input data-setting="${k}.right" value="${app.esc(x.right ?? "")}" placeholder="${app.t("Right")}" ${linked ? "disabled" : ""}><input data-setting="${k}.bottom" value="${app.esc(x.bottom ?? "")}" placeholder="${app.t("Bottom")}" ${linked ? "disabled" : ""}><input data-setting="${k}.left" value="${app.esc(x.left ?? "")}" placeholder="${app.t("Left")}" ${linked ? "disabled" : ""}></div></div>`;
     };
     app.shadowControl = function shadowControl(k, v, l, opts) {
       const x = app.lbGroupVal(v);
@@ -15557,8 +18919,15 @@
     app.lbBackgroundHTML = function lbBackgroundHTML(k, v, l) {
       const x = app.lbGroupVal(v);
       const type = x.type || "classic";
-      const types = [["classic", app.t("Classic")], ["gradient", app.t("Gradient")], ["video", app.t("Video")], ["slideshow", app.t("Slideshow")]];
-      const tabs = types.map(([id2, lab]) => `<button type="button" class="lb-bg-type${type === id2 ? " is-active" : ""}" data-setting-set="${k}.type" data-set-value="${id2}">${app.esc(lab)}</button>`).join("");
+      const types = [
+        ["classic", app.t("Classic")],
+        ["gradient", app.t("Gradient")],
+        ["video", app.t("Video")],
+        ["slideshow", app.t("Slideshow")]
+      ];
+      const tabs = types.map(
+        ([id2, lab]) => `<button type="button" class="lb-bg-type${type === id2 ? " is-active" : ""}" data-setting-set="${k}.type" data-set-value="${id2}">${app.esc(lab)}</button>`
+      ).join("");
       const id = parseInt(x.image_id, 10) || 0;
       const url = x.image_url || "";
       let body = "";
@@ -15581,11 +18950,21 @@
       } else {
         const ids = String(x.slideshow_ids || "").split(/[,\s]+/).filter(Boolean);
         body += `<div class="lb-control lb32-gallery"><span>${app.t("Slides")}</span><div class="lb32-thumbs lb-bg-slides-open" role="button">${ids.map((id2) => `<img class="lb32-thumb" src="${app.esc(x.slideshow_urls && (x.slideshow_urls[id2] || x.slideshow_urls[String(id2)]) || app.LB_ATT_PLACEHOLDER)}" alt="">`).join("") || '<span class="lb32-thumbs-empty">' + app.t("Choose images") + "</span>"}</div><input data-setting="${k}.slideshow_ids" type="hidden" value="${app.esc(x.slideshow_ids || "")}"><button type="button" class="lb-btn lb-bg-slides-open" data-slides-key="${k}">${app.t("Choose images")}</button></div>`;
-        body += app.lbSlider(k + ".slideshow_duration", app.t("Duration"), x.slideshow_duration ?? 5, { unitless: true, min: 1, max: 30, step: 1 });
+        body += app.lbSlider(k + ".slideshow_duration", app.t("Duration"), x.slideshow_duration ?? 5, {
+          unitless: true,
+          min: 1,
+          max: 30,
+          step: 1
+        });
         body += `<label class="lb-control"><span>${app.t("Transition")}</span><select data-setting="${k}.slideshow_transition"><option value="fade" ${x.slideshow_transition !== "slide" ? "selected" : ""}>${app.t("Fade")}</option><option value="slide" ${x.slideshow_transition === "slide" ? "selected" : ""}>${app.t("Slide")}</option></select></label>`;
       }
       body += `<label class="lb-control"><span>${app.t("Overlay Color")}</span><input data-setting="${k}.overlay_color" type="color" value="${app.esc(x.overlay_color || "#000000")}"></label>`;
-      body += app.lbSlider(k + ".overlay_opacity", app.t("Overlay Opacity"), x.overlay_opacity ?? 0.5, { unitless: true, min: 0, max: 1, step: 0.05 });
+      body += app.lbSlider(k + ".overlay_opacity", app.t("Overlay Opacity"), x.overlay_opacity ?? 0.5, {
+        unitless: true,
+        min: 0,
+        max: 1,
+        step: 0.05
+      });
       return `<div class="lb-control lb-group lb-background"><span>${app.esc(l)}</span><div class="lb-bg-types">${tabs}</div><div class="lb-group-body">${body}</div></div>`;
     };
     app.lbFilterHTML = function lbFilterHTML(k, v, l) {
@@ -15623,25 +19002,22 @@
 			<label class="lb-control"><span>${app.t("Easing")}</span><select data-setting="${k}.easing">${["ease", "ease-in", "ease-out", "ease-in-out", "linear"].map((o) => `<option value="${o}" ${String(o) === String(x.easing || "ease") ? "selected" : ""}>${o}</option>`).join("")}</select></label>
 		</div></div>`;
     };
-    /** Split a stored length ("20px", "1.5em", 20) into [number, unit]. */
     app.lbSplitLength = function lbSplitLength(val) {
       const m = String(val ?? "").trim().match(/^(-?\d*\.?\d+)\s*([a-z%]*)$/i);
       return m ? [m[1], (m[2] || "").toLowerCase()] : ["", ""];
     };
-    /** Gaps value for the canvas device: unwraps a responsive {desktop:{row,column}} map. */
     app.lbGapsValue = function lbGapsValue(v) {
       if (!v || typeof v !== "object" || Array.isArray(v)) return v ?? "";
       if ("row" in v || "column" in v) return v;
       return app.resp(v);
     };
-    /** CSS `gap` shorthand (row column) from a Gaps value, mirroring Groups::compile_gaps(). */
     app.lbCompileGaps = function lbCompileGaps(v) {
       if (v == null || v === "") return "";
       if (typeof v !== "object") v = { row: v, column: v, linked: true };
       const len = (x) => {
-        const t = String(x ?? "").trim();
-        if (t === "") return "";
-        return /^-?\d*\.?\d+$/.test(t) ? t + "px" : t;
+        const t3 = String(x ?? "").trim();
+        if (t3 === "") return "";
+        return /^-?\d*\.?\d+$/.test(t3) ? t3 + "px" : t3;
       };
       const row = len(v.row), col = len(v.linked ? v.row : v.column);
       if (!row && !col) return "";
@@ -15690,11 +19066,14 @@
     app.lbCompileFilter = function lbCompileFilter(v) {
       if (!v || typeof v !== "object") return typeof v === "string" ? v : "";
       const parts = [];
-      if (v.blur && parseFloat(v.blur)) parts.push("blur(" + v.blur + (String(v.blur).match(/[a-z%]/i) ? "" : "px") + ")");
-      if (v.brightness !== "" && v.brightness != null && Number(v.brightness) !== 1) parts.push("brightness(" + v.brightness + ")");
+      if (v.blur && parseFloat(v.blur))
+        parts.push("blur(" + v.blur + (String(v.blur).match(/[a-z%]/i) ? "" : "px") + ")");
+      if (v.brightness !== "" && v.brightness != null && Number(v.brightness) !== 1)
+        parts.push("brightness(" + v.brightness + ")");
       if (v.contrast !== "" && v.contrast != null && Number(v.contrast) !== 1) parts.push("contrast(" + v.contrast + ")");
       if (v.saturate !== "" && v.saturate != null && Number(v.saturate) !== 1) parts.push("saturate(" + v.saturate + ")");
-      if (v.hue && parseFloat(v.hue)) parts.push("hue-rotate(" + v.hue + (String(v.hue).match(/deg/i) ? "" : "deg") + ")");
+      if (v.hue && parseFloat(v.hue))
+        parts.push("hue-rotate(" + v.hue + (String(v.hue).match(/deg/i) ? "" : "deg") + ")");
       if (v.grayscale && parseFloat(v.grayscale)) parts.push("grayscale(" + v.grayscale + ")");
       if (v.invert && parseFloat(v.invert)) parts.push("invert(" + v.invert + ")");
       if (v.sepia && parseFloat(v.sepia)) parts.push("sepia(" + v.sepia + ")");
@@ -15708,10 +19087,14 @@
         return t3 === "" ? "0" : /^-?\d*\.?\d+$/.test(t3) ? t3 + "px" : t3;
       };
       if (v.translate_x || v.translate_y) parts.push("translate(" + len(v.translate_x) + ", " + len(v.translate_y) + ")");
-      if (v.rotate && parseFloat(v.rotate)) parts.push("rotate(" + v.rotate + (String(v.rotate).match(/deg/i) ? "" : "deg") + ")");
-      if (v.scale_x !== "" && v.scale_x != null && Number(v.scale_x) !== 1 || v.scale_y !== "" && v.scale_y != null && Number(v.scale_y) !== 1) parts.push("scale(" + (v.scale_x || "1") + ", " + (v.scale_y || "1") + ")");
-      if (v.skew_x && parseFloat(v.skew_x)) parts.push("skewX(" + v.skew_x + (String(v.skew_x).match(/deg/i) ? "" : "deg") + ")");
-      if (v.skew_y && parseFloat(v.skew_y)) parts.push("skewY(" + v.skew_y + (String(v.skew_y).match(/deg/i) ? "" : "deg") + ")");
+      if (v.rotate && parseFloat(v.rotate))
+        parts.push("rotate(" + v.rotate + (String(v.rotate).match(/deg/i) ? "" : "deg") + ")");
+      if (v.scale_x !== "" && v.scale_x != null && Number(v.scale_x) !== 1 || v.scale_y !== "" && v.scale_y != null && Number(v.scale_y) !== 1)
+        parts.push("scale(" + (v.scale_x || "1") + ", " + (v.scale_y || "1") + ")");
+      if (v.skew_x && parseFloat(v.skew_x))
+        parts.push("skewX(" + v.skew_x + (String(v.skew_x).match(/deg/i) ? "" : "deg") + ")");
+      if (v.skew_y && parseFloat(v.skew_y))
+        parts.push("skewY(" + v.skew_y + (String(v.skew_y).match(/deg/i) ? "" : "deg") + ")");
       return parts.join(" ");
     };
     app.lbCompileTransition = function lbCompileTransition(v) {
@@ -15798,7 +19181,8 @@
           if (num2) num2.value = pos;
           app.dirty = true;
           if (app.scheduleSave) app.scheduleSave();
-          if (typeof app.previewSetting === "function") app.previewSetting(key + ".gradient_" + which + "_pos", r.node.id);
+          if (typeof app.previewSetting === "function")
+            app.previewSetting(key + ".gradient_" + which + "_pos", r.node.id);
           else {
             const node = app.frameDoc && app.frameDoc()?.querySelector('.lb-node[data-id="' + CSS.escape(String(r.node.id)) + '"]');
             app.lbApplyGradientLive(node, key + ".gradient_" + which + "_pos");
@@ -15864,11 +19248,12 @@
           const active = b.classList.contains("is-active");
           const value = active && b.dataset.chooseToggle ? "" : b.dataset.chooseValue;
           const row = b.parentElement;
-          if (row) row.querySelectorAll(".lb-choose-btn").forEach((x) => {
-            const on = x === b && value !== "";
-            x.classList.toggle("is-active", on);
-            x.setAttribute("aria-pressed", on ? "true" : "false");
-          });
+          if (row)
+            row.querySelectorAll(".lb-choose-btn").forEach((x) => {
+              const on = x === b && value !== "";
+              x.classList.toggle("is-active", on);
+              x.setAttribute("aria-pressed", on ? "true" : "false");
+            });
           app.update(b.dataset.chooseKey, value);
           const key = String(b.dataset.chooseKey || "").split(".")[0];
           app.root.querySelectorAll('.lb-choose[data-axis-key="' + key + '"]').forEach((ctl) => {
@@ -15885,7 +19270,8 @@
         b.addEventListener("click", (e) => {
           e.preventDefault();
           let list = typeof app.enabledBreakpoints === "function" ? app.enabledBreakpoints().map((x) => x.name) : ["desktop", "tablet", "mobile"];
-          if (list.indexOf("mobile") !== -1 && list.indexOf("desktop") > list.indexOf("mobile")) list = list.slice().reverse();
+          if (list.indexOf("mobile") !== -1 && list.indexOf("desktop") > list.indexOf("mobile"))
+            list = list.slice().reverse();
           if (!list.length) return;
           const next = list[(list.indexOf(app.device) + 1) % list.length];
           const btn = document.querySelector('.lb-device [data-device="' + next + '"]');
@@ -15901,7 +19287,10 @@
         if (box.__lbGaps) return;
         box.__lbGaps = true;
         const base = box.dataset.gapsBase;
-        const inputs = () => ({ column: box.querySelector('[data-gaps-part="column"]'), row: box.querySelector('[data-gaps-part="row"]') });
+        const inputs = () => ({
+          column: box.querySelector('[data-gaps-part="column"]'),
+          row: box.querySelector('[data-gaps-part="row"]')
+        });
         const unitSel = box.querySelector("[data-gaps-unit]");
         let started = false;
         const node = () => app.selected && app.locate(app.state.root, app.selected);
@@ -15922,7 +19311,7 @@
           else app.render();
           if (repaint && typeof app.refreshRightPanel === "function") app.refreshRightPanel();
         };
-        const len = (num) => num === "" || num == null ? "" : String(num) + (unitSel ? unitSel.value : "px");
+        const len = (num2) => num2 === "" || num2 == null ? "" : String(num2) + (unitSel ? unitSel.value : "px");
         const linked = () => box.classList.contains("is-linked");
         ["column", "row"].forEach((part) => {
           const el = inputs()[part];
@@ -15940,24 +19329,34 @@
             started = false;
           });
         });
-        if (unitSel) unitSel.addEventListener("change", () => {
-          const f = inputs();
-          write({ column: len(f.column ? f.column.value : ""), row: len(f.row ? f.row.value : ""), unit: unitSel.value, linked: linked() }, false);
-          started = false;
-        });
+        if (unitSel)
+          unitSel.addEventListener("change", () => {
+            const f = inputs();
+            write(
+              {
+                column: len(f.column ? f.column.value : ""),
+                row: len(f.row ? f.row.value : ""),
+                unit: unitSel.value,
+                linked: linked()
+              },
+              false
+            );
+            started = false;
+          });
         const linkBtn = box.querySelector("[data-gaps-link]");
-        if (linkBtn) linkBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          const f = inputs();
-          const on = !linked();
-          const patch = { linked: on, unit: unitSel ? unitSel.value : "px" };
-          if (on) {
-            const val = f.column && f.column.value !== "" ? f.column.value : f.row ? f.row.value : "";
-            patch.column = patch.row = len(val);
-          }
-          write(patch, true);
-          started = false;
-        });
+        if (linkBtn)
+          linkBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const f = inputs();
+            const on = !linked();
+            const patch = { linked: on, unit: unitSel ? unitSel.value : "px" };
+            if (on) {
+              const val = f.column && f.column.value !== "" ? f.column.value : f.row ? f.row.value : "";
+              patch.column = patch.row = len(val);
+            }
+            write(patch, true);
+            started = false;
+          });
       });
       app.root.querySelectorAll("[data-link-key]").forEach((b) => {
         if (b.__lbLink) return;
@@ -16009,7 +19408,12 @@
           const key = b.dataset.slidesKey || "background";
           const r = app.locate(app.state.root, app.selected);
           if (!r) return;
-          const f = wp.media({ title: app.t("Choose images"), button: { text: app.t("Use Images") }, multiple: true, library: { type: "image" } });
+          const f = wp.media({
+            title: app.t("Choose images"),
+            button: { text: app.t("Use Images") },
+            multiple: true,
+            library: { type: "image" }
+          });
           f.on("select", () => {
             const items = app.mediaSelectionItems(f);
             const ids = items.map((x) => x.id).filter(Boolean);
@@ -16068,8 +19472,25 @@
 
   // src/editor/code-control.js
   function installCodeControl() {
-    const LANG = { html: "html", xml: "html", css: "css", js: "javascript", javascript: "javascript", json: "json", php: "php", text: "text", txt: "text" };
-    const MODE = { html: "text/html", css: "text/css", javascript: "application/javascript", json: "application/json", php: "application/x-httpd-php", text: "text/plain" };
+    const LANG = {
+      html: "html",
+      xml: "html",
+      css: "css",
+      js: "javascript",
+      javascript: "javascript",
+      json: "json",
+      php: "php",
+      text: "text",
+      txt: "text"
+    };
+    const MODE = {
+      html: "text/html",
+      css: "text/css",
+      javascript: "application/javascript",
+      json: "application/json",
+      php: "application/x-httpd-php",
+      text: "text/plain"
+    };
     app.lbCodeLangKey = function lbCodeLangKey(lang) {
       const k = String(lang || "").toLowerCase().trim();
       return LANG[k] || "text";
@@ -16168,9 +19589,10 @@
               started = false;
             });
             const details = ta.closest("details");
-            if (details) details.addEventListener("toggle", () => {
-              if (details.open) setTimeout(() => cm.refresh(), 0);
-            });
+            if (details)
+              details.addEventListener("toggle", () => {
+                if (details.open) setTimeout(() => cm.refresh(), 0);
+              });
             setTimeout(() => cm.refresh(), 0);
           }
           return inst;
@@ -16256,7 +19678,9 @@
   var SHORTCUT_STORAGE = "canvasly-lite.shortcuts";
   var FINDER_RECENT_STORAGE = "canvasly-lite.finder.recent";
   function isMacPlatform(ua) {
-    const src = String(ua || (typeof navigator !== "undefined" ? navigator.userAgentData && navigator.userAgentData.platform || navigator.platform || navigator.userAgent : "") || "");
+    const src = String(
+      ua || (typeof navigator !== "undefined" ? navigator.userAgentData && navigator.userAgentData.platform || navigator.platform || navigator.userAgent : "") || ""
+    );
     return /mac|iphone|ipad|ipod/i.test(src);
   }
   function eventKey(e) {
@@ -16327,7 +19751,13 @@
       { id: "save", group: "document", label: "Save", combo: { key: "s", ctrl: true }, allowInInput: true },
       { id: "preview", group: "document", label: "Preview", combo: { key: "p", ctrl: true, shift: true } },
       { id: "undo", group: "edit", label: "Undo", combo: { key: "z", ctrl: true } },
-      { id: "redo", group: "edit", label: "Redo", combo: { key: "z", ctrl: true, shift: true }, aliases: [{ key: "y", ctrl: true }] },
+      {
+        id: "redo",
+        group: "edit",
+        label: "Redo",
+        combo: { key: "z", ctrl: true, shift: true },
+        aliases: [{ key: "y", ctrl: true }]
+      },
       { id: "copy", group: "edit", label: "Copy", combo: { key: "c", ctrl: true } },
       { id: "cut", group: "edit", label: "Cut", combo: { key: "x", ctrl: true } },
       { id: "paste", group: "edit", label: "Paste", combo: { key: "v", ctrl: true } },
@@ -16338,17 +19768,36 @@
       { id: "reset_style", group: "edit", label: "Reset style", combo: { key: "r", ctrl: true, alt: true } },
       { id: "duplicate", group: "edit", label: "Duplicate", combo: { key: "d", ctrl: true } },
       { id: "delete", group: "edit", label: "Delete", combo: { key: "delete" }, aliases: [{ key: "backspace" }] },
-      { id: "escape", group: "ui", label: "Close menus and dialogs", combo: { key: "escape" }, allowInInput: true, rebindable: false },
+      {
+        id: "escape",
+        group: "ui",
+        label: "Close menus and dialogs",
+        combo: { key: "escape" },
+        allowInInput: true,
+        rebindable: false
+      },
       { id: "toggle_panels", group: "ui", label: "Show or hide side panels", combo: { key: "p", ctrl: true } },
       { id: "navigator", group: "ui", label: "Navigator", combo: { key: "i", ctrl: true } },
       { id: "finder", group: "ui", label: "Finder", combo: { key: "e", ctrl: true }, allowInInput: true },
-      { id: "shortcuts", group: "ui", label: "Keyboard shortcut cheat sheet", combo: { key: "?", ctrl: true }, allowInInput: true, aliases: [{ key: "?" }] },
+      {
+        id: "shortcuts",
+        group: "ui",
+        label: "Keyboard shortcut cheat sheet",
+        combo: { key: "?", ctrl: true },
+        allowInInput: true,
+        aliases: [{ key: "?" }]
+      },
       { id: "preferences", group: "ui", label: "User Preferences", combo: { key: "u", ctrl: true } },
       { id: "site_settings", group: "ui", label: "Site Settings", combo: { key: "k", ctrl: true } },
       { id: "library", group: "ui", label: "Template Library", combo: { key: "l", ctrl: true, shift: true } },
       { id: "history", group: "ui", label: "History", combo: { key: "h", ctrl: true, shift: true } },
       { id: "page_settings", group: "ui", label: "Page Settings", combo: { key: "y", ctrl: true, shift: true } },
-      { id: "responsive", group: "ui", label: "Cycle responsive breakpoints", combo: { key: "m", ctrl: true, shift: true } }
+      {
+        id: "responsive",
+        group: "ui",
+        label: "Cycle responsive breakpoints",
+        combo: { key: "m", ctrl: true, shift: true }
+      }
     ];
   }
   function readJson(key, fallback) {
@@ -16372,7 +19821,8 @@
     if (t3.isContentEditable) return true;
     const tag = String(t3.tagName || "").toUpperCase();
     if (["INPUT", "TEXTAREA", "SELECT"].includes(tag)) return true;
-    if (typeof t3.closest === "function" && t3.closest(".CodeMirror, .lb-finder, .lb-shortcut-capture, .lb-inline-toolbar")) return true;
+    if (typeof t3.closest === "function" && t3.closest(".CodeMirror, .lb-finder, .lb-shortcut-capture, .lb-inline-toolbar"))
+      return true;
     return false;
   }
   function installShortcuts() {
@@ -16680,7 +20130,7 @@
         return `<section class="lb-shortcut-group"><h4>${app.esc(title)}</h4>${items.map((d) => {
           const bind = app.shortcutBinding(d);
           const listening = app.shortcutListening === d.id;
-          const kbd = listening ? app.t("Press new keys\u2026") : formatCombo(bind, app.shortcutMac);
+          const kbd = listening ? app.t("Press new keys…") : formatCombo(bind, app.shortcutMac);
           const change = d.rebindable === false ? "" : `<button type="button" class="lb-btn lb-shortcut-rebind" data-shortcut-id="${app.esc(d.id)}">${app.esc(listening ? app.t("Cancel") : app.t("Change"))}</button>`;
           return `<div class="lb-shortcut-row${listening ? " is-listening" : ""}"><span>${app.esc(app.t(d.label))}</span><kbd>${app.esc(kbd)}</kbd>${change}</div>`;
         }).join("")}</section>`;
@@ -16709,7 +20159,10 @@
     }
     function rememberFinder(item) {
       const cur = readJson(FINDER_RECENT_STORAGE, []) || [];
-      const next = [{ kind: item.kind, id: item.id }, ...cur.filter((x) => !(x.kind === item.kind && String(x.id) === String(item.id)))].slice(0, 12);
+      const next = [
+        { kind: item.kind, id: item.id },
+        ...cur.filter((x) => !(x.kind === item.kind && String(x.id) === String(item.id)))
+      ].slice(0, 12);
       writeJson(FINDER_RECENT_STORAGE, next);
     }
     function applyClass(name) {
@@ -16737,84 +20190,236 @@
       };
       const actionList = [
         { id: "save", title: app.t("Save"), hint: app.shortcutLabel("save"), run: () => app.runShortcut("save") },
-        { id: "preview", title: app.t("Preview"), hint: app.shortcutLabel("preview"), run: () => app.runShortcut("preview") },
+        {
+          id: "preview",
+          title: app.t("Preview"),
+          hint: app.shortcutLabel("preview"),
+          run: () => app.runShortcut("preview")
+        },
         { id: "undo", title: app.t("Undo"), hint: app.shortcutLabel("undo"), run: () => app.runShortcut("undo") },
         { id: "redo", title: app.t("Redo"), hint: app.shortcutLabel("redo"), run: () => app.runShortcut("redo") },
-        { id: "navigator", title: app.t("Navigator"), hint: app.shortcutLabel("navigator"), run: () => app.runShortcut("navigator") },
-        { id: "library", title: app.t("Template Library"), hint: app.shortcutLabel("library"), run: () => app.runShortcut("library") },
-        { id: "history", title: app.t("History"), hint: app.shortcutLabel("history"), run: () => app.runShortcut("history") },
-        { id: "responsive", title: app.t("Cycle responsive breakpoints"), hint: app.shortcutLabel("responsive"), run: () => app.runShortcut("responsive") },
-        { id: "shortcuts", title: app.t("Keyboard Shortcuts"), hint: app.shortcutLabel("shortcuts"), run: () => app.runShortcut("shortcuts") },
-        { id: "preferences", title: app.t("User Preferences"), hint: app.shortcutLabel("preferences"), run: () => app.runShortcut("preferences") },
-        { id: "toggle_panels", title: app.t("Show or hide side panels"), hint: app.shortcutLabel("toggle_panels"), run: () => app.runShortcut("toggle_panels") },
-        { id: "add-page", title: app.t("Add New Page"), hint: app.t("Page"), run: () => app.openPageMenu && app.openPageMenu() },
-        { id: "copy_style", title: app.t("Copy Style"), hint: app.shortcutLabel("copy_style"), run: () => app.runShortcut("copy_style") },
-        { id: "paste_style", title: app.t("Paste style"), hint: app.shortcutLabel("paste_style"), run: () => app.runShortcut("paste_style") },
-        { id: "copy_all", title: app.t("Copy All Content"), hint: app.shortcutLabel("copy_all"), run: () => app.runShortcut("copy_all") },
-        { id: "paste_all", title: app.t("Paste All Content"), hint: app.shortcutLabel("paste_all"), run: () => app.runShortcut("paste_all") },
-        { id: "reset_style", title: app.t("Reset style"), hint: app.shortcutLabel("reset_style"), run: () => app.runShortcut("reset_style") },
-        { id: "icons", title: app.t("Icons"), hint: app.t("Library"), run: () => app.openIconLibrary && app.openIconLibrary() },
-        { id: "variables", title: app.t("Variables"), hint: app.t("Design System"), run: () => app.openVariables && app.openVariables() },
-        { id: "components", title: app.t("Components"), hint: app.t("Library"), run: () => app.openComponentLibrary && app.openComponentLibrary() },
-        { id: "classes", title: app.t("Global Classes"), hint: app.t("Design System"), run: () => app.openClassManager && app.openClassManager() },
-        { id: "breakpoints", title: app.t("Breakpoints"), hint: app.t("Responsive"), run: () => app.openBreakpointsModal && app.openBreakpointsModal() }
+        {
+          id: "navigator",
+          title: app.t("Navigator"),
+          hint: app.shortcutLabel("navigator"),
+          run: () => app.runShortcut("navigator")
+        },
+        {
+          id: "library",
+          title: app.t("Template Library"),
+          hint: app.shortcutLabel("library"),
+          run: () => app.runShortcut("library")
+        },
+        {
+          id: "history",
+          title: app.t("History"),
+          hint: app.shortcutLabel("history"),
+          run: () => app.runShortcut("history")
+        },
+        {
+          id: "responsive",
+          title: app.t("Cycle responsive breakpoints"),
+          hint: app.shortcutLabel("responsive"),
+          run: () => app.runShortcut("responsive")
+        },
+        {
+          id: "shortcuts",
+          title: app.t("Keyboard Shortcuts"),
+          hint: app.shortcutLabel("shortcuts"),
+          run: () => app.runShortcut("shortcuts")
+        },
+        {
+          id: "preferences",
+          title: app.t("User Preferences"),
+          hint: app.shortcutLabel("preferences"),
+          run: () => app.runShortcut("preferences")
+        },
+        {
+          id: "toggle_panels",
+          title: app.t("Show or hide side panels"),
+          hint: app.shortcutLabel("toggle_panels"),
+          run: () => app.runShortcut("toggle_panels")
+        },
+        {
+          id: "add-page",
+          title: app.t("Add New Page"),
+          hint: app.t("Page"),
+          run: () => app.openPageMenu && app.openPageMenu()
+        },
+        {
+          id: "copy_style",
+          title: app.t("Copy Style"),
+          hint: app.shortcutLabel("copy_style"),
+          run: () => app.runShortcut("copy_style")
+        },
+        {
+          id: "paste_style",
+          title: app.t("Paste style"),
+          hint: app.shortcutLabel("paste_style"),
+          run: () => app.runShortcut("paste_style")
+        },
+        {
+          id: "copy_all",
+          title: app.t("Copy All Content"),
+          hint: app.shortcutLabel("copy_all"),
+          run: () => app.runShortcut("copy_all")
+        },
+        {
+          id: "paste_all",
+          title: app.t("Paste All Content"),
+          hint: app.shortcutLabel("paste_all"),
+          run: () => app.runShortcut("paste_all")
+        },
+        {
+          id: "reset_style",
+          title: app.t("Reset style"),
+          hint: app.shortcutLabel("reset_style"),
+          run: () => app.runShortcut("reset_style")
+        },
+        {
+          id: "icons",
+          title: app.t("Icons"),
+          hint: app.t("Library"),
+          run: () => app.openIconLibrary && app.openIconLibrary()
+        },
+        {
+          id: "variables",
+          title: app.t("Variables"),
+          hint: app.t("Design System"),
+          run: () => app.openVariables && app.openVariables()
+        },
+        {
+          id: "components",
+          title: app.t("Components"),
+          hint: app.t("Library"),
+          run: () => app.openComponentLibrary && app.openComponentLibrary()
+        },
+        {
+          id: "classes",
+          title: app.t("Global Classes"),
+          hint: app.t("Design System"),
+          run: () => app.openClassManager && app.openClassManager()
+        },
+        {
+          id: "breakpoints",
+          title: app.t("Breakpoints"),
+          hint: app.t("Responsive"),
+          run: () => app.openBreakpointsModal && app.openBreakpointsModal()
+        }
       ];
       actionList.forEach((a) => push({ kind: "action", id: a.id, title: a.title, hint: a.hint, run: a.run }, "action"));
       (app.D.navigation || []).forEach((p) => {
-        push({
-          kind: "page",
-          id: p.id,
-          title: p.title || app.t("Untitled Page"),
-          hint: `${p.type || "page"} \xB7 ${p.status || ""}`.trim(),
-          run: () => openPage(p.id)
-        }, p.type);
+        push(
+          {
+            kind: "page",
+            id: p.id,
+            title: p.title || app.t("Untitled Page"),
+            hint: `${p.type || "page"} · ${p.status || ""}`.trim(),
+            run: () => openPage(p.id)
+          },
+          p.type
+        );
       });
       (app.finderCatalog.templates || []).forEach((t3) => {
-        push({
-          kind: "template",
-          id: t3.id,
-          title: t3.title || app.t("Template Library"),
-          hint: t3.type || "page",
-          run: () => app.loadTemplate && app.loadTemplate(t3.id)
-        }, "template");
+        push(
+          {
+            kind: "template",
+            id: t3.id,
+            title: t3.title || app.t("Template Library"),
+            hint: t3.type || "page",
+            run: () => app.loadTemplate && app.loadTemplate(t3.id)
+          },
+          "template"
+        );
       });
       (app.finderCatalog.components || []).forEach((c) => {
-        push({
-          kind: "component",
-          id: c.id,
-          title: c.title || app.t("Component"),
-          hint: app.t("Components"),
-          run: () => app.loadComponent && app.loadComponent(c.id)
-        }, "component");
+        push(
+          {
+            kind: "component",
+            id: c.id,
+            title: c.title || app.t("Component"),
+            hint: app.t("Components"),
+            run: () => app.loadComponent && app.loadComponent(c.id)
+          },
+          "component"
+        );
       });
       classNames().forEach((name) => {
-        push({
-          kind: "class",
-          id: name,
-          title: "." + name,
-          hint: app.t("Global Classes"),
-          run: () => applyClass(name)
-        }, "class css");
+        push(
+          {
+            kind: "class",
+            id: name,
+            title: "." + name,
+            hint: app.t("Global Classes"),
+            run: () => applyClass(name)
+          },
+          "class css"
+        );
       });
       const settings = [
-        { id: "page", title: app.t("Page Settings"), hint: app.t("Settings"), run: () => app.openPageSettings && app.openPageSettings() },
-        { id: "site-colors", title: app.t("Global Colors"), hint: app.t("Site Settings"), run: () => app.openSiteSettings && app.openSiteSettings("colors") },
-        { id: "site-typo", title: app.t("Global Typography"), hint: app.t("Site Settings"), run: () => app.openSiteSettings && app.openSiteSettings("typography") },
-        { id: "site-theme", title: app.t("Theme Style"), hint: app.t("Site Settings"), run: () => app.openSiteSettings && app.openSiteSettings("theme") },
-        { id: "site-layout", title: app.t("Layout"), hint: app.t("Site Settings"), run: () => app.openSiteSettings && app.openSiteSettings("site") },
-        { id: "site-kit", title: app.t("Kit"), hint: app.t("Site Settings"), run: () => app.openSiteSettings && app.openSiteSettings("kit") },
-        { id: "notes", title: app.t("Notes"), hint: app.t("Settings"), run: () => app.lbPrevMainMenu && app.lbPrevMainMenu("notes") },
-        { id: "preferences", title: app.t("User Preferences"), hint: app.t("Settings"), run: () => app.lbOpenPreferences && app.lbOpenPreferences() }
+        {
+          id: "page",
+          title: app.t("Page Settings"),
+          hint: app.t("Settings"),
+          run: () => app.openPageSettings && app.openPageSettings()
+        },
+        {
+          id: "site-colors",
+          title: app.t("Global Colors"),
+          hint: app.t("Site Settings"),
+          run: () => app.openSiteSettings && app.openSiteSettings("colors")
+        },
+        {
+          id: "site-typo",
+          title: app.t("Global Typography"),
+          hint: app.t("Site Settings"),
+          run: () => app.openSiteSettings && app.openSiteSettings("typography")
+        },
+        {
+          id: "site-theme",
+          title: app.t("Theme Style"),
+          hint: app.t("Site Settings"),
+          run: () => app.openSiteSettings && app.openSiteSettings("theme")
+        },
+        {
+          id: "site-layout",
+          title: app.t("Layout"),
+          hint: app.t("Site Settings"),
+          run: () => app.openSiteSettings && app.openSiteSettings("site")
+        },
+        {
+          id: "site-kit",
+          title: app.t("Kit"),
+          hint: app.t("Site Settings"),
+          run: () => app.openSiteSettings && app.openSiteSettings("kit")
+        },
+        {
+          id: "notes",
+          title: app.t("Notes"),
+          hint: app.t("Settings"),
+          run: () => app.lbPrevMainMenu && app.lbPrevMainMenu("notes")
+        },
+        {
+          id: "preferences",
+          title: app.t("User Preferences"),
+          hint: app.t("Settings"),
+          run: () => app.lbOpenPreferences && app.lbOpenPreferences()
+        }
       ];
-      settings.forEach((s) => push({ kind: "setting", id: s.id, title: s.title, hint: s.hint, run: s.run }, "settings panel"));
+      settings.forEach(
+        (s) => push({ kind: "setting", id: s.id, title: s.title, hint: s.hint, run: s.run }, "settings panel")
+      );
       (app.D.units || []).forEach((el) => {
-        push({
-          kind: "unit",
-          id: el.type,
-          title: el.title || el.type,
-          hint: el.category || app.t("Units"),
-          run: () => app.add && app.add(el.type)
-        }, (el.keywords || []).join(" "));
+        push(
+          {
+            kind: "unit",
+            id: el.type,
+            title: el.title || el.type,
+            hint: el.category || app.t("Units"),
+            run: () => app.add && app.add(el.type)
+          },
+          (el.keywords || []).join(" ")
+        );
       });
       const recent = readJson(FINDER_RECENT_STORAGE, []) || [];
       items.forEach((item) => {
@@ -16928,7 +20533,7 @@
       app.finderActive = 0;
       const backdrop = document.createElement("div");
       backdrop.className = "lb-finder-backdrop";
-      backdrop.innerHTML = `<div class="lb-finder" role="dialog" aria-modal="true" aria-label="${app.esc(app.t("Finder"))}"><input type="search" class="lb-finder-input" id="lb-finder-input" placeholder="${app.esc(app.t("Search pages, templates, components, classes, settings and actions\u2026"))}" autocomplete="off" spellcheck="false" aria-controls="lb-finder-results"><div class="lb-finder-results" id="lb-finder-results" role="listbox"></div></div>`;
+      backdrop.innerHTML = `<div class="lb-finder" role="dialog" aria-modal="true" aria-label="${app.esc(app.t("Finder"))}"><input type="search" class="lb-finder-input" id="lb-finder-input" placeholder="${app.esc(app.t("Search pages, templates, components, classes, settings and actions…"))}" autocomplete="off" spellcheck="false" aria-controls="lb-finder-results"><div class="lb-finder-results" id="lb-finder-results" role="listbox"></div></div>`;
       backdrop.addEventListener("mousedown", (e) => {
         if (e.target === backdrop) app.closeFinder();
       });
@@ -17045,48 +20650,76 @@
     const spec = REPEATER_MAP[node.type];
     if (spec && typeof s[spec.key] === "string") s[spec.key] = pipeItems(s[spec.key], spec.cols);
     if ((node.type === "accordion" || node.type === "toggle") && !Array.isArray(s.items) && (s.title || s.text)) {
-      s.items = [{ _id: "r_" + Math.random().toString(36).slice(2, 10), title: String(s.title || "Item"), content: String(s.text || "") }];
+      s.items = [
+        {
+          _id: "r_" + Math.random().toString(36).slice(2, 10),
+          title: String(s.title || "Item"),
+          content: String(s.text || "")
+        }
+      ];
       delete s.title;
       delete s.text;
       delete s.open;
     }
     if (node.type === "testimonial" && !Array.isArray(s.items) && (s.quote || s.author || s.image_id)) {
-      s.items = [{ _id: "r_" + Math.random().toString(36).slice(2, 10), quote: s.quote || "", author: s.author || "", role: s.role || "", image_id: s.image_id || 0, image_url: s.image_url || "", link: s.link || "", link_target: s.link_target || "_self" }];
+      s.items = [
+        {
+          _id: "r_" + Math.random().toString(36).slice(2, 10),
+          quote: s.quote || "",
+          author: s.author || "",
+          role: s.role || "",
+          image_id: s.image_id || 0,
+          image_url: s.image_url || "",
+          link: s.link || "",
+          link_target: s.link_target || "_self"
+        }
+      ];
     }
-    if (node.type === "carousel" && typeof s.link === "string" && /^https?:\/\/(none|file|custom)\/?$/i.test(s.link)) s.link = s.link.replace(/^https?:\/\/|\/$/gi, "").toLowerCase();
+    if (node.type === "carousel" && typeof s.link === "string" && /^https?:\/\/(none|file|custom)\/?$/i.test(s.link))
+      s.link = s.link.replace(/^https?:\/\/|\/$/gi, "").toLowerCase();
     if (node.type === "carousel" && !Array.isArray(s.slides)) {
       const ids = String(s.ids || "").split(/[,\s]+/).filter(Boolean);
       const urls = String(s.custom_urls || "").split(/\r?\n/);
-      s.slides = ids.map((id, i) => ({ _id: "r_sl" + i, image_id: parseInt(id, 10) || 0, caption: "", link: String(urls[i] || "").trim(), alt: "" }));
+      s.slides = ids.map((id, i) => ({
+        _id: "r_sl" + i,
+        image_id: parseInt(id, 10) || 0,
+        caption: "",
+        link: String(urls[i] || "").trim(),
+        alt: ""
+      }));
     }
     return node;
   }
   function parseFnMap(css, names) {
     const out = {};
-    if (Array.isArray(names)) names.forEach((n) => {
-      out[n] = "";
-    });
-    String(css || "").replace(/(blur|brightness|contrast|saturate|hue-rotate|grayscale|invert|sepia|translate|translateX|translateY|rotate|scale|scaleX|scaleY|skewX|skewY)\(\s*([^)]+)\s*\)/gi, (_, fn, val) => {
-      const f = fn.toLowerCase();
-      const v = String(val).trim();
-      if (f === "hue-rotate") out.hue = v;
-      else if (f === "translate") {
-        const parts = v.split(",");
-        out.translate_x = (parts[0] || "").trim();
-        out.translate_y = (parts[1] || "").trim();
-      } else if (f === "translatex") out.translate_x = v;
-      else if (f === "translatey") out.translate_y = v;
-      else if (f === "scale") {
-        const parts = v.split(",");
-        out.scale_x = (parts[0] || "").trim();
-        out.scale_y = (parts[1] || parts[0] || "").trim();
-      } else if (f === "scalex") out.scale_x = v;
-      else if (f === "scaley") out.scale_y = v;
-      else if (f === "skewx") out.skew_x = v;
-      else if (f === "skewy") out.skew_y = v;
-      else out[f] = v;
-      return "";
-    });
+    if (Array.isArray(names))
+      names.forEach((n) => {
+        out[n] = "";
+      });
+    String(css || "").replace(
+      /(blur|brightness|contrast|saturate|hue-rotate|grayscale|invert|sepia|translate|translateX|translateY|rotate|scale|scaleX|scaleY|skewX|skewY)\(\s*([^)]+)\s*\)/gi,
+      (_, fn, val) => {
+        const f = fn.toLowerCase();
+        const v = String(val).trim();
+        if (f === "hue-rotate") out.hue = v;
+        else if (f === "translate") {
+          const parts = v.split(",");
+          out.translate_x = (parts[0] || "").trim();
+          out.translate_y = (parts[1] || "").trim();
+        } else if (f === "translatex") out.translate_x = v;
+        else if (f === "translatey") out.translate_y = v;
+        else if (f === "scale") {
+          const parts = v.split(",");
+          out.scale_x = (parts[0] || "").trim();
+          out.scale_y = (parts[1] || parts[0] || "").trim();
+        } else if (f === "scalex") out.scale_x = v;
+        else if (f === "scaley") out.scale_y = v;
+        else if (f === "skewx") out.skew_x = v;
+        else if (f === "skewy") out.skew_y = v;
+        else out[f] = v;
+        return "";
+      }
+    );
     return out;
   }
   function parseShadow(css, text) {
@@ -17096,7 +20729,7 @@
     out.inset = /\binset\b/i.test(s);
     const color = s.match(/(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\))/i);
     if (color) out.color = color[1];
-    const nums = s.replace(/inset/ig, "").replace(/(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\))/ig, "").trim().split(/\s+/).filter(Boolean);
+    const nums = s.replace(/inset/gi, "").replace(/(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\))/gi, "").trim().split(/\s+/).filter(Boolean);
     if (nums[0]) out.x = parseFloat(nums[0]) || 0;
     if (nums[1]) out.y = parseFloat(nums[1]) || 0;
     if (nums[2]) out.blur = parseFloat(nums[2]) || 0;
@@ -17120,11 +20753,25 @@
     }
     if (typeof s.filter === "string") {
       const p = parseFnMap(s.filter);
-      s.filter = { blur: p.blur || "", brightness: p.brightness || "", contrast: p.contrast || "", saturate: p.saturate || "", hue: p.hue || "", grayscale: p.grayscale || "", invert: p.invert || "", sepia: p.sepia || "" };
+      s.filter = {
+        blur: p.blur || "",
+        brightness: p.brightness || "",
+        contrast: p.contrast || "",
+        saturate: p.saturate || "",
+        hue: p.hue || "",
+        grayscale: p.grayscale || "",
+        invert: p.invert || "",
+        sepia: p.sepia || ""
+      };
     }
     if (typeof s.transition === "string") {
       const parts = String(s.transition).trim().split(/\s+/);
-      s.transition = { property: parts[0] || "all", duration: parts[1] || "", easing: parts[2] || "", delay: parts[3] || "" };
+      s.transition = {
+        property: parts[0] || "all",
+        duration: parts[1] || "",
+        easing: parts[2] || "",
+        delay: parts[3] || ""
+      };
     }
     if (typeof s.text_shadow === "string") s.text_shadow = parseShadow(s.text_shadow, true);
     if (typeof s.box_shadow === "string") s.box_shadow = parseShadow(s.box_shadow, false);
@@ -17206,11 +20853,14 @@
     app.clipboardSchema = app.D && app.D.schema || CLIPBOARD_SCHEMA;
     function persist(next) {
       const cur = readStorage() || emptyClipboard(app.clipboardSchema);
-      const payload = packClipboard({
-        unit: next && "unit" in next ? next.unit : app.clipboard ?? cur.unit,
-        style: next && "style" in next ? next.style : app.styleClipboard ?? cur.style,
-        page: next && "page" in next ? next.page : app.pageClipboard ?? cur.page
-      }, app.clipboardSchema);
+      const payload = packClipboard(
+        {
+          unit: next && "unit" in next ? next.unit : app.clipboard ?? cur.unit,
+          style: next && "style" in next ? next.style : app.styleClipboard ?? cur.style,
+          page: next && "page" in next ? next.page : app.pageClipboard ?? cur.page
+        },
+        app.clipboardSchema
+      );
       app.clipboard = payload.unit;
       app.styleClipboard = payload.style;
       app.pageClipboard = payload.page;
@@ -17270,7 +20920,9 @@
       const r = target && app.locate(app.state.root, target);
       if (!r || !app.styleClipboard) return;
       app.commit(app.t("Pasted style"), target);
-      Object.entries(app.styleClipboard).forEach(([k, v]) => app.setPath(r.node.settings, k, JSON.parse(JSON.stringify(v))));
+      Object.entries(app.styleClipboard).forEach(
+        ([k, v]) => app.setPath(r.node.settings, k, JSON.parse(JSON.stringify(v)))
+      );
       app.selected = target;
       app.render();
     };
@@ -17396,7 +21048,10 @@
   function sanitizeInlineHtml(html) {
     let s = String(html == null ? "" : html);
     s = s.replace(/<!--[\s\S]*?-->/g, "");
-    s = s.replace(/<\/?(script|style|iframe|object|embed|link|meta|form|input|button|textarea|svg|math|video|audio)[^>]*>/gi, "");
+    s = s.replace(
+      /<\/?(script|style|iframe|object|embed|link|meta|form|input|button|textarea|svg|math|video|audio)[^>]*>/gi,
+      ""
+    );
     s = s.replace(/\s+on[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
     s = s.replace(/<\/?([a-zA-Z0-9]+)(\s[^>]*)?>/g, (full, rawTag, rawAttrs) => {
       const closing = /^<\//.test(full);
@@ -17407,22 +21062,25 @@
       if (closing) return "</" + tag + ">";
       if (!rawAttrs || allowed.length === 0) return "<" + tag + (selfClose || tag === "br" ? " />" : ">");
       const kept = [];
-      String(rawAttrs).replace(/([a-zA-Z_:][\w:.-]*)\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/g, (_, name, _q, d, sq, bare) => {
-        const attr = String(name).toLowerCase();
-        if (!allowed.includes(attr)) return "";
-        let value = decodeAttr(d != null ? d : sq != null ? sq : bare);
-        if (attr === "href") {
-          value = sanitizeHref(value);
-          if (!value) return "";
+      String(rawAttrs).replace(
+        /([a-zA-Z_:][\w:.-]*)\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/g,
+        (_, name, _q, d, sq, bare) => {
+          const attr = String(name).toLowerCase();
+          if (!allowed.includes(attr)) return "";
+          let value = decodeAttr(d != null ? d : sq != null ? sq : bare);
+          if (attr === "href") {
+            value = sanitizeHref(value);
+            if (!value) return "";
+          }
+          if (attr === "style") {
+            value = filterInlineStyle(value);
+            if (!value) return "";
+          }
+          if (attr === "target" && value !== "_blank" && value !== "_self") value = "_self";
+          kept.push(attr + '="' + encodeAttr(value) + '"');
+          return "";
         }
-        if (attr === "style") {
-          value = filterInlineStyle(value);
-          if (!value) return "";
-        }
-        if (attr === "target" && value !== "_blank" && value !== "_self") value = "_self";
-        kept.push(attr + '="' + encodeAttr(value) + '"');
-        return "";
-      });
+      );
       if (tag === "a" && kept.some((x) => x.startsWith("href=")) && !kept.some((x) => x.startsWith("rel="))) {
         kept.push('rel="noopener noreferrer"');
       }
@@ -17452,11 +21110,32 @@
       { cmd: "bold", title: "Bold", html: "<b>B</b>" },
       { cmd: "italic", title: "Italic", html: "<i>I</i>" },
       { cmd: "underline", title: "Underline", html: "<u>U</u>" },
-      { cmd: "link", title: "Link", html: icon('<path fill="currentColor" d="M6.3 9.7a3 3 0 0 1 0-4.2l1.4-1.4a3 3 0 0 1 4.2 4.2l-.8.8-.8-.8.8-.8a1.8 1.8 0 1 0-2.5-2.5L7.2 6.3a1.8 1.8 0 0 0 0 2.5l.4.4-.8.8zm3.4-3.4a3 3 0 0 1 0 4.2l-1.4 1.4a3 3 0 1 1-4.2-4.2l.8-.8.8.8-.8.8a1.8 1.8 0 1 0 2.5 2.5l1.4-1.4a1.8 1.8 0 0 0 0-2.5l-.4-.4z"/>') },
+      {
+        cmd: "link",
+        title: "Link",
+        html: icon(
+          '<path fill="currentColor" d="M6.3 9.7a3 3 0 0 1 0-4.2l1.4-1.4a3 3 0 0 1 4.2 4.2l-.8.8-.8-.8.8-.8a1.8 1.8 0 1 0-2.5-2.5L7.2 6.3a1.8 1.8 0 0 0 0 2.5l.4.4-.8.8zm3.4-3.4a3 3 0 0 1 0 4.2l-1.4 1.4a3 3 0 1 1-4.2-4.2l.8-.8.8.8-.8.8a1.8 1.8 0 1 0 2.5 2.5l1.4-1.4a1.8 1.8 0 0 0 0-2.5l-.4-.4z"/>'
+        )
+      },
       { sep: true },
-      { cmd: "align-left", title: "Align left", html: icon('<path fill="currentColor" d="M2 3h12v1.4H2zm0 4h8v1.4H2zm0 4h12v1.4H2z"/>'), align: "left" },
-      { cmd: "align-center", title: "Align center", html: icon('<path fill="currentColor" d="M2 3h12v1.4H2zm2 4h8v1.4H4zm-2 4h12v1.4H2z"/>'), align: "center" },
-      { cmd: "align-right", title: "Align right", html: icon('<path fill="currentColor" d="M2 3h12v1.4H2zm4 4h8v1.4H6zm-4 4h12v1.4H2z"/>'), align: "right" },
+      {
+        cmd: "align-left",
+        title: "Align left",
+        html: icon('<path fill="currentColor" d="M2 3h12v1.4H2zm0 4h8v1.4H2zm0 4h12v1.4H2z"/>'),
+        align: "left"
+      },
+      {
+        cmd: "align-center",
+        title: "Align center",
+        html: icon('<path fill="currentColor" d="M2 3h12v1.4H2zm2 4h8v1.4H4zm-2 4h12v1.4H2z"/>'),
+        align: "center"
+      },
+      {
+        cmd: "align-right",
+        title: "Align right",
+        html: icon('<path fill="currentColor" d="M2 3h12v1.4H2zm4 4h8v1.4H6zm-4 4h12v1.4H2z"/>'),
+        align: "right"
+      },
       { sep: true },
       { cmd: "clear", title: "Clear formatting", html: '<span class="lb-inline-clear">T<sub>x</sub></span>' }
     ];
@@ -17608,7 +21287,12 @@
     if (session.node.type === "button") {
       const wrap = nodeEl?.querySelector(".lb-button-wrap") || nodeEl;
       if (wrap) {
-        wrap.classList.remove("lb-button-align-left", "lb-button-align-center", "lb-button-align-right", "lb-button-align-justify");
+        wrap.classList.remove(
+          "lb-button-align-left",
+          "lb-button-align-center",
+          "lb-button-align-right",
+          "lb-button-align-justify"
+        );
         wrap.classList.add("lb-button-align-" + next);
       }
     } else if (session.node.type === "icon_list") {
@@ -18015,7 +21699,7 @@
         const meta = tags.find((t3) => t3.name === b.tag) || null;
         const cats = meta && meta.categories || [];
         if (cats.indexOf("image") !== -1) {
-          const url = preview || (catalog && catalog.previews && catalog.previews[b.tag] || "");
+          const url = preview || catalog && catalog.previews && catalog.previews[b.tag] || "";
           if (/_id$/.test(key)) {
             out[key] = 0;
             const urlKey = key.replace(/_id$/, "_url");
@@ -18114,7 +21798,11 @@
         const val = binding[fk] != null ? binding[fk] : f.default || "";
         const label = f.label || fk;
         if (f.type === "select") {
-          const opts = f.options && typeof f.options === "object" && !Array.isArray(f.options) ? Object.keys(f.options).map((ok) => `<option value="${app.esc(ok)}" ${String(ok) === String(val) ? "selected" : ""}>${app.esc(f.options[ok])}</option>`).join("") : (Array.isArray(f.options) ? f.options : []).map((ok) => `<option value="${app.esc(ok)}" ${String(ok) === String(val) ? "selected" : ""}>${app.esc(ok)}</option>`).join("");
+          const opts = f.options && typeof f.options === "object" && !Array.isArray(f.options) ? Object.keys(f.options).map(
+            (ok) => `<option value="${app.esc(ok)}" ${String(ok) === String(val) ? "selected" : ""}>${app.esc(f.options[ok])}</option>`
+          ).join("") : (Array.isArray(f.options) ? f.options : []).map(
+            (ok) => `<option value="${app.esc(ok)}" ${String(ok) === String(val) ? "selected" : ""}>${app.esc(ok)}</option>`
+          ).join("");
           fields += `<label class="lb-control"><span>${app.esc(label)}</span><select data-dyn-field="${app.esc(fk)}">${opts}</select></label>`;
         } else if (f.type === "textarea") {
           fields += `<label class="lb-control"><span>${app.esc(label)}</span><textarea data-dyn-field="${app.esc(fk)}" rows="3" placeholder="${app.esc(f.placeholder || "")}">${app.esc(val)}</textarea></label>`;
@@ -18135,7 +21823,7 @@
     app.lbDynWrap = function lbDynWrap(k, def, html) {
       const binding = app.lbDynGet(k);
       const on = !!(binding && binding.tag);
-      return `<div class="lb-dyn${on ? " is-on" : ""}" data-dyn-key="${app.esc(k)}"><button type="button" class="lb-dyn-toggle${on ? " is-on" : ""}" title="${app.t("Dynamic Tags")}" aria-pressed="${on ? "true" : "false"}" aria-label="${app.t("Dynamic Tags")}">\u26A1</button><div class="lb-dyn-static"${on ? " hidden" : ""}>${html}</div>${on ? app.lbDynActiveHTML(k, def, binding) : ""}</div>`;
+      return `<div class="lb-dyn${on ? " is-on" : ""}" data-dyn-key="${app.esc(k)}"><button type="button" class="lb-dyn-toggle${on ? " is-on" : ""}" title="${app.t("Dynamic Tags")}" aria-pressed="${on ? "true" : "false"}" aria-label="${app.t("Dynamic Tags")}">⚡</button><div class="lb-dyn-static"${on ? " hidden" : ""}>${html}</div>${on ? app.lbDynActiveHTML(k, def, binding) : ""}</div>`;
     };
     app.lbDynClosePicker = function lbDynClosePicker() {
       document.querySelectorAll(".lb-dyn-popover").forEach((n) => n.remove());
@@ -18264,7 +21952,8 @@
       const out = oldSanitize ? oldSanitize(n) : n;
       if (!out || typeof out !== "object") return out;
       const next = Object.assign({}, out);
-      if (next.settings && typeof next.settings === "object") next.settings = dynApplyPreviews(next.settings, app.lbDynCatalog());
+      if (next.settings && typeof next.settings === "object")
+        next.settings = dynApplyPreviews(next.settings, app.lbDynCatalog());
       if (Array.isArray(next.children)) next.children = next.children.map(app.lbSanitizeNodeForCanvas);
       return next;
     };
@@ -18275,7 +21964,11 @@
     };
     if (typeof app.lb010Dynamic === "function") {
       app.lb010Dynamic = function lb010DynamicHelp() {
-        return app.lb09Section(app.t("Dynamic Content"), `<p class="lb-control-desc">${app.t("Use the lightning button on a control to insert post, site, or user data.")}</p>`, false);
+        return app.lb09Section(
+          app.t("Dynamic Content"),
+          `<p class="lb-control-desc">${app.t("Use the lightning button on a control to insert post, site, or user data.")}</p>`,
+          false
+        );
       };
     }
     document.addEventListener("mousedown", (e) => {
@@ -18353,16 +22046,19 @@
       const cells = position <= 1 && stat ? stat + card : card + stat;
       if (layout === "carousel") {
         const nav = ["arrows", "dots", "both", "none"].includes(s.carousel_nav) ? s.carousel_nav : "arrows";
-        const ghosts = Array.from({ length: Math.max(0, show - 1) }, () => `<div class="lb-loop-item lb-loop-ghost" aria-hidden="true"><span>${app.esc(app.t("Repeated on the live page"))}</span></div>`).join("");
+        const ghosts = Array.from(
+          { length: Math.max(0, show - 1) },
+          () => `<div class="lb-loop-item lb-loop-ghost" aria-hidden="true"><span>${app.esc(app.t("Repeated on the live page"))}</span></div>`
+        ).join("");
         const arrows = nav === "arrows" || nav === "both" ? `<button type="button" class="lb-loop-arrow lb-loop-prev" tabindex="-1" data-lb-loop-move="${app.esc(n.id)}" data-lb-loop-dir="-1" aria-label="${app.esc(app.t("Previous slide"))}">&lsaquo;</button><button type="button" class="lb-loop-arrow lb-loop-next" tabindex="-1" data-lb-loop-move="${app.esc(n.id)}" data-lb-loop-dir="1" aria-label="${app.esc(app.t("Next slide"))}">&rsaquo;</button>` : "";
         return `<div class="lb-loop lb-loop-carousel${equal}" data-lb-loop-carousel="1" data-show="${show}" data-scroll="1" data-index="0" style="--lb-loop-show:${show}">
 				<div class="lb-loop-viewport"><div class="lb-loop-track">${cells}${ghosts}</div></div>${arrows}
-				<div class="lb-loop-meta">${app.esc(app.t("Loop carousel \u2014 arrows slide items here. They do not open the saved page."))}</div>
+				<div class="lb-loop-meta">${app.esc(app.t("Loop carousel — arrows slide items here. They do not open the saved page."))}</div>
 			</div>`;
       }
       return `<div class="lb-loop lb-loop-${layout}${equal}" style="--lb-loop-cols:${cols};--lb-loop-show:${show}">
 			<div class="lb-loop-items">${cells}</div>
-			<div class="lb-loop-meta">${app.esc(app.t("Collection Loop \u2014 items repeat on the frontend"))}</div>
+			<div class="lb-loop-meta">${app.esc(app.t("Collection Loop — items repeat on the frontend"))}</div>
 		</div>`;
     }
     function applyLoopCarousel(root) {
@@ -18441,32 +22137,44 @@
       if (fd.__lbLoopDrop) return;
       fd.__lbLoopDrop = true;
       const clear = () => fd.querySelectorAll(".lb-loop-drop.is-over,.lb-loop-dropzone.is-over").forEach((el) => el.classList.remove("is-over"));
-      fd.addEventListener("dragover", (e) => {
-        if (!dragMightLand(e)) return;
-        const zone = loopZone(e);
-        if (!zone) return;
-        e.preventDefault();
-        e.stopPropagation();
-        clear();
-        zone.classList.add("is-over");
-        const payload = readDragPayload(e);
-        if (e.dataTransfer) e.dataTransfer.dropEffect = payload.startsWith("node:") ? "move" : "copy";
-      }, true);
-      fd.addEventListener("drop", (e) => {
-        const zone = loopZone(e);
-        if (!zone) return;
-        const payload = readDragPayload(e);
-        if (!/^unit:|^node:/.test(payload)) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-        clear();
-        placeInLoop(payload, zone.dataset.lbLoopDrop);
-      }, true);
-      fd.addEventListener("dragleave", (e) => {
-        const zone = e.target && e.target.closest && e.target.closest("[data-lb-loop-drop]");
-        if (zone && !zone.contains(e.relatedTarget)) zone.classList.remove("is-over");
-      }, true);
+      fd.addEventListener(
+        "dragover",
+        (e) => {
+          if (!dragMightLand(e)) return;
+          const zone = loopZone(e);
+          if (!zone) return;
+          e.preventDefault();
+          e.stopPropagation();
+          clear();
+          zone.classList.add("is-over");
+          const payload = readDragPayload(e);
+          if (e.dataTransfer) e.dataTransfer.dropEffect = payload.startsWith("node:") ? "move" : "copy";
+        },
+        true
+      );
+      fd.addEventListener(
+        "drop",
+        (e) => {
+          const zone = loopZone(e);
+          if (!zone) return;
+          const payload = readDragPayload(e);
+          if (!/^unit:|^node:/.test(payload)) return;
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          clear();
+          placeInLoop(payload, zone.dataset.lbLoopDrop);
+        },
+        true
+      );
+      fd.addEventListener(
+        "dragleave",
+        (e) => {
+          const zone = e.target && e.target.closest && e.target.closest("[data-lb-loop-drop]");
+          if (zone && !zone.contains(e.relatedTarget)) zone.classList.remove("is-over");
+        },
+        true
+      );
       fd.addEventListener("dragend", clear, true);
     }
     const prevBind = app.bindFrame;
@@ -18480,26 +22188,30 @@
         if (btn.dataset.lbLoopBound === "1") return;
         btn.dataset.lbLoopBound = "1";
         btn.addEventListener("mousedown", (e) => e.preventDefault());
-        btn.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const root = btn.closest("[data-lb-loop-carousel]");
-          if (!root) return;
-          const doc = btn.ownerDocument;
-          const scroller = doc.scrollingElement || doc.documentElement;
-          const top = scroller ? scroller.scrollTop : 0;
-          const show = Math.max(1, parseInt(root.dataset.show, 10) || 1);
-          const track = root.querySelector(":scope > .lb-loop-viewport > .lb-loop-track");
-          const count = track ? track.querySelectorAll(":scope > .lb-loop-item").length : 0;
-          const maxStart = Math.max(0, count - show);
-          let index = parseInt(root.dataset.index, 10) || 0;
-          index += parseInt(btn.dataset.lbLoopDir, 10) || 1;
-          if (index > maxStart) index = 0;
-          if (index < 0) index = maxStart;
-          root.dataset.index = String(index);
-          applyLoopCarousel(root);
-          if (scroller) scroller.scrollTop = top;
-        }, true);
+        btn.addEventListener(
+          "click",
+          (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const root = btn.closest("[data-lb-loop-carousel]");
+            if (!root) return;
+            const doc = btn.ownerDocument;
+            const scroller = doc.scrollingElement || doc.documentElement;
+            const top = scroller ? scroller.scrollTop : 0;
+            const show = Math.max(1, parseInt(root.dataset.show, 10) || 1);
+            const track = root.querySelector(":scope > .lb-loop-viewport > .lb-loop-track");
+            const count = track ? track.querySelectorAll(":scope > .lb-loop-item").length : 0;
+            const maxStart = Math.max(0, count - show);
+            let index = parseInt(root.dataset.index, 10) || 0;
+            index += parseInt(btn.dataset.lbLoopDir, 10) || 1;
+            if (index > maxStart) index = 0;
+            if (index < 0) index = maxStart;
+            root.dataset.index = String(index);
+            applyLoopCarousel(root);
+            if (scroller) scroller.scrollTop = top;
+          },
+          true
+        );
       });
     };
   }
@@ -18522,7 +22234,7 @@
       }
       return `<div class="lb-template-widget">
 			<div class="lb-template-note">${app.esc(app.t("Using saved template: %s", templateLabel(id)))}</div>
-			<div class="lb-loop-meta">${app.esc(app.t("Template \u2014 rendered on the frontend"))}</div>
+			<div class="lb-loop-meta">${app.esc(app.t("Template — rendered on the frontend"))}</div>
 		</div>`;
     }
     const prevBody = app.bodyHTML;
@@ -18575,20 +22287,22 @@
     if (Array.isArray(node.interactions) && node.interactions.length) return node.interactions;
     const s = node.settings || {};
     if (s.interaction) {
-      return [{
-        id: "i_legacy",
-        kind: "entrance",
-        trigger: s.interaction_trigger || "viewport",
-        effect: s.interaction,
-        duration: s.interaction_duration ?? 0.6,
-        delay: s.interaction_delay ?? 0,
-        easing: s.interaction_easing || "ease",
-        iteration: 1,
-        repeat: !!s.interaction_repeat,
-        threshold: s.interaction_threshold ?? 0.15,
-        exclude: [],
-        keyframes: []
-      }];
+      return [
+        {
+          id: "i_legacy",
+          kind: "entrance",
+          trigger: s.interaction_trigger || "viewport",
+          effect: s.interaction,
+          duration: s.interaction_duration ?? 0.6,
+          delay: s.interaction_delay ?? 0,
+          easing: s.interaction_easing || "ease",
+          iteration: 1,
+          repeat: !!s.interaction_repeat,
+          threshold: s.interaction_threshold ?? 0.15,
+          exclude: [],
+          keyframes: []
+        }
+      ];
     }
     return [];
   }
@@ -18602,7 +22316,7 @@
       effect = p ? p.label : effect;
     }
     const trigger = cat.triggers[item.trigger] || item.trigger || "viewport";
-    return kind + " \xB7 " + effect + " \xB7 " + trigger || "Item " + (index + 1);
+    return kind + " · " + effect + " · " + trigger || "Item " + (index + 1);
   }
   function fxPreviewClasses(item) {
     const kind = item.kind || "entrance";
@@ -18663,18 +22377,39 @@
       let body = "";
       if (isOpen) {
         body += sel(t2("Kind"), item.kind || "entrance", cat.kinds, `data-fx-field="kind" data-fx-index="${i}"`);
-        body += sel(t2("Trigger"), item.trigger || "viewport", cat.triggers, `data-fx-field="trigger" data-fx-index="${i}"`);
+        body += sel(
+          t2("Trigger"),
+          item.trigger || "viewport",
+          cat.triggers,
+          `data-fx-field="trigger" data-fx-index="${i}"`
+        );
         if ((item.kind || "entrance") !== "custom") {
           body += effectSelect(item.effect || "fade", i);
         } else {
           body += keyframeEditor(item, i);
         }
-        body += num(t2("Duration"), item.duration ?? 0.6, `data-fx-field="duration" data-fx-index="${i}" step="0.05" min="0" max="30"`);
-        body += num(t2("Delay"), item.delay ?? 0, `data-fx-field="delay" data-fx-index="${i}" step="0.05" min="0" max="30"`);
+        body += num(
+          t2("Duration"),
+          item.duration ?? 0.6,
+          `data-fx-field="duration" data-fx-index="${i}" step="0.05" min="0" max="30"`
+        );
+        body += num(
+          t2("Delay"),
+          item.delay ?? 0,
+          `data-fx-field="delay" data-fx-index="${i}" step="0.05" min="0" max="30"`
+        );
         body += sel(t2("Easing"), item.easing || "ease", cat.easings, `data-fx-field="easing" data-fx-index="${i}"`);
-        body += num(t2("Iteration"), item.iteration === "infinite" ? "" : item.iteration ?? 1, `data-fx-field="iteration" data-fx-index="${i}" min="1" max="20" step="1" placeholder="${app.esc(t2("Infinite"))}"`);
+        body += num(
+          t2("Iteration"),
+          item.iteration === "infinite" ? "" : item.iteration ?? 1,
+          `data-fx-field="iteration" data-fx-index="${i}" min="1" max="20" step="1" placeholder="${app.esc(t2("Infinite"))}"`
+        );
         if ((item.trigger || "viewport") === "viewport") {
-          body += num(t2("Viewport Threshold"), item.threshold ?? 0.15, `data-fx-field="threshold" data-fx-index="${i}" step="0.05" min="0" max="1"`);
+          body += num(
+            t2("Viewport Threshold"),
+            item.threshold ?? 0.15,
+            `data-fx-field="threshold" data-fx-index="${i}" step="0.05" min="0" max="1"`
+          );
           body += `<label class="lb-control lb-switch"><input type="checkbox" data-fx-field="repeat" data-fx-index="${i}" ${item.repeat ? "checked" : ""}><span>${app.esc(t2("Repeat when leaving view"))}</span></label>`;
         }
         if (bp.length) {
@@ -18683,21 +22418,27 @@
         }
         body += `<button type="button" class="lb-btn lb-fx-preview-btn" data-fx-preview="${i}">${app.esc(t2("Preview"))}</button>`;
       }
-      return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-fx-id="${app.esc(id)}" data-fx-index="${i}"><div class="lb-repeater-head"><span class="lb-repeater-handle" aria-hidden="true">\u22EE\u22EE</span><button type="button" class="lb-repeater-toggle lb-fx-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(fxTitle(item, i))}</button><button type="button" class="lb-repeater-dup lb-fx-dup" title="${app.esc(t2("Duplicate"))}">\u29C9</button><button type="button" class="lb-repeater-del lb-fx-del" title="${app.esc(t2("Remove"))}">\xD7</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
+      return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-fx-id="${app.esc(id)}" data-fx-index="${i}"><div class="lb-repeater-head"><span class="lb-repeater-handle" aria-hidden="true">⋮⋮</span><button type="button" class="lb-repeater-toggle lb-fx-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(fxTitle(item, i))}</button><button type="button" class="lb-repeater-dup lb-fx-dup" title="${app.esc(t2("Duplicate"))}">⧉</button><button type="button" class="lb-repeater-del lb-fx-del" title="${app.esc(t2("Remove"))}">×</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
     }).join("");
-    return app.lb09Section(t2("Interactions"), `<div class="lb-fx-panel" data-fx-panel="1"><div class="lb-repeater-items">${rows || `<div class="lb-repeater-empty">${app.esc(t2("No motion effects yet"))}</div>`}</div><button type="button" class="lb-btn lb-fx-add">+ ${app.esc(t2("Add interaction"))}</button><p class="lb-control-desc">${app.esc(t2("Respects the visitor reduced-motion preference. Use Preview to play the effect in the canvas."))}</p></div>`, true);
+    return app.lb09Section(
+      t2("Interactions"),
+      `<div class="lb-fx-panel" data-fx-panel="1"><div class="lb-repeater-items">${rows || `<div class="lb-repeater-empty">${app.esc(t2("No motion effects yet"))}</div>`}</div><button type="button" class="lb-btn lb-fx-add">+ ${app.esc(t2("Add interaction"))}</button><p class="lb-control-desc">${app.esc(t2("Respects the visitor reduced-motion preference. Use Preview to play the effect in the canvas."))}</p></div>`,
+      true
+    );
   }
   function keyframeEditor(item, index) {
     const frames = Array.isArray(item.keyframes) && item.keyframes.length ? item.keyframes : fxDefault().keyframes;
-    const rows = frames.map((f, fi) => `<div class="lb-fx-kf" data-fx-kf="${fi}" data-fx-index="${index}">
+    const rows = frames.map(
+      (f, fi) => `<div class="lb-fx-kf" data-fx-kf="${fi}" data-fx-index="${index}">
 		<input type="number" min="0" max="100" step="1" value="${app.esc(f.offset ?? 0)}" data-fx-kf-field="offset" title="${app.esc(t2("Offset"))}">
 		<input type="number" min="0" max="1" step="0.05" value="${app.esc(f.opacity ?? 1)}" data-fx-kf-field="opacity" title="${app.esc(t2("Opacity"))}">
 		<input type="number" step="1" value="${app.esc(f.x ?? 0)}" data-fx-kf-field="x" title="X">
 		<input type="number" step="1" value="${app.esc(f.y ?? 0)}" data-fx-kf-field="y" title="Y">
 		<input type="number" min="0" max="5" step="0.05" value="${app.esc(f.scale ?? 1)}" data-fx-kf-field="scale" title="${app.esc(t2("Scale"))}">
 		<input type="number" step="1" value="${app.esc(f.rotate ?? 0)}" data-fx-kf-field="rotate" title="${app.esc(t2("Rotate"))}">
-		<button type="button" class="lb-fx-kf-del" title="${app.esc(t2("Remove"))}">\xD7</button>
-	</div>`).join("");
+		<button type="button" class="lb-fx-kf-del" title="${app.esc(t2("Remove"))}">×</button>
+	</div>`
+    ).join("");
     return `<div class="lb-control lb-fx-keyframes"><span>${app.esc(t2("Keyframes"))}</span><div class="lb-fx-kf-head"><span>%</span><span>${app.esc(t2("Opacity"))}</span><span>X</span><span>Y</span><span>${app.esc(t2("Scale"))}</span><span>${app.esc(t2("Rotate"))}</span><span></span></div>${rows}<button type="button" class="lb-btn lb-fx-kf-add" data-fx-index="${index}">+ ${app.esc(t2("Add keyframe"))}</button></div>`;
   }
   function ensureList(node) {
@@ -18720,12 +22461,15 @@
     el.classList.add("lb-fx-play");
     const ms = ((Number(item.duration) || 0.6) + (Number(item.delay) || 0)) * 1e3 + 80;
     clearTimeout(el.__lbFxTimer);
-    el.__lbFxTimer = setTimeout(() => {
-      cls.forEach((c) => el.classList.remove(c));
-      el.classList.remove("lb-fx-play", "lb-fx-preview");
-      const tag = el.querySelector("style[data-lb-fx-preview]");
-      if (tag) tag.remove();
-    }, Math.min(8e3, Math.max(400, ms)));
+    el.__lbFxTimer = setTimeout(
+      () => {
+        cls.forEach((c) => el.classList.remove(c));
+        el.classList.remove("lb-fx-play", "lb-fx-preview");
+        const tag = el.querySelector("style[data-lb-fx-preview]");
+        if (tag) tag.remove();
+      },
+      Math.min(8e3, Math.max(400, ms))
+    );
   }
   function applyPreviewKeyframes(el, node, item) {
     const frames = Array.isArray(item.keyframes) ? item.keyframes : [];
@@ -18762,8 +22506,10 @@
       const r = app.locate(app.state.root, app.selected);
       if (!r || !r.node) return html;
       const extra = panelHTML(r.node);
-      if (html.includes("lb-a11y-box")) html = html.replace('<div class="lb-a11y-box"', extra + '<div class="lb-a11y-box"');
-      else if (html.includes("lb-action-grid")) html = html.replace('<div class="lb-action-grid"', extra + '<div class="lb-action-grid"');
+      if (html.includes("lb-a11y-box"))
+        html = html.replace('<div class="lb-a11y-box"', extra + '<div class="lb-a11y-box"');
+      else if (html.includes("lb-action-grid"))
+        html = html.replace('<div class="lb-action-grid"', extra + '<div class="lb-action-grid"');
       else html += extra;
       return html;
     };
@@ -18806,40 +22552,46 @@
       touch();
       app.refreshRightPanel();
     });
-    box.querySelectorAll(".lb-fx-toggle").forEach((b) => b.addEventListener("click", (e) => {
-      e.preventDefault();
-      const item = b.closest("[data-fx-id]");
-      if (!item) return;
-      const id = item.dataset.fxId;
-      const map = app.fxOpen[storeOf()] || (app.fxOpen[storeOf()] = {});
-      map[id] = !map[id];
-      app.refreshRightPanel();
-    }));
-    box.querySelectorAll(".lb-fx-dup").forEach((b) => b.addEventListener("click", (e) => {
-      e.preventDefault();
-      const list = listOf();
-      if (!list) return;
-      const i = Number(b.closest("[data-fx-index]")?.dataset.fxIndex);
-      if (!Number.isFinite(i) || !list[i]) return;
-      app.commit();
-      const copy = JSON.parse(JSON.stringify(list[i]));
-      copy.id = app.eid();
-      list.splice(i + 1, 0, copy);
-      app.fxOpen[storeOf()] = { [copy.id]: true };
-      touch();
-      app.refreshRightPanel();
-    }));
-    box.querySelectorAll(".lb-fx-del").forEach((b) => b.addEventListener("click", (e) => {
-      e.preventDefault();
-      const r = nodeOf(), list = listOf();
-      if (!r || !list) return;
-      const i = Number(b.closest("[data-fx-index]")?.dataset.fxIndex);
-      if (!Number.isFinite(i)) return;
-      app.commit();
-      list.splice(i, 1);
-      touch();
-      app.refreshRightPanel();
-    }));
+    box.querySelectorAll(".lb-fx-toggle").forEach(
+      (b) => b.addEventListener("click", (e) => {
+        e.preventDefault();
+        const item = b.closest("[data-fx-id]");
+        if (!item) return;
+        const id = item.dataset.fxId;
+        const map = app.fxOpen[storeOf()] || (app.fxOpen[storeOf()] = {});
+        map[id] = !map[id];
+        app.refreshRightPanel();
+      })
+    );
+    box.querySelectorAll(".lb-fx-dup").forEach(
+      (b) => b.addEventListener("click", (e) => {
+        e.preventDefault();
+        const list = listOf();
+        if (!list) return;
+        const i = Number(b.closest("[data-fx-index]")?.dataset.fxIndex);
+        if (!Number.isFinite(i) || !list[i]) return;
+        app.commit();
+        const copy = JSON.parse(JSON.stringify(list[i]));
+        copy.id = app.eid();
+        list.splice(i + 1, 0, copy);
+        app.fxOpen[storeOf()] = { [copy.id]: true };
+        touch();
+        app.refreshRightPanel();
+      })
+    );
+    box.querySelectorAll(".lb-fx-del").forEach(
+      (b) => b.addEventListener("click", (e) => {
+        e.preventDefault();
+        const r = nodeOf(), list = listOf();
+        if (!r || !list) return;
+        const i = Number(b.closest("[data-fx-index]")?.dataset.fxIndex);
+        if (!Number.isFinite(i)) return;
+        app.commit();
+        list.splice(i, 1);
+        touch();
+        app.refreshRightPanel();
+      })
+    );
     box.querySelectorAll("[data-fx-field]").forEach((el) => {
       const apply = () => {
         const list = listOf();
@@ -18894,36 +22646,42 @@
         touch();
       });
     });
-    box.querySelectorAll(".lb-fx-kf-add").forEach((b) => b.addEventListener("click", () => {
-      const list = listOf();
-      if (!list) return;
-      const i = Number(b.dataset.fxIndex);
-      if (!list[i]) return;
-      app.commit();
-      if (!Array.isArray(list[i].keyframes)) list[i].keyframes = fxDefault().keyframes;
-      list[i].keyframes.push({ offset: 100, opacity: 1, x: 0, y: 0, scale: 1, rotate: 0, blur: 0 });
-      touch();
-      app.refreshRightPanel();
-    }));
-    box.querySelectorAll(".lb-fx-kf-del").forEach((b) => b.addEventListener("click", () => {
-      const list = listOf();
-      if (!list) return;
-      const wrap = b.closest("[data-fx-kf]");
-      const i = Number(wrap?.dataset.fxIndex);
-      const fi = Number(wrap?.dataset.fxKf);
-      if (!list[i] || !Array.isArray(list[i].keyframes) || list[i].keyframes.length < 2) return;
-      app.commit();
-      list[i].keyframes.splice(fi, 1);
-      touch();
-      app.refreshRightPanel();
-    }));
-    box.querySelectorAll("[data-fx-preview]").forEach((b) => b.addEventListener("click", () => {
-      const r = nodeOf(), list = listOf();
-      if (!r || !list) return;
-      const i = Number(b.dataset.fxPreview);
-      if (!list[i]) return;
-      previewItem(r.node, list[i]);
-    }));
+    box.querySelectorAll(".lb-fx-kf-add").forEach(
+      (b) => b.addEventListener("click", () => {
+        const list = listOf();
+        if (!list) return;
+        const i = Number(b.dataset.fxIndex);
+        if (!list[i]) return;
+        app.commit();
+        if (!Array.isArray(list[i].keyframes)) list[i].keyframes = fxDefault().keyframes;
+        list[i].keyframes.push({ offset: 100, opacity: 1, x: 0, y: 0, scale: 1, rotate: 0, blur: 0 });
+        touch();
+        app.refreshRightPanel();
+      })
+    );
+    box.querySelectorAll(".lb-fx-kf-del").forEach(
+      (b) => b.addEventListener("click", () => {
+        const list = listOf();
+        if (!list) return;
+        const wrap = b.closest("[data-fx-kf]");
+        const i = Number(wrap?.dataset.fxIndex);
+        const fi = Number(wrap?.dataset.fxKf);
+        if (!list[i] || !Array.isArray(list[i].keyframes) || list[i].keyframes.length < 2) return;
+        app.commit();
+        list[i].keyframes.splice(fi, 1);
+        touch();
+        app.refreshRightPanel();
+      })
+    );
+    box.querySelectorAll("[data-fx-preview]").forEach(
+      (b) => b.addEventListener("click", () => {
+        const r = nodeOf(), list = listOf();
+        if (!r || !list) return;
+        const i = Number(b.dataset.fxPreview);
+        if (!list[i]) return;
+        previewItem(r.node, list[i]);
+      })
+    );
   }
 
   // src/editor/saved-templates.js
@@ -19149,7 +22907,7 @@
       return `<article class="lb-template-card" data-tpl-card="${i.id}" data-tpl-type="${app.esc(i.type || "page")}" data-tpl-search="${app.esc((i.title || "") + " " + (i.type || "") + " " + cats)}">
 			<div class="lb-template-thumb">${thumb}</div>
 			<strong>${app.esc(i.title)}</strong>
-			<small>${app.esc(app.templateTypeLabel(i.type))}${cats ? " \xB7 " + app.esc(cats) : ""} \xB7 ${count} ${app.t("root unit(s)")}</small>
+			<small>${app.esc(app.templateTypeLabel(i.type))}${cats ? " · " + app.esc(cats) : ""} · ${count} ${app.t("root unit(s)")}</small>
 			<div class="lb-template-card-actions">
 				<button class="lb-btn" data-template-id="${i.id}">${app.t("Insert")}</button>
 				<button class="lb-btn" data-tpl-export="${i.id}">${app.t("Export")}</button>
@@ -19163,9 +22921,11 @@
         const items = await (await fetch(`${app.D.api}/templates`, { headers: { "X-WP-Nonce": app.D.nonce } })).json();
         const list = Array.isArray(items) ? items : [];
         const types = ["", ...Object.keys(app.templateTypes())];
-        const typeFilter = types.map((k) => `<button type="button" class="lb-chip ${k === "" ? "active" : ""}" data-tpl-filter="${app.esc(k)}">${app.esc(k ? app.templateTypeLabel(k) : app.t("All"))}</button>`).join("");
+        const typeFilter = types.map(
+          (k) => `<button type="button" class="lb-chip ${k === "" ? "active" : ""}" data-tpl-filter="${app.esc(k)}">${app.esc(k ? app.templateTypeLabel(k) : app.t("All"))}</button>`
+        ).join("");
         const body = `<div class="lb-template-toolbar">
-				<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates\u2026")}">
+				<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates…")}">
 				<div class="lb-template-filters">${typeFilter}</div>
 				<div class="lb-template-toolbar-actions">
 					<button type="button" class="lb-btn" id="lb-tpl-import">${app.t("Import")}</button>
@@ -19184,26 +22944,38 @@
             });
           };
           app.$("#lb-template-search")?.addEventListener("input", apply);
-          app.$$("[data-tpl-filter]").forEach((b) => b.onclick = () => {
-            app.$$("[data-tpl-filter]").forEach((x) => x.classList.toggle("active", x === b));
-            apply();
-          });
+          app.$$("[data-tpl-filter]").forEach(
+            (b) => b.onclick = () => {
+              app.$$("[data-tpl-filter]").forEach((x) => x.classList.toggle("active", x === b));
+              apply();
+            }
+          );
           app.$("#lb-tpl-import")?.addEventListener("click", () => app.$("#lb-tpl-import-file")?.click());
           app.$("#lb-tpl-import-file")?.addEventListener("change", (e) => {
             const f = e.target.files?.[0];
             if (f) app.importTemplateFile(f);
           });
-          app.$$("[data-template-dup]").forEach((b) => b.onclick = async () => {
-            await fetch(`${app.D.api}/templates/${b.dataset.templateDup}/duplicate`, { method: "POST", headers: { "X-WP-Nonce": app.D.nonce } });
-            app.closeModal();
-            openTemplateLibrary();
-          });
-          app.$$("[data-template-del]").forEach((b) => b.onclick = async () => {
-            if (!confirm(app.t("Delete this template?"))) return;
-            await fetch(`${app.D.api}/templates/${b.dataset.templateDel}`, { method: "DELETE", headers: { "X-WP-Nonce": app.D.nonce } });
-            app.closeModal();
-            openTemplateLibrary();
-          });
+          app.$$("[data-template-dup]").forEach(
+            (b) => b.onclick = async () => {
+              await fetch(`${app.D.api}/templates/${b.dataset.templateDup}/duplicate`, {
+                method: "POST",
+                headers: { "X-WP-Nonce": app.D.nonce }
+              });
+              app.closeModal();
+              openTemplateLibrary();
+            }
+          );
+          app.$$("[data-template-del]").forEach(
+            (b) => b.onclick = async () => {
+              if (!confirm(app.t("Delete this template?"))) return;
+              await fetch(`${app.D.api}/templates/${b.dataset.templateDel}`, {
+                method: "DELETE",
+                headers: { "X-WP-Nonce": app.D.nonce }
+              });
+              app.closeModal();
+              openTemplateLibrary();
+            }
+          );
           app.$$("[data-tpl-export]").forEach((b) => b.onclick = () => app.exportTemplate(b.dataset.tplExport));
         });
       } catch (e) {
@@ -19328,7 +23100,16 @@
         });
       };
     }
-    ["openSiteSettings", "openClassManager", "openVariables", "pasteStyle", "resetStyle", "lb010OpenDesignSystem", "lb110OpenDesignSystem", "lb111OpenDesignSystem"].forEach((name) => {
+    [
+      "openSiteSettings",
+      "openClassManager",
+      "openVariables",
+      "pasteStyle",
+      "resetStyle",
+      "lb010OpenDesignSystem",
+      "lb110OpenDesignSystem",
+      "lb111OpenDesignSystem"
+    ].forEach((name) => {
       const orig = app[name];
       if (typeof orig !== "function") return;
       app[name] = function designGuarded() {
@@ -19482,7 +23263,17 @@
 
   // src/editor/canvas-schema.js
   function installCanvasSchema() {
-    const SKIP_SIZE = /* @__PURE__ */ new Set(["image", "video", "gallery", "carousel", "audio", "image_box", "soundcloud", "embed", "tinymce_text_editor"]);
+    const SKIP_SIZE = /* @__PURE__ */ new Set([
+      "image",
+      "video",
+      "gallery",
+      "carousel",
+      "audio",
+      "image_box",
+      "soundcloud",
+      "embed",
+      "tinymce_text_editor"
+    ]);
     const SIZE_KEYS = /* @__PURE__ */ new Set(["width", "max_width", "height", "min_height"]);
     function cssSafe(value) {
       let s = String(value == null ? "" : value);
@@ -19527,7 +23318,8 @@
         });
         if (sides.every(function(side) {
           return side == null || side === "" || side === 0 || side === "0";
-        })) return "";
+        }))
+          return "";
       }
       return typeof app.formatBox === "function" ? app.formatBox(value) : "";
     }
@@ -19612,7 +23404,12 @@
         return { VALUE: borderCss(raw), RAW: "", SIZE: "", UNIT: "" };
       }
       if (type === "gaps") {
-        return { VALUE: typeof app.lbCompileGaps === "function" ? app.lbCompileGaps(raw) : "", RAW: "", SIZE: "", UNIT: "" };
+        return {
+          VALUE: typeof app.lbCompileGaps === "function" ? app.lbCompileGaps(raw) : "",
+          RAW: "",
+          SIZE: "",
+          UNIT: ""
+        };
       }
       let str = raw;
       if (str && typeof str === "object" && !Array.isArray(str)) str = str.desktop != null ? str.desktop : "";
@@ -19624,22 +23421,19 @@
       if (match) {
         size = match[1];
         unit = (match[2] || "").toLowerCase();
-        if (!unit && def && Array.isArray(def.units) && def.units.length && def.units[0] !== "") unit = String(def.units[0]);
+        if (!unit && def && Array.isArray(def.units) && def.units.length && def.units[0] !== "")
+          unit = String(def.units[0]);
       }
       let css = str;
       if (size && unit && !/[a-z%]/i.test(str)) css = size + unit;
       if (def && def.map && Object.prototype.hasOwnProperty.call(def.map, str)) css = String(def.map[str]);
       return { VALUE: css, RAW: str, SIZE: size, UNIT: unit };
     }
-    // The canvas renders many units with inline style="color:..;background:.." on the inner
-    // element (button link, heading tag, text box). Inline styles beat any :hover rule in a
-    // stylesheet, so Hover colors never showed in the editor. Mark hover/focus declarations
-    // !important here (canvas only; the front end has no inline colors to fight).
     function hoverImportant(rule) {
       return rule.split(";").map(function(d) {
-        const t = d.trim();
-        if (!t || t.indexOf(":") < 1 || /^--/.test(t) || /!important\s*$/i.test(t)) return t;
-        return t + " !important";
+        const t3 = d.trim();
+        if (!t3 || t3.indexOf(":") < 1 || /^--/.test(t3) || /!important\s*$/i.test(t3)) return t3;
+        return t3 + " !important";
       }).filter(Boolean).join(";") + ";";
     }
     function rules(def, raw, wrapper) {
@@ -19651,7 +23445,8 @@
         if (typeof selector !== "string" || typeof decl !== "string" || !decl) return;
         const sel2 = selector.replace(/\{\{WRAPPER\}\}/g, wrapper);
         let value = tok.VALUE;
-        if (decl.indexOf("font-family:") !== -1 && /\s/.test(value) && value.indexOf(",") === -1 && value.charAt(0) !== '"') value = '"' + value.replace(/"/g, "") + '"';
+        if (decl.indexOf("font-family:") !== -1 && /\s/.test(value) && value.indexOf(",") === -1 && value.charAt(0) !== '"')
+          value = '"' + value.replace(/"/g, "") + '"';
         let rule = decl.replace(/\{\{VALUE\}\}/g, cssSafe(value)).replace(/\{\{RAW\}\}/g, cssSafe(tok.RAW)).replace(/\{\{SIZE\}\}/g, cssSafe(tok.SIZE)).replace(/\{\{UNIT\}\}/g, cssSafe(tok.UNIT)).trim();
         if (!rule) return;
         if (rule.slice(-1) !== ";") rule += ";";
@@ -19669,28 +23464,41 @@
       }
       if (!selectorKeys.has("color") && s.color) put("color", app.resp(s.color));
       if (!selectorKeys.has("font_family") && s.font_family) put("font-family", app.resp(s.font_family));
-      if (!selectorKeys.has("font_size") && s.font_size != null && s.font_size !== "") put("font-size", lengthOf(s.font_size));
+      if (!selectorKeys.has("font_size") && s.font_size != null && s.font_size !== "")
+        put("font-size", lengthOf(s.font_size));
       if (!selectorKeys.has("font_weight") && s.font_weight) put("font-weight", app.resp(s.font_weight));
       if (!selectorKeys.has("font_style") && s.font_style) put("font-style", s.font_style);
       if (!selectorKeys.has("text_transform") && s.text_transform) put("text-transform", s.text_transform);
       if (!selectorKeys.has("text_decoration") && s.text_decoration) put("text-decoration", s.text_decoration);
-      if (!selectorKeys.has("line_height") && s.line_height != null && s.line_height !== "") put("line-height", String(app.resp(s.line_height)));
-      if (!selectorKeys.has("letter_spacing") && s.letter_spacing != null && s.letter_spacing !== "") put("letter-spacing", lengthOf(s.letter_spacing));
+      if (!selectorKeys.has("line_height") && s.line_height != null && s.line_height !== "")
+        put("line-height", String(app.resp(s.line_height)));
+      if (!selectorKeys.has("letter_spacing") && s.letter_spacing != null && s.letter_spacing !== "")
+        put("letter-spacing", lengthOf(s.letter_spacing));
       if (!selectorKeys.has("margin")) put("margin", boxOf(s.margin));
       if (!selectorKeys.has("padding")) put("padding", boxOf(s.padding));
       if (!selectorKeys.has("border_width") && s.border_style) put("border-width", boxOf(s.border_width));
       if (!selectorKeys.has("border_style") && s.border_style) put("border-style", s.border_style);
       if (!selectorKeys.has("border_color") && s.border_color) put("border-color", s.border_color);
-      else if (!selectorKeys.has("border_color") && node.type !== "button" && ["solid", "dashed", "dotted", "double", "groove", "ridge", "inset", "outset"].indexOf(s.border_style) !== -1) put("border-color", "#ffffff");
+      else if (!selectorKeys.has("border_color") && node.type !== "button" && ["solid", "dashed", "dotted", "double", "groove", "ridge", "inset", "outset"].indexOf(s.border_style) !== -1)
+        put("border-color", "#ffffff");
       if (!selectorKeys.has("border_radius")) put("border-radius", boxOf(s.border_radius));
-      if (!selectorKeys.has("opacity") && s.opacity != null && s.opacity !== "") put("opacity", String(app.resp(s.opacity)));
-      if (!selectorKeys.has("filter") && s.filter) put("filter", typeof app.lbCompileFilter === "function" ? app.lbCompileFilter(s.filter) : typeof s.filter === "string" ? s.filter : "");
+      if (!selectorKeys.has("opacity") && s.opacity != null && s.opacity !== "")
+        put("opacity", String(app.resp(s.opacity)));
+      if (!selectorKeys.has("filter") && s.filter)
+        put(
+          "filter",
+          typeof app.lbCompileFilter === "function" ? app.lbCompileFilter(s.filter) : typeof s.filter === "string" ? s.filter : ""
+        );
       if (!selectorKeys.has("transform") && s.transform) {
         const tv = typeof app.lbCompileTransform === "function" ? app.lbCompileTransform(s.transform) : typeof s.transform === "string" ? s.transform : "";
         put("transform", tv);
         if (tv && typeof s.transform === "object" && s.transform.origin) put("transform-origin", s.transform.origin);
       }
-      if (!selectorKeys.has("transition") && s.transition) put("transition", typeof app.lbCompileTransition === "function" ? app.lbCompileTransition(s.transition) : typeof s.transition === "string" ? s.transition : "");
+      if (!selectorKeys.has("transition") && s.transition)
+        put(
+          "transition",
+          typeof app.lbCompileTransition === "function" ? app.lbCompileTransition(s.transition) : typeof s.transition === "string" ? s.transition : ""
+        );
       if (!selectorKeys.has("mix_blend_mode") && s.mix_blend_mode) put("mix-blend-mode", s.mix_blend_mode);
       if (!selectorKeys.has("shadow")) put("box-shadow", shadowOf(s.shadow || s.box_shadow));
       if (!selectorKeys.has("background") && s.background && typeof app.lbCompileBackground === "function") {
@@ -19793,18 +23601,16 @@
     }
   }
 
-  // Effects sections: "Reset to Default" button in every widget's settings panel.
-  // Wraps app.lb09Section (the single source of <details class="lb-control-section">),
-  // so it covers schema units, legacy units, containers and grids alike.
+  // src/editor/effects-reset.js
   function installEffectsReset() {
     if (app.__lbEffectsReset) return;
     app.__lbEffectsReset = true;
     const TITLES = ["Effects", "Motion Effects", "Layout & Effects", "Border & Effects", "Transform"];
     const isEffectsTitle = (title) => {
-      const t = String(title || "").trim();
-      if (!t) return false;
-      if (/effects/i.test(t)) return true;
-      return TITLES.some((x) => t === x || t === app.t(x));
+      const t3 = String(title || "").trim();
+      if (!t3) return false;
+      if (/effects/i.test(t3)) return true;
+      return TITLES.some((x) => t3 === x || t3 === app.t(x));
     };
     const clone = (v) => v === void 0 ? void 0 : JSON.parse(JSON.stringify(v));
     const same = (a, b) => JSON.stringify(a === void 0 ? null : a) === JSON.stringify(b === void 0 ? null : b);
@@ -19906,8 +23712,8 @@
       if (app.lbResetSection(keys)) {
         const root = app.root || document;
         root.querySelectorAll("details.lb-control-section > summary").forEach((s) => {
-          const t = s.firstChild && s.firstChild.nodeType === 3 ? s.firstChild.textContent.trim() : "";
-          if (titleText && t === titleText && s.querySelector(".lb-section-reset-btn")) s.parentElement.open = true;
+          const t3 = s.firstChild && s.firstChild.nodeType === 3 ? s.firstChild.textContent.trim() : "";
+          if (titleText && t3 === titleText && s.querySelector(".lb-section-reset-btn")) s.parentElement.open = true;
         });
       }
       app.lbRefreshResetButtons();
@@ -19930,10 +23736,7 @@
     if (!document.getElementById(css.id)) document.head.appendChild(css);
   }
 
-  // src/editor/index.js
-  installHooks();
-  // Image Carousel: live canvas preview. Mirrors assets/js/frontend.js so the canvas is
-  // WYSIWYG: arrows, dots, autoplay, slide/fade effect, speed, loop and RTL all work here.
+  // src/editor/carousel-preview.js
   function installImageCarouselPreview() {
     const memory = app.lbCarouselMemory || (app.lbCarouselMemory = {});
     const int = (v, min, max, d) => {
@@ -19965,9 +23768,9 @@
         if (fade) {
           slides.forEach((s, k) => s.classList.toggle("is-active", k === page));
         } else if (track) {
-          const start = Math.min(page * step, Math.max(0, slides.length - show));
+          const start2 = Math.min(page * step, Math.max(0, slides.length - show));
           const w = slides[0].getBoundingClientRect().width + gap();
-          track.style.transform = "translateX(" + (rtl ? start * w : -start * w) + "px)";
+          track.style.transform = "translateX(" + (rtl ? start2 * w : -start2 * w) + "px)";
         }
         dots.forEach((d, k) => d.classList.toggle("is-active", k === page));
         if (prev) prev.disabled = !loop && page === 0;
@@ -19994,20 +23797,35 @@
         stop();
         const reduce = win.matchMedia && win.matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (c.dataset.autoplay !== "1" || pages < 2 || reduce) return;
-        timer = win.setInterval(() => {
-          if (!c.isConnected) return stop();
-          // In the editor, autoplay always rests while the pointer is over the carousel so it can be edited.
-          if (hover || win.document.hidden) return;
-          if (!loop && page >= pages - 1) return stop();
-          go(page + 1);
-        }, int(c.dataset.interval, 500, 6e4, 5e3));
+        timer = win.setInterval(
+          () => {
+            if (!c.isConnected) return stop();
+            if (hover || win.document.hidden) return;
+            if (!loop && page >= pages - 1) return stop();
+            go(page + 1);
+          },
+          int(c.dataset.interval, 500, 6e4, 5e3)
+        );
       }
-      c.addEventListener("mouseenter", () => { hover = true; });
-      c.addEventListener("mouseleave", () => { hover = false; });
+      c.addEventListener("mouseenter", () => {
+        hover = true;
+      });
+      c.addEventListener("mouseleave", () => {
+        hover = false;
+      });
       const ctl = {
-        prev: () => { rtl ? go(page + 1) : go(page - 1); if (c.dataset.pauseInteraction === "1") stop(); },
-        next: () => { rtl ? go(page - 1) : go(page + 1); if (c.dataset.pauseInteraction === "1") stop(); },
-        to: (n) => { go(n); if (c.dataset.pauseInteraction === "1") stop(); },
+        prev: () => {
+          rtl ? go(page + 1) : go(page - 1);
+          if (c.dataset.pauseInteraction === "1") stop();
+        },
+        next: () => {
+          rtl ? go(page - 1) : go(page + 1);
+          if (c.dataset.pauseInteraction === "1") stop();
+        },
+        to: (n) => {
+          go(n);
+          if (c.dataset.pauseInteraction === "1") stop();
+        },
         relayout: () => apply(false),
         stop
       };
@@ -20018,61 +23836,98 @@
     function initAll(fd) {
       if (!fd || !fd.body) return;
       fd.querySelectorAll(".lb-node-carousel .lb-carousel[data-lb-carousel]").forEach((c) => {
-        if (!c.__lbCanvasCarousel) c.__lbCanvasCarousel = controller(c) || { relayout() {}, stop() {} };
+        if (!c.__lbCanvasCarousel) c.__lbCanvasCarousel = controller(c) || { relayout() {
+        }, stop() {
+        } };
       });
       const win = fd.defaultView;
       if (!win || win.__lbCarouselBound) return;
       win.__lbCarouselBound = true;
-      // Window-level capture runs before the editor's document-level selection handlers.
       const hit = (e) => {
-        const t = e.target && e.target.closest ? e.target.closest(".lb-carousel-prev,.lb-carousel-next,.lb-carousel-dots button") : null;
-        const c = t && t.closest(".lb-node-carousel .lb-carousel[data-lb-carousel]");
-        return c && c.__lbCanvasCarousel && c.__lbCanvasCarousel.to ? { t, c } : null;
+        const t3 = e.target && e.target.closest ? e.target.closest(".lb-carousel-prev,.lb-carousel-next,.lb-carousel-dots button") : null;
+        const c = t3 && t3.closest(".lb-node-carousel .lb-carousel[data-lb-carousel]");
+        return c && c.__lbCanvasCarousel && c.__lbCanvasCarousel.to ? { t: t3, c } : null;
       };
-      win.addEventListener("mousedown", (e) => { if (hit(e)) { e.preventDefault(); e.stopPropagation(); } }, true);
-      win.addEventListener("click", (e) => {
-        const h = hit(e);
-        if (!h) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-        const ctl = h.c.__lbCanvasCarousel;
-        if (h.t.classList.contains("lb-carousel-prev")) ctl.prev();
-        else if (h.t.classList.contains("lb-carousel-next")) ctl.next();
-        else ctl.to(Array.from(h.t.parentNode.children).indexOf(h.t));
-      }, true);
+      win.addEventListener(
+        "mousedown",
+        (e) => {
+          if (hit(e)) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        },
+        true
+      );
+      win.addEventListener(
+        "click",
+        (e) => {
+          const h = hit(e);
+          if (!h) return;
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          const ctl = h.c.__lbCanvasCarousel;
+          if (h.t.classList.contains("lb-carousel-prev")) ctl.prev();
+          else if (h.t.classList.contains("lb-carousel-next")) ctl.next();
+          else ctl.to(Array.from(h.t.parentNode.children).indexOf(h.t));
+        },
+        true
+      );
       win.addEventListener("resize", () => {
-        fd.querySelectorAll(".lb-node-carousel .lb-carousel[data-lb-carousel]").forEach((c) => c.__lbCanvasCarousel && c.__lbCanvasCarousel.relayout());
+        fd.querySelectorAll(".lb-node-carousel .lb-carousel[data-lb-carousel]").forEach(
+          (c) => c.__lbCanvasCarousel && c.__lbCanvasCarousel.relayout()
+        );
       });
-      // Re-renders replace nodes without always calling bindFrame; watch for new carousels.
       if (win.MutationObserver) {
         let queued = false;
         new win.MutationObserver(() => {
           if (queued) return;
           queued = true;
-          win.requestAnimationFrame(() => { queued = false; initAll(fd); });
+          win.requestAnimationFrame(() => {
+            queued = false;
+            initAll(fd);
+          });
         }).observe(fd.body, { childList: true, subtree: true });
       }
-      // Images that finish loading change slide width; re-measure the slide offset.
-      fd.addEventListener("load", (e) => {
-        const c = e.target && e.target.closest && e.target.closest(".lb-node-carousel .lb-carousel[data-lb-carousel]");
-        if (c && c.__lbCanvasCarousel) c.__lbCanvasCarousel.relayout();
-      }, true);
+      fd.addEventListener(
+        "load",
+        (e) => {
+          const c = e.target && e.target.closest && e.target.closest(".lb-node-carousel .lb-carousel[data-lb-carousel]");
+          if (c && c.__lbCanvasCarousel) c.__lbCanvasCarousel.relayout();
+        },
+        true
+      );
     }
     const prevBind = app.bindFrame;
     app.bindFrame = function bindFrame() {
       const out = typeof prevBind === "function" ? prevBind.apply(this, arguments) : void 0;
-      try { initAll(app.frameDoc()); } catch (err) { if (window.console) console.error("[Canvasly] carousel preview", err); }
+      try {
+        initAll(app.frameDoc());
+      } catch (err) {
+        if (window.console) console.error("[Canvasly] carousel preview", err);
+      }
       return out;
     };
   }
+
   // src/editor/color-picker.js
-  // Elementor-style colour picker. Replaces the browser / OS colour dialog (the Windows one has the
-  // "Define Custom Colors >>" button) for every <input type="color"> in the editor UI. Accepts and
-  // keeps HEX, HEXA, RGB(A), HSL(A) and CSS named colours, with an opacity slider.
   function installColorPicker() {
     const NATIVE = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
-    const PRESETS = ["#000000", "#ffffff", "#6ec1e4", "#54595f", "#7a7a7a", "#61ce70", "#4054b2", "#23a455", "#e74c3c", "#f39c12", "#f1c40f", "#8e44ad", "transparent"];
+    const PRESETS = [
+      "#000000",
+      "#ffffff",
+      "#6ec1e4",
+      "#54595f",
+      "#7a7a7a",
+      "#61ce70",
+      "#4054b2",
+      "#23a455",
+      "#e74c3c",
+      "#f39c12",
+      "#f1c40f",
+      "#8e44ad",
+      "transparent"
+    ];
     const recent = [];
     let probe = null;
     const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -20080,7 +23935,6 @@
       const p = Math.pow(10, d || 0);
       return Math.round(n * p) / p;
     };
-    /** Parse any CSS colour the browser understands into {r,g,b,a}; null when invalid. */
     function parse(str) {
       const s = String(str == null ? "" : str).trim();
       if (!s) return null;
@@ -20088,8 +23942,14 @@
       const hex = s.match(/^#?([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i);
       if (hex) {
         let h = hex[1];
-        if (h.length <= 4) h = h.split("").map((c) => c + c).join("");
-        return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16), a: h.length === 8 ? round(parseInt(h.slice(6, 8), 16) / 255, 3) : 1 };
+        if (h.length <= 4)
+          h = h.split("").map((c) => c + c).join("");
+        return {
+          r: parseInt(h.slice(0, 2), 16),
+          g: parseInt(h.slice(2, 4), 16),
+          b: parseInt(h.slice(4, 6), 16),
+          a: h.length === 8 ? round(parseInt(h.slice(6, 8), 16) / 255, 3) : 1
+        };
       }
       if (typeof CSS !== "undefined" && CSS.supports && !CSS.supports("color", s)) return null;
       if (/^currentcolor$/i.test(s) || /^(inherit|initial|unset|revert)$/i.test(s)) return null;
@@ -20134,7 +23994,8 @@
     function format(c, fmt) {
       if (!c) return "";
       const a = round(clamp(c.a, 0, 1), 2);
-      if (fmt === "rgb") return a < 1 ? `rgba(${Math.round(c.r)}, ${Math.round(c.g)}, ${Math.round(c.b)}, ${a})` : `rgb(${Math.round(c.r)}, ${Math.round(c.g)}, ${Math.round(c.b)})`;
+      if (fmt === "rgb")
+        return a < 1 ? `rgba(${Math.round(c.r)}, ${Math.round(c.g)}, ${Math.round(c.b)}, ${a})` : `rgb(${Math.round(c.r)}, ${Math.round(c.g)}, ${Math.round(c.b)})`;
       if (fmt === "hsl") {
         const h = toHsl(c);
         return a < 1 ? `hsla(${h.h}, ${h.s}%, ${h.l}%, ${a})` : `hsl(${h.h}, ${h.s}%, ${h.l}%)`;
@@ -20161,7 +24022,6 @@
       };
       return { r: f(5) * 255, g: f(3) * 255, b: f(1) * 255 };
     }
-    /** Full colour string behind a color input (the native value only holds #rrggbb). */
     function fullValue(input) {
       if (input.__lbFull !== void 0) return input.__lbFull;
       const cand = input.dataset.lbColor != null ? input.dataset.lbColor : input.getAttribute("value");
@@ -20169,7 +24029,6 @@
       if (input.dataset.lbColor === "" || input.dataset.tsEmpty === "1" || input.dataset.kitEmpty === "1") return "";
       return NATIVE.get.call(input);
     }
-    /** Make `input.value` carry the full colour string so existing handlers store rgba()/hsl()/names as typed. */
     function prep(input) {
       if (!input || input.__lbColorPrep || input.type !== "color") return;
       const start = fullValue(input);
@@ -20283,7 +24142,17 @@
       const original = input.value;
       const c0 = parse(original) || { r: 0, g: 0, b: 0, a: 1 };
       const hsv = rgbToHsv(c0);
-      const st = current = { input, original, dirty: false, h: hsv.h, s: hsv.s, v: hsv.v, a: c0.a, fmt: formatOf(original) === "name" ? "hex" : formatOf(original), name: formatOf(original) === "name" ? original : "" };
+      const st = current = {
+        input,
+        original,
+        dirty: false,
+        h: hsv.h,
+        s: hsv.s,
+        v: hsv.v,
+        a: c0.a,
+        fmt: formatOf(original) === "name" ? "hex" : formatOf(original),
+        name: formatOf(original) === "name" ? original : ""
+      };
       const globals = typeof app.globalColors === "function" ? app.globalColors() : [];
       pop = document.createElement("div");
       pop.className = "lb-cp";
@@ -20422,14 +24291,16 @@
       text.addEventListener("blur", () => {
         if (text.value.trim() && parse(text.value)) paint();
       });
-      pop.querySelectorAll("[data-cp-fmt]").forEach((b) => b.addEventListener("click", () => {
-        st.fmt = b.dataset.cpFmt;
-        if (st.cleared) {
-          paint();
-          return;
-        }
-        push();
-      }));
+      pop.querySelectorAll("[data-cp-fmt]").forEach(
+        (b) => b.addEventListener("click", () => {
+          st.fmt = b.dataset.cpFmt;
+          if (st.cleared) {
+            paint();
+            return;
+          }
+          push();
+        })
+      );
       pop.querySelectorAll("[data-cp-swatch]").forEach((b) => b.addEventListener("click", () => setFrom(b.dataset.cpSwatch)));
       $("[data-cp-clear]").addEventListener("click", () => {
         st.cleared = true;
@@ -20440,13 +24311,14 @@
       });
       $("[data-cp-done]").addEventListener("click", () => close());
       const eye = $("[data-cp-eye]");
-      if (eye) eye.addEventListener("click", async () => {
-        try {
-          const res = await new window.EyeDropper().open();
-          if (res && res.sRGBHex) setFrom(res.sRGBHex);
-        } catch (e) {
-        }
-      });
+      if (eye)
+        eye.addEventListener("click", async () => {
+          try {
+            const res = await new window.EyeDropper().open();
+            if (res && res.sRGBHex) setFrom(res.sRGBHex);
+          } catch (e) {
+          }
+        });
       paint();
       place(input);
       document.addEventListener("pointerdown", onOutside, true);
@@ -20456,24 +24328,36 @@
     }
     app.lbOpenColorPicker = open;
     app.lbCloseColorPicker = close;
-    document.addEventListener("click", (e) => {
-      const input = e.target && e.target.closest ? e.target.closest('input[type="color"]') : null;
-      if (!input || input.disabled || input.dataset.nativePicker === "1") return;
-      e.preventDefault();
-      open(input);
-    }, true);
-    document.addEventListener("focusin", (e) => {
-      const t3 = e.target;
-      if (t3 && t3.type === "color") prep(t3);
-    }, true);
-    document.addEventListener("keydown", (e) => {
-      const t3 = e.target;
-      if (!t3 || t3.type !== "color" || t3.disabled) return;
-      if (e.key === "Enter" || e.key === " ") {
+    document.addEventListener(
+      "click",
+      (e) => {
+        const input = e.target && e.target.closest ? e.target.closest('input[type="color"]') : null;
+        if (!input || input.disabled || input.dataset.nativePicker === "1") return;
         e.preventDefault();
-        open(t3);
-      }
-    }, true);
+        open(input);
+      },
+      true
+    );
+    document.addEventListener(
+      "focusin",
+      (e) => {
+        const t3 = e.target;
+        if (t3 && t3.type === "color") prep(t3);
+      },
+      true
+    );
+    document.addEventListener(
+      "keydown",
+      (e) => {
+        const t3 = e.target;
+        if (!t3 || t3.type !== "color" || t3.disabled) return;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          open(t3);
+        }
+      },
+      true
+    );
     const prepAll = () => app.lbColorPrep(document);
     const oldRefresh = app.refreshRightPanel;
     if (typeof oldRefresh === "function") {
@@ -20502,6 +24386,9 @@
       }).observe(document.body, { childList: true, subtree: true });
     }
   }
+
+  // src/editor/index.js
+  installHooks();
   function boot() {
     if (installState() === false) return;
     installBreakpoints();
