@@ -1,5 +1,5 @@
-Sidcraft Syntex
-Copyright (C) Sidcraft Syntex
+Sidcraft Page Builder
+Copyright (C) Sidcraft Page Builder
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

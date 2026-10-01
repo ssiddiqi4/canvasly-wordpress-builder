@@ -24,7 +24,7 @@
 	</custom-types>
 	<shortcodes>
 		<shortcode>
-			<tag>sidcraft_syntex_template</tag>
+			<tag>sidcraft_page_builder_template</tag>
 			<attributes>
 				<attribute encoding="int">id</attribute>
 			</attributes>

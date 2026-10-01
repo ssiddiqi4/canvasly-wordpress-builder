@@ -1,8 +1,8 @@
 <?php
 /**
- * Cloudflare Turnstile integration (Sidcraft Syntex).
+ * Cloudflare Turnstile integration (Sidcraft Page Builder).
  *
- * Settings live under Sidcraft Syntex → Settings → Integrations and are stored in their own
+ * Settings live under Sidcraft Page Builder → Settings → Integrations and are stored in their own
  * option (never localized to the browser, except the public site key):
  *
  *   site_key     public widget key
@@ -13,10 +13,10 @@
  *   account_id   Cloudflare account ID (optional, for widget creation)
  *
  * Protection points:
- *   - Turnstile unit (Lite widget): protects the Sidcraft Syntex form in the same container.
+ *   - Turnstile unit (Lite widget): protects the Sidcraft Page Builder form in the same container.
  *   - Form unit: "Spam protection → Cloudflare Turnstile".
  *   - Login unit (Lite) and Login & Register / Payment Form units (Pro): "Require Cloudflare Turnstile".
- *   - Optional: all Sidcraft Syntex forms, WordPress login and comment forms.
+ *   - Optional: all Sidcraft Page Builder forms, WordPress login and comment forms.
  *
  * Submit gate: every widget printed by markup() keeps the submit / login / pay buttons of its
  * form disabled until Cloudflare returns a token, and locks them again when the token expires,
@@ -24,30 +24,30 @@
  *
  * Docs: https://developers.cloudflare.com/turnstile/
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\Integrations;
+namespace SidcraftPageBuilder\Integrations;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 class Turnstile {
-	const OPTION      = 'sidcraft_syntex_turnstile';
-	const API_HANDLE  = 'sidcraft-syntex-turnstile-api';
-	const JS_HANDLE   = 'sidcraft-syntex-turnstile';
+	const OPTION      = 'sidcraft_page_builder_turnstile';
+	const API_HANDLE  = 'sidcraft-page-builder-turnstile-api';
+	const JS_HANDLE   = 'sidcraft-page-builder-turnstile';
 	/*
 	 * Cloudflare Turnstile is a third-party service. Cloudflare requires api.js to be loaded from
 	 * challenges.cloudflare.com (it must not be bundled or self-hosted) and tokens to be checked with
 	 * its Siteverify endpoint. Both are used only after the site owner enters Turnstile keys, and are
-	 * documented under "Does Sidcraft Syntex connect to external services?" in readme.txt.
+	 * documented under "Does Sidcraft Page Builder connect to external services?" in readme.txt.
 	 */
-	const SCRIPT_URL  = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=sidcraftSyntexTurnstileReady'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Required third-party service script; see comment above.
+	const SCRIPT_URL  = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=sidcraftPageBuilderTurnstileReady'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Required third-party service script; see comment above.
 	const VERIFY_URL  = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Server-side API endpoint (wp_remote_post), not an offloaded asset.
 	const CF_API      = 'https://api.cloudflare.com/client/v4';
 	const FIELD       = 'cf-turnstile-response';
-	/** Hidden field a protected Sidcraft Syntex login / register / lost-password form posts to wp-login.php. */
+	/** Hidden field a protected Sidcraft Page Builder login / register / lost-password form posts to wp-login.php. */
 	const REQUIRE     = 'sidsyn_turnstile_require';
 	const MASK        = '********';
 	/** Cloudflare's documented always-pass test keys, used for the "use test keys" helper. */
@@ -58,13 +58,13 @@ class Turnstile {
 	private static $memo = null;
 
 	public static function init() {
-		add_action( 'sidcraft-syntex/units/register', array( self::class, 'register_unit' ), 6 );
-		add_action( 'sidcraft-syntex/frontend/enqueue', array( self::class, 'register_assets' ) );
-		add_action( 'sidcraft-syntex/settings/integrations', array( self::class, 'render_settings' ) );
-		add_action( 'sidcraft-syntex/settings/save_integrations', array( self::class, 'save_from_post' ) );
+		add_action( 'sidcraft-page-builder/units/register', array( self::class, 'register_unit' ), 6 );
+		add_action( 'sidcraft-page-builder/frontend/enqueue', array( self::class, 'register_assets' ) );
+		add_action( 'sidcraft-page-builder/settings/integrations', array( self::class, 'render_settings' ) );
+		add_action( 'sidcraft-page-builder/settings/save_integrations', array( self::class, 'save_from_post' ) );
 		add_action( 'admin_init', array( self::class, 'handle_admin_action' ), 5 );
-		add_filter( 'sidcraft-syntex/form/verify', array( self::class, 'verify_form' ), 10, 3 );
-		add_filter( 'sidcraft-syntex/editor/localize_data', array( self::class, 'localize_editor' ), 25 );
+		add_filter( 'sidcraft-page-builder/form/verify', array( self::class, 'verify_form' ), 10, 3 );
+		add_filter( 'sidcraft-page-builder/editor/localize_data', array( self::class, 'localize_editor' ), 25 );
 		// Optional WordPress core forms.
 		add_action( 'init', array( self::class, 'core_form_hooks' ), 20 );
 	}
@@ -134,7 +134,7 @@ class Turnstile {
 	}
 
 	/* ------------------------------------------------------------------ *
-	 * Admin: Sidcraft Syntex > Settings > Integrations
+	 * Admin: Sidcraft Page Builder > Settings > Integrations
 	 * ------------------------------------------------------------------ */
 
 	/**
@@ -152,47 +152,47 @@ class Turnstile {
 			}
 			return $out . '</select>';
 		};
-		echo '<h2 class="title" id="cloudflare-turnstile">' . esc_html__( 'Cloudflare Turnstile', 'sidcraft-syntex' ) . '</h2>';
+		echo '<h2 class="title" id="cloudflare-turnstile">' . esc_html__( 'Cloudflare Turnstile', 'sidcraft-page-builder' ) . '</h2>';
 		echo '<p class="description">' . wp_kses_post(
 			sprintf(
 				/* translators: 1: Turnstile docs URL, 2: API token docs URL */
-				__( 'Privacy-friendly CAPTCHA alternative. Create a widget in the Cloudflare dashboard (<a href="%1$s" target="_blank" rel="noopener">Turnstile docs</a>) and paste its keys, or paste an <a href="%2$s" target="_blank" rel="noopener">API token</a> with “Turnstile Sites Write” permission plus your Account ID and let Sidcraft Syntex create the widget.', 'sidcraft-syntex' ),
+				__( 'Privacy-friendly CAPTCHA alternative. Create a widget in the Cloudflare dashboard (<a href="%1$s" target="_blank" rel="noopener">Turnstile docs</a>) and paste its keys, or paste an <a href="%2$s" target="_blank" rel="noopener">API token</a> with “Turnstile Sites Write” permission plus your Account ID and let Sidcraft Page Builder create the widget.', 'sidcraft-page-builder' ),
 				'https://developers.cloudflare.com/turnstile/', // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Documentation link shown to admins, not an asset.
 				'https://developers.cloudflare.com/fundamentals/api/get-started/create-token/' // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Documentation link shown to admins, not an asset.
 			)
 		) . '</p>';
 		echo '<table class="form-table" role="presentation"><tbody>';
 
-		echo '<tr><th><label for="lb-ts-site">' . esc_html__( 'Site key', 'sidcraft-syntex' ) . '</label></th><td><input class="regular-text code" id="lb-ts-site" name="turnstile_site_key" type="text" value="' . esc_attr( $d['site_key'] ) . '" autocomplete="off"></td></tr>';
-		echo '<tr><th><label for="lb-ts-secret">' . esc_html__( 'Secret key', 'sidcraft-syntex' ) . '</label></th><td><input class="regular-text code" id="lb-ts-secret" name="turnstile_secret_key" type="password" value="' . esc_attr( '' !== $d['secret_key'] ? self::MASK : '' ) . '" autocomplete="new-password"><p class="description">' . esc_html__( 'Stored on the server only. Leave the masked value to keep it.', 'sidcraft-syntex' ) . '</p></td></tr>';
+		echo '<tr><th><label for="lb-ts-site">' . esc_html__( 'Site key', 'sidcraft-page-builder' ) . '</label></th><td><input class="regular-text code" id="lb-ts-site" name="turnstile_site_key" type="text" value="' . esc_attr( $d['site_key'] ) . '" autocomplete="off"></td></tr>';
+		echo '<tr><th><label for="lb-ts-secret">' . esc_html__( 'Secret key', 'sidcraft-page-builder' ) . '</label></th><td><input class="regular-text code" id="lb-ts-secret" name="turnstile_secret_key" type="password" value="' . esc_attr( '' !== $d['secret_key'] ? self::MASK : '' ) . '" autocomplete="new-password"><p class="description">' . esc_html__( 'Stored on the server only. Leave the masked value to keep it.', 'sidcraft-page-builder' ) . '</p></td></tr>';
 
-		echo '<tr><th><label for="lb-ts-token">' . esc_html__( 'Cloudflare API token', 'sidcraft-syntex' ) . '</label></th><td><input class="regular-text code" id="lb-ts-token" name="turnstile_api_token" type="password" value="' . esc_attr( '' !== $d['api_token'] ? self::MASK : '' ) . '" autocomplete="new-password">';
+		echo '<tr><th><label for="lb-ts-token">' . esc_html__( 'Cloudflare API token', 'sidcraft-page-builder' ) . '</label></th><td><input class="regular-text code" id="lb-ts-token" name="turnstile_api_token" type="password" value="' . esc_attr( '' !== $d['api_token'] ? self::MASK : '' ) . '" autocomplete="new-password">';
 		if ( '' !== $d['token_status'] ) {
 			echo ' <span class="lb-ts-status">' . esc_html( $d['token_status'] ) . '</span>';
 		}
-		echo '<p class="description">' . esc_html__( 'Optional. Used only from this admin screen to verify the token and to create a Turnstile widget. Never sent to visitors.', 'sidcraft-syntex' ) . '</p></td></tr>';
-		echo '<tr><th><label for="lb-ts-account">' . esc_html__( 'Cloudflare Account ID', 'sidcraft-syntex' ) . '</label></th><td><input class="regular-text code" id="lb-ts-account" name="turnstile_account_id" type="text" value="' . esc_attr( $d['account_id'] ) . '" autocomplete="off"><p class="description">' . esc_html__( 'Dashboard → Account home → Account ID. Needed only to create a widget with the API token.', 'sidcraft-syntex' ) . '</p></td></tr>';
+		echo '<p class="description">' . esc_html__( 'Optional. Used only from this admin screen to verify the token and to create a Turnstile widget. Never sent to visitors.', 'sidcraft-page-builder' ) . '</p></td></tr>';
+		echo '<tr><th><label for="lb-ts-account">' . esc_html__( 'Cloudflare Account ID', 'sidcraft-page-builder' ) . '</label></th><td><input class="regular-text code" id="lb-ts-account" name="turnstile_account_id" type="text" value="' . esc_attr( $d['account_id'] ) . '" autocomplete="off"><p class="description">' . esc_html__( 'Dashboard → Account home → Account ID. Needed only to create a widget with the API token.', 'sidcraft-page-builder' ) . '</p></td></tr>';
 
-		echo '<tr><th>' . esc_html__( 'API actions', 'sidcraft-syntex' ) . '</th><td>';
-		echo '<button type="submit" class="button" name="sidsyn_turnstile_action" value="verify">' . esc_html__( 'Verify API token', 'sidcraft-syntex' ) . '</button> ';
-		echo '<button type="submit" class="button" name="sidsyn_turnstile_action" value="create">' . esc_html__( 'Create Turnstile widget for this site', 'sidcraft-syntex' ) . '</button> ';
-		echo '<button type="submit" class="button-link" name="sidsyn_turnstile_action" value="test">' . esc_html__( 'Use Cloudflare test keys', 'sidcraft-syntex' ) . '</button> ';
-		echo '<button type="submit" class="button-link button-link-delete" name="sidsyn_turnstile_action" value="clear">' . esc_html__( 'Remove keys', 'sidcraft-syntex' ) . '</button>';
-		echo '<p class="description">' . esc_html__( 'Create uses mode “managed” and this site’s domain, then fills in the site and secret keys.', 'sidcraft-syntex' ) . '</p></td></tr>';
+		echo '<tr><th>' . esc_html__( 'API actions', 'sidcraft-page-builder' ) . '</th><td>';
+		echo '<button type="submit" class="button" name="sidsyn_turnstile_action" value="verify">' . esc_html__( 'Verify API token', 'sidcraft-page-builder' ) . '</button> ';
+		echo '<button type="submit" class="button" name="sidsyn_turnstile_action" value="create">' . esc_html__( 'Create Turnstile widget for this site', 'sidcraft-page-builder' ) . '</button> ';
+		echo '<button type="submit" class="button-link" name="sidsyn_turnstile_action" value="test">' . esc_html__( 'Use Cloudflare test keys', 'sidcraft-page-builder' ) . '</button> ';
+		echo '<button type="submit" class="button-link button-link-delete" name="sidsyn_turnstile_action" value="clear">' . esc_html__( 'Remove keys', 'sidcraft-page-builder' ) . '</button>';
+		echo '<p class="description">' . esc_html__( 'Create uses mode “managed” and this site’s domain, then fills in the site and secret keys.', 'sidcraft-page-builder' ) . '</p></td></tr>';
 
-		echo '<tr><th><label for="turnstile-theme">' . esc_html__( 'Default look', 'sidcraft-syntex' ) . '</label></th><td>';
-		echo $select( 'turnstile_theme', $d['theme'], array( 'auto' => __( 'Theme: Auto', 'sidcraft-syntex' ), 'light' => __( 'Theme: Light', 'sidcraft-syntex' ), 'dark' => __( 'Theme: Dark', 'sidcraft-syntex' ) ) ) . ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in $select.
-		echo $select( 'turnstile_size', $d['size'], array( 'normal' => __( 'Size: Normal', 'sidcraft-syntex' ), 'flexible' => __( 'Size: Flexible', 'sidcraft-syntex' ), 'compact' => __( 'Size: Compact', 'sidcraft-syntex' ) ) ) . ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $select( 'turnstile_appearance', $d['appearance'], array( 'always' => __( 'Always visible', 'sidcraft-syntex' ), 'interaction-only' => __( 'Only when interaction is needed', 'sidcraft-syntex' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<tr><th><label for="turnstile-theme">' . esc_html__( 'Default look', 'sidcraft-page-builder' ) . '</label></th><td>';
+		echo $select( 'turnstile_theme', $d['theme'], array( 'auto' => __( 'Theme: Auto', 'sidcraft-page-builder' ), 'light' => __( 'Theme: Light', 'sidcraft-page-builder' ), 'dark' => __( 'Theme: Dark', 'sidcraft-page-builder' ) ) ) . ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in $select.
+		echo $select( 'turnstile_size', $d['size'], array( 'normal' => __( 'Size: Normal', 'sidcraft-page-builder' ), 'flexible' => __( 'Size: Flexible', 'sidcraft-page-builder' ), 'compact' => __( 'Size: Compact', 'sidcraft-page-builder' ) ) ) . ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $select( 'turnstile_appearance', $d['appearance'], array( 'always' => __( 'Always visible', 'sidcraft-page-builder' ), 'interaction-only' => __( 'Only when interaction is needed', 'sidcraft-page-builder' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</td></tr>';
 
-		echo '<tr><th><label for="turnstile-protect-forms">' . esc_html__( 'Sidcraft Syntex forms', 'sidcraft-syntex' ) . '</label></th><td>';
-		echo $select( 'turnstile_protect_forms', $d['protect_forms'], array( 'widget' => __( 'Where a Turnstile widget or form setting asks for it', 'sidcraft-syntex' ), 'all' => __( 'All Sidcraft Syntex forms', 'sidcraft-syntex' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<tr><th><label for="turnstile-protect-forms">' . esc_html__( 'Sidcraft Page Builder forms', 'sidcraft-page-builder' ) . '</label></th><td>';
+		echo $select( 'turnstile_protect_forms', $d['protect_forms'], array( 'widget' => __( 'Where a Turnstile widget or form setting asks for it', 'sidcraft-page-builder' ), 'all' => __( 'All Sidcraft Page Builder forms', 'sidcraft-page-builder' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'WordPress forms', 'sidcraft-syntex' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="turnstile_protect_login" value="1"' . checked( ! empty( $d['protect_login'] ), true, false ) . '> ' . esc_html__( 'Login form', 'sidcraft-syntex' ) . '</label><br>';
-		echo '<label><input type="checkbox" name="turnstile_protect_comments" value="1"' . checked( ! empty( $d['protect_comments'] ), true, false ) . '> ' . esc_html__( 'Comment form (visitors)', 'sidcraft-syntex' ) . '</label>';
-		echo '<p class="description">' . esc_html__( 'Per unit: Form (Spam protection → Require Cloudflare Turnstile), Login, and in Sidcraft Syntex Pro the Login & Register and Payment Form units (Security → Require Cloudflare Turnstile). Protected forms keep their submit, log in or pay buttons disabled until the visitor completes the check.', 'sidcraft-syntex' ) . '</p>';
+		echo '<tr><th>' . esc_html__( 'WordPress forms', 'sidcraft-page-builder' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="turnstile_protect_login" value="1"' . checked( ! empty( $d['protect_login'] ), true, false ) . '> ' . esc_html__( 'Login form', 'sidcraft-page-builder' ) . '</label><br>';
+		echo '<label><input type="checkbox" name="turnstile_protect_comments" value="1"' . checked( ! empty( $d['protect_comments'] ), true, false ) . '> ' . esc_html__( 'Comment form (visitors)', 'sidcraft-page-builder' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'Per unit: Form (Spam protection → Require Cloudflare Turnstile), Login, and in Sidcraft Page Builder Pro the Login & Register and Payment Form units (Security → Require Cloudflare Turnstile). Protected forms keep their submit, log in or pay buttons disabled until the visitor completes the check.', 'sidcraft-page-builder' ) . '</p>';
 		echo '</td></tr>';
 		echo '</tbody></table>';
 	}
@@ -251,14 +251,14 @@ class Turnstile {
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 		self::save_from_post( $post );
 		$notice = static function ( $msg, $type ) {
-			add_settings_error( 'sidcraft_syntex_settings', 'turnstile', $msg, $type );
+			add_settings_error( 'sidcraft_page_builder_settings', 'turnstile', $msg, $type );
 		};
 		if ( 'test' === $action ) {
 			self::update( array( 'site_key' => self::TEST_SITE, 'secret_key' => self::TEST_SECRET ) );
-			$notice( __( 'Cloudflare test keys saved. Every challenge passes; replace them with real keys before going live.', 'sidcraft-syntex' ), 'warning' );
+			$notice( __( 'Cloudflare test keys saved. Every challenge passes; replace them with real keys before going live.', 'sidcraft-page-builder' ), 'warning' );
 		} elseif ( 'clear' === $action ) {
 			self::update( array( 'site_key' => '', 'secret_key' => '', 'api_token' => '', 'token_status' => '' ) );
-			$notice( __( 'Turnstile keys removed.', 'sidcraft-syntex' ), 'updated' );
+			$notice( __( 'Turnstile keys removed.', 'sidcraft-page-builder' ), 'updated' );
 		} elseif ( 'verify' === $action ) {
 			$r = self::verify_token();
 			$notice( $r['message'], $r['ok'] ? 'updated' : 'error' );
@@ -276,7 +276,7 @@ class Turnstile {
 	public static function verify_token() {
 		$d = self::get();
 		if ( '' === $d['api_token'] ) {
-			return array( 'ok' => false, 'message' => __( 'Enter a Cloudflare API token first.', 'sidcraft-syntex' ) );
+			return array( 'ok' => false, 'message' => __( 'Enter a Cloudflare API token first.', 'sidcraft-page-builder' ) );
 		}
 		$urls = array( self::CF_API . '/user/tokens/verify' );
 		if ( '' !== $d['account_id'] ) {
@@ -286,14 +286,14 @@ class Turnstile {
 		foreach ( $urls as $url ) {
 			$res = self::cf_request( 'GET', $url, $d['api_token'] );
 			if ( $res['ok'] && 'active' === ( $res['body']['result']['status'] ?? '' ) ) {
-				self::update( array( 'token_status' => __( 'Verified: active', 'sidcraft-syntex' ) ) );
-				return array( 'ok' => true, 'message' => __( 'Cloudflare API token is valid and active.', 'sidcraft-syntex' ) );
+				self::update( array( 'token_status' => __( 'Verified: active', 'sidcraft-page-builder' ) ) );
+				return array( 'ok' => true, 'message' => __( 'Cloudflare API token is valid and active.', 'sidcraft-page-builder' ) );
 			}
 			$last = $res['error'];
 		}
-		self::update( array( 'token_status' => __( 'Not verified', 'sidcraft-syntex' ) ) );
+		self::update( array( 'token_status' => __( 'Not verified', 'sidcraft-page-builder' ) ) );
 		/* translators: %s: Cloudflare error */
-		return array( 'ok' => false, 'message' => sprintf( __( 'Cloudflare rejected the API token: %s', 'sidcraft-syntex' ), $last ) );
+		return array( 'ok' => false, 'message' => sprintf( __( 'Cloudflare rejected the API token: %s', 'sidcraft-page-builder' ), $last ) );
 	}
 
 	/**
@@ -304,13 +304,13 @@ class Turnstile {
 	public static function create_widget() {
 		$d = self::get();
 		if ( '' === $d['api_token'] || '' === $d['account_id'] ) {
-			return array( 'ok' => false, 'message' => __( 'Creating a widget needs both the API token and the Account ID.', 'sidcraft-syntex' ) );
+			return array( 'ok' => false, 'message' => __( 'Creating a widget needs both the API token and the Account ID.', 'sidcraft-page-builder' ) );
 		}
 		$host = function_exists( 'home_url' ) ? (string) wp_parse_url( home_url(), PHP_URL_HOST ) : '';
 		if ( '' === $host ) {
-			return array( 'ok' => false, 'message' => __( 'Could not read this site’s domain.', 'sidcraft-syntex' ) );
+			return array( 'ok' => false, 'message' => __( 'Could not read this site’s domain.', 'sidcraft-page-builder' ) );
 		}
-		$name = function_exists( 'get_bloginfo' ) ? 'Sidcraft Syntex — ' . get_bloginfo( 'name' ) : 'Sidcraft Syntex';
+		$name = function_exists( 'get_bloginfo' ) ? 'Sidcraft Page Builder — ' . get_bloginfo( 'name' ) : 'Sidcraft Page Builder';
 		$res  = self::cf_request(
 			'POST',
 			self::CF_API . '/accounts/' . rawurlencode( $d['account_id'] ) . '/challenges/widgets',
@@ -325,11 +325,11 @@ class Turnstile {
 		$secret = self::clean_key( $res['body']['result']['secret'] ?? '' );
 		if ( ! $res['ok'] || '' === $site || '' === $secret ) {
 			/* translators: %s: Cloudflare error */
-			return array( 'ok' => false, 'message' => sprintf( __( 'Cloudflare could not create the widget: %s', 'sidcraft-syntex' ), $res['error'] ?: __( 'unexpected response', 'sidcraft-syntex' ) ) );
+			return array( 'ok' => false, 'message' => sprintf( __( 'Cloudflare could not create the widget: %s', 'sidcraft-page-builder' ), $res['error'] ?: __( 'unexpected response', 'sidcraft-page-builder' ) ) );
 		}
 		self::update( array( 'site_key' => $site, 'secret_key' => $secret ) );
 		/* translators: %s: domain */
-		return array( 'ok' => true, 'message' => sprintf( __( 'Turnstile widget created for %s. Site key and secret key were saved.', 'sidcraft-syntex' ), $host ) );
+		return array( 'ok' => true, 'message' => sprintf( __( 'Turnstile widget created for %s. Site key and secret key were saved.', 'sidcraft-page-builder' ), $host ) );
 	}
 
 	/**
@@ -377,9 +377,9 @@ class Turnstile {
 		if ( ! function_exists( 'wp_register_script' ) ) {
 			return;
 		}
-		$ver = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '1';
+		$ver = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '1';
 		wp_register_script( self::API_HANDLE, self::SCRIPT_URL, array(), null, array( 'in_footer' => true, 'strategy' => 'defer' ) ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Cloudflare requires the unversioned URL.
-		wp_register_script( self::JS_HANDLE, SIDCRAFT_SYNTEX_URL . 'assets/js/turnstile.js', array(), $ver, array( 'in_footer' => true ) );
+		wp_register_script( self::JS_HANDLE, SIDCRAFT_PAGE_BUILDER_URL . 'assets/js/turnstile.js', array(), $ver, array( 'in_footer' => true ) );
 	}
 
 	/** @return string[] Script handles a protected form or widget needs. */
@@ -406,14 +406,14 @@ class Turnstile {
 			return '';
 		}
 		$d      = self::get();
-		$action = preg_replace( '/[^a-zA-Z0-9_-]/', '', (string) ( $o['action'] ?? 'sidcraft_syntex_form' ) );
+		$action = preg_replace( '/[^a-zA-Z0-9_-]/', '', (string) ( $o['action'] ?? 'sidcraft_page_builder_form' ) );
 		$attrs  = array(
 			'class'           => 'lb-turnstile',
 			'data-sitekey'    => $d['site_key'],
 			'data-theme'      => in_array( $o['theme'] ?? '', array( 'auto', 'light', 'dark' ), true ) ? $o['theme'] : $d['theme'],
 			'data-size'       => in_array( $o['size'] ?? '', array( 'normal', 'flexible', 'compact' ), true ) ? $o['size'] : $d['size'],
 			'data-appearance' => in_array( $o['appearance'] ?? '', array( 'always', 'interaction-only' ), true ) ? $o['appearance'] : $d['appearance'],
-			'data-action'     => substr( '' !== $action ? $action : 'sidcraft_syntex_form', 0, 32 ),
+			'data-action'     => substr( '' !== $action ? $action : 'sidcraft_page_builder_form', 0, 32 ),
 		);
 		$lang = preg_replace( '/[^a-zA-Z-]/', '', (string) ( $o['language'] ?? '' ) );
 		if ( '' !== $lang && 'auto' !== $lang ) {
@@ -425,7 +425,7 @@ class Turnstile {
 		// Keep the form's submit buttons disabled until the challenge passes (default on).
 		if ( ! array_key_exists( 'gate', $o ) || ! empty( $o['gate'] ) ) {
 			$attrs['data-lb-turnstile-gate']  = '1';
-			$attrs['data-lb-turnstile-wait']  = __( 'Complete the security check to continue.', 'sidcraft-syntex' );
+			$attrs['data-lb-turnstile-wait']  = __( 'Complete the security check to continue.', 'sidcraft-page-builder' );
 			$targets                          = trim( (string) ( $o['targets'] ?? '' ) );
 			if ( '' !== $targets ) {
 				$attrs['data-lb-turnstile-targets'] = substr( $targets, 0, 300 );
@@ -458,7 +458,7 @@ class Turnstile {
 		if ( '' === $token || strlen( $token ) > 2048 ) {
 			return false;
 		}
-		$pre = apply_filters( 'sidcraft-syntex/turnstile/verify', null, $token, $action );
+		$pre = apply_filters( 'sidcraft-page-builder/turnstile/verify', null, $token, $action );
 		if ( null !== $pre ) {
 			return (bool) $pre;
 		}
@@ -485,7 +485,7 @@ class Turnstile {
 	}
 
 	/**
-	 * Does this Sidcraft Syntex form require Turnstile? Looks the form node up in its document.
+	 * Does this Sidcraft Page Builder form require Turnstile? Looks the form node up in its document.
 	 *
 	 * @param int    $post_id
 	 * @param string $unit_id
@@ -496,10 +496,10 @@ class Turnstile {
 			return false;
 		}
 		$all = 'all' === self::get()['protect_forms'];
-		if ( ! $post_id || '' === $unit_id || ! class_exists( '\\SidcraftSyntex\\Document\\DocumentManager' ) ) {
+		if ( ! $post_id || '' === $unit_id || ! class_exists( '\\SidcraftPageBuilder\\Document\\DocumentManager' ) ) {
 			return $all;
 		}
-		$doc = \SidcraftSyntex\Document\DocumentManager::get( absint( $post_id ) );
+		$doc = \SidcraftPageBuilder\Document\DocumentManager::get( absint( $post_id ) );
 		if ( ! is_array( $doc ) ) {
 			return $all;
 		}
@@ -549,7 +549,7 @@ class Turnstile {
 	}
 
 	/**
-	 * `sidcraft-syntex/form/verify` filter.
+	 * `sidcraft-page-builder/form/verify` filter.
 	 *
 	 * @param true|\WP_Error $ok
 	 * @param array          $params
@@ -567,7 +567,7 @@ class Turnstile {
 		if ( self::verify( (string) ( $params[ self::FIELD ] ?? '' ) ) ) {
 			return $ok;
 		}
-		return new \WP_Error( 'turnstile', __( 'Please complete the security check and try again.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
+		return new \WP_Error( 'turnstile', __( 'Please complete the security check and try again.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
 	}
 
 	/* ------------------------------------------------------------------ *
@@ -583,7 +583,7 @@ class Turnstile {
 			add_action( 'login_enqueue_scripts', array( self::class, 'enqueue_core' ) );
 			add_action( 'login_form', array( self::class, 'print_login' ) );
 		}
-		// Login is checked when the site-wide option is on, or when a Sidcraft Syntex login unit that
+		// Login is checked when the site-wide option is on, or when a Sidcraft Page Builder login unit that
 		// requires Turnstile posts its marker. Register and lost password follow their marker.
 		add_filter( 'authenticate', array( self::class, 'check_login' ), 30, 3 );
 		add_filter( 'registration_errors', array( self::class, 'check_register' ), 30, 3 );
@@ -628,11 +628,11 @@ class Turnstile {
 		if ( self::verify( $token ) ) {
 			return $user;
 		}
-		return new \WP_Error( 'turnstile', __( '<strong>Error:</strong> Please complete the security check.', 'sidcraft-syntex' ) );
+		return new \WP_Error( 'turnstile', __( '<strong>Error:</strong> Please complete the security check.', 'sidcraft-page-builder' ) );
 	}
 
 	/**
-	 * Did a Sidcraft Syntex form that requires Turnstile post this request?
+	 * Did a Sidcraft Page Builder form that requires Turnstile post this request?
 	 *
 	 * @param string $context login|register|lostpassword
 	 * @return bool
@@ -654,7 +654,7 @@ class Turnstile {
 	}
 
 	/**
-	 * Turnstile widget + marker for a Sidcraft Syntex form that posts to wp-login.php.
+	 * Turnstile widget + marker for a Sidcraft Page Builder form that posts to wp-login.php.
 	 *
 	 * @param string $context login|register|lostpassword
 	 * @param array  $o       Extra markup() options.
@@ -703,7 +703,7 @@ class Turnstile {
 		}
 		$token = isset( $_POST[ self::FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::FIELD ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core registration form.
 		if ( ! self::verify( $token ) ) {
-			$errors->add( 'turnstile', __( '<strong>Error:</strong> Please complete the security check.', 'sidcraft-syntex' ) );
+			$errors->add( 'turnstile', __( '<strong>Error:</strong> Please complete the security check.', 'sidcraft-page-builder' ) );
 		}
 		return $errors;
 	}
@@ -717,7 +717,7 @@ class Turnstile {
 		}
 		$token = isset( $_POST[ self::FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::FIELD ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core lost password form.
 		if ( ! self::verify( $token ) ) {
-			$errors->add( 'turnstile', __( '<strong>Error:</strong> Please complete the security check.', 'sidcraft-syntex' ) );
+			$errors->add( 'turnstile', __( '<strong>Error:</strong> Please complete the security check.', 'sidcraft-page-builder' ) );
 		}
 	}
 
@@ -731,7 +731,7 @@ class Turnstile {
 		}
 		$token = isset( $_POST[ self::FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::FIELD ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core comment form.
 		if ( ! self::verify( $token ) ) {
-			wp_die( esc_html__( 'Please complete the security check and try again.', 'sidcraft-syntex' ), esc_html__( 'Security check', 'sidcraft-syntex' ), array( 'response' => 400, 'back_link' => true ) );
+			wp_die( esc_html__( 'Please complete the security check and try again.', 'sidcraft-page-builder' ), esc_html__( 'Security check', 'sidcraft-page-builder' ), array( 'response' => 400, 'back_link' => true ) );
 		}
 		return $data;
 	}
@@ -745,7 +745,7 @@ class Turnstile {
 	 */
 	public static function register_unit( $registry ) {
 		if ( is_object( $registry ) && method_exists( $registry, 'register_lazy' ) && ! $registry->has( 'turnstile' ) ) {
-			$registry->register_lazy( 'turnstile', SIDCRAFT_SYNTEX_PATH . 'includes/units/class-turnstile.php', 'SidcraftSyntex\\Units\\Turnstile' );
+			$registry->register_lazy( 'turnstile', SIDCRAFT_PAGE_BUILDER_PATH . 'includes/units/class-turnstile.php', 'SidcraftPageBuilder\\Units\\Turnstile' );
 		}
 	}
 
@@ -757,7 +757,7 @@ class Turnstile {
 		if ( is_array( $data ) ) {
 			$data['turnstile'] = array(
 				'enabled'  => self::enabled(),
-				'settings' => function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=sidcraft-syntex-settings&tab=integrations#cloudflare-turnstile' ) : '',
+				'settings' => function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=sidcraft-page-builder-settings&tab=integrations#cloudflare-turnstile' ) : '',
 			);
 		}
 		return $data;

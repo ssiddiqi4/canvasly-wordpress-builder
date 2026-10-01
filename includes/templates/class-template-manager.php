@@ -1,3 +1,3 @@
 <?php
-namespace SidcraftSyntex\Templates;
+namespace SidcraftPageBuilder\Templates;
 class TemplateManager { public static function init(){} }

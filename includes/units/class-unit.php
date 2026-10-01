@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Units;
+namespace SidcraftPageBuilder\Units;
 if ( ! defined('ABSPATH') ) exit;
 abstract class Unit {
  public function type(){return '';}
@@ -40,19 +40,19 @@ abstract class Unit {
   *
   *   'key' => [
   *     'type'        => 'slider',                 // any registered control type
-  *     'label'=>__('Width', 'sidcraft-syntex'),
+  *     'label'=>__('Width', 'sidcraft-page-builder'),
   *     'section'     => 'Layout',                 // panel section (accordion) title
   *     'tab'         => 'content|style|advanced', // default 'content'
   *     'responsive'  => true,                     // value stored as ['desktop'=>.., breakpoint names]
   *     'units'       => ['px','%','em','rem','vw','vh'], // slider units; [] = unitless number
   *     'range'       => ['min'=>0,'max'=>100,'step'=>1],
-  *     'options'     => ['value'=>__('Label', 'sidcraft-syntex'), ...] or ['a','b'],
+  *     'options'     => ['value'=>__('Label', 'sidcraft-page-builder'), ...] or ['a','b'],
   *     'condition'   => ['other_key'=>'value', 'other_key!'=>'', 'k'=>['a','b']], // all must match
   *     'selectors'   => ['{{WRAPPER}} .x'=>'width: {{SIZE}}{{UNIT}};'],          // see Style::schema_css()
   *     'map'         => ['left'=>'flex-start'],   // {{VALUE}} is looked up here; {{RAW}} is the stored value
   *     'default'     => '',
   *     'separator'   => 'before|after',
-  *     'description'=>__('Help text', 'sidcraft-syntex'),
+  *     'description'=>__('Help text', 'sidcraft-page-builder'),
   *     'placeholder' => '',
   *     'hidden'      => false,                    // accepted by the sanitizer but not shown in the panel
   *     'dynamic'     => true,                     // or ['categories'=>['text','url']]; per-control tag toggle
@@ -66,7 +66,7 @@ abstract class Unit {
   */
  public function controls(){return [];}
  public function render($settings,$children=''){return $children;}
- /** Extra CSS for this unit. `$id` is the node id (selector is `#lb-node-{$id}`). Add-ons may also use the `sidcraft-syntex/unit/style_css` filter. */
+ /** Extra CSS for this unit. `$id` is the node id (selector is `#lb-node-{$id}`). Add-ons may also use the `sidcraft-page-builder/unit/style_css` filter. */
  public function style_css($id,$settings){return '';}
  /**
   * WP script handles this unit needs on the frontend. Empty means no extra JS.
@@ -84,21 +84,21 @@ abstract class Unit {
   * @return string[]
   */
  public function styles($settings=[]){return [];}
- /** Normalized unique script handles after `sidcraft-syntex/unit/scripts` and background-layer detection. */
+ /** Normalized unique script handles after `sidcraft-page-builder/unit/scripts` and background-layer detection. */
  public function get_scripts($settings=[]){
   $s=is_array($settings)?$settings:[];
   $handles=$this->scripts($s);
   if(!is_array($handles))$handles=[];
-  if(self::settings_need_frontend($s))$handles[]='sidcraft-syntex-frontend';
-  $handles=apply_filters('sidcraft-syntex/unit/scripts',$handles,$this,$s);
+  if(self::settings_need_frontend($s))$handles[]='sidcraft-page-builder-frontend';
+  $handles=apply_filters('sidcraft-page-builder/unit/scripts',$handles,$this,$s);
   return self::normalize_handles(is_array($handles)?$handles:[]);
  }
- /** Normalized unique style handles after `sidcraft-syntex/unit/styles`. */
+ /** Normalized unique style handles after `sidcraft-page-builder/unit/styles`. */
  public function get_styles($settings=[]){
   $s=is_array($settings)?$settings:[];
   $handles=$this->styles($s);
   if(!is_array($handles))$handles=[];
-  $handles=apply_filters('sidcraft-syntex/unit/styles',$handles,$this,$s);
+  $handles=apply_filters('sidcraft-page-builder/unit/styles',$handles,$this,$s);
   return self::normalize_handles(is_array($handles)?$handles:[]);
  }
  /** True when advanced background video/slideshow on any unit needs the core frontend bundle. */
@@ -120,12 +120,12 @@ abstract class Unit {
   return array_keys($out);
  }
  /** Core frontend bundle handle, for subclasses that always need JS. */
- protected function frontend_scripts(){return ['sidcraft-syntex-frontend'];}
- /** Defaults after the `sidcraft-syntex/unit/defaults` filter. Schema `default`s are merged under `defaults()`. Use this instead of defaults() when reading. */
+ protected function frontend_scripts(){return ['sidcraft-page-builder-frontend'];}
+ /** Defaults after the `sidcraft-page-builder/unit/defaults` filter. Schema `default`s are merged under `defaults()`. Use this instead of defaults() when reading. */
  public function get_defaults(){
   $schema=[];
   foreach($this->controls() as $k=>$def){ if(is_array($def)&&array_key_exists('default',$def))$schema[$k]=$def['default']; }
-  $d=apply_filters('sidcraft-syntex/unit/defaults',array_merge($schema,(array)$this->defaults()),$this);
+  $d=apply_filters('sidcraft-page-builder/unit/defaults',array_merge($schema,(array)$this->defaults()),$this);
   return is_array($d)?$d:[];
  }
  /** True when the unit declares at least one control as a schema array (opts the panel into the schema renderer). */
@@ -141,10 +141,10 @@ abstract class Unit {
  }
  /**
   * Full normalized control schema: unit controls + shared controls, filtered through
-  * `sidcraft-syntex/unit/controls`, every value normalized to a definition array (see controls()).
+  * `sidcraft-page-builder/unit/controls`, every value normalized to a definition array (see controls()).
   */
  public function all_controls(){
-  $c=apply_filters('sidcraft-syntex/unit/controls',$this->base_controls(),$this);
+  $c=apply_filters('sidcraft-page-builder/unit/controls',$this->base_controls(),$this);
   if(!is_array($c))return [];
   $out=[];
   foreach($c as $k=>$def){
@@ -184,14 +184,14 @@ abstract class Unit {
    return implode(',',$out);
   };
   $n=$sel(['']); $h=$sel([':hover',':focus-visible']);
-  $btn=__('Button', 'sidcraft-syntex'); $hov=__('Button Hover', 'sidcraft-syntex');
+  $btn=__('Button', 'sidcraft-page-builder'); $hov=__('Button Hover', 'sidcraft-page-builder');
   return [
-   'btn_text_color'=>$this->ctrl('color',__('Button Text', 'sidcraft-syntex'),'style',$btn,['selectors'=>[$n=>'color: {{VALUE}};']]),
-   'btn_background'=>$this->ctrl('color',__('Button Background', 'sidcraft-syntex'),'style',$btn,['selectors'=>[$n=>'background-color: {{VALUE}}; background-image: none;']]),
-   'btn_border_color'=>$this->ctrl('color',__('Button Border', 'sidcraft-syntex'),'style',$btn,['selectors'=>[$n=>'border-color: {{VALUE}};']]),
-   'btn_hover_text_color'=>$this->ctrl('color',__('Hover Text', 'sidcraft-syntex'),'style',$hov,['selectors'=>[$h=>'color: {{VALUE}};']]),
-   'btn_hover_background'=>$this->ctrl('color',__('Hover Background', 'sidcraft-syntex'),'style',$hov,['selectors'=>[$h=>'background-color: {{VALUE}}; background-image: none;']]),
-   'btn_hover_border_color'=>$this->ctrl('color',__('Hover Border', 'sidcraft-syntex'),'style',$hov,['selectors'=>[$h=>'border-color: {{VALUE}};']]),
+   'btn_text_color'=>$this->ctrl('color',__('Button Text', 'sidcraft-page-builder'),'style',$btn,['selectors'=>[$n=>'color: {{VALUE}};']]),
+   'btn_background'=>$this->ctrl('color',__('Button Background', 'sidcraft-page-builder'),'style',$btn,['selectors'=>[$n=>'background-color: {{VALUE}}; background-image: none;']]),
+   'btn_border_color'=>$this->ctrl('color',__('Button Border', 'sidcraft-page-builder'),'style',$btn,['selectors'=>[$n=>'border-color: {{VALUE}};']]),
+   'btn_hover_text_color'=>$this->ctrl('color',__('Hover Text', 'sidcraft-page-builder'),'style',$hov,['selectors'=>[$h=>'color: {{VALUE}};']]),
+   'btn_hover_background'=>$this->ctrl('color',__('Hover Background', 'sidcraft-page-builder'),'style',$hov,['selectors'=>[$h=>'background-color: {{VALUE}}; background-image: none;']]),
+   'btn_hover_border_color'=>$this->ctrl('color',__('Hover Border', 'sidcraft-page-builder'),'style',$hov,['selectors'=>[$h=>'border-color: {{VALUE}};']]),
   ];
  }
  /** Compact schema entry: type, label, tab, section, plus any extra keys (options, selectors, condition...). */
@@ -203,12 +203,12 @@ abstract class Unit {
   return array_merge(['type'=>$type,'label'=>$label],$extra);
  }
  /** Shared option lists used by the migrated widgets. */
- protected static function opt_target(){return ['_self'=>__('Same Window', 'sidcraft-syntex'),'_blank'=>__('New Window', 'sidcraft-syntex')];}
- protected static function opt_lcr(){return ['left'=>__('Left', 'sidcraft-syntex'),'center'=>__('Center', 'sidcraft-syntex'),'right'=>__('Right', 'sidcraft-syntex')];}
- protected static function opt_align(){return ['left'=>__('Left', 'sidcraft-syntex'),'center'=>__('Center', 'sidcraft-syntex'),'right'=>__('Right', 'sidcraft-syntex'),'justify'=>__('Justify', 'sidcraft-syntex')];}
- protected static function opt_hover(){return [''=>__('None', 'sidcraft-syntex'),'zoom'=>__('Zoom', 'sidcraft-syntex'),'grow'=>__('Grow', 'sidcraft-syntex'),'shrink'=>__('Shrink', 'sidcraft-syntex'),'lift'=>__('Lift', 'sidcraft-syntex'),'sink'=>__('Sink', 'sidcraft-syntex'),'fade'=>__('Fade', 'sidcraft-syntex'),'rotate'=>__('Rotate', 'sidcraft-syntex'),'float'=>__('Float', 'sidcraft-syntex'),'pulse'=>__('Pulse', 'sidcraft-syntex'),'skew'=>__('Skew', 'sidcraft-syntex'),'wobble'=>__('Wobble', 'sidcraft-syntex'),'buzz'=>__('Buzz', 'sidcraft-syntex')];}
- protected static function opt_title_tags(){return ['h1'=>__('H1', 'sidcraft-syntex'),'h2'=>__('H2', 'sidcraft-syntex'),'h3'=>__('H3', 'sidcraft-syntex'),'h4'=>__('H4', 'sidcraft-syntex'),'h5'=>__('H5', 'sidcraft-syntex'),'h6'=>__('H6', 'sidcraft-syntex'),'div'=>__('div', 'sidcraft-syntex'),'span'=>__('span', 'sidcraft-syntex'),'p'=>__('p', 'sidcraft-syntex')];}
- protected static function opt_weight(){return [''=>__('Default', 'sidcraft-syntex'),'100'=>'100','200'=>'200','300'=>'300','400'=>'400','500'=>'500','600'=>'600','700'=>'700','800'=>'800','900'=>'900'];}
+ protected static function opt_target(){return ['_self'=>__('Same Window', 'sidcraft-page-builder'),'_blank'=>__('New Window', 'sidcraft-page-builder')];}
+ protected static function opt_lcr(){return ['left'=>__('Left', 'sidcraft-page-builder'),'center'=>__('Center', 'sidcraft-page-builder'),'right'=>__('Right', 'sidcraft-page-builder')];}
+ protected static function opt_align(){return ['left'=>__('Left', 'sidcraft-page-builder'),'center'=>__('Center', 'sidcraft-page-builder'),'right'=>__('Right', 'sidcraft-page-builder'),'justify'=>__('Justify', 'sidcraft-page-builder')];}
+ protected static function opt_hover(){return [''=>__('None', 'sidcraft-page-builder'),'zoom'=>__('Zoom', 'sidcraft-page-builder'),'grow'=>__('Grow', 'sidcraft-page-builder'),'shrink'=>__('Shrink', 'sidcraft-page-builder'),'lift'=>__('Lift', 'sidcraft-page-builder'),'sink'=>__('Sink', 'sidcraft-page-builder'),'fade'=>__('Fade', 'sidcraft-page-builder'),'rotate'=>__('Rotate', 'sidcraft-page-builder'),'float'=>__('Float', 'sidcraft-page-builder'),'pulse'=>__('Pulse', 'sidcraft-page-builder'),'skew'=>__('Skew', 'sidcraft-page-builder'),'wobble'=>__('Wobble', 'sidcraft-page-builder'),'buzz'=>__('Buzz', 'sidcraft-page-builder')];}
+ protected static function opt_title_tags(){return ['h1'=>__('H1', 'sidcraft-page-builder'),'h2'=>__('H2', 'sidcraft-page-builder'),'h3'=>__('H3', 'sidcraft-page-builder'),'h4'=>__('H4', 'sidcraft-page-builder'),'h5'=>__('H5', 'sidcraft-page-builder'),'h6'=>__('H6', 'sidcraft-page-builder'),'div'=>__('div', 'sidcraft-page-builder'),'span'=>__('span', 'sidcraft-page-builder'),'p'=>__('p', 'sidcraft-page-builder')];}
+ protected static function opt_weight(){return [''=>__('Default', 'sidcraft-page-builder'),'100'=>'100','200'=>'200','300'=>'300','400'=>'400','500'=>'500','600'=>'600','700'=>'700','800'=>'800','900'=>'900'];}
  /**
   * Style > Items controls (Direction, Justify Content, Align Items, Gaps, Wrap), drawn as
   * Elementor-style icon button groups. `$keys` maps role => setting key, `$target` is the CSS
@@ -223,39 +223,39 @@ abstract class Unit {
   * @return array
   */
  public static function flex_items_controls(array $keys,$target,$lead='',array $extra=[],$axis_default='row'){
-  $sec=__('Items', 'sidcraft-syntex');
+  $sec=__('Items', 'sidcraft-page-builder');
   $dir_key=$keys['direction'];
   $mk=function($type,$label,array $more)use($sec,$extra){
    return array_merge(['type'=>$type,'label'=>$label,'tab'=>'style','section'=>$sec],$extra,$more);
   };
   $decl=function($prop)use($target,$lead){return [$target=>$lead.$prop.': {{VALUE}};'];};
   $out=[];
-  $out[$dir_key]=$mk('choose',__('Direction', 'sidcraft-syntex'),[
+  $out[$dir_key]=$mk('choose',__('Direction', 'sidcraft-page-builder'),[
    'responsive'=>true,'icons_only'=>true,'toggle'=>true,
-   'options'=>['row'=>__('Row - horizontal', 'sidcraft-syntex'),'column'=>__('Column - vertical', 'sidcraft-syntex'),'row-reverse'=>__('Row - reversed', 'sidcraft-syntex'),'column-reverse'=>__('Column - reversed', 'sidcraft-syntex')],
+   'options'=>['row'=>__('Row - horizontal', 'sidcraft-page-builder'),'column'=>__('Column - vertical', 'sidcraft-page-builder'),'row-reverse'=>__('Row - reversed', 'sidcraft-page-builder'),'column-reverse'=>__('Column - reversed', 'sidcraft-page-builder')],
    'icons'=>['row'=>'lbi-dir-row','column'=>'lbi-dir-column','row-reverse'=>'lbi-dir-row-reverse','column-reverse'=>'lbi-dir-column-reverse'],
    'selectors'=>$decl('flex-direction'),
   ]);
-  $out[$keys['justify']]=$mk('choose',__('Justify Content', 'sidcraft-syntex'),[
+  $out[$keys['justify']]=$mk('choose',__('Justify Content', 'sidcraft-page-builder'),[
    'responsive'=>true,'icons_only'=>true,'label_block'=>true,'toggle'=>true,'axis'=>'justify','axis_key'=>$dir_key,'axis_default'=>$axis_default,
-   'options'=>['flex-start'=>__('Start', 'sidcraft-syntex'),'center'=>__('Center', 'sidcraft-syntex'),'flex-end'=>__('End', 'sidcraft-syntex'),'space-between'=>__('Space Between', 'sidcraft-syntex'),'space-around'=>__('Space Around', 'sidcraft-syntex'),'space-evenly'=>__('Space Evenly', 'sidcraft-syntex')],
+   'options'=>['flex-start'=>__('Start', 'sidcraft-page-builder'),'center'=>__('Center', 'sidcraft-page-builder'),'flex-end'=>__('End', 'sidcraft-page-builder'),'space-between'=>__('Space Between', 'sidcraft-page-builder'),'space-around'=>__('Space Around', 'sidcraft-page-builder'),'space-evenly'=>__('Space Evenly', 'sidcraft-page-builder')],
    'icons'=>['flex-start'=>'lbi-justify-start','center'=>'lbi-justify-center','flex-end'=>'lbi-justify-end','space-between'=>'lbi-justify-between','space-around'=>'lbi-justify-around','space-evenly'=>'lbi-justify-evenly'],
    'selectors'=>$decl('justify-content'),
   ]);
-  $out[$keys['align']]=$mk('choose',__('Align Items', 'sidcraft-syntex'),[
+  $out[$keys['align']]=$mk('choose',__('Align Items', 'sidcraft-page-builder'),[
    'responsive'=>true,'icons_only'=>true,'toggle'=>true,'axis'=>'align','axis_key'=>$dir_key,'axis_default'=>$axis_default,
-   'options'=>['flex-start'=>__('Start', 'sidcraft-syntex'),'center'=>__('Center', 'sidcraft-syntex'),'flex-end'=>__('End', 'sidcraft-syntex'),'stretch'=>__('Stretch', 'sidcraft-syntex')],
+   'options'=>['flex-start'=>__('Start', 'sidcraft-page-builder'),'center'=>__('Center', 'sidcraft-page-builder'),'flex-end'=>__('End', 'sidcraft-page-builder'),'stretch'=>__('Stretch', 'sidcraft-page-builder')],
    'icons'=>['flex-start'=>'lbi-align-start','center'=>'lbi-align-center','flex-end'=>'lbi-align-end','stretch'=>'lbi-align-stretch'],
    'selectors'=>$decl('align-items'),
   ]);
-  $out[$keys['gap']]=$mk('gaps',__('Gaps', 'sidcraft-syntex'),[
+  $out[$keys['gap']]=$mk('gaps',__('Gaps', 'sidcraft-page-builder'),[
    'responsive'=>true,'separator'=>'before','units'=>['px','em','rem','%','vw'],
    'selectors'=>$decl('gap'),
   ]);
-  $out[$keys['wrap']]=$mk('choose',__('Wrap', 'sidcraft-syntex'),[
+  $out[$keys['wrap']]=$mk('choose',__('Wrap', 'sidcraft-page-builder'),[
    'responsive'=>true,'icons_only'=>true,'toggle'=>true,
-   'description'=>__('Items within the container can stay in a single line (No wrap), or break into multiple lines (Wrap).', 'sidcraft-syntex'),
-   'options'=>['nowrap'=>__('No Wrap', 'sidcraft-syntex'),'wrap'=>__('Wrap', 'sidcraft-syntex')],
+   'description'=>__('Items within the container can stay in a single line (No wrap), or break into multiple lines (Wrap).', 'sidcraft-page-builder'),
+   'options'=>['nowrap'=>__('No Wrap', 'sidcraft-page-builder'),'wrap'=>__('Wrap', 'sidcraft-page-builder')],
    'icons'=>['nowrap'=>'lbi-nowrap','wrap'=>'lbi-wrap'],
    'selectors'=>$decl('flex-wrap'),
   ]);
@@ -361,93 +361,93 @@ abstract class Unit {
   $items=self::flex_items_controls(self::items_keys(),'{{WRAPPER}}','display: flex; ',['condition'=>['display'=>['','flex']]]);
   $c=$items+[
    // Layout
-   'width'=>$adv('slider',__('Width', 'sidcraft-syntex'),__('Layout', 'sidcraft-syntex'),['responsive'=>true,'units'=>['%','px','vw','em','rem'],'range'=>['min'=>0,'max'=>1000],'selectors'=>['{{WRAPPER}}'=>'--lb-el-w: {{VALUE}}; width: {{VALUE}};']]),
-   'max_width'=>$adv('slider',__('Max Width', 'sidcraft-syntex'),__('Layout', 'sidcraft-syntex'),['responsive'=>true,'units'=>['px','%','vw','em','rem'],'range'=>['min'=>0,'max'=>2000],'selectors'=>['{{WRAPPER}}'=>'--lb-el-max-w: {{VALUE}}; max-width: {{VALUE}};']]),
-   'height'=>$adv('slider',__('Height', 'sidcraft-syntex'),__('Layout', 'sidcraft-syntex'),['responsive'=>true,'units'=>['px','%','vh','em','rem','auto'],'range'=>['min'=>0,'max'=>2000],'selectors'=>['{{WRAPPER}}'=>'--lb-el-h: {{VALUE}}; height: {{VALUE}};']]),
-   'min_height'=>$adv('slider',__('Min Height', 'sidcraft-syntex'),__('Layout', 'sidcraft-syntex'),['responsive'=>true,'units'=>['px','%','vh','em','rem'],'range'=>['min'=>0,'max'=>2000],'selectors'=>['{{WRAPPER}}'=>'--lb-el-min-h: {{VALUE}}; min-height: {{VALUE}};']]),
+   'width'=>$adv('slider',__('Width', 'sidcraft-page-builder'),__('Layout', 'sidcraft-page-builder'),['responsive'=>true,'units'=>['%','px','vw','em','rem'],'range'=>['min'=>0,'max'=>1000],'selectors'=>['{{WRAPPER}}'=>'--lb-el-w: {{VALUE}}; width: {{VALUE}};']]),
+   'max_width'=>$adv('slider',__('Max Width', 'sidcraft-page-builder'),__('Layout', 'sidcraft-page-builder'),['responsive'=>true,'units'=>['px','%','vw','em','rem'],'range'=>['min'=>0,'max'=>2000],'selectors'=>['{{WRAPPER}}'=>'--lb-el-max-w: {{VALUE}}; max-width: {{VALUE}};']]),
+   'height'=>$adv('slider',__('Height', 'sidcraft-page-builder'),__('Layout', 'sidcraft-page-builder'),['responsive'=>true,'units'=>['px','%','vh','em','rem','auto'],'range'=>['min'=>0,'max'=>2000],'selectors'=>['{{WRAPPER}}'=>'--lb-el-h: {{VALUE}}; height: {{VALUE}};']]),
+   'min_height'=>$adv('slider',__('Min Height', 'sidcraft-page-builder'),__('Layout', 'sidcraft-page-builder'),['responsive'=>true,'units'=>['px','%','vh','em','rem'],'range'=>['min'=>0,'max'=>2000],'selectors'=>['{{WRAPPER}}'=>'--lb-el-min-h: {{VALUE}}; min-height: {{VALUE}};']]),
    // Spacing
-   'margin'=>$adv('dimensions',__('Margin', 'sidcraft-syntex'),__('Spacing', 'sidcraft-syntex')),
-   'padding'=>$adv('dimensions',__('Padding', 'sidcraft-syntex'),__('Spacing', 'sidcraft-syntex')),
+   'margin'=>$adv('dimensions',__('Margin', 'sidcraft-page-builder'),__('Spacing', 'sidcraft-page-builder')),
+   'padding'=>$adv('dimensions',__('Padding', 'sidcraft-page-builder'),__('Spacing', 'sidcraft-page-builder')),
    // Position
-   'position'=>$adv('select',__('Position', 'sidcraft-syntex'),__('Position', 'sidcraft-syntex'),['options'=>[''=>__('Default', 'sidcraft-syntex'),'relative'=>__('Relative', 'sidcraft-syntex'),'absolute'=>__('Absolute', 'sidcraft-syntex'),'fixed'=>__('Fixed', 'sidcraft-syntex'),'sticky'=>__('Sticky', 'sidcraft-syntex')]]),
-   'top'=>$adv('slider',__('Top', 'sidcraft-syntex'),__('Position', 'sidcraft-syntex'),['units'=>['px','%','em','vh'],'range'=>['min'=>-400,'max'=>400],'condition'=>['position'=>['absolute','fixed','sticky']]]),
-   'right'=>$adv('slider',__('Right', 'sidcraft-syntex'),__('Position', 'sidcraft-syntex'),['units'=>['px','%','em','vw'],'range'=>['min'=>-400,'max'=>400],'condition'=>['position'=>['absolute','fixed','sticky']]]),
-   'bottom'=>$adv('slider',__('Bottom', 'sidcraft-syntex'),__('Position', 'sidcraft-syntex'),['units'=>['px','%','em','vh'],'range'=>['min'=>-400,'max'=>400],'condition'=>['position'=>['absolute','fixed','sticky']]]),
-   'left'=>$adv('slider',__('Left', 'sidcraft-syntex'),__('Position', 'sidcraft-syntex'),['units'=>['px','%','em','vw'],'range'=>['min'=>-400,'max'=>400],'condition'=>['position'=>['absolute','fixed','sticky']]]),
-   'z_index'=>$adv('number',__('Z-Index', 'sidcraft-syntex'),__('Position', 'sidcraft-syntex'),['range'=>['min'=>0,'max'=>9999,'step'=>1]]),
-   'overflow'=>$adv('select',__('Overflow', 'sidcraft-syntex'),__('Position', 'sidcraft-syntex'),['options'=>[''=>__('Default', 'sidcraft-syntex'),'visible'=>__('Visible', 'sidcraft-syntex'),'hidden'=>__('Hidden', 'sidcraft-syntex'),'auto'=>__('Auto', 'sidcraft-syntex'),'scroll'=>__('Scroll', 'sidcraft-syntex')]]),
+   'position'=>$adv('select',__('Position', 'sidcraft-page-builder'),__('Position', 'sidcraft-page-builder'),['options'=>[''=>__('Default', 'sidcraft-page-builder'),'relative'=>__('Relative', 'sidcraft-page-builder'),'absolute'=>__('Absolute', 'sidcraft-page-builder'),'fixed'=>__('Fixed', 'sidcraft-page-builder'),'sticky'=>__('Sticky', 'sidcraft-page-builder')]]),
+   'top'=>$adv('slider',__('Top', 'sidcraft-page-builder'),__('Position', 'sidcraft-page-builder'),['units'=>['px','%','em','vh'],'range'=>['min'=>-400,'max'=>400],'condition'=>['position'=>['absolute','fixed','sticky']]]),
+   'right'=>$adv('slider',__('Right', 'sidcraft-page-builder'),__('Position', 'sidcraft-page-builder'),['units'=>['px','%','em','vw'],'range'=>['min'=>-400,'max'=>400],'condition'=>['position'=>['absolute','fixed','sticky']]]),
+   'bottom'=>$adv('slider',__('Bottom', 'sidcraft-page-builder'),__('Position', 'sidcraft-page-builder'),['units'=>['px','%','em','vh'],'range'=>['min'=>-400,'max'=>400],'condition'=>['position'=>['absolute','fixed','sticky']]]),
+   'left'=>$adv('slider',__('Left', 'sidcraft-page-builder'),__('Position', 'sidcraft-page-builder'),['units'=>['px','%','em','vw'],'range'=>['min'=>-400,'max'=>400],'condition'=>['position'=>['absolute','fixed','sticky']]]),
+   'z_index'=>$adv('number',__('Z-Index', 'sidcraft-page-builder'),__('Position', 'sidcraft-page-builder'),['range'=>['min'=>0,'max'=>9999,'step'=>1]]),
+   'overflow'=>$adv('select',__('Overflow', 'sidcraft-page-builder'),__('Position', 'sidcraft-page-builder'),['options'=>[''=>__('Default', 'sidcraft-page-builder'),'visible'=>__('Visible', 'sidcraft-page-builder'),'hidden'=>__('Hidden', 'sidcraft-page-builder'),'auto'=>__('Auto', 'sidcraft-page-builder'),'scroll'=>__('Scroll', 'sidcraft-page-builder')]]),
    // Flex / grid item
-   'display'=>$adv('select',__('Display', 'sidcraft-syntex'),__('Flex Item', 'sidcraft-syntex'),['options'=>[''=>__('Default', 'sidcraft-syntex'),'block'=>__('Block', 'sidcraft-syntex'),'inline-block'=>__('Inline Block', 'sidcraft-syntex'),'flex'=>__('Flex', 'sidcraft-syntex'),'grid'=>__('Grid', 'sidcraft-syntex'),'none'=>__('None', 'sidcraft-syntex')]]),
-   'visibility'=>$adv('select',__('Visibility', 'sidcraft-syntex'),__('Flex Item', 'sidcraft-syntex'),['options'=>[''=>__('Default', 'sidcraft-syntex'),'visible'=>__('Visible', 'sidcraft-syntex'),'hidden'=>__('Hidden', 'sidcraft-syntex')]]),
-   'order'=>$adv('number',__('Order', 'sidcraft-syntex'),__('Flex Item', 'sidcraft-syntex')),
-   'flex_grow'=>$adv('number',__('Flex Grow', 'sidcraft-syntex'),__('Flex Item', 'sidcraft-syntex'),['range'=>['min'=>0,'max'=>10,'step'=>1]]),
-   'flex_shrink'=>$adv('number',__('Flex Shrink', 'sidcraft-syntex'),__('Flex Item', 'sidcraft-syntex'),['range'=>['min'=>0,'max'=>10,'step'=>1]]),
-   'flex_basis'=>$adv('text',__('Flex Basis', 'sidcraft-syntex'),__('Flex Item', 'sidcraft-syntex'),['placeholder'=>__('auto', 'sidcraft-syntex')]),
-   'align_self'=>$adv('select',__('Align Self', 'sidcraft-syntex'),__('Flex Item', 'sidcraft-syntex'),['options'=>[''=>__('Default', 'sidcraft-syntex'),'auto'=>__('Auto', 'sidcraft-syntex'),'stretch'=>__('Stretch', 'sidcraft-syntex'),'flex-start'=>__('Start', 'sidcraft-syntex'),'center'=>__('Center', 'sidcraft-syntex'),'flex-end'=>__('End', 'sidcraft-syntex'),'baseline'=>__('Baseline', 'sidcraft-syntex')]]),
-   'justify_self'=>$adv('select',__('Justify Self', 'sidcraft-syntex'),__('Flex Item', 'sidcraft-syntex'),['options'=>[''=>__('Default', 'sidcraft-syntex'),'auto'=>__('Auto', 'sidcraft-syntex'),'stretch'=>__('Stretch', 'sidcraft-syntex'),'start'=>__('Start', 'sidcraft-syntex'),'center'=>__('Center', 'sidcraft-syntex'),'end'=>__('End', 'sidcraft-syntex')]]),
-   'grid_column_start'=>$adv('number',__('Column Start', 'sidcraft-syntex'),__('Grid Item', 'sidcraft-syntex'),['range'=>['min'=>1,'max'=>24,'step'=>1]]),
-   'grid_column_span'=>$adv('number',__('Column Span', 'sidcraft-syntex'),__('Grid Item', 'sidcraft-syntex'),['range'=>['min'=>1,'max'=>24,'step'=>1]]),
-   'grid_row_start'=>$adv('number',__('Row Start', 'sidcraft-syntex'),__('Grid Item', 'sidcraft-syntex'),['range'=>['min'=>1,'max'=>24,'step'=>1]]),
-   'grid_row_span'=>$adv('number',__('Row Span', 'sidcraft-syntex'),__('Grid Item', 'sidcraft-syntex'),['range'=>['min'=>1,'max'=>24,'step'=>1]]),
+   'display'=>$adv('select',__('Display', 'sidcraft-page-builder'),__('Flex Item', 'sidcraft-page-builder'),['options'=>[''=>__('Default', 'sidcraft-page-builder'),'block'=>__('Block', 'sidcraft-page-builder'),'inline-block'=>__('Inline Block', 'sidcraft-page-builder'),'flex'=>__('Flex', 'sidcraft-page-builder'),'grid'=>__('Grid', 'sidcraft-page-builder'),'none'=>__('None', 'sidcraft-page-builder')]]),
+   'visibility'=>$adv('select',__('Visibility', 'sidcraft-page-builder'),__('Flex Item', 'sidcraft-page-builder'),['options'=>[''=>__('Default', 'sidcraft-page-builder'),'visible'=>__('Visible', 'sidcraft-page-builder'),'hidden'=>__('Hidden', 'sidcraft-page-builder')]]),
+   'order'=>$adv('number',__('Order', 'sidcraft-page-builder'),__('Flex Item', 'sidcraft-page-builder')),
+   'flex_grow'=>$adv('number',__('Flex Grow', 'sidcraft-page-builder'),__('Flex Item', 'sidcraft-page-builder'),['range'=>['min'=>0,'max'=>10,'step'=>1]]),
+   'flex_shrink'=>$adv('number',__('Flex Shrink', 'sidcraft-page-builder'),__('Flex Item', 'sidcraft-page-builder'),['range'=>['min'=>0,'max'=>10,'step'=>1]]),
+   'flex_basis'=>$adv('text',__('Flex Basis', 'sidcraft-page-builder'),__('Flex Item', 'sidcraft-page-builder'),['placeholder'=>__('auto', 'sidcraft-page-builder')]),
+   'align_self'=>$adv('select',__('Align Self', 'sidcraft-page-builder'),__('Flex Item', 'sidcraft-page-builder'),['options'=>[''=>__('Default', 'sidcraft-page-builder'),'auto'=>__('Auto', 'sidcraft-page-builder'),'stretch'=>__('Stretch', 'sidcraft-page-builder'),'flex-start'=>__('Start', 'sidcraft-page-builder'),'center'=>__('Center', 'sidcraft-page-builder'),'flex-end'=>__('End', 'sidcraft-page-builder'),'baseline'=>__('Baseline', 'sidcraft-page-builder')]]),
+   'justify_self'=>$adv('select',__('Justify Self', 'sidcraft-page-builder'),__('Flex Item', 'sidcraft-page-builder'),['options'=>[''=>__('Default', 'sidcraft-page-builder'),'auto'=>__('Auto', 'sidcraft-page-builder'),'stretch'=>__('Stretch', 'sidcraft-page-builder'),'start'=>__('Start', 'sidcraft-page-builder'),'center'=>__('Center', 'sidcraft-page-builder'),'end'=>__('End', 'sidcraft-page-builder')]]),
+   'grid_column_start'=>$adv('number',__('Column Start', 'sidcraft-page-builder'),__('Grid Item', 'sidcraft-page-builder'),['range'=>['min'=>1,'max'=>24,'step'=>1]]),
+   'grid_column_span'=>$adv('number',__('Column Span', 'sidcraft-page-builder'),__('Grid Item', 'sidcraft-page-builder'),['range'=>['min'=>1,'max'=>24,'step'=>1]]),
+   'grid_row_start'=>$adv('number',__('Row Start', 'sidcraft-page-builder'),__('Grid Item', 'sidcraft-page-builder'),['range'=>['min'=>1,'max'=>24,'step'=>1]]),
+   'grid_row_span'=>$adv('number',__('Row Span', 'sidcraft-page-builder'),__('Grid Item', 'sidcraft-page-builder'),['range'=>['min'=>1,'max'=>24,'step'=>1]]),
    // Responsive visibility
-   'hide_desktop'=>$adv('switch',__('Hide On Desktop', 'sidcraft-syntex'),__('Responsive', 'sidcraft-syntex')),
-   'hide_laptop'=>$adv('switch',__('Hide On Laptop', 'sidcraft-syntex'),__('Responsive', 'sidcraft-syntex')),
-   'hide_tablet_extra'=>$adv('switch',__('Hide On Tablet Extra', 'sidcraft-syntex'),__('Responsive', 'sidcraft-syntex')),
-   'hide_tablet'=>$adv('switch',__('Hide On Tablet', 'sidcraft-syntex'),__('Responsive', 'sidcraft-syntex')),
-   'hide_mobile_extra'=>$adv('switch',__('Hide On Mobile Extra', 'sidcraft-syntex'),__('Responsive', 'sidcraft-syntex')),
-   'hide_mobile'=>$adv('switch',__('Hide On Mobile', 'sidcraft-syntex'),__('Responsive', 'sidcraft-syntex')),
-   'hide_widescreen'=>$adv('switch',__('Hide On Widescreen', 'sidcraft-syntex'),__('Responsive', 'sidcraft-syntex')),
+   'hide_desktop'=>$adv('switch',__('Hide On Desktop', 'sidcraft-page-builder'),__('Responsive', 'sidcraft-page-builder')),
+   'hide_laptop'=>$adv('switch',__('Hide On Laptop', 'sidcraft-page-builder'),__('Responsive', 'sidcraft-page-builder')),
+   'hide_tablet_extra'=>$adv('switch',__('Hide On Tablet Extra', 'sidcraft-page-builder'),__('Responsive', 'sidcraft-page-builder')),
+   'hide_tablet'=>$adv('switch',__('Hide On Tablet', 'sidcraft-page-builder'),__('Responsive', 'sidcraft-page-builder')),
+   'hide_mobile_extra'=>$adv('switch',__('Hide On Mobile Extra', 'sidcraft-page-builder'),__('Responsive', 'sidcraft-page-builder')),
+   'hide_mobile'=>$adv('switch',__('Hide On Mobile', 'sidcraft-page-builder'),__('Responsive', 'sidcraft-page-builder')),
+   'hide_widescreen'=>$adv('switch',__('Hide On Widescreen', 'sidcraft-page-builder'),__('Responsive', 'sidcraft-page-builder')),
    // Motion (legacy settings; Interactions 2.0 lives on node.interactions[])
-   'interaction'=>$adv('select',__('Entrance Animation', 'sidcraft-syntex'),__('Motion Effects', 'sidcraft-syntex'),['hidden'=>true,'options'=>[''=>__('None', 'sidcraft-syntex'),'fade'=>__('Fade', 'sidcraft-syntex'),'slide-up'=>__('Slide Up', 'sidcraft-syntex'),'scale'=>__('Scale', 'sidcraft-syntex')]]),
-   'interaction_trigger'=>$adv('select',__('Trigger', 'sidcraft-syntex'),__('Motion Effects', 'sidcraft-syntex'),['hidden'=>true,'options'=>['viewport'=>__('In Viewport', 'sidcraft-syntex'),'load'=>__('On Load', 'sidcraft-syntex'),'hover'=>__('Hover', 'sidcraft-syntex'),'click'=>__('Click', 'sidcraft-syntex'),'scroll'=>__('Scroll Progress', 'sidcraft-syntex'),'focus'=>__('Focus', 'sidcraft-syntex')]]),
-   'interaction_duration'=>$adv('number',__('Duration (s)', 'sidcraft-syntex'),__('Motion Effects', 'sidcraft-syntex'),['hidden'=>true,'range'=>['min'=>0,'max'=>30,'step'=>0.05]]),
-   'interaction_delay'=>$adv('number',__('Delay (s)', 'sidcraft-syntex'),__('Motion Effects', 'sidcraft-syntex'),['hidden'=>true,'range'=>['min'=>0,'max'=>30,'step'=>0.05]]),
-   'interaction_easing'=>$adv('select',__('Easing', 'sidcraft-syntex'),__('Motion Effects', 'sidcraft-syntex'),['hidden'=>true,'options'=>['ease'=>__('Ease', 'sidcraft-syntex'),'ease-in'=>__('Ease In', 'sidcraft-syntex'),'ease-out'=>__('Ease Out', 'sidcraft-syntex'),'ease-in-out'=>__('Ease In Out', 'sidcraft-syntex'),'linear'=>__('Linear', 'sidcraft-syntex')]]),
-   'interaction_threshold'=>$adv('number',__('Viewport Threshold', 'sidcraft-syntex'),__('Motion Effects', 'sidcraft-syntex'),['hidden'=>true,'range'=>['min'=>0,'max'=>1,'step'=>0.05]]),
-   'interaction_repeat'=>$adv('switch',__('Repeat', 'sidcraft-syntex'),__('Motion Effects', 'sidcraft-syntex'),['hidden'=>true]),
+   'interaction'=>$adv('select',__('Entrance Animation', 'sidcraft-page-builder'),__('Motion Effects', 'sidcraft-page-builder'),['hidden'=>true,'options'=>[''=>__('None', 'sidcraft-page-builder'),'fade'=>__('Fade', 'sidcraft-page-builder'),'slide-up'=>__('Slide Up', 'sidcraft-page-builder'),'scale'=>__('Scale', 'sidcraft-page-builder')]]),
+   'interaction_trigger'=>$adv('select',__('Trigger', 'sidcraft-page-builder'),__('Motion Effects', 'sidcraft-page-builder'),['hidden'=>true,'options'=>['viewport'=>__('In Viewport', 'sidcraft-page-builder'),'load'=>__('On Load', 'sidcraft-page-builder'),'hover'=>__('Hover', 'sidcraft-page-builder'),'click'=>__('Click', 'sidcraft-page-builder'),'scroll'=>__('Scroll Progress', 'sidcraft-page-builder'),'focus'=>__('Focus', 'sidcraft-page-builder')]]),
+   'interaction_duration'=>$adv('number',__('Duration (s)', 'sidcraft-page-builder'),__('Motion Effects', 'sidcraft-page-builder'),['hidden'=>true,'range'=>['min'=>0,'max'=>30,'step'=>0.05]]),
+   'interaction_delay'=>$adv('number',__('Delay (s)', 'sidcraft-page-builder'),__('Motion Effects', 'sidcraft-page-builder'),['hidden'=>true,'range'=>['min'=>0,'max'=>30,'step'=>0.05]]),
+   'interaction_easing'=>$adv('select',__('Easing', 'sidcraft-page-builder'),__('Motion Effects', 'sidcraft-page-builder'),['hidden'=>true,'options'=>['ease'=>__('Ease', 'sidcraft-page-builder'),'ease-in'=>__('Ease In', 'sidcraft-page-builder'),'ease-out'=>__('Ease Out', 'sidcraft-page-builder'),'ease-in-out'=>__('Ease In Out', 'sidcraft-page-builder'),'linear'=>__('Linear', 'sidcraft-page-builder')]]),
+   'interaction_threshold'=>$adv('number',__('Viewport Threshold', 'sidcraft-page-builder'),__('Motion Effects', 'sidcraft-page-builder'),['hidden'=>true,'range'=>['min'=>0,'max'=>1,'step'=>0.05]]),
+   'interaction_repeat'=>$adv('switch',__('Repeat', 'sidcraft-page-builder'),__('Motion Effects', 'sidcraft-page-builder'),['hidden'=>true]),
    // Effects
-   'opacity'=>$adv('slider',__('Opacity', 'sidcraft-syntex'),__('Effects', 'sidcraft-syntex'),['units'=>[],'range'=>['min'=>0,'max'=>1,'step'=>0.05]]),
-   'transform'=>$adv('transform',__('Transform', 'sidcraft-syntex'),__('Effects', 'sidcraft-syntex')),
-   'transition'=>$adv('transition',__('Transition', 'sidcraft-syntex'),__('Effects', 'sidcraft-syntex')),
-   'filter'=>$adv('css_filter',__('CSS Filter', 'sidcraft-syntex'),__('Effects', 'sidcraft-syntex')),
-   'mix_blend_mode'=>$adv('select',__('Blend Mode', 'sidcraft-syntex'),__('Effects', 'sidcraft-syntex'),['options'=>[''=>__('Normal', 'sidcraft-syntex'),'multiply'=>__('Multiply', 'sidcraft-syntex'),'screen'=>__('Screen', 'sidcraft-syntex'),'overlay'=>__('Overlay', 'sidcraft-syntex'),'darken'=>__('Darken', 'sidcraft-syntex'),'lighten'=>__('Lighten', 'sidcraft-syntex'),'color-dodge'=>__('Color Dodge', 'sidcraft-syntex'),'color-burn'=>__('Color Burn', 'sidcraft-syntex'),'hard-light'=>__('Hard Light', 'sidcraft-syntex'),'soft-light'=>__('Soft Light', 'sidcraft-syntex'),'difference'=>__('Difference', 'sidcraft-syntex'),'exclusion'=>__('Exclusion', 'sidcraft-syntex')]]),
-   'mask_shape'=>$adv('select',__('Mask', 'sidcraft-syntex'),__('Effects', 'sidcraft-syntex'),['options'=>[''=>__('None', 'sidcraft-syntex'),'circle'=>__('Circle', 'sidcraft-syntex'),'ellipse'=>__('Ellipse', 'sidcraft-syntex'),'hexagon'=>__('Hexagon', 'sidcraft-syntex'),'triangle'=>__('Triangle', 'sidcraft-syntex'),'diamond'=>__('Diamond', 'sidcraft-syntex'),'pill'=>__('Pill', 'sidcraft-syntex')]]),
-   'cursor'=>$adv('select',__('Cursor', 'sidcraft-syntex'),__('Effects', 'sidcraft-syntex'),['options'=>[''=>__('Default', 'sidcraft-syntex'),'default'=>__('Arrow', 'sidcraft-syntex'),'pointer'=>__('Pointer', 'sidcraft-syntex'),'move'=>__('Move', 'sidcraft-syntex'),'text'=>__('Text', 'sidcraft-syntex'),'not-allowed'=>__('Not Allowed', 'sidcraft-syntex')]]),
+   'opacity'=>$adv('slider',__('Opacity', 'sidcraft-page-builder'),__('Effects', 'sidcraft-page-builder'),['units'=>[],'range'=>['min'=>0,'max'=>1,'step'=>0.05]]),
+   'transform'=>$adv('transform',__('Transform', 'sidcraft-page-builder'),__('Effects', 'sidcraft-page-builder')),
+   'transition'=>$adv('transition',__('Transition', 'sidcraft-page-builder'),__('Effects', 'sidcraft-page-builder')),
+   'filter'=>$adv('css_filter',__('CSS Filter', 'sidcraft-page-builder'),__('Effects', 'sidcraft-page-builder')),
+   'mix_blend_mode'=>$adv('select',__('Blend Mode', 'sidcraft-page-builder'),__('Effects', 'sidcraft-page-builder'),['options'=>[''=>__('Normal', 'sidcraft-page-builder'),'multiply'=>__('Multiply', 'sidcraft-page-builder'),'screen'=>__('Screen', 'sidcraft-page-builder'),'overlay'=>__('Overlay', 'sidcraft-page-builder'),'darken'=>__('Darken', 'sidcraft-page-builder'),'lighten'=>__('Lighten', 'sidcraft-page-builder'),'color-dodge'=>__('Color Dodge', 'sidcraft-page-builder'),'color-burn'=>__('Color Burn', 'sidcraft-page-builder'),'hard-light'=>__('Hard Light', 'sidcraft-page-builder'),'soft-light'=>__('Soft Light', 'sidcraft-page-builder'),'difference'=>__('Difference', 'sidcraft-page-builder'),'exclusion'=>__('Exclusion', 'sidcraft-page-builder')]]),
+   'mask_shape'=>$adv('select',__('Mask', 'sidcraft-page-builder'),__('Effects', 'sidcraft-page-builder'),['options'=>[''=>__('None', 'sidcraft-page-builder'),'circle'=>__('Circle', 'sidcraft-page-builder'),'ellipse'=>__('Ellipse', 'sidcraft-page-builder'),'hexagon'=>__('Hexagon', 'sidcraft-page-builder'),'triangle'=>__('Triangle', 'sidcraft-page-builder'),'diamond'=>__('Diamond', 'sidcraft-page-builder'),'pill'=>__('Pill', 'sidcraft-page-builder')]]),
+   'cursor'=>$adv('select',__('Cursor', 'sidcraft-page-builder'),__('Effects', 'sidcraft-page-builder'),['options'=>[''=>__('Default', 'sidcraft-page-builder'),'default'=>__('Arrow', 'sidcraft-page-builder'),'pointer'=>__('Pointer', 'sidcraft-page-builder'),'move'=>__('Move', 'sidcraft-page-builder'),'text'=>__('Text', 'sidcraft-page-builder'),'not-allowed'=>__('Not Allowed', 'sidcraft-page-builder')]]),
    // Background
-   'background'=>$adv('background',__('Background', 'sidcraft-syntex'),__('Background', 'sidcraft-syntex')),
+   'background'=>$adv('background',__('Background', 'sidcraft-page-builder'),__('Background', 'sidcraft-page-builder')),
    'background_image'=>$hidden('url'),
    'background_size'=>$hidden('select',['options'=>['','cover','contain','auto']]),
    'background_position'=>$hidden('text'),
    'background_repeat'=>$hidden('select',['options'=>['','no-repeat','repeat','repeat-x','repeat-y']]),
    'background_overlay'=>$hidden('color'),
    'background_gradient'=>$hidden('text'),
-   'background_clip'=>$adv('select',__('Background Clip', 'sidcraft-syntex'),__('Background', 'sidcraft-syntex'),['options'=>[''=>__('Default', 'sidcraft-syntex'),'border-box'=>__('Border Box', 'sidcraft-syntex'),'padding-box'=>__('Padding Box', 'sidcraft-syntex'),'text'=>__('Text', 'sidcraft-syntex')]]),
+   'background_clip'=>$adv('select',__('Background Clip', 'sidcraft-page-builder'),__('Background', 'sidcraft-page-builder'),['options'=>[''=>__('Default', 'sidcraft-page-builder'),'border-box'=>__('Border Box', 'sidcraft-page-builder'),'padding-box'=>__('Padding Box', 'sidcraft-page-builder'),'text'=>__('Text', 'sidcraft-page-builder')]]),
    // Border
-   'border_style'=>$adv('select',__('Border Style', 'sidcraft-syntex'),__('Border', 'sidcraft-syntex'),['options'=>[''=>__('None', 'sidcraft-syntex'),'solid'=>__('Solid', 'sidcraft-syntex'),'dashed'=>__('Dashed', 'sidcraft-syntex'),'dotted'=>__('Dotted', 'sidcraft-syntex'),'double'=>__('Double', 'sidcraft-syntex')]]),
-   'border_width'=>$adv('dimensions',__('Border Width', 'sidcraft-syntex'),__('Border', 'sidcraft-syntex'),['condition'=>['border_style!'=>'']]),
-   'border_color'=>$adv('color',__('Border Color', 'sidcraft-syntex'),__('Border', 'sidcraft-syntex'),['condition'=>['border_style!'=>'']]),
-   'border_radius'=>$adv('dimensions',__('Border Radius', 'sidcraft-syntex'),__('Border', 'sidcraft-syntex')),
-   'button_radius'=>$adv('slider',__('Button Radius', 'sidcraft-syntex'),__('Border', 'sidcraft-syntex'),['units'=>['px','%'],'range'=>['min'=>0,'max'=>80],'selectors'=>['{{WRAPPER}}'=>'--lb-btn-radius: {{SIZE}}{{UNIT}};',self::button_selector()=>'border-radius: {{SIZE}}{{UNIT}};']]),
-   'shadow'=>$adv('box_shadow',__('Box Shadow', 'sidcraft-syntex'),__('Border', 'sidcraft-syntex')),
+   'border_style'=>$adv('select',__('Border Style', 'sidcraft-page-builder'),__('Border', 'sidcraft-page-builder'),['options'=>[''=>__('None', 'sidcraft-page-builder'),'solid'=>__('Solid', 'sidcraft-page-builder'),'dashed'=>__('Dashed', 'sidcraft-page-builder'),'dotted'=>__('Dotted', 'sidcraft-page-builder'),'double'=>__('Double', 'sidcraft-page-builder')]]),
+   'border_width'=>$adv('dimensions',__('Border Width', 'sidcraft-page-builder'),__('Border', 'sidcraft-page-builder'),['condition'=>['border_style!'=>'']]),
+   'border_color'=>$adv('color',__('Border Color', 'sidcraft-page-builder'),__('Border', 'sidcraft-page-builder'),['condition'=>['border_style!'=>'']]),
+   'border_radius'=>$adv('dimensions',__('Border Radius', 'sidcraft-page-builder'),__('Border', 'sidcraft-page-builder')),
+   'button_radius'=>$adv('slider',__('Button Radius', 'sidcraft-page-builder'),__('Border', 'sidcraft-page-builder'),['units'=>['px','%'],'range'=>['min'=>0,'max'=>80],'selectors'=>['{{WRAPPER}}'=>'--lb-btn-radius: {{SIZE}}{{UNIT}};',self::button_selector()=>'border-radius: {{SIZE}}{{UNIT}};']]),
+   'shadow'=>$adv('box_shadow',__('Box Shadow', 'sidcraft-page-builder'),__('Border', 'sidcraft-page-builder')),
    // Attributes
-   'css_id'=>$adv('text',__('CSS ID', 'sidcraft-syntex'),__('Attributes', 'sidcraft-syntex'),['description'=>__('Same-page jump target. Link a menu item, button, or text link to #this-id (for example #contact-us). Works the same way as a Menu Anchor.', 'sidcraft-syntex'),'placeholder'=>'contact-us']),
-   'css_class'=>$adv('text',__('CSS Classes', 'sidcraft-syntex'),__('Attributes', 'sidcraft-syntex')),
-   'global_class'=>$adv('text',__('Global Classes', 'sidcraft-syntex'),__('Attributes', 'sidcraft-syntex'),['description'=>__('Space separated class names from the Global Classes manager.', 'sidcraft-syntex')]),
-   'aria_label'=>$adv('text',__('ARIA Label', 'sidcraft-syntex'),__('Attributes', 'sidcraft-syntex'),['description'=>__('Accessible name. It is applied to the unit\'s link, button, field or image; units without one get role="group" so screen readers announce it.', 'sidcraft-syntex')]),
+   'css_id'=>$adv('text',__('CSS ID', 'sidcraft-page-builder'),__('Attributes', 'sidcraft-page-builder'),['description'=>__('Same-page jump target. Link a menu item, button, or text link to #this-id (for example #contact-us). Works the same way as a Menu Anchor.', 'sidcraft-page-builder'),'placeholder'=>'contact-us']),
+   'css_class'=>$adv('text',__('CSS Classes', 'sidcraft-page-builder'),__('Attributes', 'sidcraft-page-builder')),
+   'global_class'=>$adv('text',__('Global Classes', 'sidcraft-page-builder'),__('Attributes', 'sidcraft-page-builder'),['description'=>__('Space separated class names from the Global Classes manager.', 'sidcraft-page-builder')]),
+   'aria_label'=>$adv('text',__('ARIA Label', 'sidcraft-page-builder'),__('Attributes', 'sidcraft-page-builder'),['description'=>__('Accessible name. It is applied to the unit\'s link, button, field or image; units without one get role="group" so screen readers announce it.', 'sidcraft-page-builder')]),
    'xe_classes'=>$hidden('xe_classes',['default'=>[]]),
-   'role'=>$adv('text',__('Role', 'sidcraft-syntex'),__('Attributes', 'sidcraft-syntex')),
-   'html_attributes'=>$adv('textarea',__('Custom Attributes', 'sidcraft-syntex'),__('Attributes', 'sidcraft-syntex'),['placeholder'=>"title=Example\ndata-key=value",'description'=>__('One attribute per line, as name=value. Only aria-*, data-*, title, rel and download are kept.', 'sidcraft-syntex')]),
+   'role'=>$adv('text',__('Role', 'sidcraft-page-builder'),__('Attributes', 'sidcraft-page-builder')),
+   'html_attributes'=>$adv('textarea',__('Custom Attributes', 'sidcraft-page-builder'),__('Attributes', 'sidcraft-page-builder'),['placeholder'=>"title=Example\ndata-key=value",'description'=>__('One attribute per line, as name=value. Only aria-*, data-*, title, rel and download are kept.', 'sidcraft-page-builder')]),
    // Typography on Style. A unit that declares the same key keeps its own tab, section and selectors.
-   'color'=>$sty('color',__('Text Color', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['selectors'=>['{{WRAPPER}}'=>'color: {{VALUE}};']]),
-   'font_family'=>$sty('font',__('Font Family', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['selectors'=>['{{WRAPPER}}'=>'font-family: {{VALUE}};']]),
-   'font_size'=>$sty('slider',__('Font Size', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['responsive'=>true,'units'=>['px','em','rem'],'range'=>['min'=>6,'max'=>200],'selectors'=>['{{WRAPPER}}'=>'font-size: {{SIZE}}{{UNIT}};']]),
-   'font_weight'=>$sty('select',__('Weight', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['options'=>self::opt_weight(),'selectors'=>['{{WRAPPER}}'=>'font-weight: {{VALUE}};']]),
-   'font_style'=>$sty('select',__('Style', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['options'=>[''=>__('Default', 'sidcraft-syntex'),'normal'=>__('Normal', 'sidcraft-syntex'),'italic'=>__('Italic', 'sidcraft-syntex'),'oblique'=>__('Oblique', 'sidcraft-syntex')],'selectors'=>['{{WRAPPER}}'=>'font-style: {{VALUE}};']]),
-   'text_transform'=>$sty('select',__('Transform', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['options'=>[''=>__('Default', 'sidcraft-syntex'),'none'=>__('None', 'sidcraft-syntex'),'uppercase'=>__('Uppercase', 'sidcraft-syntex'),'lowercase'=>__('Lowercase', 'sidcraft-syntex'),'capitalize'=>__('Capitalize', 'sidcraft-syntex')],'selectors'=>['{{WRAPPER}}'=>'text-transform: {{VALUE}};']]),
-   'text_decoration'=>$sty('select',__('Decoration', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['options'=>[''=>__('Default', 'sidcraft-syntex'),'none'=>__('None', 'sidcraft-syntex'),'underline'=>__('Underline', 'sidcraft-syntex'),'overline'=>__('Overline', 'sidcraft-syntex'),'line-through'=>__('Line Through', 'sidcraft-syntex')],'selectors'=>['{{WRAPPER}}'=>'text-decoration: {{VALUE}};']]),
-   'line_height'=>$sty('slider',__('Line Height', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['responsive'=>true,'units'=>[],'range'=>['min'=>0.6,'max'=>3,'step'=>0.05],'selectors'=>['{{WRAPPER}}'=>'line-height: {{SIZE}};']]),
-   'letter_spacing'=>$sty('slider',__('Letter Spacing', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['responsive'=>true,'units'=>['px','em'],'range'=>['min'=>-5,'max'=>20,'step'=>0.1],'selectors'=>['{{WRAPPER}}'=>'letter-spacing: {{SIZE}}{{UNIT}};']]),
-   'text_shadow'=>$sty('text_shadow',__('Text Shadow', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['selectors'=>['{{WRAPPER}}'=>'text-shadow: {{VALUE}};']]),
+   'color'=>$sty('color',__('Text Color', 'sidcraft-page-builder'),__('Typography', 'sidcraft-page-builder'),['selectors'=>['{{WRAPPER}}'=>'color: {{VALUE}};']]),
+   'font_family'=>$sty('font',__('Font Family', 'sidcraft-page-builder'),__('Typography', 'sidcraft-page-builder'),['selectors'=>['{{WRAPPER}}'=>'font-family: {{VALUE}};']]),
+   'font_size'=>$sty('slider',__('Font Size', 'sidcraft-page-builder'),__('Typography', 'sidcraft-page-builder'),['responsive'=>true,'units'=>['px','em','rem'],'range'=>['min'=>6,'max'=>200],'selectors'=>['{{WRAPPER}}'=>'font-size: {{SIZE}}{{UNIT}};']]),
+   'font_weight'=>$sty('select',__('Weight', 'sidcraft-page-builder'),__('Typography', 'sidcraft-page-builder'),['options'=>self::opt_weight(),'selectors'=>['{{WRAPPER}}'=>'font-weight: {{VALUE}};']]),
+   'font_style'=>$sty('select',__('Style', 'sidcraft-page-builder'),__('Typography', 'sidcraft-page-builder'),['options'=>[''=>__('Default', 'sidcraft-page-builder'),'normal'=>__('Normal', 'sidcraft-page-builder'),'italic'=>__('Italic', 'sidcraft-page-builder'),'oblique'=>__('Oblique', 'sidcraft-page-builder')],'selectors'=>['{{WRAPPER}}'=>'font-style: {{VALUE}};']]),
+   'text_transform'=>$sty('select',__('Transform', 'sidcraft-page-builder'),__('Typography', 'sidcraft-page-builder'),['options'=>[''=>__('Default', 'sidcraft-page-builder'),'none'=>__('None', 'sidcraft-page-builder'),'uppercase'=>__('Uppercase', 'sidcraft-page-builder'),'lowercase'=>__('Lowercase', 'sidcraft-page-builder'),'capitalize'=>__('Capitalize', 'sidcraft-page-builder')],'selectors'=>['{{WRAPPER}}'=>'text-transform: {{VALUE}};']]),
+   'text_decoration'=>$sty('select',__('Decoration', 'sidcraft-page-builder'),__('Typography', 'sidcraft-page-builder'),['options'=>[''=>__('Default', 'sidcraft-page-builder'),'none'=>__('None', 'sidcraft-page-builder'),'underline'=>__('Underline', 'sidcraft-page-builder'),'overline'=>__('Overline', 'sidcraft-page-builder'),'line-through'=>__('Line Through', 'sidcraft-page-builder')],'selectors'=>['{{WRAPPER}}'=>'text-decoration: {{VALUE}};']]),
+   'line_height'=>$sty('slider',__('Line Height', 'sidcraft-page-builder'),__('Typography', 'sidcraft-page-builder'),['responsive'=>true,'units'=>[],'range'=>['min'=>0.6,'max'=>3,'step'=>0.05],'selectors'=>['{{WRAPPER}}'=>'line-height: {{SIZE}};']]),
+   'letter_spacing'=>$sty('slider',__('Letter Spacing', 'sidcraft-page-builder'),__('Typography', 'sidcraft-page-builder'),['responsive'=>true,'units'=>['px','em'],'range'=>['min'=>-5,'max'=>20,'step'=>0.1],'selectors'=>['{{WRAPPER}}'=>'letter-spacing: {{SIZE}}{{UNIT}};']]),
+   'text_shadow'=>$sty('text_shadow',__('Text Shadow', 'sidcraft-page-builder'),__('Typography', 'sidcraft-page-builder'),['selectors'=>['{{WRAPPER}}'=>'text-shadow: {{VALUE}};']]),
    // Hidden compatibility keys (accepted by the sanitizer, not shown in the schema panel).
    'class_mode'=>$hidden('select',['options'=>['inline','class-first']]),'variable_ref'=>$hidden('text'),'typography_global'=>$hidden('text'),
    'border_top_width'=>$hidden('number'),'border_right_width'=>$hidden('number'),'border_bottom_width'=>$hidden('number'),'border_left_width'=>$hidden('number'),'border_top_color'=>$hidden('color'),'border_right_color'=>$hidden('color'),'border_bottom_color'=>$hidden('color'),'border_left_color'=>$hidden('color'),'border_top_style'=>$hidden('select'),'border_right_style'=>$hidden('select'),'border_bottom_style'=>$hidden('select'),'border_left_style'=>$hidden('select'),'box_shadow'=>$hidden('box_shadow'),
@@ -549,7 +549,7 @@ abstract class Unit {
   foreach(preg_split('/\s+/',trim((string)($s['css_class']??''))) as $part){$safe=sanitize_html_class($part);if($safe)$c.=' '.$safe;}
   foreach(preg_split('/[\s,]+/',trim((string)($s['global_class']??''))) as $part){$safe=sanitize_html_class($part);if($safe)$c.=' lb-class-'.$safe;}
   // XEditor class stacking: every unit may carry utility classes from the XEditor Classes manager.
-  if(!empty($s['xe_classes'])&&class_exists('\\SidcraftSyntex\\XEditor\\XEditorClassesManager')){$xe=\SidcraftSyntex\XEditor\XEditorClassesManager::class_attr($s['xe_classes']);if($xe!=='')$c.=' '.$xe;}
+  if(!empty($s['xe_classes'])&&class_exists('\\SidcraftPageBuilder\\XEditor\\XEditorClassesManager')){$xe=\SidcraftPageBuilder\XEditor\XEditorClassesManager::class_attr($s['xe_classes']);if($xe!=='')$c.=' '.$xe;}
   return $c;
  }
  /**

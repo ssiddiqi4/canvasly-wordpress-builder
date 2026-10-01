@@ -1,16 +1,16 @@
 <?php
-namespace SidcraftSyntex\Bootstrap;
+namespace SidcraftPageBuilder\Bootstrap;
 if ( ! defined( 'ABSPATH' ) ) exit;
 class Autoloader {
  public static function register() { spl_autoload_register( array( __CLASS__, 'load' ) ); }
  public static function load( $class ) {
-  $prefix = 'SidcraftSyntex\\';
+  $prefix = 'SidcraftPageBuilder\\';
   if ( strpos( $class, $prefix ) !== 0 ) return;
   $relative = substr( $class, strlen( $prefix ) );
   $parts = explode( '\\', $relative );
   $name = array_pop( $parts );
   $dir = strtolower( implode( '/', $parts ) );
-  $root = defined( 'SIDCRAFT_SYNTEX_PATH' ) ? SIDCRAFT_SYNTEX_PATH : dirname( __DIR__, 2 ) . '/';
+  $root = defined( 'SIDCRAFT_PAGE_BUILDER_PATH' ) ? SIDCRAFT_PAGE_BUILDER_PATH : dirname( __DIR__, 2 ) . '/';
   $base = $root . 'includes/' . ( $dir !== '' ? $dir . '/' : '' );
   $slugs = array(
    strtolower( preg_replace( '/(?<!^)[A-Z]/', '-$0', $name ) ),

@@ -1,10 +1,10 @@
 <?php
-namespace SidcraftSyntex\Ops;
+namespace SidcraftPageBuilder\Ops;
 
-use SidcraftSyntex\Design\CssPrint;
-use SidcraftSyntex\Rendering\FrontendRenderer;
-use SidcraftSyntex\Settings\AdminSettings;
-use SidcraftSyntex\Templates\TemplateEmbed;
+use SidcraftPageBuilder\Design\CssPrint;
+use SidcraftPageBuilder\Rendering\FrontendRenderer;
+use SidcraftPageBuilder\Settings\AdminSettings;
+use SidcraftPageBuilder\Templates\TemplateEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -30,7 +30,7 @@ class Maintenance {
 		add_filter( 'wp_robots', array( self::class, 'robots' ) );
 		add_action( 'wp_enqueue_scripts', array( self::class, 'enqueue' ), 25 );
 		add_action( 'admin_bar_menu', array( self::class, 'admin_bar' ), 80 );
-		add_action( 'sidcraft-syntex/tools/screen', array( self::class, 'tools_screen' ), 21 );
+		add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'tools_screen' ), 21 );
 	}
 
 	/**
@@ -49,7 +49,7 @@ class Maintenance {
 		 *
 		 * @param array $d
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/maintenance/settings', $d );
+		$filtered = apply_filters( 'sidcraft-page-builder/maintenance/settings', $d );
 		if ( ! is_array( $filtered ) ) {
 			$filtered = $d;
 		}
@@ -116,7 +116,7 @@ class Maintenance {
 		 * @param array $s
 		 * @param array $ctx
 		 */
-		return (bool) apply_filters( 'sidcraft-syntex/maintenance/apply', $apply, $s, $ctx );
+		return (bool) apply_filters( 'sidcraft-page-builder/maintenance/apply', $apply, $s, $ctx );
 	}
 
 	/**
@@ -148,7 +148,7 @@ class Maintenance {
 		if ( ! self::should_apply() ) {
 			return $template;
 		}
-		$file = SIDCRAFT_SYNTEX_PATH . 'includes/templates/maintenance.php';
+		$file = SIDCRAFT_PAGE_BUILDER_PATH . 'includes/templates/maintenance.php';
 		return is_readable( $file ) ? $file : $template;
 	}
 
@@ -221,12 +221,12 @@ class Maintenance {
 			}
 		}
 		if ( function_exists( 'wp_enqueue_style' ) ) {
-			wp_enqueue_style( 'sidcraft-syntex-frontend' );
+			wp_enqueue_style( 'sidcraft-page-builder-frontend' );
 		}
 		if ( $id && class_exists( TemplateEmbed::class ) && method_exists( TemplateEmbed::class, 'document_css' ) && function_exists( 'wp_add_inline_style' ) ) {
 			$css = TemplateEmbed::document_css( $id );
 			if ( is_string( $css ) && $css !== '' ) {
-				wp_add_inline_style( 'sidcraft-syntex-frontend', function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( $css ) : $css );
+				wp_add_inline_style( 'sidcraft-page-builder-frontend', function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( $css ) : $css );
 			}
 		}
 		if ( class_exists( CssPrint::class ) ) {
@@ -253,7 +253,7 @@ class Maintenance {
 						$html = '';
 					} else {
 						try {
-							$html = \SidcraftSyntex\Rendering\OutputEscape::render(
+							$html = \SidcraftPageBuilder\Rendering\OutputEscape::render(
 								function () use ( $doc, $id ) {
 									return FrontendRenderer::render_nodes( $doc['root'], $id, array(), 'maint' );
 								}
@@ -273,7 +273,7 @@ class Maintenance {
 			 * @param int    $id
 			 * @param array  $s
 			 */
-			$html = (string) apply_filters( 'sidcraft-syntex/maintenance/html', is_string( $html ) ? $html : '', $id, $s );
+			$html = (string) apply_filters( 'sidcraft-page-builder/maintenance/html', is_string( $html ) ? $html : '', $id, $s );
 			if ( trim( $html ) !== '' ) {
 				return $html;
 			}
@@ -288,11 +288,11 @@ class Maintenance {
 	public static function fallback_html( $mode ) {
 		$coming = $mode === 'coming_soon';
 		$title  = $coming
-			? __( 'Coming Soon', 'sidcraft-syntex' )
-			: __( 'Site under maintenance', 'sidcraft-syntex' );
+			? __( 'Coming Soon', 'sidcraft-page-builder' )
+			: __( 'Site under maintenance', 'sidcraft-page-builder' );
 		$msg    = $coming
-			? __( 'This site is not public yet. Please check back later.', 'sidcraft-syntex' )
-			: __( 'We are performing scheduled maintenance. Please try again shortly.', 'sidcraft-syntex' );
+			? __( 'This site is not public yet. Please check back later.', 'sidcraft-page-builder' )
+			: __( 'We are performing scheduled maintenance. Please try again shortly.', 'sidcraft-page-builder' );
 		return '<div class="lb-maintenance-fallback" style="max-width:40rem;margin:15vh auto;padding:2rem;text-align:center;font-family:system-ui,sans-serif">'
 			. '<h1>' . esc_html( $title ) . '</h1>'
 			. '<p>' . esc_html( $msg ) . '</p>'
@@ -317,16 +317,16 @@ class Maintenance {
 		}
 		$s    = self::settings();
 		$mode = $s['mode'];
-		echo '<hr><h2>' . esc_html__( 'Maintenance mode', 'sidcraft-syntex' ) . '</h2>';
+		echo '<hr><h2>' . esc_html__( 'Maintenance mode', 'sidcraft-page-builder' ) . '</h2>';
 		if ( $mode === 'off' ) {
-			echo '<p>' . esc_html__( 'Visitors currently see the live site.', 'sidcraft-syntex' ) . '</p>';
+			echo '<p>' . esc_html__( 'Visitors currently see the live site.', 'sidcraft-page-builder' ) . '</p>';
 		} else {
-			$label = $mode === 'coming_soon' ? __( 'Coming soon', 'sidcraft-syntex' ) : __( 'Maintenance', 'sidcraft-syntex' );
+			$label = $mode === 'coming_soon' ? __( 'Coming soon', 'sidcraft-page-builder' ) : __( 'Maintenance', 'sidcraft-page-builder' );
 			echo '<p><span class="lb-ops-status lb-ops-on">' . esc_html( $label ) . '</span></p>';
-			echo '<p><a class="button" href="' . esc_url( self::preview_url() ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Preview', 'sidcraft-syntex' ) . '</a></p>';
+			echo '<p><a class="button" href="' . esc_url( self::preview_url() ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Preview', 'sidcraft-page-builder' ) . '</a></p>';
 		}
 		if ( class_exists( AdminSettings::class ) ) {
-			echo '<p><a class="button" href="' . esc_url( AdminSettings::url( 'tools' ) ) . '">' . esc_html__( 'Configure', 'sidcraft-syntex' ) . '</a></p>';
+			echo '<p><a class="button" href="' . esc_url( AdminSettings::url( 'tools' ) ) . '">' . esc_html__( 'Configure', 'sidcraft-page-builder' ) . '</a></p>';
 		}
 	}
 
@@ -345,13 +345,13 @@ class Maintenance {
 		}
 		$mode  = self::mode();
 		$title = $mode === 'coming_soon'
-			? __( 'Coming Soon is on', 'sidcraft-syntex' )
-			: __( 'Maintenance is on', 'sidcraft-syntex' );
+			? __( 'Coming Soon is on', 'sidcraft-page-builder' )
+			: __( 'Maintenance is on', 'sidcraft-page-builder' );
 		$bar->add_node(
 			array(
-				'id'    => 'sidcraft-syntex-maintenance',
+				'id'    => 'sidcraft-page-builder-maintenance',
 				'title' => $title,
-				'href'  => class_exists( AdminSettings::class ) ? AdminSettings::url( 'tools' ) : admin_url( 'admin.php?page=sidcraft-syntex-tools' ),
+				'href'  => class_exists( AdminSettings::class ) ? AdminSettings::url( 'tools' ) : admin_url( 'admin.php?page=sidcraft-page-builder-tools' ),
 				'meta'  => array( 'class' => 'lb-ab-maintenance' ),
 			)
 		);

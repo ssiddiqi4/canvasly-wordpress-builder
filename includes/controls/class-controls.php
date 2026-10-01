@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Controls;
+namespace SidcraftPageBuilder\Controls;
 if(!defined('ABSPATH')) exit;
 /**
  * Control-type registry.
@@ -14,10 +14,10 @@ if(!defined('ABSPATH')) exit;
  *   $css_handler callable( mixed $value, string $selector, string $key, array $settings, array $node ): string
  *                returns full CSS rules (selector included) or ''. Optional.
  *   $args        ['label' => string, 'default' => mixed, 'editor' => array]  - 'editor' is passed to
- *                SidcraftSyntexData.controlTypes[type].editor so the JS renderer can read options.
+ *                SidcraftPageBuilderData.controlTypes[type].editor so the JS renderer can read options.
  *
  * Fire order: Plugin::register_units() boots this registry on `init`, which fires
- * `sidcraft-syntex/controls/register` before `sidcraft-syntex/units/register`.
+ * `sidcraft-page-builder/controls/register` before `sidcraft-page-builder/units/register`.
  */
 class Controls {
  const BUILTIN=['text','textarea','wysiwyg','url','number','slider','color','switch','select','choose','icon','media','gallery','spacing','dimensions','box_shadow','gradient','repeater','url_map','number_map','typography','border','background','text_shadow','css_filter','transform','transition','gaps','code','font'];
@@ -32,7 +32,7 @@ class Controls {
  public function boot(){
   if($this->booted) return $this;
   $this->booted=true;
-  do_action('sidcraft-syntex/controls/register',$this);
+  do_action('sidcraft-page-builder/controls/register',$this);
   return $this;
  }
  public function register($type,$sanitizer=null,$css_handler=null,array $args=[]){

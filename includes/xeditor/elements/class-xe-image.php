@@ -2,12 +2,12 @@
 /**
  * XEditor Image: a single <img>.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\XEditor\Elements;
+namespace SidcraftPageBuilder\XEditor\Elements;
 
-use SidcraftSyntex\XEditor\XEditorContext;
+use SidcraftPageBuilder\XEditor\XEditorContext;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -21,7 +21,7 @@ class XeImage extends XEditorElement {
 	}
 
 	public function title() {
-		return __( 'Image', 'sidcraft-syntex' ) . ' (XEditor)';
+		return __( 'Image', 'sidcraft-page-builder' ) . ' (XEditor)';
 	}
 
 	public function icon() {
@@ -45,17 +45,17 @@ class XeImage extends XEditorElement {
 	}
 
 	protected function own_controls() {
-		$sec = __( 'Image', 'sidcraft-syntex' );
+		$sec = __( 'Image', 'sidcraft-page-builder' );
 		return array(
-			'source'    => $this->ctrl( 'select', __( 'Source', 'sidcraft-syntex' ), 'content', $sec, array( 'options' => array( 'media' => __( 'Media Library', 'sidcraft-syntex' ), 'featured' => __( 'Featured image (current post / loop item)', 'sidcraft-syntex' ), 'url' => __( 'URL or token', 'sidcraft-syntex' ) ) ) ),
-			'image_id'  => $this->ctrl( 'media', __( 'Choose Image', 'sidcraft-syntex' ), 'content', $sec, array( 'condition' => array( 'source' => 'media' ) ) ),
-			'image_url' => $this->ctrl( 'url', __( 'Image URL', 'sidcraft-syntex' ), 'content', $sec, array( 'hidden' => true ) ),
-			'src'       => $this->ctrl( 'text', __( 'Image URL', 'sidcraft-syntex' ), 'content', $sec, array( 'condition' => array( 'source' => 'url' ), 'placeholder' => 'https:// or {{post.featured_image}}', 'dynamic' => true ) ),
-			'size'      => $this->ctrl( 'select', __( 'Image Size', 'sidcraft-syntex' ), 'content', $sec, array( 'options' => array( 'thumbnail' => 'Thumbnail', 'medium' => 'Medium', 'medium_large' => 'Medium Large', 'large' => 'Large', 'full' => 'Full' ) ) ),
-			'alt'       => $this->ctrl( 'text', __( 'Alt Text', 'sidcraft-syntex' ), 'content', $sec, array( 'dynamic' => true, 'description' => __( 'Leave empty to use the media library alt text. Tokens such as {{post.title}} are allowed.', 'sidcraft-syntex' ) ) ),
-			'loading'   => $this->ctrl( 'select', __( 'Loading', 'sidcraft-syntex' ), 'content', $sec, array( 'options' => array( 'lazy' => __( 'Lazy', 'sidcraft-syntex' ), 'eager' => __( 'Eager', 'sidcraft-syntex' ) ) ) ),
-			'xe_fit'    => $this->ctrl( 'select', __( 'Object Fit', 'sidcraft-syntex' ), 'style', __( 'Local Style', 'sidcraft-syntex' ), array( 'options' => array( '' => __( 'Default', 'sidcraft-syntex' ), 'cover' => 'Cover', 'contain' => 'Contain', 'fill' => 'Fill', 'none' => 'None' ), 'selectors' => array( self::LOCAL => 'object-fit: {{VALUE}};' ) ) ),
-			'xe_height' => $this->ctrl( 'slider', __( 'Height', 'sidcraft-syntex' ), 'style', __( 'Local Style', 'sidcraft-syntex' ), array( 'responsive' => true, 'units' => array( 'px', '%', 'vh', 'em', 'rem' ), 'range' => array( 'min' => 0, 'max' => 1200 ), 'selectors' => array( self::LOCAL => 'height: {{VALUE}};' ) ) ),
+			'source'    => $this->ctrl( 'select', __( 'Source', 'sidcraft-page-builder' ), 'content', $sec, array( 'options' => array( 'media' => __( 'Media Library', 'sidcraft-page-builder' ), 'featured' => __( 'Featured image (current post / loop item)', 'sidcraft-page-builder' ), 'url' => __( 'URL or token', 'sidcraft-page-builder' ) ) ) ),
+			'image_id'  => $this->ctrl( 'media', __( 'Choose Image', 'sidcraft-page-builder' ), 'content', $sec, array( 'condition' => array( 'source' => 'media' ) ) ),
+			'image_url' => $this->ctrl( 'url', __( 'Image URL', 'sidcraft-page-builder' ), 'content', $sec, array( 'hidden' => true ) ),
+			'src'       => $this->ctrl( 'text', __( 'Image URL', 'sidcraft-page-builder' ), 'content', $sec, array( 'condition' => array( 'source' => 'url' ), 'placeholder' => 'https:// or {{post.featured_image}}', 'dynamic' => true ) ),
+			'size'      => $this->ctrl( 'select', __( 'Image Size', 'sidcraft-page-builder' ), 'content', $sec, array( 'options' => array( 'thumbnail' => 'Thumbnail', 'medium' => 'Medium', 'medium_large' => 'Medium Large', 'large' => 'Large', 'full' => 'Full' ) ) ),
+			'alt'       => $this->ctrl( 'text', __( 'Alt Text', 'sidcraft-page-builder' ), 'content', $sec, array( 'dynamic' => true, 'description' => __( 'Leave empty to use the media library alt text. Tokens such as {{post.title}} are allowed.', 'sidcraft-page-builder' ) ) ),
+			'loading'   => $this->ctrl( 'select', __( 'Loading', 'sidcraft-page-builder' ), 'content', $sec, array( 'options' => array( 'lazy' => __( 'Lazy', 'sidcraft-page-builder' ), 'eager' => __( 'Eager', 'sidcraft-page-builder' ) ) ) ),
+			'xe_fit'    => $this->ctrl( 'select', __( 'Object Fit', 'sidcraft-page-builder' ), 'style', __( 'Local Style', 'sidcraft-page-builder' ), array( 'options' => array( '' => __( 'Default', 'sidcraft-page-builder' ), 'cover' => 'Cover', 'contain' => 'Contain', 'fill' => 'Fill', 'none' => 'None' ), 'selectors' => array( self::LOCAL => 'object-fit: {{VALUE}};' ) ) ),
+			'xe_height' => $this->ctrl( 'slider', __( 'Height', 'sidcraft-page-builder' ), 'style', __( 'Local Style', 'sidcraft-page-builder' ), array( 'responsive' => true, 'units' => array( 'px', '%', 'vh', 'em', 'rem' ), 'range' => array( 'min' => 0, 'max' => 1200 ), 'selectors' => array( self::LOCAL => 'height: {{VALUE}};' ) ) ),
 		);
 	}
 

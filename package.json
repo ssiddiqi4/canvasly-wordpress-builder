@@ -1,7 +1,7 @@
 {
-  "name": "sidcraft-syntex",
+  "name": "sidcraft-page-builder",
   "private": true,
-  "description": "Build tooling for the Sidcraft Syntex editor bundle (assets/js/editor.js).",
+  "description": "Build tooling for the Sidcraft Page Builder editor bundle (assets/js/editor.js).",
   "scripts": {
     "build": "node build.mjs",
     "check": "node build.mjs --check",

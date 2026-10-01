@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Dynamic;
+namespace SidcraftPageBuilder\Dynamic;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -31,7 +31,7 @@ class Builtin {
 		return array(
 			array(
 				'name'       => 'post_title',
-				'title'      => __( 'Post Title', 'sidcraft-syntex' ),
+				'title'      => __( 'Post Title', 'sidcraft-page-builder' ),
 				'group'      => 'post',
 				'categories' => array( 'text' ),
 				'render'     => static function ( $s, $ctx ) use ( $post_id ) {
@@ -44,7 +44,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'post_excerpt',
-				'title'      => __( 'Post Excerpt', 'sidcraft-syntex' ),
+				'title'      => __( 'Post Excerpt', 'sidcraft-page-builder' ),
 				'group'      => 'post',
 				'categories' => array( 'text' ),
 				'render'     => static function ( $s, $ctx ) use ( $post_id ) {
@@ -52,8 +52,8 @@ class Builtin {
 					if ( ! $id ) {
 						return '';
 					}
-					if ( class_exists( '\\SidcraftSyntex\\Document\\DevMode' ) ) {
-						return \SidcraftSyntex\Document\DevMode::safe_excerpt( $id );
+					if ( class_exists( '\\SidcraftPageBuilder\\Document\\DevMode' ) ) {
+						return \SidcraftPageBuilder\Document\DevMode::safe_excerpt( $id );
 					}
 					if ( ! function_exists( 'get_post_field' ) ) {
 						return '';
@@ -67,12 +67,12 @@ class Builtin {
 			),
 			array(
 				'name'       => 'post_content',
-				'title'      => __( 'Post Content', 'sidcraft-syntex' ),
+				'title'      => __( 'Post Content', 'sidcraft-page-builder' ),
 				'group'      => 'post',
 				'categories' => array( 'text', 'html' ),
 				'render'     => static function ( $s, $ctx ) use ( $post_id ) {
 					if ( ! empty( $ctx['for_canvas'] ) ) {
-						return function_exists( '__' ) ? __( 'Post Content', 'sidcraft-syntex' ) : 'Post Content';
+						return function_exists( '__' ) ? __( 'Post Content', 'sidcraft-page-builder' ) : 'Post Content';
 					}
 					$id = $post_id( $ctx );
 					if ( ! $id || ! function_exists( 'get_post_field' ) ) {
@@ -84,15 +84,15 @@ class Builtin {
 			),
 			array(
 				'name'       => 'post_date',
-				'title'      => __( 'Post Date', 'sidcraft-syntex' ),
+				'title'      => __( 'Post Date', 'sidcraft-page-builder' ),
 				'group'      => 'post',
 				'categories' => array( 'text' ),
 				'controls'   => array(
 					'format' => array(
 						'type'        => 'text',
-						'label'       => __( 'Date Format', 'sidcraft-syntex' ),
+						'label'       => __( 'Date Format', 'sidcraft-page-builder' ),
 						'placeholder' => 'F j, Y',
-						'description' => __( 'PHP date format. Leave empty for the site default.', 'sidcraft-syntex' ),
+						'description' => __( 'PHP date format. Leave empty for the site default.', 'sidcraft-page-builder' ),
 					),
 				),
 				'render'     => static function ( $s, $ctx ) use ( $post_id ) {
@@ -117,7 +117,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'post_url',
-				'title'      => __( 'Post URL', 'sidcraft-syntex' ),
+				'title'      => __( 'Post URL', 'sidcraft-page-builder' ),
 				'group'      => 'post',
 				'categories' => array( 'url', 'text' ),
 				'render'     => static function ( $s, $ctx ) use ( $post_id ) {
@@ -131,7 +131,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'post_featured_image',
-				'title'      => __( 'Featured Image', 'sidcraft-syntex' ),
+				'title'      => __( 'Featured Image', 'sidcraft-page-builder' ),
 				'group'      => 'post',
 				'categories' => array( 'image', 'url' ),
 				'render'     => static function ( $s, $ctx ) use ( $post_id ) {
@@ -154,19 +154,19 @@ class Builtin {
 			),
 			array(
 				'name'       => 'post_terms',
-				'title'      => __( 'Post Terms', 'sidcraft-syntex' ),
+				'title'      => __( 'Post Terms', 'sidcraft-page-builder' ),
 				'group'      => 'post',
 				'categories' => array( 'text' ),
 				'controls'   => array(
 					'taxonomy'  => array(
 						'type'        => 'text',
-						'label'       => __( 'Taxonomy', 'sidcraft-syntex' ),
+						'label'       => __( 'Taxonomy', 'sidcraft-page-builder' ),
 						'placeholder' => 'category',
 						'default'     => 'category',
 					),
 					'separator' => array(
 						'type'        => 'text',
-						'label'       => __( 'Separator', 'sidcraft-syntex' ),
+						'label'       => __( 'Separator', 'sidcraft-page-builder' ),
 						'placeholder' => ', ',
 						'default'     => ', ',
 					),
@@ -196,7 +196,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'author_name',
-				'title'      => __( 'Author Name', 'sidcraft-syntex' ),
+				'title'      => __( 'Author Name', 'sidcraft-page-builder' ),
 				'group'      => 'author',
 				'categories' => array( 'text' ),
 				'render'     => static function ( $s, $ctx ) use ( $author_id ) {
@@ -209,7 +209,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'author_bio',
-				'title'      => __( 'Author Bio', 'sidcraft-syntex' ),
+				'title'      => __( 'Author Bio', 'sidcraft-page-builder' ),
 				'group'      => 'author',
 				'categories' => array( 'text', 'html' ),
 				'render'     => static function ( $s, $ctx ) use ( $author_id ) {
@@ -223,7 +223,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'author_email',
-				'title'      => __( 'Author Email', 'sidcraft-syntex' ),
+				'title'      => __( 'Author Email', 'sidcraft-page-builder' ),
 				'group'      => 'author',
 				'categories' => array( 'text' ),
 				'render'     => static function ( $s, $ctx ) use ( $author_id ) {
@@ -237,7 +237,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'author_url',
-				'title'      => __( 'Author URL', 'sidcraft-syntex' ),
+				'title'      => __( 'Author URL', 'sidcraft-page-builder' ),
 				'group'      => 'author',
 				'categories' => array( 'url', 'text' ),
 				'render'     => static function ( $s, $ctx ) use ( $author_id ) {
@@ -251,7 +251,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'author_avatar',
-				'title'      => __( 'Author Avatar', 'sidcraft-syntex' ),
+				'title'      => __( 'Author Avatar', 'sidcraft-page-builder' ),
 				'group'      => 'author',
 				'categories' => array( 'image', 'url' ),
 				'render'     => static function ( $s, $ctx ) use ( $author_id ) {
@@ -265,7 +265,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'site_title',
-				'title'      => __( 'Site Title', 'sidcraft-syntex' ),
+				'title'      => __( 'Site Title', 'sidcraft-page-builder' ),
 				'group'      => 'site',
 				'categories' => array( 'text' ),
 				'render'     => static function () {
@@ -274,7 +274,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'site_tagline',
-				'title'      => __( 'Site Tagline', 'sidcraft-syntex' ),
+				'title'      => __( 'Site Tagline', 'sidcraft-page-builder' ),
 				'group'      => 'site',
 				'categories' => array( 'text' ),
 				'render'     => static function () {
@@ -283,7 +283,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'site_url',
-				'title'      => __( 'Site URL', 'sidcraft-syntex' ),
+				'title'      => __( 'Site URL', 'sidcraft-page-builder' ),
 				'group'      => 'site',
 				'categories' => array( 'url', 'text' ),
 				'render'     => static function () {
@@ -293,7 +293,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'site_logo',
-				'title'      => __( 'Site Logo', 'sidcraft-syntex' ),
+				'title'      => __( 'Site Logo', 'sidcraft-page-builder' ),
 				'group'      => 'site',
 				'categories' => array( 'image', 'url' ),
 				'render'     => static function () {
@@ -310,7 +310,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'current_user_name',
-				'title'      => __( 'Current User Name', 'sidcraft-syntex' ),
+				'title'      => __( 'Current User Name', 'sidcraft-page-builder' ),
 				'group'      => 'user',
 				'categories' => array( 'text' ),
 				'render'     => static function () {
@@ -326,7 +326,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'current_user_email',
-				'title'      => __( 'Current User Email', 'sidcraft-syntex' ),
+				'title'      => __( 'Current User Email', 'sidcraft-page-builder' ),
 				'group'      => 'user',
 				'categories' => array( 'text' ),
 				'render'     => static function () {
@@ -340,13 +340,13 @@ class Builtin {
 			),
 			array(
 				'name'       => 'archive_title',
-				'title'      => __( 'Archive Title', 'sidcraft-syntex' ),
+				'title'      => __( 'Archive Title', 'sidcraft-page-builder' ),
 				'group'      => 'archive',
 				'categories' => array( 'text' ),
 				'render'     => static function ( $s, $ctx ) {
 					if ( ! empty( $ctx['for_canvas'] ) ) {
 						if ( function_exists( 'is_singular' ) && is_singular() ) {
-							return function_exists( '__' ) ? __( 'Archive Title', 'sidcraft-syntex' ) : 'Archive Title';
+							return function_exists( '__' ) ? __( 'Archive Title', 'sidcraft-page-builder' ) : 'Archive Title';
 						}
 					}
 					if ( function_exists( 'get_the_archive_title' ) ) {
@@ -358,7 +358,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'term_name',
-				'title'      => __( 'Term Name', 'sidcraft-syntex' ),
+				'title'      => __( 'Term Name', 'sidcraft-page-builder' ),
 				'group'      => 'term',
 				'categories' => array( 'text' ),
 				'render'     => static function ( $s, $ctx ) {
@@ -368,7 +368,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'term_description',
-				'title'      => __( 'Term Description', 'sidcraft-syntex' ),
+				'title'      => __( 'Term Description', 'sidcraft-page-builder' ),
 				'group'      => 'term',
 				'categories' => array( 'text', 'html' ),
 				'render'     => static function ( $s, $ctx ) {
@@ -382,7 +382,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'term_url',
-				'title'      => __( 'Term URL', 'sidcraft-syntex' ),
+				'title'      => __( 'Term URL', 'sidcraft-page-builder' ),
 				'group'      => 'term',
 				'categories' => array( 'url', 'text' ),
 				'render'     => static function ( $s, $ctx ) {
@@ -400,7 +400,7 @@ class Builtin {
 			),
 			array(
 				'name'       => 'term_count',
-				'title'      => __( 'Term Count', 'sidcraft-syntex' ),
+				'title'      => __( 'Term Count', 'sidcraft-page-builder' ),
 				'group'      => 'term',
 				'categories' => array( 'number', 'text' ),
 				'render'     => static function ( $s, $ctx ) {
@@ -410,13 +410,13 @@ class Builtin {
 			),
 			array(
 				'name'       => 'post_meta',
-				'title'      => __( 'Post Meta', 'sidcraft-syntex' ),
+				'title'      => __( 'Post Meta', 'sidcraft-page-builder' ),
 				'group'      => 'advanced',
 				'categories' => array( 'text', 'url', 'number', 'color', 'image', 'html' ),
 				'controls'   => array(
 					'key' => array(
 						'type'        => 'text',
-						'label'       => __( 'Meta Key', 'sidcraft-syntex' ),
+						'label'       => __( 'Meta Key', 'sidcraft-page-builder' ),
 						'placeholder' => 'custom_field',
 					),
 				),
@@ -455,13 +455,13 @@ class Builtin {
 			),
 			array(
 				'name'       => 'shortcode',
-				'title'      => __( 'Shortcode', 'sidcraft-syntex' ),
+				'title'      => __( 'Shortcode', 'sidcraft-page-builder' ),
 				'group'      => 'advanced',
 				'categories' => array( 'text', 'html' ),
 				'controls'   => array(
 					'shortcode' => array(
 						'type'        => 'textarea',
-						'label'       => __( 'Shortcode', 'sidcraft-syntex' ),
+						'label'       => __( 'Shortcode', 'sidcraft-page-builder' ),
 						'placeholder' => '[gallery]',
 					),
 				),
@@ -479,21 +479,21 @@ class Builtin {
 			),
 			array(
 				'name'       => 'request_parameter',
-				'title'      => __( 'Request Parameter', 'sidcraft-syntex' ),
+				'title'      => __( 'Request Parameter', 'sidcraft-page-builder' ),
 				'group'      => 'advanced',
 				'categories' => array( 'text', 'url', 'number' ),
 				'controls'   => array(
 					'key'    => array(
 						'type'        => 'text',
-						'label'       => __( 'Parameter', 'sidcraft-syntex' ),
+						'label'       => __( 'Parameter', 'sidcraft-page-builder' ),
 						'placeholder' => 'utm_source',
 					),
 					'source' => array(
 						'type'    => 'select',
-						'label'   => __( 'Source', 'sidcraft-syntex' ),
+						'label'   => __( 'Source', 'sidcraft-page-builder' ),
 						'options' => array(
-							'get'  => __( 'GET', 'sidcraft-syntex' ),
-							'post' => __( 'POST', 'sidcraft-syntex' ),
+							'get'  => __( 'GET', 'sidcraft-page-builder' ),
+							'post' => __( 'POST', 'sidcraft-page-builder' ),
 						),
 						'default' => 'get',
 					),

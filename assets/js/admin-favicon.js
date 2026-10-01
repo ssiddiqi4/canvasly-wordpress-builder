@@ -1,5 +1,5 @@
 (function () {
-	var href = window.sidcraftSyntexAdminIcon || '';
+	var href = window.sidcraftPageBuilderAdminIcon || '';
 	function apply() {
 		var head = document.head;
 		if (!head || !href) {

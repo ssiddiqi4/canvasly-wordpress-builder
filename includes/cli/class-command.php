@@ -1,12 +1,12 @@
 <?php
-namespace SidcraftSyntex\Cli;
+namespace SidcraftPageBuilder\Cli;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * `wp sidcraft-syntex` subcommands.
+ * `wp sidcraft-page-builder` subcommands.
  *
  * Methods are named for WP-CLI (underscores become hyphens).
  */
@@ -38,9 +38,9 @@ class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp sidcraft-syntex regenerate-css
-	 *     wp sidcraft-syntex regenerate-css --scope=global
-	 *     wp sidcraft-syntex regenerate-css --scope=post --id=12
+	 *     wp sidcraft-page-builder regenerate-css
+	 *     wp sidcraft-page-builder regenerate-css --scope=global
+	 *     wp sidcraft-page-builder regenerate-css --scope=post --id=12
 	 *
 	 * @when after_wp_load
 	 *
@@ -72,7 +72,7 @@ class Command {
 		self::ok(
 			sprintf(
 				/* translators: 1: files written, 2: posts processed, 3: failures */
-				__( 'Regenerated CSS (%1$d written, %2$d posts, %3$d failed).', 'sidcraft-syntex' ),
+				__( 'Regenerated CSS (%1$d written, %2$d posts, %3$d failed).', 'sidcraft-page-builder' ),
 				$written,
 				$posts,
 				$failed
@@ -90,8 +90,8 @@ class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp sidcraft-syntex flush-cache
-	 *     wp sidcraft-syntex flush-cache --id=12
+	 *     wp sidcraft-page-builder flush-cache
+	 *     wp sidcraft-page-builder flush-cache --id=12
 	 *
 	 * @when after_wp_load
 	 *
@@ -106,13 +106,13 @@ class Command {
 			self::ok(
 				sprintf(
 					/* translators: %d: post ID */
-					__( 'Flushed Sidcraft Syntex caches for post %d.', 'sidcraft-syntex' ),
+					__( 'Flushed Sidcraft Page Builder caches for post %d.', 'sidcraft-page-builder' ),
 					$id
 				)
 			);
 			return;
 		}
-		self::ok( __( 'Flushed Sidcraft Syntex caches site-wide.', 'sidcraft-syntex' ) );
+		self::ok( __( 'Flushed Sidcraft Page Builder caches site-wide.', 'sidcraft-page-builder' ) );
 	}
 
 	/**
@@ -131,8 +131,8 @@ class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp sidcraft-syntex replace-url https://staging.example.com https://www.example.com
-	 *     wp sidcraft-syntex replace-url https://old.test https://new.test --dry-run
+	 *     wp sidcraft-page-builder replace-url https://staging.example.com https://www.example.com
+	 *     wp sidcraft-page-builder replace-url https://old.test https://new.test --dry-run
 	 *
 	 * @when after_wp_load
 	 *
@@ -163,7 +163,7 @@ class Command {
 						'Dry run: %1$d replacement across %2$d item.',
 						'Dry run: %1$d replacements across %2$d items.',
 						$count,
-						'sidcraft-syntex'
+						'sidcraft-page-builder'
 					),
 					$count,
 					$posts
@@ -178,7 +178,7 @@ class Command {
 					'Replaced %1$d occurrence across %2$d item.',
 					'Replaced %1$d occurrences across %2$d items.',
 					$count,
-					'sidcraft-syntex'
+					'sidcraft-page-builder'
 				),
 				$count,
 				$posts
@@ -211,8 +211,8 @@ class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp sidcraft-syntex import ./sidcraft-syntex-kit.zip
-	 *     wp sidcraft-syntex import ./kit.json --mode=replace --skip-content
+	 *     wp sidcraft-page-builder import ./sidcraft-page-builder-kit.zip
+	 *     wp sidcraft-page-builder import ./kit.json --mode=replace --skip-content
 	 *
 	 * @when after_wp_load
 	 *
@@ -241,7 +241,7 @@ class Command {
 		self::ok(
 			sprintf(
 				/* translators: 1: templates, 2: content items, 3: mode */
-				__( 'Imported kit (%1$d templates, %2$d content, mode: %3$s).', 'sidcraft-syntex' ),
+				__( 'Imported kit (%1$d templates, %2$d content, mode: %3$s).', 'sidcraft-page-builder' ),
 				(int) ( $out['templates'] ?? 0 ),
 				(int) ( $out['content'] ?? 0 ),
 				(string) ( $out['mode'] ?? 'merge' )
@@ -277,8 +277,8 @@ class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp sidcraft-syntex export
-	 *     wp sidcraft-syntex export ./kit.zip --content --content-ids=12,15
+	 *     wp sidcraft-page-builder export
+	 *     wp sidcraft-page-builder export ./kit.zip --content --content-ids=12,15
 	 *
 	 * @when after_wp_load
 	 *
@@ -307,14 +307,14 @@ class Command {
 		self::ok(
 			sprintf(
 				/* translators: %s: file path */
-				__( 'Exported kit to %s.', 'sidcraft-syntex' ),
+				__( 'Exported kit to %s.', 'sidcraft-page-builder' ),
 				(string) ( $out['path'] ?? '' )
 			)
 		);
 	}
 
 	/**
-	 * Convert stored third-party builder JSON into Sidcraft Syntex documents.
+	 * Convert stored third-party builder JSON into Sidcraft Page Builder documents.
 	 *
 	 * ## OPTIONS
 	 *
@@ -325,12 +325,12 @@ class Command {
 	 * : Report mapping without saving.
 	 *
 	 * [--force]
-	 * : Overwrite an existing Sidcraft Syntex document on the same post.
+	 * : Overwrite an existing Sidcraft Page Builder document on the same post.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp sidcraft-syntex convert --dry-run
-	 *     wp sidcraft-syntex convert --ids=12,15 --force
+	 *     wp sidcraft-page-builder convert --dry-run
+	 *     wp sidcraft-page-builder convert --ids=12,15 --force
 	 *
 	 * @when after_wp_load
 	 *
@@ -355,7 +355,7 @@ class Command {
 			self::ok(
 				sprintf(
 					/* translators: %d: number of posts */
-					_n( 'Dry run finished for %d item.', 'Dry run finished for %d items.', $count, 'sidcraft-syntex' ),
+					_n( 'Dry run finished for %d item.', 'Dry run finished for %d items.', $count, 'sidcraft-page-builder' ),
 					$count
 				)
 			);
@@ -364,7 +364,7 @@ class Command {
 		self::ok(
 			sprintf(
 				/* translators: %d: number of converted posts */
-				_n( 'Converted %d item.', 'Converted %d items.', $count, 'sidcraft-syntex' ),
+				_n( 'Converted %d item.', 'Converted %d items.', $count, 'sidcraft-page-builder' ),
 				$count
 			)
 		);

@@ -1,7 +1,7 @@
 <?php
-namespace SidcraftSyntex\Units;
+namespace SidcraftPageBuilder\Units;
 
-use SidcraftSyntex\Embed\OEmbed;
+use SidcraftPageBuilder\Embed\OEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,7 +12,7 @@ class Html extends Unit {
 		return 'html';
 	}
 	public function title() {
-		return __( 'HTML', 'sidcraft-syntex' );
+		return __( 'HTML', 'sidcraft-page-builder' );
 	}
 	public function icon() {
 		return '<>';
@@ -35,10 +35,10 @@ class Html extends Unit {
 				return '<div class="' . $this->cls( $s ) . ' lb-html lb-html-embed">' . $html . '</div>';
 			}
 		}
-		if ( class_exists( '\\SidcraftSyntex\\Controls\\Code' ) ) {
-			$raw = \SidcraftSyntex\Controls\Code::sanitize_html( $raw );
-		} elseif ( class_exists( '\\SidcraftSyntex\\Templates\\ThemeChrome' ) ) {
-			$raw = \SidcraftSyntex\Templates\ThemeChrome::safe_html( $raw );
+		if ( class_exists( '\\SidcraftPageBuilder\\Controls\\Code' ) ) {
+			$raw = \SidcraftPageBuilder\Controls\Code::sanitize_html( $raw );
+		} elseif ( class_exists( '\\SidcraftPageBuilder\\Templates\\ThemeChrome' ) ) {
+			$raw = \SidcraftPageBuilder\Templates\ThemeChrome::safe_html( $raw );
 		}
 		return '<div class="' . $this->cls( $s ) . ' lb-html">' . $raw . '</div>';
 	}

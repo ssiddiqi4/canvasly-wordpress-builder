@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\API;
+namespace SidcraftPageBuilder\API;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -34,7 +34,7 @@ class Capabilities {
 		if ( self::can_edit_theme_options() ) {
 			return true;
 		}
-		return self::forbidden( __('You do not have permission to modify layouts.', 'sidcraft-syntex') );
+		return self::forbidden( __('You do not have permission to modify layouts.', 'sidcraft-page-builder') );
 	}
 
 	/**
@@ -50,11 +50,11 @@ class Capabilities {
 			return $gate;
 		}
 		$id = self::request_id( $request );
-		if ( $id && class_exists( '\SidcraftSyntex\Document\Documents' ) && ! \SidcraftSyntex\Document\Documents::supports_post( $id ) ) {
-			return self::forbidden( __('Sidcraft Syntex is not enabled for this post type.', 'sidcraft-syntex') );
+		if ( $id && class_exists( '\SidcraftPageBuilder\Document\Documents' ) && ! \SidcraftPageBuilder\Document\Documents::supports_post( $id ) ) {
+			return self::forbidden( __('Sidcraft Page Builder is not enabled for this post type.', 'sidcraft-page-builder') );
 		}
 		if ( $id && ! current_user_can( 'edit_post', $id ) ) {
-			return self::forbidden( __('You cannot edit this layout document.', 'sidcraft-syntex') );
+			return self::forbidden( __('You cannot edit this layout document.', 'sidcraft-page-builder') );
 		}
 		return true;
 	}
@@ -67,14 +67,14 @@ class Capabilities {
 	 */
 	public static function authorize_layout_mutation( $post_id = 0 ) {
 		if ( ! self::can_edit_theme_options() ) {
-			return self::forbidden( __('You do not have permission to modify layouts.', 'sidcraft-syntex') );
+			return self::forbidden( __('You do not have permission to modify layouts.', 'sidcraft-page-builder') );
 		}
 		$post_id = absint( $post_id );
-		if ( $post_id && class_exists( '\SidcraftSyntex\Document\Documents' ) && ! \SidcraftSyntex\Document\Documents::supports_post( $post_id ) ) {
-			return self::forbidden( __('Sidcraft Syntex is not enabled for this post type.', 'sidcraft-syntex') );
+		if ( $post_id && class_exists( '\SidcraftPageBuilder\Document\Documents' ) && ! \SidcraftPageBuilder\Document\Documents::supports_post( $post_id ) ) {
+			return self::forbidden( __('Sidcraft Page Builder is not enabled for this post type.', 'sidcraft-page-builder') );
 		}
 		if ( $post_id && ! current_user_can( 'edit_post', $post_id ) ) {
-			return self::forbidden( __('You cannot edit this layout document.', 'sidcraft-syntex') );
+			return self::forbidden( __('You cannot edit this layout document.', 'sidcraft-page-builder') );
 		}
 		return true;
 	}

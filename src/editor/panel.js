@@ -477,7 +477,7 @@ function installPanel() {
           .map((e) =>
             (() => {
               const locked = app.proUnitLocked(e);
-              const hint = locked ? app.t("Sidcraft Syntex Pro license required") : app.t("Double-click to add");
+              const hint = locked ? app.t("Sidcraft Page Builder Pro license required") : app.t("Double-click to add");
               return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "\u25A1")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\u2605" : "\u2606"}</b></button>`;
             })(),
           )
@@ -507,7 +507,7 @@ function installPanel() {
   app.openIconLibrary = function openIconLibrary() {
     const icons = app.D.icons || [];
     app.showModal(
-      app.t("Sidcraft Syntex Icon Manager"),
+      app.t("Sidcraft Page Builder Icon Manager"),
       `<input class="lb-modal-search" id="lb-icon-search" placeholder="${app.t("Search icons\u2026")}"><div class="lb-form-row"><input id="lb-icon-id" placeholder="${app.t("ID")}"><input id="lb-icon-title" placeholder="${app.t("Title")}"><input id="lb-icon-category" placeholder="${app.t("Category")}" value="Custom"><textarea id="lb-icon-svg" rows="2" placeholder="<svg viewBox=...>...</svg>"></textarea><button class="lb-btn primary" id="lb-icon-add">${app.t("Add SVG")}</button></div><div class="lb-icon-grid">${icons.map((i) => `<button class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" title="${app.esc(i.title)}"><span>${i.svg}</span><small>${app.esc(i.title)}</small></button>`).join("")}</div>`,
       () => {
         app.$("#lb-icon-search")?.addEventListener("input", (e) => {
@@ -639,7 +639,7 @@ function installPanel() {
       const d = await r.json();
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-      a.download = "sidcraft-syntex-design-system.json";
+      a.download = "sidcraft-page-builder-design-system.json";
       a.click();
       URL.revokeObjectURL(a.href);
     });
@@ -2059,7 +2059,7 @@ function installPanel() {
   };
   app.addNewPage = async function addNewPage() {
     const input = document.getElementById("lb-new-page-title");
-    const title = (input?.value || "").trim() || "Sidcraft Syntex Page";
+    const title = (input?.value || "").trim() || "Sidcraft Page Builder Page";
     const button = document.getElementById("lb-create-page");
     if (button) {
       button.disabled = true;
@@ -2073,7 +2073,7 @@ function installPanel() {
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data.id) throw new Error(data?.message || "WordPress could not create the page.");
-      window.location.href = data.url || `${app.D.adminUrl}admin.php?page=sidcraft-syntex&post_id=${data.id}`;
+      window.location.href = data.url || `${app.D.adminUrl}admin.php?page=sidcraft-page-builder&post_id=${data.id}`;
     } catch (e) {
       const msg = document.getElementById("lb-new-page-error");
       if (msg) msg.textContent = e?.message || "Could not create the page.";
@@ -2093,7 +2093,7 @@ function installPanel() {
           app.openPageSettings();
         });
         document.getElementById("lb-open-add-page")?.addEventListener("click", () => {
-          const body = `<p>Create a new WordPress Page and open it directly in Sidcraft Syntex. This avoids leaving the Sidcraft Syntex workspace.</p><label class="lb-control"><span>Page title</span><input id="lb-new-page-title" value="Sidcraft Syntex Page" autofocus></label><div id="lb-new-page-error" class="lb-tinymce-error" aria-live="polite"></div><div class="lb-tinymce-actions"><button type="button" class="lb-btn" data-close-modal>Cancel</button><button type="button" class="lb-btn primary" id="lb-create-page">${app.t("Add Page")}</button></div>`;
+          const body = `<p>Create a new WordPress Page and open it directly in Sidcraft Page Builder. This avoids leaving the Sidcraft Page Builder workspace.</p><label class="lb-control"><span>Page title</span><input id="lb-new-page-title" value="Sidcraft Page Builder Page" autofocus></label><div id="lb-new-page-error" class="lb-tinymce-error" aria-live="polite"></div><div class="lb-tinymce-actions"><button type="button" class="lb-btn" data-close-modal>Cancel</button><button type="button" class="lb-btn primary" id="lb-create-page">${app.t("Add Page")}</button></div>`;
           app.showModal(app.t("Add New Page"), body, () => {
             document.getElementById("lb-create-page")?.addEventListener("click", app.addNewPage);
             document.getElementById("lb-new-page-title")?.addEventListener("keydown", (e) => {
@@ -2133,7 +2133,7 @@ function installPanel() {
       (b) =>
         (b.onclick = () => {
           const n = (app.D.navigation || []).find((x) => String(x.id) === String(b.dataset.navId));
-          if (n?.id) window.open(`${app.D.adminUrl}admin.php?page=sidcraft-syntex&post_id=${n.id}`, "_blank");
+          if (n?.id) window.open(`${app.D.adminUrl}admin.php?page=sidcraft-page-builder&post_id=${n.id}`, "_blank");
         }),
     );
   };
@@ -2307,16 +2307,16 @@ function installPanel() {
     app.menuOpen = true;
     const items = [
       ["site-settings", app.t("Site Settings"), app.t("Adjust page and site-wide editor settings.")],
-      ["theme-builder", app.t("Theme Builder"), app.t("Open Sidcraft Syntex theme-building tools.")],
+      ["theme-builder", app.t("Theme Builder"), app.t("Open Sidcraft Page Builder theme-building tools.")],
       ["notes", app.t("Notes"), app.t("Keep private notes for this page.")],
       ["preferences", app.t("User Preferences"), app.t("Configure editor preferences.")],
-      ["shortcuts", app.t("Keyboard Shortcuts"), app.t("View Sidcraft Syntex keyboard shortcuts.")],
+      ["shortcuts", app.t("Keyboard Shortcuts"), app.t("View Sidcraft Page Builder keyboard shortcuts.")],
       ["help", app.t("Help Center"), app.t("View help and editor guidance.")],
-      ["account", app.t("My Sidcraft Syntex"), app.t("Sidcraft Syntex account and product information.")],
+      ["account", app.t("My Sidcraft Page Builder"), app.t("Sidcraft Page Builder account and product information.")],
       ["exit", app.t("Exit to WordPress Dashboard"), app.t("Return to the WordPress dashboard.")],
     ];
-    const html = `<div class="lb-main-menu" role="menu" aria-label="${app.t("Sidcraft Syntex menu")}">
-   <div class="lb-main-menu-head"><strong>Sidcraft Syntex</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">\u00D7</button></div>
+    const html = `<div class="lb-main-menu" role="menu" aria-label="${app.t("Sidcraft Page Builder menu")}">
+   <div class="lb-main-menu-head"><strong>Sidcraft Page Builder</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">\u00D7</button></div>
    ${items.map((it, i) => `<button type="button" class="lb-main-menu-item ${it[0] === "exit" ? "is-exit" : ""}" data-main-menu="${it[0]}" role="menuitem"><span class="lb-menu-mark lb-menu-${it[0]}" aria-hidden="true">${i === 0 ? "\u2699" : i === 1 ? "\u25A4" : i === 2 ? "\u25A2" : i === 3 ? "\u25C9" : i === 4 ? "\u2328" : i === 5 ? "?" : i === 6 ? "\u25CE" : "\u21AA"}</span><span><b>${app.esc(it[1])}</b><small>${app.esc(it[2])}</small></span></button>`).join("")}
  </div>`;
     app.root.insertAdjacentHTML("beforeend", html);
@@ -2339,7 +2339,7 @@ function installPanel() {
     if (action === "theme-builder") {
       app.showMenuDialog(
         app.t("Theme Builder"),
-        '<p>Theme Builder is the Sidcraft Syntex workspace for site templates such as headers, footers, single posts, archives and other theme areas.</p><p class="lb-menu-note">The full Theme Builder is planned for the Pro module. Your current page remains open.</p>',
+        '<p>Theme Builder is the Sidcraft Page Builder workspace for site templates such as headers, footers, single posts, archives and other theme areas.</p><p class="lb-menu-note">The full Theme Builder is planned for the Pro module. Your current page remains open.</p>',
       );
       return;
     }
@@ -2392,14 +2392,14 @@ function installPanel() {
     if (action === "help") {
       app.showMenuDialog(
         app.t("Help Center"),
-        '<div class="lb-help"><p><strong>Getting started</strong></p><p>Choose a unit from the left panel, drag it onto the canvas, then edit its settings in the right panel.</p><p>Use the device controls for responsive editing. Use Navigator to select nested units.</p><p class="lb-menu-note">Sidcraft Syntex help documentation can be connected here as the documentation library grows.</p></div>',
+        '<div class="lb-help"><p><strong>Getting started</strong></p><p>Choose a unit from the left panel, drag it onto the canvas, then edit its settings in the right panel.</p><p>Use the device controls for responsive editing. Use Navigator to select nested units.</p><p class="lb-menu-note">Sidcraft Page Builder help documentation can be connected here as the documentation library grows.</p></div>',
       );
       return;
     }
     if (action === "account") {
       app.showMenuDialog(
-        app.t("My Sidcraft Syntex"),
-        '<p><strong>Sidcraft Syntex account</strong></p><p>Account, licensing and product services will be available here when the Sidcraft Syntex account service is enabled.</p><p class="lb-menu-note">Core editing does not require an account.</p>',
+        app.t("My Sidcraft Page Builder"),
+        '<p><strong>Sidcraft Page Builder account</strong></p><p>Account, licensing and product services will be available here when the Sidcraft Page Builder account service is enabled.</p><p class="lb-menu-note">Core editing does not require an account.</p>',
       );
       return;
     }
@@ -2495,7 +2495,7 @@ function installPanel() {
     app.closeContextMenu();
     if (app.lbPaintCanvas()) return;
     const both = app.leftHidden && app.rightHidden;
-    app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Sidcraft Syntex menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Sidcraft Syntex</span><small>Core ${app.esc((app.D && app.D.version) || "")}</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">\u21B6</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">\u21B7</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftHidden ? 0 : app.leftWidth}px;--lb-right-width:${app.rightHidden ? 0 : app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "\u203A" : "\u2039"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units\u2026")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">\u00D7</button></div><div class="lb-categories">${app
+    app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Sidcraft Page Builder menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Sidcraft Page Builder</span><small>Core ${app.esc((app.D && app.D.version) || "")}</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">\u21B6</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">\u21B7</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftHidden ? 0 : app.leftWidth}px;--lb-right-width:${app.rightHidden ? 0 : app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "\u203A" : "\u2039"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units\u2026")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">\u00D7</button></div><div class="lb-categories">${app
       .unitCategories()
       .map(
         (c) =>
@@ -2503,7 +2503,7 @@ function installPanel() {
       )
       .join(
         "",
-      )}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Sidcraft Syntex isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "\u2039" : "\u203A"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
+      )}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Sidcraft Page Builder isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "\u2039" : "\u203A"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
     app.bind();
     const frame = document.getElementById("lb-editor-frame");
     if (frame) {
@@ -2517,7 +2517,7 @@ function installPanel() {
       try {
         frame.srcdoc = app.frameHTML();
       } catch (err) {
-        if (window.console) console.error("[Sidcraft Syntex] canvas render failed", err);
+        if (window.console) console.error("[Sidcraft Page Builder] canvas render failed", err);
         frame.srcdoc =
           '<!doctype html><html><body style="margin:24px;font:14px/1.4 system-ui,sans-serif;color:#1d2327">The canvas could not be drawn. Reload the editor. If this page was just converted, open it again after saving.</body></html>';
       }

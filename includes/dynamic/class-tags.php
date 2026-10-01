@@ -1,20 +1,20 @@
 <?php
-namespace SidcraftSyntex\Dynamic;
+namespace SidcraftPageBuilder\Dynamic;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 if ( ! class_exists( __NAMESPACE__ . '\\Tag', false ) ) {
-	$sidcraft_syntex_tag_file = __DIR__ . '/class-tag.php';
-	if ( is_readable( $sidcraft_syntex_tag_file ) ) {
-		require_once $sidcraft_syntex_tag_file;
+	$sidcraft_page_builder_tag_file = __DIR__ . '/class-tag.php';
+	if ( is_readable( $sidcraft_page_builder_tag_file ) ) {
+		require_once $sidcraft_page_builder_tag_file;
 	}
 }
 
 /**
  * Dynamic tag registry.
  *
- * Fire `sidcraft-syntex/dynamic_tags/register` with this instance after built-ins are loaded.
+ * Fire `sidcraft-page-builder/dynamic_tags/register` with this instance after built-ins are loaded.
  * Add-ons call `$tags->register( array|Tag )` / `$tags->unregister( $name )`.
  */
 class Tags {
@@ -48,7 +48,7 @@ class Tags {
 			Builtin::register( $this );
 		}
 		if ( function_exists( 'do_action' ) ) {
-			do_action( 'sidcraft-syntex/dynamic_tags/register', $this );
+			do_action( 'sidcraft-page-builder/dynamic_tags/register', $this );
 		}
 		return $this;
 	}
@@ -146,16 +146,16 @@ class Tags {
 	/** Group slug => label. */
 	public function groups() {
 		$groups = array(
-			'post'    => function_exists( '__' ) ? __( 'Post', 'sidcraft-syntex' ) : 'Post',
-			'author'  => function_exists( '__' ) ? __( 'Author', 'sidcraft-syntex' ) : 'Author',
-			'site'    => function_exists( '__' ) ? __( 'Site', 'sidcraft-syntex' ) : 'Site',
-			'user'    => function_exists( '__' ) ? __( 'Current User', 'sidcraft-syntex' ) : 'Current User',
-			'archive' => function_exists( '__' ) ? __( 'Archive', 'sidcraft-syntex' ) : 'Archive',
-			'term'    => function_exists( '__' ) ? __( 'Term', 'sidcraft-syntex' ) : 'Term',
-			'advanced'=> function_exists( '__' ) ? __( 'Advanced', 'sidcraft-syntex' ) : 'Advanced',
+			'post'    => function_exists( '__' ) ? __( 'Post', 'sidcraft-page-builder' ) : 'Post',
+			'author'  => function_exists( '__' ) ? __( 'Author', 'sidcraft-page-builder' ) : 'Author',
+			'site'    => function_exists( '__' ) ? __( 'Site', 'sidcraft-page-builder' ) : 'Site',
+			'user'    => function_exists( '__' ) ? __( 'Current User', 'sidcraft-page-builder' ) : 'Current User',
+			'archive' => function_exists( '__' ) ? __( 'Archive', 'sidcraft-page-builder' ) : 'Archive',
+			'term'    => function_exists( '__' ) ? __( 'Term', 'sidcraft-page-builder' ) : 'Term',
+			'advanced'=> function_exists( '__' ) ? __( 'Advanced', 'sidcraft-page-builder' ) : 'Advanced',
 		);
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'sidcraft-syntex/dynamic_tags/groups', $groups );
+			$filtered = apply_filters( 'sidcraft-page-builder/dynamic_tags/groups', $groups );
 			if ( is_array( $filtered ) ) {
 				$groups = $filtered;
 			}
@@ -165,12 +165,12 @@ class Tags {
 
 	public function category_labels() {
 		return array(
-			'text'   => function_exists( '__' ) ? __( 'Text', 'sidcraft-syntex' ) : 'Text',
-			'url'    => function_exists( '__' ) ? __( 'URL', 'sidcraft-syntex' ) : 'URL',
-			'image'  => function_exists( '__' ) ? __( 'Image', 'sidcraft-syntex' ) : 'Image',
-			'number' => function_exists( '__' ) ? __( 'Number', 'sidcraft-syntex' ) : 'Number',
-			'color'  => function_exists( '__' ) ? __( 'Color', 'sidcraft-syntex' ) : 'Color',
-			'html'   => function_exists( '__' ) ? __( 'HTML', 'sidcraft-syntex' ) : 'HTML',
+			'text'   => function_exists( '__' ) ? __( 'Text', 'sidcraft-page-builder' ) : 'Text',
+			'url'    => function_exists( '__' ) ? __( 'URL', 'sidcraft-page-builder' ) : 'URL',
+			'image'  => function_exists( '__' ) ? __( 'Image', 'sidcraft-page-builder' ) : 'Image',
+			'number' => function_exists( '__' ) ? __( 'Number', 'sidcraft-page-builder' ) : 'Number',
+			'color'  => function_exists( '__' ) ? __( 'Color', 'sidcraft-page-builder' ) : 'Color',
+			'html'   => function_exists( '__' ) ? __( 'HTML', 'sidcraft-page-builder' ) : 'HTML',
 		);
 	}
 

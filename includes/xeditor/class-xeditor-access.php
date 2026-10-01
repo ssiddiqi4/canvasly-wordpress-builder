@@ -2,52 +2,52 @@
 /**
  * XEditor access controller (server side of the Pro guard).
  *
- * Loop Architecture elements are Sidcraft Syntex Pro features. This guard is the single
+ * Loop Architecture elements are Sidcraft Page Builder Pro features. This guard is the single
  * place that answers "may this node render / be edited?":
  *
- *   - Frontend: `sidcraft-syntex/unit/should_render` returns false for guarded nodes
+ *   - Frontend: `sidcraft-page-builder/unit/should_render` returns false for guarded nodes
  *     when Pro is not active, so nothing (wrapper, children, assets) is printed.
- *   - Editor:   the guard state is localized as `SidcraftSyntexData.xeditor.access`
+ *   - Editor:   the guard state is localized as `SidcraftPageBuilderData.xeditor.access`
  *     and the editor-side guard (assets/js/xeditor.js → XEditorAccess) blocks
  *     insert, select, drag and panel edits.
  *   - Data:     Lite registers lightweight placeholder units for the guarded types
  *     so saving a page while Pro is off never strips a user's loops.
  *
- * Pro reports its state through `SidcraftSyntexPro\License::is_active()`; add-ons or
- * tests can override with the `sidcraft-syntex/xeditor/pro_active` filter.
+ * Pro reports its state through `SidcraftPageBuilderPro\License::is_active()`; add-ons or
+ * tests can override with the `sidcraft-page-builder/xeditor/pro_active` filter.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\XEditor;
+namespace SidcraftPageBuilder\XEditor;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 class XEditorAccess {
-	/** Node types that require Sidcraft Syntex Pro. */
+	/** Node types that require Sidcraft Page Builder Pro. */
 	const GUARDED = array( 'xe_loop', 'xe_loop_layout', 'xe_loop_item' );
 
 	/** @var bool|null */
 	private static $memo = null;
 
 	public static function init() {
-		add_filter( 'sidcraft-syntex/unit/should_render', array( self::class, 'should_render' ), 5, 2 );
+		add_filter( 'sidcraft-page-builder/unit/should_render', array( self::class, 'should_render' ), 5, 2 );
 	}
 
 	/**
-	 * Mirrors `SidcraftSyntexPro.isActive()` in the editor.
+	 * Mirrors `SidcraftPageBuilderPro.isActive()` in the editor.
 	 *
 	 * @return bool
 	 */
 	public static function pro_active() {
 		if ( null === self::$memo ) {
 			$active = false;
-			if ( class_exists( '\\SidcraftSyntexPro\\License' ) && method_exists( '\\SidcraftSyntexPro\\License', 'is_active' ) ) {
-				$active = (bool) \SidcraftSyntexPro\License::is_active();
+			if ( class_exists( '\\SidcraftPageBuilderPro\\License' ) && method_exists( '\\SidcraftPageBuilderPro\\License', 'is_active' ) ) {
+				$active = (bool) \SidcraftPageBuilderPro\License::is_active();
 			}
-			self::$memo = (bool) apply_filters( 'sidcraft-syntex/xeditor/pro_active', $active );
+			self::$memo = (bool) apply_filters( 'sidcraft-page-builder/xeditor/pro_active', $active );
 		}
 		return self::$memo;
 	}
@@ -67,7 +67,7 @@ class XEditorAccess {
 
 	/** @return string[] */
 	public static function guarded_types() {
-		$types = apply_filters( 'sidcraft-syntex/xeditor/guarded_types', self::GUARDED );
+		$types = apply_filters( 'sidcraft-page-builder/xeditor/guarded_types', self::GUARDED );
 		return array_values( array_filter( array_map( 'sanitize_key', (array) $types ) ) );
 	}
 
@@ -118,8 +118,8 @@ class XEditorAccess {
 		return array(
 			'proActive' => self::pro_active(),
 			'guarded'   => self::guarded_types(),
-			'message'   => __( 'XEditor Loop is a Sidcraft Syntex Pro feature. Activate a Pro license to insert, edit or render it.', 'sidcraft-syntex' ),
-			'upgrade'   => function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=sidcraft-syntex-pro-licensing' ) : '',
+			'message'   => __( 'XEditor Loop is a Sidcraft Page Builder Pro feature. Activate a Pro license to insert, edit or render it.', 'sidcraft-page-builder' ),
+			'upgrade'   => function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=sidcraft-page-builder-pro-licensing' ) : '',
 		);
 	}
 }

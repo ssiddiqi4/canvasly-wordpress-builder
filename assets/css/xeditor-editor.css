@@ -1,4 +1,4 @@
-/* Sidcraft Syntex XEditor — editor UI (parent document). Canvas styles are injected into the iframe by xeditor.js. */
+/* Sidcraft Page Builder XEditor — editor UI (parent document). Canvas styles are injected into the iframe by xeditor.js. */
 :root{--xe-accent:#e2498a;--xe-accent-soft:#fbe8f1;--xe-ink:#1d2327;--xe-muted:#646970;--xe-line:#dcdfe4;--xe-bg:#fff}
 
 /* Structural loop parts are inserted by the Loop preset, not from the palette. */

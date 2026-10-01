@@ -2,10 +2,10 @@
 /**
  * XEditor Div Block: the universal single-element box. Holds children.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\XEditor\Elements;
+namespace SidcraftPageBuilder\XEditor\Elements;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,7 +19,7 @@ class XeDivBlock extends XEditorElement {
 	}
 
 	public function title() {
-		return __( 'Div Block', 'sidcraft-syntex' );
+		return __( 'Div Block', 'sidcraft-page-builder' );
 	}
 
 	public function icon() {
@@ -43,11 +43,11 @@ class XeDivBlock extends XEditorElement {
 	}
 
 	protected function own_controls() {
-		$sec = __( 'Element', 'sidcraft-syntex' );
+		$sec = __( 'Element', 'sidcraft-page-builder' );
 		return array(
 			'tag'     => $this->tag_control( $sec ),
-			'link'    => $this->ctrl( 'url', __( 'Link', 'sidcraft-syntex' ), 'content', $sec, array( 'condition' => array( 'tag' => 'a' ), 'dynamic' => true, 'placeholder' => 'https:// or {{post.url}}' ) ),
-			'new_tab' => $this->ctrl( 'switch', __( 'Open in new tab', 'sidcraft-syntex' ), 'content', $sec, array( 'condition' => array( 'tag' => 'a' ) ) ),
+			'link'    => $this->ctrl( 'url', __( 'Link', 'sidcraft-page-builder' ), 'content', $sec, array( 'condition' => array( 'tag' => 'a' ), 'dynamic' => true, 'placeholder' => 'https:// or {{post.url}}' ) ),
+			'new_tab' => $this->ctrl( 'switch', __( 'Open in new tab', 'sidcraft-page-builder' ), 'content', $sec, array( 'condition' => array( 'tag' => 'a' ) ) ),
 		);
 	}
 

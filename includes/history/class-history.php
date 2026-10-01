@@ -1,3 +1,3 @@
 <?php
-namespace SidcraftSyntex\History;
+namespace SidcraftPageBuilder\History;
 class History { public static function init(){} }

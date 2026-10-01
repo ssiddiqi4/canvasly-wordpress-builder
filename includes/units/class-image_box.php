@@ -1,8 +1,8 @@
 <?php
-namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftPageBuilder\Units; if(!defined('ABSPATH')) exit;
 /** Image Box: image + title + description with image placement (top / left / right), media-library picker, link and hover animation. */
 class ImageBox extends Unit {
- public function type(){return 'image_box';} public function title(){return __('Image Box', 'sidcraft-syntex');} public function icon(){return "\u{25A3}";} public function category(){return 'media';}
+ public function type(){return 'image_box';} public function title(){return __('Image Box', 'sidcraft-page-builder');} public function icon(){return "\u{25A3}";} public function category(){return 'media';}
  public function keywords(){return ['image box','feature','card','image','box'];}
  public function defaults(){return ['image_id'=>0,'image_url'=>'','image_size'=>'large','alt'=>'','title'=>'This is the heading','title_tag'=>'h3','text'=>'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.','link'=>'','link_target'=>'_self','box_layout'=>'top','content_align'=>'center','vertical_align'=>'top','image_width'=>'','image_space'=>15,'title_space'=>10,'image_radius'=>'','image_opacity'=>'','image_hover_opacity'=>'','title_color'=>'#222222','title_hover_color'=>'','text_color'=>'','hover_animation'=>''];}
  public function controls(){return ['image_id'=>'media','image_url'=>'url','image_size'=>'select','alt'=>'text','title'=>'text','title_tag'=>'select','text'=>'wysiwyg','link'=>'url','link_target'=>'select','box_layout'=>'select','content_align'=>'select','vertical_align'=>'select','image_width'=>'text','image_space'=>'number','title_space'=>'number','image_radius'=>'number','image_opacity'=>'number','image_hover_opacity'=>'number','title_color'=>'color','title_hover_color'=>'color','text_color'=>'color','hover_animation'=>'select'];}
@@ -17,7 +17,7 @@ class ImageBox extends Unit {
   $id=absint($s['image_id']??0); $size=sanitize_key($s['image_size']??'large');
   $url=$this->media_url($id,$s['image_url']??'',$size);
   $alt=(string)($s['alt']??''); if($alt===''&&$id)$alt=(string)get_post_meta($id,'_wp_attachment_image_alt',true);
-  $img=$url?'<img class="lb-image-box-img'.$this->hover_class($s).'" src="'.esc_url($url).'" alt="'.esc_attr($alt).'" loading="lazy">':'<span class="lb-image-placeholder">'.esc_html__('Choose an image', 'sidcraft-syntex').'</span>';
+  $img=$url?'<img class="lb-image-box-img'.$this->hover_class($s).'" src="'.esc_url($url).'" alt="'.esc_attr($alt).'" loading="lazy">':'<span class="lb-image-placeholder">'.esc_html__('Choose an image', 'sidcraft-page-builder').'</span>';
   if($link&&$url)$img='<a href="'.$link.'"'.$t.' tabindex="-1" aria-hidden="true">'.$img.'</a>';
   $title=esc_html($s['title']??''); if($link)$title='<a href="'.$link.'"'.$t.'>'.$title.'</a>';
   $out='<div class="'.$this->cls($s).' lb-image-box lb-image-box-'.$layout.' lb-image-box-align-'.$align.' lb-image-box-valign-'.$valign.'"'.$vars.'>';

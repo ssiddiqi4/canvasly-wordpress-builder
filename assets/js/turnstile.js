@@ -1,11 +1,11 @@
-/*! Sidcraft Syntex — Cloudflare Turnstile loader (explicit rendering + submit gate). */
+/*! Sidcraft Page Builder — Cloudflare Turnstile loader (explicit rendering + submit gate). */
 (function () {
 	'use strict';
 	var FIELD = 'cf-turnstile-response';
 	var ids = [];
 	var BUTTONS = 'button[type="submit"], button:not([type]), input[type="submit"], input[type="image"], .cp-pay-gateway, [data-lb-turnstile-lock]';
 
-	/** Standalone Turnstile unit: the Sidcraft Syntex form(s) in the nearest container that holds both. */
+	/** Standalone Turnstile unit: the Sidcraft Page Builder form(s) in the nearest container that holds both. */
 	function scopeForms(el) {
 		var node = el.closest('.lb-node, .xe-node') || el;
 		var scope = node.parentElement;
@@ -79,7 +79,7 @@
 		if (!window.turnstile || typeof window.turnstile.render !== 'function') return;
 		(root || document).querySelectorAll('.lb-turnstile[data-sitekey]').forEach(function (el) {
 			if (el.getAttribute('data-lb-rendered')) return;
-			// Widgets inside a hidden tab or panel render when it is shown (see SidcraftSyntexTurnstile.render).
+			// Widgets inside a hidden tab or panel render when it is shown (see SidcraftPageBuilderTurnstile.render).
 			if (el.closest('[hidden]')) return;
 			el.setAttribute('data-lb-rendered', '1');
 			var opts = {
@@ -114,7 +114,7 @@
 		});
 	}
 
-	/** A standalone Turnstile unit protects the Sidcraft Syntex form(s) in the same container. */
+	/** A standalone Turnstile unit protects the Sidcraft Page Builder form(s) in the same container. */
 	function tokenFromSibling(form) {
 		var node = form.closest('.lb-node, .xe-node') || form;
 		var scope = node.parentElement;
@@ -137,7 +137,7 @@
 		return false;
 	}
 
-	// Capture phase: runs before the Sidcraft Syntex form handler builds its FormData.
+	// Capture phase: runs before the Sidcraft Page Builder form handler builds its FormData.
 	document.addEventListener(
 		'submit',
 		function (e) {
@@ -182,7 +182,7 @@
 		true
 	);
 
-	window.SidcraftSyntexTurnstile = {
+	window.SidcraftPageBuilderTurnstile = {
 		render: render,
 		lock: lock,
 		/** Current token of the widget inside `root` (a form), or ''. */
@@ -207,7 +207,7 @@
 			});
 		},
 	};
-	window.sidcraftSyntexTurnstileReady = function () {
+	window.sidcraftPageBuilderTurnstileReady = function () {
 		render(document);
 	};
 	(function style() {
@@ -225,9 +225,9 @@
 	} else {
 		render(document);
 	}
-	if (window.SidcraftSyntexFrontend) {
-		var prev = window.SidcraftSyntexFrontend.init;
-		window.SidcraftSyntexFrontend.init = function (root) {
+	if (window.SidcraftPageBuilderFrontend) {
+		var prev = window.SidcraftPageBuilderFrontend.init;
+		window.SidcraftPageBuilderFrontend.init = function (root) {
 			if (typeof prev === 'function') prev(root);
 			render(root || document);
 		};

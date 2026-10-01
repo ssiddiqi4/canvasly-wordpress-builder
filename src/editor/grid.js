@@ -3737,7 +3737,7 @@ function installGrid() {
       .then((d) => {
         const a = document.createElement("a");
         a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-        a.download = `sidcraft-syntex-${app.D.postId || "document"}.json`;
+        a.download = `sidcraft-page-builder-${app.D.postId || "document"}.json`;
         a.click();
         setTimeout(() => URL.revokeObjectURL(a.href), 1e3);
       })
@@ -3760,7 +3760,7 @@ function installGrid() {
           app.selected = null;
           app.render();
         } catch (e) {
-          alert(app.t("Invalid Sidcraft Syntex document."));
+          alert(app.t("Invalid Sidcraft Page Builder document."));
         }
       };
       rd.readAsText(f);
@@ -3842,7 +3842,7 @@ function installGrid() {
       if (app.applyCanvasWidth) app.applyCanvasWidth();
       return;
     }
-    top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Sidcraft Syntex menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Sidcraft Syntex</span><small>Core ${app.esc((app.D && app.D.version) || "")}</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">\u21B6</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">\u21B7</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">\u2637</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">\u22EE</button></div>`;
+    top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Sidcraft Page Builder menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Sidcraft Page Builder</span><small>Core ${app.esc((app.D && app.D.version) || "")}</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">\u21B6</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">\u21B7</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">\u2637</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">\u22EE</button></div>`;
     app.$("#lb-main-menu-button").onclick = (e) => {
       e.stopPropagation();
       app.openMainMenu();
@@ -4057,7 +4057,7 @@ function installGrid() {
             update: (v) => app.update(w.dataset.lbKey, v),
           });
         } catch (e) {
-          console.error('[Sidcraft Syntex] control "' + w.dataset.lbControl + '" bind failed:', e);
+          console.error('[Sidcraft Page Builder] control "' + w.dataset.lbControl + '" bind failed:', e);
         }
       });
     };
@@ -4108,7 +4108,7 @@ function installGrid() {
         try {
           inner = String(def.render(ctx) ?? "");
         } catch (e) {
-          console.error('[Sidcraft Syntex] control "' + type + '" render failed:', e);
+          console.error('[Sidcraft Page Builder] control "' + type + '" render failed:', e);
         }
         html = `<div class="lb-ext-control" data-lb-control="${app.esc(type)}" data-lb-key="${app.esc(k)}">${inner}</div>`;
       } else html = lbExtOldControl(k, t3, v, label);
@@ -4129,7 +4129,7 @@ function installGrid() {
           node: app.LB.getNode(),
         });
       } catch (err) {
-        console.error('[Sidcraft Syntex] control "' + wrap.dataset.lbControl + '" read failed:', err);
+        console.error('[Sidcraft Page Builder] control "' + wrap.dataset.lbControl + '" read failed:', err);
         return;
       }
       if (v !== void 0) app.update(wrap.dataset.lbKey, v);

@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Theme;
+namespace SidcraftPageBuilder\Theme;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -8,10 +8,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Theme location registry and document display-rule slot (Step 0.4).
  *
- * Add-ons register location ids on `sidcraft-syntex/theme/locations`.
+ * Add-ons register location ids on `sidcraft-page-builder/theme/locations`.
  * Lite stores that registry and does not print a header, footer, or
  * other theme template. Kit and template export rows gain a `locations`
- * key only when `sidcraft-syntex/document/locations` returns rules.
+ * key only when `sidcraft-page-builder/document/locations` returns rules.
  */
 class Locations {
 	/** @var self|null */
@@ -65,7 +65,7 @@ class Locations {
 		 *
 		 * @param Locations $locations
 		 */
-		do_action( 'sidcraft-syntex/theme/locations', $this );
+		do_action( 'sidcraft-page-builder/theme/locations', $this );
 	}
 
 	/**
@@ -125,7 +125,7 @@ class Locations {
 	public static function for_document( $post_id, $document = array() ) {
 		$post_id  = absint( $post_id );
 		$document = is_array( $document ) ? $document : array();
-		$filtered = apply_filters( 'sidcraft-syntex/document/locations', array(), $post_id, $document );
+		$filtered = apply_filters( 'sidcraft-page-builder/document/locations', array(), $post_id, $document );
 		return is_array( $filtered ) ? $filtered : array();
 	}
 

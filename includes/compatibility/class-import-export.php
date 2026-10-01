@@ -1,12 +1,12 @@
 <?php
-namespace SidcraftSyntex\Compatibility;
+namespace SidcraftPageBuilder\Compatibility;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * WordPress Importer / Exporter compatibility for Sidcraft Syntex JSON meta.
+ * WordPress Importer / Exporter compatibility for Sidcraft Page Builder JSON meta.
  *
  * WXR exports raw database values. On import, WordPress unslashes then
  * `add_post_meta()` unslashes again. JSON documents with escaped quotes must

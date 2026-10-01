@@ -1,23 +1,23 @@
 <?php
-namespace SidcraftSyntex\Widgets;
+namespace SidcraftPageBuilder\Widgets;
 
-use SidcraftSyntex\Templates\SavedTemplates;
-use SidcraftSyntex\Templates\TemplateEmbed;
+use SidcraftPageBuilder\Templates\SavedTemplates;
+use SidcraftPageBuilder\Templates\TemplateEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Classic WordPress sidebar widget that embeds a saved Sidcraft Syntex template.
+ * Classic WordPress sidebar widget that embeds a saved Sidcraft Page Builder template.
  */
 class TemplateWidget extends \WP_Widget {
 	public function __construct() {
 		parent::__construct(
-			'sidcraft_syntex_template',
-			__( 'Sidcraft Syntex Template', 'sidcraft-syntex' ),
+			'sidcraft_page_builder_template',
+			__( 'Sidcraft Page Builder Template', 'sidcraft-page-builder' ),
 			array(
-				'description' => __( 'Display a saved Sidcraft Syntex template.', 'sidcraft-syntex' ),
+				'description' => __( 'Display a saved Sidcraft Page Builder template.', 'sidcraft-page-builder' ),
 			)
 		);
 	}
@@ -54,10 +54,10 @@ class TemplateWidget extends \WP_Widget {
 		$current  = absint( $instance['template_id'] ?? 0 );
 		$opts     = class_exists( SavedTemplates::class ) && method_exists( SavedTemplates::class, 'select_options' )
 			? SavedTemplates::select_options()
-			: array( '0' => __( 'Select a template', 'sidcraft-syntex' ) );
-		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Title', 'sidcraft-syntex' ) . '</label>';
+			: array( '0' => __( 'Select a template', 'sidcraft-page-builder' ) );
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Title', 'sidcraft-page-builder' ) . '</label>';
 		echo '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" type="text" value="' . esc_attr( $title ) . '"></p>';
-		echo '<p><label for="' . esc_attr( $this->get_field_id( 'template_id' ) ) . '">' . esc_html__( 'Saved Template', 'sidcraft-syntex' ) . '</label>';
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'template_id' ) ) . '">' . esc_html__( 'Saved Template', 'sidcraft-page-builder' ) . '</label>';
 		echo '<select class="widefat" id="' . esc_attr( $this->get_field_id( 'template_id' ) ) . '" name="' . esc_attr( $this->get_field_name( 'template_id' ) ) . '">';
 		foreach ( $opts as $value => $label ) {
 			echo '<option value="' . esc_attr( (string) $value ) . '"' . selected( $current, absint( $value ), false ) . '>' . esc_html( (string) $label ) . '</option>';

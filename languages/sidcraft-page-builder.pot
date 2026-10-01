@@ -1,8 +1,8 @@
-# Copyright (C) 2026 Sidcraft Syntex
+# Copyright (C) 2026 Sidcraft Page Builder
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Sidcraft Syntex 0.12.42\n"
+"Project-Id-Version: Sidcraft Page Builder 0.12.42\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-20 16:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -12,8 +12,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Sidcraft Syntex tools/i18n_build.py\n"
-"X-Domain: sidcraft-syntex\n"
+"X-Generator: Sidcraft Page Builder tools/i18n_build.py\n"
+"X-Domain: sidcraft-page-builder\n"
 
 
 #: includes/i18n/class-i18n.php:373 #: assets/js/editor.js:7848
@@ -625,7 +625,7 @@ msgid "Choose images for the carousel"
 msgstr ""
 
 #: includes/settings/class-global-settings.php:134
-msgid "Choose which public post types can be edited with Sidcraft Syntex. Posts and Pages are enabled by default; any public custom post type can be added."
+msgid "Choose which public post types can be edited with Sidcraft Page Builder. Posts and Pages are enabled by default; any public custom post type can be added."
 msgstr ""
 
 #: includes/elements/class-element.php:218 #: includes/elements/class-icon.php:13 #: includes/elements/class-social.php:47
@@ -757,7 +757,7 @@ msgid "Configure editor preferences."
 msgstr ""
 
 #: includes/settings/class-ai-connection.php:388
-msgid "Connect Sidcraft Syntex to a supported AI API. Only allowlisted HTTPS hosts can be stored; API keys are encrypted at rest and never sent to the editor."
+msgid "Connect Sidcraft Page Builder to a supported AI API. Only allowlisted HTTPS hosts can be stored; API keys are encrypted at rest and never sent to the editor."
 msgstr ""
 
 #: includes/settings/class-ai-connection.php:623
@@ -1128,8 +1128,8 @@ msgstr ""
 msgid "Edit Component"
 msgstr ""
 
-#: sidcraft-syntex.php:213 #: includes/bootstrap/class-plugin.php:36 #: includes/bootstrap/class-plugin.php:64 #: includes/bootstrap/class-plugin.php:72
-msgid "Edit with Sidcraft Syntex"
+#: sidcraft-page-builder.php:213 #: includes/bootstrap/class-plugin.php:36 #: includes/bootstrap/class-plugin.php:64 #: includes/bootstrap/class-plugin.php:72
+msgid "Edit with Sidcraft Page Builder"
 msgstr ""
 
 #: includes/i18n/class-i18n.php:341 #: assets/js/editor.js:3834
@@ -1165,7 +1165,7 @@ msgid "Email"
 msgstr ""
 
 #: includes/settings/class-ai-connection.php:435
-msgid "Enable a local Model Context Protocol endpoint so an authenticated AI agent can read Sidcraft Syntex layout documents. The agent uses the same WordPress capabilities as the administrator who created the token. Write tools are not registered."
+msgid "Enable a local Model Context Protocol endpoint so an authenticated AI agent can read Sidcraft Page Builder layout documents. The agent uses the same WordPress capabilities as the administrator who created the token. Write tools are not registered."
 msgstr ""
 
 #: includes/settings/class-global-settings.php:117
@@ -1581,7 +1581,7 @@ msgid "Hide On Widescreen"
 msgstr ""
 
 #: includes/i18n/class-i18n.php:446 #: assets/js/editor.js:10648
-msgid "Hides matching theme title elements on Sidcraft Syntex pages."
+msgid "Hides matching theme title elements on Sidcraft Page Builder pages."
 msgstr ""
 
 #: includes/elements/class-image.php:26
@@ -1809,7 +1809,7 @@ msgid "Interactions"
 msgstr ""
 
 #: includes/i18n/class-i18n.php:305 #: assets/js/editor.js:2737 #: assets/js/editor.js:6938
-msgid "Invalid Sidcraft Syntex document."
+msgid "Invalid Sidcraft Page Builder document."
 msgstr ""
 
 #: includes/settings/class-ai-connection.php:381
@@ -1981,7 +1981,7 @@ msgid "List"
 msgstr ""
 
 #: includes/api/class-mcp-host.php:154
-msgid "List Sidcraft Syntex layout documents this user can edit."
+msgid "List Sidcraft Page Builder layout documents this user can edit."
 msgstr ""
 
 #: includes/i18n/class-i18n.php:301 #: assets/js/editor.js:2690
@@ -2001,67 +2001,67 @@ msgid "Logo"
 msgstr ""
 
 #: includes/bootstrap/class-plugin.php:48 #: includes/bootstrap/class-plugin.php:64
-msgid "Sidcraft Syntex"
+msgid "Sidcraft Page Builder"
 msgstr ""
 
 #: includes/editor/class-editor.php:129
-msgid "Sidcraft Syntex %s"
+msgid "Sidcraft Page Builder %s"
 msgstr ""
 
 #: includes/i18n/class-i18n.php:213 #: assets/js/editor.js:1844
-msgid "Sidcraft Syntex account and product information."
+msgid "Sidcraft Page Builder account and product information."
 msgstr ""
 
 #: includes/bootstrap/class-plugin.php:67
-msgid "Sidcraft Syntex Components"
+msgid "Sidcraft Page Builder Components"
 msgstr ""
 
 #: includes/settings/class-global-settings.php:106
-msgid "Sidcraft Syntex Design System"
+msgid "Sidcraft Page Builder Design System"
 msgstr ""
 
 #: includes/editor/class-editor.php:127
-msgid "Sidcraft Syntex Draft"
+msgid "Sidcraft Page Builder Draft"
 msgstr ""
 
 #: includes/api/class-rest.php:48
-msgid "Sidcraft Syntex Form Submission"
+msgid "Sidcraft Page Builder Form Submission"
 msgstr ""
 
 #: includes/bootstrap/class-plugin.php:68
-msgid "Sidcraft Syntex Global Classes"
+msgid "Sidcraft Page Builder Global Classes"
 msgstr ""
 
 #: includes/i18n/class-i18n.php:328 #: assets/js/editor.js:3058
-msgid "Sidcraft Syntex Icon Library"
+msgid "Sidcraft Page Builder Icon Library"
 msgstr ""
 
 #: includes/i18n/class-i18n.php:153 #: assets/js/editor.js:1500
-msgid "Sidcraft Syntex Icon Manager"
+msgid "Sidcraft Page Builder Icon Manager"
 msgstr ""
 
 #: includes/api/class-capabilities.php:54 #: includes/api/class-capabilities.php:74 #: includes/editor/class-editor.php:134
-msgid "Sidcraft Syntex is not enabled for this post type."
+msgid "Sidcraft Page Builder is not enabled for this post type."
 msgstr ""
 
 #: includes/i18n/class-i18n.php:238 #: assets/js/editor.js:1950
-msgid "Sidcraft Syntex isolated canvas"
+msgid "Sidcraft Page Builder isolated canvas"
 msgstr ""
 
 #: includes/i18n/class-i18n.php:216 #: assets/js/editor.js:1847 #: assets/js/editor.js:1950 #: assets/js/editor.js:6984
-msgid "Sidcraft Syntex menu"
+msgid "Sidcraft Page Builder menu"
 msgstr ""
 
 #: includes/api/class-rest.php:37 #: includes/editor/class-editor.php:127
-msgid "Sidcraft Syntex Page"
+msgid "Sidcraft Page Builder Page"
 msgstr ""
 
 #: includes/editor/class-editor.php:128
-msgid "Sidcraft Syntex Post"
+msgid "Sidcraft Page Builder Post"
 msgstr ""
 
 #: includes/bootstrap/class-plugin.php:66
-msgid "Sidcraft Syntex Templates"
+msgid "Sidcraft Page Builder Templates"
 msgstr ""
 
 #: includes/elements/class-container.php:51
@@ -2085,7 +2085,7 @@ msgid "Manage Globals"
 msgstr ""
 
 #: includes/settings/class-global-settings.php:145
-msgid "Manage reusable classes from the Sidcraft Syntex editor. Current classes: "
+msgid "Manage reusable classes from the Sidcraft Page Builder editor. Current classes: "
 msgstr ""
 
 #: includes/elements/class-google_maps.php:3 #: includes/i18n/class-i18n.php:478
@@ -2229,7 +2229,7 @@ msgid "My Links"
 msgstr ""
 
 #: includes/i18n/class-i18n.php:212 #: assets/js/editor.js:1844 #: assets/js/editor.js:1898
-msgid "My Sidcraft Syntex"
+msgid "My Sidcraft Page Builder"
 msgstr ""
 
 #: includes/elements/class-progress.php:7
@@ -2309,7 +2309,7 @@ msgid "No globals yet."
 msgstr ""
 
 #: includes/editor/class-editor.php:122
-msgid "No post types are enabled for Sidcraft Syntex."
+msgid "No post types are enabled for Sidcraft Page Builder."
 msgstr ""
 
 #: includes/elements/class-element.php:224
@@ -2401,7 +2401,7 @@ msgid "Open In"
 msgstr ""
 
 #: includes/i18n/class-i18n.php:203 #: assets/js/editor.js:1839
-msgid "Open Sidcraft Syntex theme-building tools."
+msgid "Open Sidcraft Page Builder theme-building tools."
 msgstr ""
 
 #: includes/settings/class-ai-connection.php:30
@@ -2649,7 +2649,7 @@ msgid "Read More"
 msgstr ""
 
 #: includes/api/class-mcp-host.php:164
-msgid "Read one Sidcraft Syntex layout document by WordPress post ID."
+msgid "Read one Sidcraft Page Builder layout document by WordPress post ID."
 msgstr ""
 
 #: includes/api/class-mcp-host.php:175
@@ -3317,7 +3317,7 @@ msgid "The form could not be sent."
 msgstr ""
 
 #: includes/api/class-mcp-host.php:41
-msgid "The Sidcraft Syntex MCP host is disabled."
+msgid "The Sidcraft Page Builder MCP host is disabled."
 msgstr ""
 
 #: includes/settings/class-ai-connection.php:590
@@ -3473,7 +3473,7 @@ msgid "Undo (Ctrl/Cmd+Z)"
 msgstr ""
 
 #: includes/settings/class-global-settings.php:111
-msgid "Unlimited custom colors and typography presets are managed from Site Settings in the Sidcraft Syntex editor."
+msgid "Unlimited custom colors and typography presets are managed from Site Settings in the Sidcraft Page Builder editor."
 msgstr ""
 
 #: includes/i18n/class-i18n.php:398 #: assets/js/editor.js:9641 #: assets/js/editor.js:10388 #: assets/js/editor.js:10759
@@ -3561,7 +3561,7 @@ msgid "View help and editor guidance."
 msgstr ""
 
 #: includes/i18n/class-i18n.php:209 #: assets/js/editor.js:1842
-msgid "View Sidcraft Syntex keyboard shortcuts."
+msgid "View Sidcraft Page Builder keyboard shortcuts."
 msgstr ""
 
 #: includes/elements/class-element.php:210
@@ -3681,7 +3681,7 @@ msgid "You do not have permission to modify layouts."
 msgstr ""
 
 #: includes/editor/class-editor.php:124
-msgid "You do not have permission to use Sidcraft Syntex."
+msgid "You do not have permission to use Sidcraft Page Builder."
 msgstr ""
 
 #: includes/i18n/class-i18n.php:221 #: assets/js/editor.js:1902

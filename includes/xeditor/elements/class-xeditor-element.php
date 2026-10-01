@@ -11,14 +11,14 @@
  *
  * Subclasses implement type(), title(), icon(), own_controls() and markup().
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\XEditor\Elements;
+namespace SidcraftPageBuilder\XEditor\Elements;
 
-use SidcraftSyntex\Units\Unit;
-use SidcraftSyntex\XEditor\XEditorClassesManager;
-use SidcraftSyntex\XEditor\XEditorContext;
+use SidcraftPageBuilder\Units\Unit;
+use SidcraftPageBuilder\XEditor\XEditorClassesManager;
+use SidcraftPageBuilder\XEditor\XEditorContext;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -69,7 +69,7 @@ abstract class XEditorElement extends Unit {
 
 	public function styles( $settings = array() ) {
 		unset( $settings );
-		return array( 'sidcraft-syntex-xeditor' );
+		return array( 'sidcraft-page-builder-xeditor' );
 	}
 
 	public function controls() {
@@ -98,17 +98,17 @@ abstract class XEditorElement extends Unit {
 	 * @return array
 	 */
 	protected function local_style_controls() {
-		$sec = __( 'Local Style', 'sidcraft-syntex' );
+		$sec = __( 'Local Style', 'sidcraft-page-builder' );
 		$len = array( 'px', '%', 'em', 'rem', 'vw', 'vh' );
 		return array(
-			'xe_width'      => $this->ctrl( 'slider', __( 'Width', 'sidcraft-syntex' ), 'style', $sec, array( 'responsive' => true, 'units' => $len, 'range' => array( 'min' => 0, 'max' => 1600 ), 'selectors' => array( self::LOCAL => 'width: {{VALUE}};' ) ) ),
-			'xe_max_width'  => $this->ctrl( 'slider', __( 'Max Width', 'sidcraft-syntex' ), 'style', $sec, array( 'responsive' => true, 'units' => $len, 'range' => array( 'min' => 0, 'max' => 2000 ), 'selectors' => array( self::LOCAL => 'max-width: {{VALUE}};' ) ) ),
-			'xe_min_height' => $this->ctrl( 'slider', __( 'Min Height', 'sidcraft-syntex' ), 'style', $sec, array( 'responsive' => true, 'units' => $len, 'range' => array( 'min' => 0, 'max' => 1200 ), 'selectors' => array( self::LOCAL => 'min-height: {{VALUE}};' ) ) ),
-			'xe_padding'    => $this->ctrl( 'dimensions', __( 'Padding', 'sidcraft-syntex' ), 'style', $sec, array( 'responsive' => true, 'selectors' => array( self::LOCAL => 'padding: {{VALUE}};' ) ) ),
-			'xe_margin'     => $this->ctrl( 'dimensions', __( 'Margin', 'sidcraft-syntex' ), 'style', $sec, array( 'responsive' => true, 'selectors' => array( self::LOCAL => 'margin: {{VALUE}};' ) ) ),
-			'xe_color'      => $this->ctrl( 'color', __( 'Text Color', 'sidcraft-syntex' ), 'style', $sec, array( 'selectors' => array( self::LOCAL => 'color: {{VALUE}};' ) ) ),
-			'xe_background' => $this->ctrl( 'color', __( 'Background', 'sidcraft-syntex' ), 'style', $sec, array( 'selectors' => array( self::LOCAL => 'background-color: {{VALUE}};' ) ) ),
-			'xe_radius'     => $this->ctrl( 'dimensions', __( 'Border Radius', 'sidcraft-syntex' ), 'style', $sec, array( 'selectors' => array( self::LOCAL => 'border-radius: {{VALUE}};' ) ) ),
+			'xe_width'      => $this->ctrl( 'slider', __( 'Width', 'sidcraft-page-builder' ), 'style', $sec, array( 'responsive' => true, 'units' => $len, 'range' => array( 'min' => 0, 'max' => 1600 ), 'selectors' => array( self::LOCAL => 'width: {{VALUE}};' ) ) ),
+			'xe_max_width'  => $this->ctrl( 'slider', __( 'Max Width', 'sidcraft-page-builder' ), 'style', $sec, array( 'responsive' => true, 'units' => $len, 'range' => array( 'min' => 0, 'max' => 2000 ), 'selectors' => array( self::LOCAL => 'max-width: {{VALUE}};' ) ) ),
+			'xe_min_height' => $this->ctrl( 'slider', __( 'Min Height', 'sidcraft-page-builder' ), 'style', $sec, array( 'responsive' => true, 'units' => $len, 'range' => array( 'min' => 0, 'max' => 1200 ), 'selectors' => array( self::LOCAL => 'min-height: {{VALUE}};' ) ) ),
+			'xe_padding'    => $this->ctrl( 'dimensions', __( 'Padding', 'sidcraft-page-builder' ), 'style', $sec, array( 'responsive' => true, 'selectors' => array( self::LOCAL => 'padding: {{VALUE}};' ) ) ),
+			'xe_margin'     => $this->ctrl( 'dimensions', __( 'Margin', 'sidcraft-page-builder' ), 'style', $sec, array( 'responsive' => true, 'selectors' => array( self::LOCAL => 'margin: {{VALUE}};' ) ) ),
+			'xe_color'      => $this->ctrl( 'color', __( 'Text Color', 'sidcraft-page-builder' ), 'style', $sec, array( 'selectors' => array( self::LOCAL => 'color: {{VALUE}};' ) ) ),
+			'xe_background' => $this->ctrl( 'color', __( 'Background', 'sidcraft-page-builder' ), 'style', $sec, array( 'selectors' => array( self::LOCAL => 'background-color: {{VALUE}};' ) ) ),
+			'xe_radius'     => $this->ctrl( 'dimensions', __( 'Border Radius', 'sidcraft-page-builder' ), 'style', $sec, array( 'selectors' => array( self::LOCAL => 'border-radius: {{VALUE}};' ) ) ),
 		);
 	}
 
@@ -118,21 +118,21 @@ abstract class XEditorElement extends Unit {
 	 * @return array
 	 */
 	protected function typography_controls() {
-		$sec = __( 'Local Style', 'sidcraft-syntex' );
+		$sec = __( 'Local Style', 'sidcraft-page-builder' );
 		return array(
-			'xe_typography' => $this->ctrl( 'typography', __( 'Typography', 'sidcraft-syntex' ), 'style', $sec, array( 'selectors' => array( self::LOCAL => '{{VALUE}}' ) ) ),
+			'xe_typography' => $this->ctrl( 'typography', __( 'Typography', 'sidcraft-page-builder' ), 'style', $sec, array( 'selectors' => array( self::LOCAL => '{{VALUE}}' ) ) ),
 			'xe_align'      => $this->ctrl(
 				'choose',
-				__( 'Alignment', 'sidcraft-syntex' ),
+				__( 'Alignment', 'sidcraft-page-builder' ),
 				'style',
 				$sec,
 				array(
 					'responsive' => true,
 					'options'    => array(
-						'left'    => __( 'Left', 'sidcraft-syntex' ),
-						'center'  => __( 'Center', 'sidcraft-syntex' ),
-						'right'   => __( 'Right', 'sidcraft-syntex' ),
-						'justify' => __( 'Justify', 'sidcraft-syntex' ),
+						'left'    => __( 'Left', 'sidcraft-page-builder' ),
+						'center'  => __( 'Center', 'sidcraft-page-builder' ),
+						'right'   => __( 'Right', 'sidcraft-page-builder' ),
+						'justify' => __( 'Justify', 'sidcraft-page-builder' ),
 					),
 					'selectors'  => array( self::LOCAL => 'text-align: {{VALUE}};' ),
 				)
@@ -151,7 +151,7 @@ abstract class XEditorElement extends Unit {
 		foreach ( $this->tags() as $t ) {
 			$opts[ $t ] = strtoupper( $t );
 		}
-		return $this->ctrl( 'select', __( 'HTML Tag', 'sidcraft-syntex' ), 'content', $section, array( 'options' => $opts, 'default' => $this->tags()[0] ) );
+		return $this->ctrl( 'select', __( 'HTML Tag', 'sidcraft-page-builder' ), 'content', $section, array( 'options' => $opts, 'default' => $this->tags()[0] ) );
 	}
 
 	/**

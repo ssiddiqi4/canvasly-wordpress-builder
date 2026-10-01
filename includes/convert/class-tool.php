@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Convert;
+namespace SidcraftPageBuilder\Convert;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -9,13 +9,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Bulk convert tool: Tools screen, dry-run report, REST endpoints.
  */
 class Tool {
-	const NOTICE = 'sidcraft_syntex_convert_notice';
-	const REPORT = 'sidcraft_syntex_convert_report';
+	const NOTICE = 'sidcraft_page_builder_convert_notice';
+	const REPORT = 'sidcraft_page_builder_convert_report';
 
 	public static function init() {
-		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
-			add_action( 'sidcraft-syntex/tools/screen', array( self::class, 'screen' ) );
+			add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'screen' ) );
 			add_action( 'admin_post_sidsyn_convert', array( self::class, 'handle' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
 		}
@@ -36,8 +36,8 @@ class Tool {
 	public static function elementor_badge( $size = 'sm', $is_elementor = true ) {
 		$lg      = ( $size === 'lg' );
 		$label   = $is_elementor
-			? __( 'Elementor', 'sidcraft-syntex' )
-			: __( 'Raw data', 'sidcraft-syntex' );
+			? __( 'Elementor', 'sidcraft-page-builder' )
+			: __( 'Raw data', 'sidcraft-page-builder' );
 		$bg      = $is_elementor ? '#92003b' : '#6b7280';
 		$letter  = $is_elementor ? 'E' : '{ }';
 		$dim     = $lg ? '26px' : '18px';
@@ -48,7 +48,7 @@ class Tool {
 			$bg,
 			$font
 		);
-		return '<span class="sidcraft-syntex-elementor-badge" style="' . esc_attr( $style ) . '" title="' . esc_attr( $label ) . '" aria-hidden="true">' . esc_html( $letter ) . '</span>&nbsp;';
+		return '<span class="sidcraft-page-builder-elementor-badge" style="' . esc_attr( $style ) . '" title="' . esc_attr( $label ) . '" aria-hidden="true">' . esc_html( $letter ) . '</span>&nbsp;';
 	}
 
 	/**
@@ -68,7 +68,7 @@ class Tool {
 	}
 
 	/**
-	 * Duplicate a post so the Elementor->Sidcraft Syntex conversion can be written
+	 * Duplicate a post so the Elementor->Sidcraft Page Builder conversion can be written
 	 * to a brand-new draft rather than in place. Copies core post fields
 	 * plus every `_elementor_*` meta key (so the converter finds the same
 	 * source data on the copy) and `_wp_page_template`. Never touches the
@@ -83,8 +83,8 @@ class Tool {
 		if ( ! $src ) {
 			return 0;
 		}
-		$title  = ( $src->post_title !== '' ? $src->post_title : __( '(no title)', 'sidcraft-syntex' ) );
-		$title .= ' - ' . __( 'Sidcraft Syntex', 'sidcraft-syntex' );
+		$title  = ( $src->post_title !== '' ? $src->post_title : __( '(no title)', 'sidcraft-page-builder' ) );
+		$title .= ' - ' . __( 'Sidcraft Page Builder', 'sidcraft-page-builder' );
 		$status = sanitize_key( (string) ( $src->post_status ?? '' ) );
 		if ( ! in_array( $status, array( 'publish', 'private', 'pending', 'future', 'draft' ), true ) ) {
 			$status = 'draft';
@@ -139,7 +139,7 @@ class Tool {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-page-builder/v1';
 		register_rest_route(
 			$ns,
 			'/convert/candidates',
@@ -213,7 +213,7 @@ class Tool {
 
 	public static function handle() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can convert layout data.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'Only administrators can convert layout data.', 'sidcraft-page-builder' ) );
 		}
 		check_admin_referer( 'sidsyn_convert' );
 		$dry       = ( sanitize_key( wp_unslash( $_POST['mode'] ?? 'preview' ) ) !== 'run' );
@@ -255,23 +255,23 @@ class Tool {
 				'success',
 				sprintf(
 					/* translators: %d: number of posts in the dry-run */
-					_n( 'Dry run finished for %d item.', 'Dry run finished for %d items.', $count, 'sidcraft-syntex' ),
+					_n( 'Dry run finished for %d item.', 'Dry run finished for %d items.', $count, 'sidcraft-page-builder' ),
 					$count
 				)
 			);
 		} else {
 			$message = sprintf(
 				/* translators: %d: number of converted posts */
-				_n( 'Converted %d item.', 'Converted %d items.', $count, 'sidcraft-syntex' ),
+				_n( 'Converted %d item.', 'Converted %d items.', $count, 'sidcraft-page-builder' ),
 				$count
 			);
 			if ( $save_copy ) {
-				$message .= ' ' . __( 'Saved as new copies with the original status (original pages left untouched).', 'sidcraft-syntex' );
+				$message .= ' ' . __( 'Saved as new copies with the original status (original pages left untouched).', 'sidcraft-page-builder' );
 			}
 			if ( $copy_failed ) {
 				$message .= ' ' . sprintf(
 					/* translators: %d: number of posts that could not be duplicated */
-					_n( '%d item could not be duplicated and was skipped.', '%d items could not be duplicated and were skipped.', $copy_failed, 'sidcraft-syntex' ),
+					_n( '%d item could not be duplicated and was skipped.', '%d items could not be duplicated and were skipped.', $copy_failed, 'sidcraft-page-builder' ),
 					$copy_failed
 				);
 			}
@@ -297,10 +297,10 @@ class Tool {
 	}
 
 	public static function tools_url() {
-		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
-			return \SidcraftSyntex\Settings\AdminSettings::tools_or_settings_url();
+		if ( class_exists( '\\SidcraftPageBuilder\\Settings\\AdminSettings' ) ) {
+			return \SidcraftPageBuilder\Settings\AdminSettings::tools_or_settings_url();
 		}
-		return admin_url( 'admin.php?page=sidcraft-syntex-tools' );
+		return admin_url( 'admin.php?page=sidcraft-page-builder-tools' );
 	}
 
 	private static function store_notice( $type, $message ) {
@@ -316,7 +316,7 @@ class Tool {
 
 	public static function admin_notice() {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( ! $screen || ( $screen->id ?? '' ) !== 'sidcraft-syntex_page_sidcraft-syntex-tools' ) {
+		if ( ! $screen || ( $screen->id ?? '' ) !== 'sidcraft-page-builder_page_sidcraft-page-builder-tools' ) {
 			return;
 		}
 		$n = get_transient( self::NOTICE . '_' . get_current_user_id() );
@@ -338,12 +338,12 @@ class Tool {
 			$report = null;
 		}
 
-		echo '<div id="sidcraft-syntex-import-elementor" class="card" style="max-width:none;margin-top:24px;padding:16px 20px;">';
-		echo '<h2 style="display:flex;align-items:center;gap:8px;">' . wp_kses( self::elementor_badge( 'lg' ), self::badge_allowed_html() ) . esc_html__( 'Import Elementor Pages / Convert Raw Data', 'sidcraft-syntex' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Reads stored Elementor page/section/widget JSON (and other raw third-party builder data), maps sections and columns to containers, and produces native Sidcraft Syntex documents. Run a dry run first to see what will map cleanly and what won\'t, then commit when you\'re ready. Source Elementor data is never modified or deleted.', 'sidcraft-syntex' ) . '</p>';
+		echo '<div id="sidcraft-page-builder-import-elementor" class="card" style="max-width:none;margin-top:24px;padding:16px 20px;">';
+		echo '<h2 style="display:flex;align-items:center;gap:8px;">' . wp_kses( self::elementor_badge( 'lg' ), self::badge_allowed_html() ) . esc_html__( 'Import Elementor Pages / Convert Raw Data', 'sidcraft-page-builder' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Reads stored Elementor page/section/widget JSON (and other raw third-party builder data), maps sections and columns to containers, and produces native Sidcraft Page Builder documents. Run a dry run first to see what will map cleanly and what won\'t, then commit when you\'re ready. Source Elementor data is never modified or deleted.', 'sidcraft-page-builder' ) . '</p>';
 
 		if ( ! $candidates ) {
-			echo '<p>' . esc_html__( 'No Elementor or raw-data pages were found to import.', 'sidcraft-syntex' ) . '</p>';
+			echo '<p>' . esc_html__( 'No Elementor or raw-data pages were found to import.', 'sidcraft-page-builder' ) . '</p>';
 			if ( $report ) {
 				self::render_report( $report );
 			}
@@ -355,7 +355,7 @@ class Tool {
 		wp_nonce_field( 'sidsyn_convert' );
 		echo '<input type="hidden" name="action" value="sidsyn_convert">';
 		echo '<table class="form-table"><tbody>';
-		echo '<tr><th>' . esc_html__( 'Posts', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<tr><th>' . esc_html__( 'Posts', 'sidcraft-page-builder' ) . '</th><td>';
 		echo '<fieldset style="max-height:260px;overflow:auto;border:1px solid #dcdcde;padding:8px 12px;max-width:640px">';
 		foreach ( $candidates as $p ) {
 			$label        = ( $p['title'] ?? '' ) !== '' ? $p['title'] : '#' . (int) ( $p['id'] ?? 0 );
@@ -366,10 +366,10 @@ class Tool {
 			// specific label rather than a different badge colour.
 			$is_elementor = true;
 			if ( $meta === Converter::SOURCE_LIBRARY_TYPE ) {
-				$meta = __( 'Elementor template', 'sidcraft-syntex' );
+				$meta = __( 'Elementor template', 'sidcraft-page-builder' );
 			}
 			if ( ! empty( $p['has_loom'] ) ) {
-				$meta .= " \u{B7} " . __( 'already has a Sidcraft Syntex document', 'sidcraft-syntex' );
+				$meta .= " \u{B7} " . __( 'already has a Sidcraft Page Builder document', 'sidcraft-page-builder' );
 			}
 			echo '<label style="display:flex;align-items:center;gap:6px;margin:4px 0;">';
 			echo '<input type="checkbox" name="ids[]" value="' . esc_attr( (string) ( $p['id'] ?? 0 ) ) . '"> ';
@@ -378,16 +378,16 @@ class Tool {
 			echo '</label>';
 		}
 		echo '</fieldset>';
-		echo '<p class="description">' . esc_html__( 'Library items are saved as Sidcraft Syntex templates. Pages and posts that already have a Sidcraft Syntex document are skipped unless you force overwrite.', 'sidcraft-syntex' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Library items are saved as Sidcraft Page Builder templates. Pages and posts that already have a Sidcraft Page Builder document are skipped unless you force overwrite.', 'sidcraft-page-builder' ) . '</p>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Options', 'sidcraft-syntex' ) . '</th><td>';
-		echo '<label style="display:block;"><input type="checkbox" name="force" value="1"> ' . esc_html__( 'Overwrite existing Sidcraft Syntex documents', 'sidcraft-syntex' ) . '</label>';
-		echo '<label style="display:block;margin-top:6px;"><input type="checkbox" name="save_as_copy" value="1"> ' . esc_html__( 'Save as a new copy instead of converting in place (title gets " - Sidcraft Syntex" appended; original page and its Elementor data are left completely untouched)', 'sidcraft-syntex' ) . '</label>';
-		echo '<p class="description" style="margin-top:4px;">' . esc_html__( "The copy keeps the original page status (a published page stays published). This option only applies to Commit \u{2014} a Dry Run always previews against the original page, since previews never write anything.", 'sidcraft-syntex' ) . '</p>';
+		echo '<tr><th>' . esc_html__( 'Options', 'sidcraft-page-builder' ) . '</th><td>';
+		echo '<label style="display:block;"><input type="checkbox" name="force" value="1"> ' . esc_html__( 'Overwrite existing Sidcraft Page Builder documents', 'sidcraft-page-builder' ) . '</label>';
+		echo '<label style="display:block;margin-top:6px;"><input type="checkbox" name="save_as_copy" value="1"> ' . esc_html__( 'Save as a new copy instead of converting in place (title gets " - Sidcraft Page Builder" appended; original page and its Elementor data are left completely untouched)', 'sidcraft-page-builder' ) . '</label>';
+		echo '<p class="description" style="margin-top:4px;">' . esc_html__( "The copy keeps the original page status (a published page stays published). This option only applies to Commit \u{2014} a Dry Run always previews against the original page, since previews never write anything.", 'sidcraft-page-builder' ) . '</p>';
 		echo '</td></tr></tbody></table>';
 		echo '<p>';
-		echo '<button class="button" type="submit" name="mode" value="preview">' . esc_html__( 'Dry Run', 'sidcraft-syntex' ) . '</button> ';
-		echo '<button class="button button-primary" type="submit" name="mode" value="run" onclick="return confirm(' . "'" . esc_js( __( 'Commit this import? Elementor source data is kept, so this is safe to re-run, but existing Sidcraft Syntex documents on selected pages will be overwritten if you checked Overwrite.', 'sidcraft-syntex' ) ) . "'" . ');">' . esc_html__( 'Commit', 'sidcraft-syntex' ) . '</button>';
+		echo '<button class="button" type="submit" name="mode" value="preview">' . esc_html__( 'Dry Run', 'sidcraft-page-builder' ) . '</button> ';
+		echo '<button class="button button-primary" type="submit" name="mode" value="run" onclick="return confirm(' . "'" . esc_js( __( 'Commit this import? Elementor source data is kept, so this is safe to re-run, but existing Sidcraft Page Builder documents on selected pages will be overwritten if you checked Overwrite.', 'sidcraft-page-builder' ) ) . "'" . ');">' . esc_html__( 'Commit', 'sidcraft-page-builder' ) . '</button>';
 		echo '</p>';
 		echo '</form>';
 
@@ -402,12 +402,12 @@ class Tool {
 	 */
 	public static function render_report( array $report ) {
 		$dry = ! empty( $report['dry_run'] );
-		echo '<h3>' . esc_html( $dry ? __( 'Dry-run report', 'sidcraft-syntex' ) : __( 'Conversion report', 'sidcraft-syntex' ) ) . '</h3>';
+		echo '<h3>' . esc_html( $dry ? __( 'Dry-run report', 'sidcraft-page-builder' ) : __( 'Conversion report', 'sidcraft-page-builder' ) ) . '</h3>';
 		echo '<p>';
 		echo esc_html(
 			sprintf(
 				/* translators: 1: posts, 2: mapped widgets, 3: unmapped widget types, 4: global binds */
-				__( 'Posts: %1$d. Mapped widgets: %2$d. Unmapped types: %3$d. Global color binds: %4$d.', 'sidcraft-syntex' ),
+				__( 'Posts: %1$d. Mapped widgets: %2$d. Unmapped types: %3$d. Global color binds: %4$d.', 'sidcraft-page-builder' ),
 				(int) ( $report['posts'] ?? 0 ),
 				(int) ( $report['mapped'] ?? 0 ),
 				count( (array) ( $report['unmapped'] ?? array() ) ),
@@ -418,7 +418,7 @@ class Tool {
 			echo ' ' . esc_html(
 				sprintf(
 					/* translators: %d: skipped count */
-					__( 'Skipped: %d.', 'sidcraft-syntex' ),
+					__( 'Skipped: %d.', 'sidcraft-page-builder' ),
 					(int) $report['skipped']
 				)
 			);
@@ -427,7 +427,7 @@ class Tool {
 			echo ' ' . esc_html(
 				sprintf(
 					/* translators: %d: error count */
-					__( 'Errors: %d.', 'sidcraft-syntex' ),
+					__( 'Errors: %d.', 'sidcraft-page-builder' ),
 					(int) $report['errors']
 				)
 			);
@@ -445,8 +445,8 @@ class Tool {
 		$unmapped = (array) ( $report['unmapped'] ?? array() );
 		if ( $unmapped ) {
 			arsort( $unmapped );
-			echo '<h4>' . esc_html__( 'Unmapped widgets', 'sidcraft-syntex' ) . '</h4>';
-			echo '<table class="widefat striped" style="max-width:480px"><thead><tr><th>' . esc_html__( 'Source type', 'sidcraft-syntex' ) . '</th><th>' . esc_html__( 'Count', 'sidcraft-syntex' ) . '</th></tr></thead><tbody>';
+			echo '<h4>' . esc_html__( 'Unmapped widgets', 'sidcraft-page-builder' ) . '</h4>';
+			echo '<table class="widefat striped" style="max-width:480px"><thead><tr><th>' . esc_html__( 'Source type', 'sidcraft-page-builder' ) . '</th><th>' . esc_html__( 'Count', 'sidcraft-page-builder' ) . '</th></tr></thead><tbody>';
 			foreach ( $unmapped as $type => $n ) {
 				echo '<tr><td><code>' . esc_html( (string) $type ) . '</code></td><td>' . esc_html( (string) (int) $n ) . '</td></tr>';
 			}
@@ -455,14 +455,14 @@ class Tool {
 
 		$items = (array) ( $report['items'] ?? array() );
 		if ( $items ) {
-			echo '<h4>' . esc_html__( 'Items', 'sidcraft-syntex' ) . '</h4>';
+			echo '<h4>' . esc_html__( 'Items', 'sidcraft-page-builder' ) . '</h4>';
 			echo '<table class="widefat striped"><thead><tr>';
-			echo '<th>' . esc_html__( 'ID', 'sidcraft-syntex' ) . '</th>';
-			echo '<th>' . esc_html__( 'Title', 'sidcraft-syntex' ) . '</th>';
-			echo '<th>' . esc_html__( 'Status', 'sidcraft-syntex' ) . '</th>';
-			echo '<th>' . esc_html__( 'Mapped', 'sidcraft-syntex' ) . '</th>';
-			echo '<th>' . esc_html__( 'Unmapped', 'sidcraft-syntex' ) . '</th>';
-			echo '<th>' . esc_html__( 'Note', 'sidcraft-syntex' ) . '</th>';
+			echo '<th>' . esc_html__( 'ID', 'sidcraft-page-builder' ) . '</th>';
+			echo '<th>' . esc_html__( 'Title', 'sidcraft-page-builder' ) . '</th>';
+			echo '<th>' . esc_html__( 'Status', 'sidcraft-page-builder' ) . '</th>';
+			echo '<th>' . esc_html__( 'Mapped', 'sidcraft-page-builder' ) . '</th>';
+			echo '<th>' . esc_html__( 'Unmapped', 'sidcraft-page-builder' ) . '</th>';
+			echo '<th>' . esc_html__( 'Note', 'sidcraft-page-builder' ) . '</th>';
 			echo '</tr></thead><tbody>';
 			foreach ( $items as $row ) {
 				$un = (array) ( $row['unmapped'] ?? array() );

@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Controls;
+namespace SidcraftPageBuilder\Controls;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -24,7 +24,7 @@ class Code {
 			array( self::class, 'sanitize' ),
 			null,
 			array(
-				'label'  => __( 'Code', 'sidcraft-syntex' ),
+				'label'  => __( 'Code', 'sidcraft-page-builder' ),
 				'editor' => array( 'languages' => self::LANGUAGES ),
 			)
 		);

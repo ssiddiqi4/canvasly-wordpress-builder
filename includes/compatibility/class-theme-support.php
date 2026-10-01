@@ -1,17 +1,17 @@
 <?php
-namespace SidcraftSyntex\Compatibility;
+namespace SidcraftPageBuilder\Compatibility;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Theme integration: `add_theme_support( 'sidcraft-syntex', $args )`, WordPress
+ * Theme integration: `add_theme_support( 'sidcraft-page-builder', $args )`, WordPress
  * `$content_width`, and container / page-title selectors.
  *
  * Example in a theme `functions.php`:
  *
- *   add_theme_support( 'sidcraft-syntex', array(
+ *   add_theme_support( 'sidcraft-page-builder', array(
  *     'content_width'        => 1140,
  *     'container'            => '.site-main, .entry-content',
  *     'page_title_selector'  => '.entry-title',
@@ -43,11 +43,11 @@ class ThemeSupport {
 			'page_title_selector' => self::raw_page_title_selector(),
 		);
 		/**
-		 * Filter the resolved Sidcraft Syntex theme-support map.
+		 * Filter the resolved Sidcraft Page Builder theme-support map.
 		 *
 		 * @param array $out
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/theme_support', $out );
+		$filtered = apply_filters( 'sidcraft-page-builder/theme_support', $out );
 		if ( ! is_array( $filtered ) ) {
 			return $out;
 		}
@@ -63,10 +63,10 @@ class ThemeSupport {
 	 */
 	public static function enabled() {
 		if ( function_exists( 'current_theme_supports' ) ) {
-			return (bool) current_theme_supports( 'sidcraft-syntex' );
+			return (bool) current_theme_supports( 'sidcraft-page-builder' );
 		}
 		if ( function_exists( 'get_theme_support' ) ) {
-			return get_theme_support( 'sidcraft-syntex' ) !== false;
+			return get_theme_support( 'sidcraft-page-builder' ) !== false;
 		}
 		return false;
 	}
@@ -142,20 +142,20 @@ class ThemeSupport {
 		 * @param string   $css
 		 * @param string[] $selectors
 		 */
-		$css = apply_filters( 'sidcraft-syntex/theme_support/container_css', $css, $selectors );
+		$css = apply_filters( 'sidcraft-page-builder/theme_support/container_css', $css, $selectors );
 		if ( ! is_string( $css ) || $css === '' ) {
 			return;
 		}
 		if ( ! function_exists( 'wp_register_style' ) || ! function_exists( 'wp_add_inline_style' ) ) {
 			return;
 		}
-		wp_register_style( 'sidcraft-syntex-theme-containers', false, array(), defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : null );
-		wp_enqueue_style( 'sidcraft-syntex-theme-containers' );
-		wp_add_inline_style( 'sidcraft-syntex-theme-containers', wp_strip_all_tags( $css ) );
+		wp_register_style( 'sidcraft-page-builder-theme-containers', false, array(), defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : null );
+		wp_enqueue_style( 'sidcraft-page-builder-theme-containers' );
+		wp_add_inline_style( 'sidcraft-page-builder-theme-containers', wp_strip_all_tags( $css ) );
 	}
 
 	/**
-	 * Arguments passed to `add_theme_support( 'sidcraft-syntex', ... )`.
+	 * Arguments passed to `add_theme_support( 'sidcraft-page-builder', ... )`.
 	 *
 	 * @return array
 	 */
@@ -163,7 +163,7 @@ class ThemeSupport {
 		if ( ! function_exists( 'get_theme_support' ) ) {
 			return array();
 		}
-		$raw = get_theme_support( 'sidcraft-syntex' );
+		$raw = get_theme_support( 'sidcraft-page-builder' );
 		if ( $raw === false || $raw === true ) {
 			return array();
 		}

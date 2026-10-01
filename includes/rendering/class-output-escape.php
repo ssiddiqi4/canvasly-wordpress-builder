@@ -12,10 +12,10 @@
  * areas, JSON-LD built with wp_json_encode) is marked with raw() and passes
  * through unchanged, the same as WordPress itself treats shortcode output.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\Rendering;
+namespace SidcraftPageBuilder\Rendering;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

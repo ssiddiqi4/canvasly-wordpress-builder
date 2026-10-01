@@ -1,7 +1,7 @@
 <?php
-namespace SidcraftSyntex\Units;
+namespace SidcraftPageBuilder\Units;
 
-use SidcraftSyntex\Embed\OEmbed;
+use SidcraftPageBuilder\Embed\OEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,7 +12,7 @@ class Audio extends Unit {
 		return 'audio';
 	}
 	public function title() {
-		return __( 'Audio', 'sidcraft-syntex' );
+		return __( 'Audio', 'sidcraft-page-builder' );
 	}
 	public function icon() {
 		return "\u{266B}";
@@ -36,14 +36,14 @@ class Audio extends Unit {
 		$s   = is_array( $s ) ? $s : array();
 		$url = trim( (string) ( $s['url'] ?? '' ) );
 		if ( $url === '' ) {
-			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'Add an audio file URL', 'sidcraft-syntex' ) . '</div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'Add an audio file URL', 'sidcraft-page-builder' ) . '</div>';
 		}
 		if ( ! self::is_file( $url ) ) {
 			$html = class_exists( OEmbed::class ) ? OEmbed::html( $url ) : '';
 			if ( $html !== '' ) {
 				return '<div class="' . $this->cls( $s ) . ' lb-audio-embed">' . $html . '</div>';
 			}
-			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'This audio URL could not be embedded', 'sidcraft-syntex' ) . '</div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'This audio URL could not be embedded', 'sidcraft-page-builder' ) . '</div>';
 		}
 		$preload = $s['preload'] ?? 'metadata';
 		$preload = in_array( $preload, array( 'none', 'metadata', 'auto' ), true ) ? $preload : 'metadata';

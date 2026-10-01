@@ -1,11 +1,11 @@
 ```
-=== Sidcraft Syntex - Visual Page Builder ===
-Contributors: sidcraft-syntex
+=== Sidcraft Page Builder ===
+Contributors: sidcraft-page-builder
 Tags: page builder, drag-and-drop, landing page, website builder, responsive
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.13.3
+Stable tag: 0.14.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 ```
@@ -18,23 +18,23 @@ design system, and responsive editing.
 # `== Description ==` 
 
 ```
-Sidcraft Syntex is a visual page builder for WordPress. Design a page on a canvas, then
+Sidcraft Page Builder is a visual page builder for WordPress. Design a page on a canvas, then
 publish it the usual WordPress way. The editor has a unit library, desktop,
 tablet, and mobile views, and a design system for colors, type, and reusable
 parts.
 ```
 
 ```
-Sidcraft Syntex keeps its own document model, unit API, editor, CSS and JavaScript,
+Sidcraft Page Builder keeps its own document model, unit API, editor, CSS and JavaScript,
 icon library, and REST endpoints. It stays out of the normal WordPress block
-editor except for the Sidcraft Syntex Template block and an **Edit with Sidcraft Syntex**
+editor except for the Sidcraft Page Builder Template block and an **Edit with Sidcraft Page Builder**
 launcher.
 ```
 
 ```
-Start with the [Sidcraft Syntex documentation](https://canvasly.pro/overview.html).
+Start with the [Sidcraft Page Builder documentation](https://canvasly.pro/overview.html).
 Unlock theme parts, shop units, popups, form logging, hosted payments, and AI
-connectivity with **[Sidcraft Syntex Pro](https://canvasly.pro/price.html)**.
+connectivity with **[Sidcraft Page Builder Pro](https://canvasly.pro/price.html)**.
 ```
 
 # `### Create professional websites` 
@@ -51,9 +51,9 @@ Typography, spacing, sizing, borders, shadows, positioning, visibility, CSS
 classes, custom CSS, ARIA attributes, and responsive settings. Image units add
 size, link, lightbox, caption, alt text, object fit, and object position.
 - **[Templates](https://canvasly.pro/shortcodes.html)**: Save a layout and place
-it with `[sidcraft_syntex_template id="42"]`, `[sidcraft_syntex_template
-title="Homepage hero"]`, the Sidcraft Syntex Template block, the Template unit, or the
-Sidcraft Syntex Template sidebar widget.
+it with `[sidcraft_page_builder_template id="42"]`, `[sidcraft_page_builder_template
+title="Homepage hero"]`, the Sidcraft Page Builder Template block, the Template unit, or the
+Sidcraft Page Builder Template sidebar widget.
 ```
 
 ```
@@ -63,7 +63,7 @@ Tabs, Form, Price Table, and Collection Loop.
 ```
 
 ```
-- **[Sidcraft Syntex Pro](https://canvasly.pro/price.html#lite-vs-pro)**: Theme
+- **[Sidcraft Page Builder Pro](https://canvasly.pro/price.html#lite-vs-pro)**: Theme
 Builder, theme units, popups, extra form fields, shop units when WooCommerce is
 active, hosted payments, editor notes, and an AI connection with MCP.
 ```
@@ -100,7 +100,7 @@ interaction script loads only when a document uses it.
 ```
 - **Dynamic tags**: Post, author, site, user, archive, and term values, with
 before, after, and fallback text. Previews resolve in the editor and on the
-front end. [Sidcraft Syntex Pro](https://canvasly.pro/price.html#lite-vs-pro) adds
+front end. [Sidcraft Page Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) adds
 request values, custom fields, ACF, and product price and SKU.
 ```
 
@@ -120,8 +120,8 @@ live under Tools.
 ```
 
 ```
-- **Developer surface**: REST routes under `sidcraft-syntex/v1` with capability
-checks and nonces. WP-CLI: `wp sidcraft-syntex regenerate-css`, `flush-cache`,
+- **Developer surface**: REST routes under `sidcraft-page-builder/v1` with capability
+checks and nonces. WP-CLI: `wp sidcraft-page-builder regenerate-css`, `flush-cache`,
 `replace-url`, `import`, `export`, and `convert`.
 ```
 
@@ -222,7 +222,7 @@ video. Container cannot be turned off.
 
 - `**Spacer**: Empty vertical space.` 
 
-- `**Icon**: One icon from the Sidcraft Syntex icon library.` 
+- `**Icon**: One icon from the Sidcraft Page Builder icon library.` 
 
 - `**Icon List**: A list of items that each have an icon.` 
 
@@ -278,9 +278,9 @@ video. Container cannot be turned off.
 
 - `**Link in Bio**: A title, subtitle, avatar, and a list of links.` 
 
-- `**Site Menu**: A WordPress menu. The same output is `[sidcraft_syntex_nav]`. See [shortcodes](https://canvasly.pro/shortcodes.html).` 
+- `**Site Menu**: A WordPress menu. The same output is `[sidcraft_page_builder_nav]`. See [shortcodes](https://canvasly.pro/shortcodes.html).` 
 
-- `**Menu Anchor**: A jump target. A sticky header can clear it with `--lbanchor-scroll-offset`. The matching shortcode is `[sidcraft_syntex_anchor]`. - **Collection Loop**: Posts, custom types, or terms, with an item layout and numbered, previous-next, or load-more pagination.` 
+- `**Menu Anchor**: A jump target. A sticky header can clear it with `--lbanchor-scroll-offset`. The matching shortcode is `[sidcraft_page_builder_anchor]`. - **Collection Loop**: Posts, custom types, or terms, with an item layout and numbered, previous-next, or load-more pagination.` 
 
 # `**Advanced**` 
 
@@ -297,14 +297,14 @@ video. Container cannot be turned off.
 # `### Faster pages` 
 
 ```
-Sidcraft Syntex prints CSS for the units a page uses, and it can write that CSS to
+Sidcraft Page Builder prints CSS for the units a page uses, and it can write that CSS to
 ```
 
-`files under `uploads/sidcraft-syntex/css` with a hash in the file name. Details are under [Settings â` **�** `Performance](https://canvasly.pro/settings.html#performance) and [Settings â` **�** `Advanced](https://canvasly.pro/settings.html#advanced).` 
+`files under `uploads/sidcraft-page-builder/css` with a hash in the file name. Details are under [Settings â` **�** `Performance](https://canvasly.pro/settings.html#performance) and [Settings â` **�** `Advanced](https://canvasly.pro/settings.html#advanced).` 
 
 - `**External or inline CSS**: External files by default, or the same minified CSS printed on the page.` 
 
-- `**Fonts**: Only the Google Font weights and styles a document uses, with `font-display` and optional self-hosting under `uploads/sidcraft-syntex/fonts`. - **Unit cache**: HTML for units that do not use dynamic tags, with a time limit and a flush control.` 
+- `**Fonts**: Only the Google Font weights and styles a document uses, with `font-display` and optional self-hosting under `uploads/sidcraft-page-builder/fonts`. - **Unit cache**: HTML for units that do not use dynamic tags, with a time limit and a flush control.` 
 
 - `**Images**: The first image uses `fetchpriority="high"`. Later images and background images can load lazily.` 
 
@@ -312,11 +312,11 @@ Sidcraft Syntex prints CSS for the units a page uses, and it can write that CSS 
 
 - `**Scripts**: A unitâs scripts and styles load only when that unit is on the page.` 
 
-# `### Sidcraft Syntex Pro` 
+# `### Sidcraft Page Builder Pro` 
 
 
-[Sidcraft Syntex Pro](https://canvasly.pro/price.html) is a second plugin. It loads
-only while Sidcraft Syntex is active and at least version 0.12.73. Every annual plan
+[Sidcraft Page Builder Pro](https://canvasly.pro/price.html) is a second plugin. It loads
+only while Sidcraft Page Builder is active and at least version 0.12.73. Every annual plan
 unlocks the same features. The plans differ by site count: [$59 for 1 site, $79
 for 5, $129 for 25, and $199 for 100](https://canvasly.pro/price.html#plans).
 Without a valid key, new Pro units are dropped on save.
@@ -365,7 +365,7 @@ Without a valid key, new Pro units are dropped on save.
 
 20. **Taxonomy Filter**: Filters a Collection Loop by taxonomy.` 
 
-21. **Payment Button** and **Payment Form**: Hosted checkout. Tax and fees are under Sidcraft Syntex â Payments.` 
+21. **Payment Button** and **Payment Form**: Hosted checkout. Tax and fees are under Sidcraft Page Builder â Payments.` 
 
 22. **WPForms**: A published WPForms form, with its name and description optional. WPForms renders the form.` 
 
@@ -549,7 +549,7 @@ taxonomies. Changes wait for approval.
 
 ```
 - **MCP server and Abilities API**: External agents such as Claude Desktop,
-Cursor, and VS Code use the same tools through MCP. Sidcraft Syntex tools are also
+Cursor, and VS Code use the same tools through MCP. Sidcraft Page Builder tools are also
 registered as WordPress abilities.
 ```
 
@@ -559,19 +559,19 @@ default) and a per-user switch to turn AI access off.
 ```
 
 ```
-- **WP-CLI**: `wp sidcraft-syntex-pro theme list`, `wp sidcraft-syntex-pro theme clear-cache`,
-and `wp sidcraft-syntex-pro submissions export`.
+- **WP-CLI**: `wp sidcraft-page-builder-pro theme list`, `wp sidcraft-page-builder-pro theme clear-cache`,
+and `wp sidcraft-page-builder-pro submissions export`.
 ```
 
 ```
-Build the rest of the site with **[Sidcraft Syntex
+Build the rest of the site with **[Sidcraft Page Builder
 Pro](https://canvasly.pro/price.html)**.
 ```
 
 # `= Security =` 
 
 ```
-Sidcraft Syntex checks WordPress capabilities on admin screens and REST routes,
+Sidcraft Page Builder checks WordPress capabilities on admin screens and REST routes,
 validates nonces, and sanitizes and escapes stored content. SVG uploads go
 through sanitization. reCAPTCHA secret keys are not sent to the browser. Pro API
 keys are encrypted at rest, and the editor never receives them. See [AI
@@ -591,7 +591,7 @@ Menu unit expose an accessible name.
 # `= Translations =` 
 
 ```
-Sidcraft Syntex ships a `sidcraft-syntex` text domain (`languages/sidcraft-syntex.pot`).
+Sidcraft Page Builder ships a `sidcraft-page-builder` text domain (`languages/sidcraft-page-builder.pot`).
 Editor strings can be translated with the usual WordPress translation tools. RTL
 layouts follow the site language.
 ```
@@ -628,7 +628,7 @@ requested.
 ```
 
 ```
-- **Sidcraft Syntex Pro AI providers** are called only when an administrator presses
+- **Sidcraft Page Builder Pro AI providers** are called only when an administrator presses
 Test connection on [AI Connection](https://canvasly.pro/ai-connectivity.html).
 Supported hosts are OpenAI, Anthropic, Gemini, Azure OpenAI, Perplexity, Cursor,
 Groq, Mistral, and DeepSeek. MCP traffic stays on your WordPress site and is not
@@ -638,9 +638,9 @@ forwarded to those providers.
 # `= Related =` 
 
 ```
-**[Sidcraft Syntex Pro](https://canvasly.pro/price.html)**: Theme Builder, popups, shop
+**[Sidcraft Page Builder Pro](https://canvasly.pro/price.html)**: Theme Builder, popups, shop
 units, hosted payments, submissions, and AI connectivity (MCP). It does not
-replace Sidcraft Syntex.
+replace Sidcraft Page Builder.
 ```
 
 ```
@@ -666,8 +666,8 @@ support](https://canvasly.pro/support.html). Common answers are in the [FAQ]
 - `PHP 8.1 or greater` 
 
 ```
-Shop units appear only while WooCommerce is active. [Sidcraft Syntex
-Pro](https://canvasly.pro/installation.html) will not start if Sidcraft Syntex is
+Shop units appear only while WooCommerce is active. [Sidcraft Page Builder
+Pro](https://canvasly.pro/installation.html) will not start if Sidcraft Page Builder is
 missing, switched off, or older than 0.12.73.
 ```
 
@@ -675,14 +675,14 @@ missing, switched off, or older than 0.12.73.
 
 `1. Install using **Plugins â Add New â Upload Plugin**, or place the plugin folder in `wp-content/plugins/`.` 
 
-`2. Activate **Sidcraft Syntex** on the Plugins screen.` 
+`2. Activate **Sidcraft Page Builder** on the Plugins screen.` 
 
-`3. Open a page or post and choose **Edit with Sidcraft Syntex**. The same link is in the admin bar.` 
+`3. Open a page or post and choose **Edit with Sidcraft Page Builder**. The same link is in the admin bar.` 
 
 `4. Drag units from the left library onto the canvas, then save. Publish or update the page in WordPress.` 
 
 ```
-Step-by-step install for Sidcraft Syntex and Sidcraft Syntex Pro, including the license
+Step-by-step install for Sidcraft Page Builder and Sidcraft Page Builder Pro, including the license
 screen, is in the [installation guide](https://canvasly.pro/installation.html).
 Settings for post types, CSS, fonts, maps, and performance are in the [settings
 guide](https://canvasly.pro/settings.html).
@@ -693,50 +693,50 @@ guide](https://canvasly.pro/settings.html).
 ```
 
 ```
-= How do I install Sidcraft Syntex? =
+= How do I install Sidcraft Page Builder? =
 ```
 
 ```
 From the WordPress dashboard go to Plugins â Add New â Upload Plugin, upload the
-Sidcraft Syntex zip, then Activate. You can also copy the plugin folder into `wp-
+Sidcraft Page Builder zip, then Activate. You can also copy the plugin folder into `wp-
 content/plugins/`. The [installation
 ```
 
 ```
-guide](https://canvasly.pro/installation.html) covers Sidcraft Syntex Pro as well.
+guide](https://canvasly.pro/installation.html) covers Sidcraft Page Builder Pro as well.
 ```
 
-# `= What does Sidcraft Syntex require? =` 
+# `= What does Sidcraft Page Builder require? =` 
 
 ```
 WordPress 6.9 or later and PHP 7.4 or later. The plugin is tested up to
-WordPress 7.1. Sidcraft Syntex Pro also needs Sidcraft Syntex 0.12.73 or newer.
+WordPress 7.1. Sidcraft Page Builder Pro also needs Sidcraft Page Builder 0.12.73 or newer.
 ```
 
 - `= How do I edit a page? =` 
 
 ```
-Open the page and choose **Edit with Sidcraft Syntex**, or use the admin-bar link.
+Open the page and choose **Edit with Sidcraft Page Builder**, or use the admin-bar link.
 Posts and Pages work as soon as you activate the plugin. Other public types stay
-off until you enable them under Sidcraft Syntex â Settings â General.
+off until you enable them under Sidcraft Page Builder â Settings â General.
 ```
 
 # `= Where are the settings? =` 
 
 ```
-[Sidcraft Syntex â Settings](https://canvasly.pro/settings.html) covers post types,
+[Sidcraft Page Builder â Settings](https://canvasly.pro/settings.html) covers post types,
 maps, reCAPTCHA, CSS, fonts, performance, tools, and experiments. Colors, type,
 and breakpoints are under Design System.
 ```
 
 ```
-= Does Sidcraft Syntex work with my theme and with Gutenberg? =
+= Does Sidcraft Page Builder work with my theme and with Gutenberg? =
 ```
 
 ```
-On the normal WordPress editing screen, Sidcraft Syntex does not load its full editor.
-The Sidcraft Syntex Template block and the Edit with Sidcraft Syntex launcher still appear.
-You can turn off Sidcraft Syntexâs default colors and fonts so the theme keeps those.
+On the normal WordPress editing screen, Sidcraft Page Builder does not load its full editor.
+The Sidcraft Page Builder Template block and the Edit with Sidcraft Page Builder launcher still appear.
+You can turn off Sidcraft Page Builderâs default colors and fonts so the theme keeps those.
 See the [FAQ](https://canvasly.pro/faq.html).
 ```
 
@@ -753,8 +753,8 @@ Custom CSS, HTML, and the Code unit are there when you want them.
 
 ```
 Right-click a Container or Grid and choose Save as Template. Place it later with
-the Template unit, `[sidcraft_syntex_template id="42"]`, the Sidcraft Syntex Template
-block, or the Sidcraft Syntex Template sidebar widget. Attributes are listed on the
+the Template unit, `[sidcraft_page_builder_template id="42"]`, the Sidcraft Page Builder Template
+block, or the Sidcraft Page Builder Template sidebar widget. Attributes are listed on the
 [shortcodes page](https://canvasly.pro/shortcodes.html).
 ```
 
@@ -767,12 +767,12 @@ off under Settings â Features. Shop units are absent unless WooCommerce is
 ```
 
 ```
-active. Pro units are absent unless [Sidcraft Syntex
+active. Pro units are absent unless [Sidcraft Page Builder
 Pro](https://canvasly.pro/price.html) has started.
 ```
 
 ```
-= Will Sidcraft Syntex slow down my site? =
+= Will Sidcraft Page Builder slow down my site? =
 ```
 
 ```
@@ -784,16 +784,16 @@ Fonts. See [Performance](https://canvasly.pro/settings.html#performance).
 - `= How do I move the site to a new address? =` 
 
 ```
-Use Sidcraft Syntex â Settings â Tools â Replace URL. Run Dry run first. The
+Use Sidcraft Page Builder â Settings â Tools â Replace URL. Run Dry run first. The
 replacement cannot be undone from that screen.
 ```
 
-- `= What is the difference between Sidcraft Syntex and Sidcraft Syntex Pro? =` 
+- `= What is the difference between Sidcraft Page Builder and Sidcraft Page Builder Pro? =` 
 
 ```
-Sidcraft Syntex is the free page builder: the visual editor, the free unit library, the
+Sidcraft Page Builder is the free page builder: the visual editor, the free unit library, the
 design system, entrance and exit motion, page templates, the collection loop,
-and basic dynamic tags. [Sidcraft Syntex Pro](https://canvasly.pro/price.html#lite-vs-
+and basic dynamic tags. [Sidcraft Page Builder Pro](https://canvasly.pro/price.html#lite-vs-
 pro) adds Theme Builder, popups, shop units, hosted payments, extra form
 actions, editor notes, and the AI connection. Every Pro plan includes the same
 features.
@@ -811,37 +811,37 @@ plugins and without the theme. More answers are in the
 ```
 
 ```
-Does Sidcraft Syntex work with other page builders? =
+Does Sidcraft Page Builder work with other page builders? =
 ```
 
 ```
-Sidcraft Syntex is a standalone page builder and does not require any other builder. If
-Elementor is installed and active on your site, Sidcraft Syntex can:
+Sidcraft Page Builder is a standalone page builder and does not require any other builder. If
+Elementor is installed and active on your site, Sidcraft Page Builder can:
 ```
 
 ```
 * Import pages, posts and library templates that were built with Elementor into
-new Sidcraft Syntex documents. The original content is never changed or deleted.
+new Sidcraft Page Builder documents. The original content is never changed or deleted.
 ```
 
 ```
-* Show a theme header or footer built with Elementor correctly in the Sidcraft Syntex
+* Show a theme header or footer built with Elementor correctly in the Sidcraft Page Builder
 editor, by loading the stylesheets that your installed copy of Elementor already
 provides.
 ```
 
 ```
-Sidcraft Syntex does not include, copy or redistribute any Elementor code, stylesheets
+Sidcraft Page Builder does not include, copy or redistribute any Elementor code, stylesheets
 or images. It only references the files already installed on your site, and this
 compatibility only applies while Elementor is active.
 ```
 
 ```
-= Is Sidcraft Syntex affiliated with Elementor? =
+= Is Sidcraft Page Builder affiliated with Elementor? =
 ```
 
 ```
-No. Elementor is a trademark of its respective owner. Sidcraft Syntex is an independent
+No. Elementor is a trademark of its respective owner. Sidcraft Page Builder is an independent
 plugin and is not affiliated with, sponsored by or endorsed by Elementor or its
 owner. The name is used only to describe compatibility.
 ```
@@ -877,7 +877,7 @@ unit, or a sidebar widget.
 ```
 
 ```
-6. **Sidcraft Syntex Pro** - Theme Builder, popups, shop units, and the annual plans.
+6. **Sidcraft Page Builder Pro** - Theme Builder, popups, shop units, and the annual plans.
 ```
 
 ```
@@ -893,7 +893,7 @@ unit, or a sidebar widget.
 # `= 0.12.111 =` 
 
 ```
-* Added: Sidcraft Syntex colour picker for every colour control, replacing the browser / Windows colour dialog (the one with the "Define Custom Colors >>" button). It has a saturation area, hue and opacity sliders, HEX / RGB / HSL format switch, a value box, Global Colors, preset and recent swatches, Clear and Eyedropper.
+* Added: Sidcraft Page Builder colour picker for every colour control, replacing the browser / Windows colour dialog (the one with the "Define Custom Colors >>" button). It has a saturation area, hue and opacity sliders, HEX / RGB / HSL format switch, a value box, Global Colors, preset and recent swatches, Clear and Eyedropper.
 * Added: Colour values can be typed as HEX (#rgb, #rrggbb, #rrggbbaa), rgb()/rgba(), hsl()/hsla() or CSS colour names (tomato, transparent). The value is saved as typed, and Global Colors accept the same formats.
 ```
 
@@ -959,7 +959,7 @@ longer override it, in the editor or on the saved page.
 ```
 
 ```
-* Fixed: The same theme override affected other Sidcraft Syntex buttons on hover/focus:
+* Fixed: The same theme override affected other Sidcraft Page Builder buttons on hover/focus:
 Tabs and Nested Tabs titles, the Alert close button, the Video play button,
 Image Carousel arrows and dots, and Loop Grid arrows and dots. They now keep
 their own colours.
@@ -1070,7 +1070,7 @@ codes.
 ```
 * Fixed: text encoding hardening. Every PHP, JS and CSS file stores symbols as
 ASCII-safe escape codes or HTML entities, so no layer that guesses the wrong
-encoding can corrupt them. Canvas and maintenance templates and all Sidcraft Syntex
+encoding can corrupt them. Canvas and maintenance templates and all Sidcraft Page Builder
 REST responses send an explicit UTF-8 charset. Text shortening uses UTF-8 aware
 helpers so accented and non-Latin characters are never cut in half. A
 documentation image that was saved in the wrong encoding is fixed.
@@ -1200,7 +1200,7 @@ truncate.
 # `= 0.12.80 =` 
 
 ```
-* Plugin header name matches the readme title: Sidcraft Syntex - Visual Page Builder.
+* Plugin header name matches the readme title: Sidcraft Page Builder.
 ```
 
 # `= 0.12.77 =` 
@@ -1213,7 +1213,7 @@ screens that use them.
 # `= 0.12.76 =` 
 
 ```
-* The Sidcraft Syntex dashboard shows the Sidcraft Syntex Pro annual price table when Pro is
+* The Sidcraft Page Builder dashboard shows the Sidcraft Page Builder Pro annual price table when Pro is
 active.
 ```
 
@@ -1250,8 +1250,8 @@ save, undo, template insert), and a GitHub Actions CI workflow (Roadmap 7.7).
 # `= 0.12.70 =` 
 
 ```
-* WP-CLI commands (`wp sidcraft-syntex regenerate-css`, `flush-cache`, `replace-
-url`, `import`, `export`, `convert`) and an admin-bar Edit with Sidcraft Syntex
+* WP-CLI commands (`wp sidcraft-page-builder regenerate-css`, `flush-cache`, `replace-
+url`, `import`, `export`, `convert`) and an admin-bar Edit with Sidcraft Page Builder
 node on the frontend and back end (Roadmap 7.6).
 ```
 
@@ -1260,7 +1260,7 @@ node on the frontend and back end (Roadmap 7.6).
 ```
 * Versioned upgrade framework (`Upgrades::run()` on plugin version change) with
 background-batched document migrations, a rotating logger under
-uploads/sidcraft-syntex/logs, and admin notices for failed upgrades (Roadmap 7.4).
+uploads/sidcraft-page-builder/logs, and admin notices for failed upgrades (Roadmap 7.4).
 ```
 
 # `= 0.12.68 =` 
@@ -1277,7 +1277,7 @@ System Info report + download, and plugin version rollback from stored ZIPs
 ```
 * Element Manager and Role Manager: enable or disable each element, restrict
 elements per role, usage counts, and role access of no access / content only /
-full. Design-system saves use `sidcraft_syntex_design` instead of `manage_options`
+full. Design-system saves use `sidcraft_page_builder_design` instead of `manage_options`
 (Roadmap 7.2).
 ```
 
@@ -1302,7 +1302,7 @@ and Audio fallbacks, lone-URL HTML widgets, and a new Embed element (Roadmap
 
 ```
 * Elements declare `scripts()`/`styles()` WordPress handles; the renderer
-enqueues only assets the page uses. `SidcraftSyntexFrontend.registerHandler(type,
+enqueues only assets the page uses. `SidcraftPageBuilderFrontend.registerHandler(type,
 fn)` runs for first paint and AJAX-inserted content (Roadmap 6.4).
 ```
 
@@ -1320,13 +1320,13 @@ removes extra node wrappers (Roadmap 6.3).
 ```
 * Weight-aware Google Fonts loading (only used weights and italic styles), a
 font-display setting, preconnect hints, and optional local font hosting under
-uploads/sidcraft-syntex/fonts (Roadmap 6.2).
+uploads/sidcraft-page-builder/fonts (Roadmap 6.2).
 ```
 
 # `= 0.12.61 =` 
 
 ```
-* External CSS files at uploads/sidcraft-syntex/css (global.css and post-{id}.css)
+* External CSS files at uploads/sidcraft-page-builder/css (global.css and post-{id}.css)
 with hash cache busting, a css_print_method setting (external or inline),
 minification, and a Regenerate CSS tool (Roadmap 6.1).
 ```
@@ -1334,24 +1334,24 @@ minification, and a Regenerate CSS tool (Roadmap 6.1).
 # `= 0.12.60 =` 
 
 ```
-* Replace URL tool on Sidcraft Syntex â Tools (document JSON + CSS cache, dry
+* Replace URL tool on Sidcraft Page Builder â Tools (document JSON + CSS cache, dry
 run). WordPress importer/exporter keeps JSON meta valid, and post-duplication
-plugins copy Sidcraft Syntex document data (Roadmap 5.4).
+plugins copy Sidcraft Page Builder document data (Roadmap 5.4).
 ```
 
 # `= 0.12.59 =` 
 
 ```
-* Convert stored layout JSON into Sidcraft Syntex documents: widget mapping table,
+* Convert stored layout JSON into Sidcraft Page Builder documents: widget mapping table,
 sections/columns â containers, responsive breakpoint keys, global color binds,
-dry-run report, and a bulk tool on Sidcraft Syntex â Tools (Roadmap 5.3).
+dry-run report, and a bulk tool on Sidcraft Page Builder â Tools (Roadmap 5.3).
 ```
 
 # `= 0.12.58 =` 
 
 ```
-* Template shortcode `[sidcraft_syntex_template id=""]`, Gutenberg block
-(`sidcraft-syntex/template`) with picker and preview, Template widget, and a
+* Template shortcode `[sidcraft_page_builder_template id=""]`, Gutenberg block
+(`sidcraft-page-builder/template`) with picker and preview, Template widget, and a
 WordPress sidebar widget (Roadmap 5.2).
 ```
 
@@ -1400,7 +1400,7 @@ tag.php` from the same directory.
 ```
 
 ```
-* The plugin no longer defines `SIDCRAFT_SYNTEX_DEV_MODE`, so a late `wp-
+* The plugin no longer defines `SIDCRAFT_PAGE_BUILDER_DEV_MODE`, so a late `wp-
 config.php` define is not a PHP 9 error.
 ```
 
@@ -1485,8 +1485,8 @@ merge or replace (Roadmap 2.4).
 ```
 
 ```
-* Tools screen under Sidcraft Syntex and a Kit tab in Site Settings. REST
-endpoints at `/sidcraft-syntex/v1/kit`.
+* Tools screen under Sidcraft Page Builder and a Kit tab in Site Settings. REST
+endpoints at `/sidcraft-page-builder/v1/kit`.
 ```
 
 # `= 0.12.46 =` 
@@ -1519,11 +1519,11 @@ and previewed live on the canvas (Roadmap 2.2).
 ```
 * Custom post type support: an enabled-post-types setting (default Posts and
 Pages) replaces hard-coded `post`/`page` checks so any public CPT can be edited
-with Sidcraft Syntex (Roadmap 1.4).
+with Sidcraft Page Builder (Roadmap 1.4).
 ```
 
 ```
-* "Edit with Sidcraft Syntex" now appears on every enabled post type's list table
+* "Edit with Sidcraft Page Builder" now appears on every enabled post type's list table
 and in the block editor.
 ```
 
@@ -1733,7 +1733,7 @@ snapshots.
 
 - `Fixed Style > Typography > Font Family so the primary control is a native Google Fonts dropdown.` 
 
-- `Populates the selector from Sidcraft Syntex's bundled Google Fonts catalog without requiring a network request to display the font list.` 
+- `Populates the selector from Sidcraft Page Builder's bundled Google Fonts catalog without requiring a network request to display the font list.` 
 
 ```
 * Selecting a font updates the document and loads the selected Google Font for
@@ -1756,7 +1756,7 @@ the editor preview.
 
 - `Double-clicking the element opens a stable TinyMCE editing dialog; singleclick continues to select the element.` 
 
-- `Rich HTML is stored in the Sidcraft Syntex document and rendered as frontend HTML after WordPress sanitization.` 
+- `Rich HTML is stored in the Sidcraft Page Builder document and rendered as frontend HTML after WordPress sanitization.` 
 
 - `Added a focused Content panel action, TinyMCE toolbar, and editor lifecycle cleanup.` 
 
@@ -1810,21 +1810,21 @@ editing.
 clearer diagnostics.
 ```
 
-- `Added Page > Add New Page workflow that creates a draft and opens it directly in Sidcraft Syntex instead of the WordPress block editor.` 
+- `Added Page > Add New Page workflow that creates a draft and opens it directly in Sidcraft Page Builder instead of the WordPress block editor.` 
 
 # `= 0.11.5 =` 
 
 - `Fixed TinyMCE Text Editor action binding after Settings panel re-renders.` 
 
-- `Fixed WordPress Dashboard Pages > Add New to open directly in Sidcraft Syntex instead of the block editor.` 
+- `Fixed WordPress Dashboard Pages > Add New to open directly in Sidcraft Page Builder instead of the block editor.` 
 
 - `Added safe draft-page creation for dashboard page creation.` 
 
 # `= 0.11.9 =` 
 
-- `Isolates native WordPress post/page Gutenberg screens from Sidcraft Syntex runtime hooks.` 
+- `Isolates native WordPress post/page Gutenberg screens from Sidcraft Page Builder runtime hooks.` 
 
-- `Adds a safe Edit with Sidcraft Syntex launcher after the native editor renders.` 
+- `Adds a safe Edit with Sidcraft Page Builder launcher after the native editor renders.` 
 
 # `= 0.8.1 =` 
 
@@ -1881,7 +1881,7 @@ Loop, and fixes sliders that showed 0 at the minimum position.
 # `= 0.12.105 =` 
 
 ```
-Stops themes from recolouring the Site Menu button and other Sidcraft Syntex buttons on
+Stops themes from recolouring the Site Menu button and other Sidcraft Page Builder buttons on
 hover (for example turning them red).
 ```
 

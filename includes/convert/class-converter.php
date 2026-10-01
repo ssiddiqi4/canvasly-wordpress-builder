@@ -1,9 +1,9 @@
 <?php
-namespace SidcraftSyntex\Convert;
+namespace SidcraftPageBuilder\Convert;
 
-use SidcraftSyntex\Document\DocumentManager;
-use SidcraftSyntex\Document\Documents;
-use SidcraftSyntex\Templates\SavedTemplates;
+use SidcraftPageBuilder\Document\DocumentManager;
+use SidcraftPageBuilder\Document\Documents;
+use SidcraftPageBuilder\Templates\SavedTemplates;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Convert stored third-party builder JSON (`_elementor_data`) into a
- * Sidcraft Syntex document. Layout sections/columns become containers; widgets
+ * Sidcraft Page Builder document. Layout sections/columns become containers; widgets
  * are mapped through {@see Map}; responsive suffixes become breakpoint keys;
  * global color binds become `{{var:colors.*}}`.
  */
@@ -100,7 +100,7 @@ class Converter {
 		if ( self::$decode_warning !== '' ) {
 			return;
 		}
-		self::$decode_warning = __( 'Stored layout JSON had a syntax error and was repaired before conversion. Review the converted page for missing or altered text.', 'sidcraft-syntex' );
+		self::$decode_warning = __( 'Stored layout JSON had a syntax error and was repaired before conversion. Review the converted page for missing or altered text.', 'sidcraft-page-builder' );
 	}
 
 	/**
@@ -514,21 +514,21 @@ class Converter {
 	private static function hint_at( $raw, $offset ) {
 		$offset  = max( 0, (int) $offset );
 		$start   = max( 0, $offset - 24 );
-		$snippet = \SidcraftSyntex\Utils\Text::cut_bytes( $raw, $start, 56 );
+		$snippet = \SidcraftPageBuilder\Utils\Text::cut_bytes( $raw, $start, 56 );
 		if ( function_exists( 'mb_convert_encoding' ) ) {
 			$snippet = @mb_convert_encoding( $snippet, 'UTF-8', 'UTF-8' );
 		}
 		$snippet = preg_replace( '/[\x00-\x1F\x7F]/', '?', (string) $snippet );
 		return sprintf(
 			/* translators: 1: 1-based byte offset, 2: nearby characters */
-			__( 'Problem near byte %1$d: %2$s', 'sidcraft-syntex' ),
+			__( 'Problem near byte %1$d: %2$s', 'sidcraft-page-builder' ),
 			$offset + 1,
 			$snippet
 		);
 	}
 
 	/**
-	 * Convert a source unit list into a Sidcraft Syntex document.
+	 * Convert a source unit list into a Sidcraft Page Builder document.
 	 *
 	 * @param mixed $units
 	 * @param array $page_settings
@@ -559,7 +559,7 @@ class Converter {
 			'root'     => $root,
 			'settings' => $settings,
 		);
-		$filtered = apply_filters( 'sidcraft-syntex/convert/document', $doc, $this->report );
+		$filtered = apply_filters( 'sidcraft-page-builder/convert/document', $doc, $this->report );
 		if ( is_array( $filtered ) ) {
 			$doc = $filtered;
 		}
@@ -646,7 +646,7 @@ class Converter {
 		$this->report['layout']++;
 		$this->report['nodes']++;
 		$this->report['mapped']++;
-		$filtered = apply_filters( 'sidcraft-syntex/convert/node', $node, $el, $kind );
+		$filtered = apply_filters( 'sidcraft-page-builder/convert/node', $node, $el, $kind );
 		return is_array( $filtered ) ? $filtered : $node;
 	}
 
@@ -799,15 +799,15 @@ class Converter {
 				$this->report['nodes']++;
 				$this->report['warnings'][] = sprintf(
 					/* translators: %s: source widget type slug */
-					__( 'Widget converted as plain text (best effort): %s', 'sidcraft-syntex' ),
+					__( 'Widget converted as plain text (best effort): %s', 'sidcraft-page-builder' ),
 					$src_type !== '' ? $src_type : 'widget'
 				);
-				$filtered = apply_filters( 'sidcraft-syntex/convert/node', $node, $el, 'widget' );
+				$filtered = apply_filters( 'sidcraft-page-builder/convert/node', $node, $el, 'widget' );
 				return is_array( $filtered ) ? $filtered : $node;
 			}
 			$this->note_unmapped( $src_type !== '' ? $src_type : 'widget' );
 			$node = $this->placeholder_html( $src_type !== '' ? $src_type : 'widget', $el );
-			$filtered = apply_filters( 'sidcraft-syntex/convert/node', $node, $el, 'widget' );
+			$filtered = apply_filters( 'sidcraft-page-builder/convert/node', $node, $el, 'widget' );
 			return is_array( $filtered ) ? $filtered : $node;
 		}
 
@@ -840,7 +840,7 @@ class Converter {
 		}
 		$this->report['mapped']++;
 		$this->report['nodes']++;
-		$filtered = apply_filters( 'sidcraft-syntex/convert/node', $node, $el, 'widget' );
+		$filtered = apply_filters( 'sidcraft-page-builder/convert/node', $node, $el, 'widget' );
 		return is_array( $filtered ) ? $filtered : $node;
 	}
 
@@ -1714,7 +1714,7 @@ class Converter {
 		$label = sanitize_text_field( (string) $type );
 		$html  = '<p class="lb-convert-unmapped">' . sprintf(
 			/* translators: %s: source widget type slug */
-			esc_html__( 'This widget could not be converted (%s).', 'sidcraft-syntex' ),
+			esc_html__( 'This widget could not be converted (%s).', 'sidcraft-page-builder' ),
 			esc_html( $label )
 		) . '</p>';
 		$node  = array(
@@ -1737,7 +1737,7 @@ class Converter {
 		$this->report['unmapped'][ $type ]++;
 		$this->report['warnings'][] = sprintf(
 			/* translators: %s: source widget type slug */
-			__( 'Unmapped widget: %s', 'sidcraft-syntex' ),
+			__( 'Unmapped widget: %s', 'sidcraft-page-builder' ),
 			$type
 		);
 	}
@@ -1807,13 +1807,13 @@ class Converter {
 	public static function source_diagnostic( $post_id ) {
 		$raw = get_post_meta( absint( $post_id ), self::SOURCE_META, true );
 		if ( is_array( $raw ) ) {
-			return empty( $raw ) ? __( 'Stored value is an empty array.', 'sidcraft-syntex' ) : '';
+			return empty( $raw ) ? __( 'Stored value is an empty array.', 'sidcraft-page-builder' ) : '';
 		}
 		if ( ! is_string( $raw ) || $raw === '' ) {
-			return __( 'No _elementor_data meta value is stored on this post (empty or missing).', 'sidcraft-syntex' );
+			return __( 'No _elementor_data meta value is stored on this post (empty or missing).', 'sidcraft-page-builder' );
 		}
 		$len     = function_exists( 'mb_strlen' ) ? mb_strlen( $raw, '8bit' ) : strlen( $raw );
-		$excerpt = \SidcraftSyntex\Utils\Text::cut_bytes( $raw, 0, 60 );
+		$excerpt = \SidcraftPageBuilder\Utils\Text::cut_bytes( $raw, 0, 60 );
 		if ( function_exists( 'mb_convert_encoding' ) ) {
 			$excerpt = @mb_convert_encoding( $excerpt, 'UTF-8', 'UTF-8' );
 		}
@@ -1824,7 +1824,7 @@ class Converter {
 		if ( $parsed && is_array( $direct ) && empty( $direct ) ) {
 			return sprintf(
 				/* translators: 1: byte length, 2: first characters of the stored value */
-				__( 'Stored value (%1$d bytes) parsed fine as JSON but decoded to an empty layout. First characters: %2$s', 'sidcraft-syntex' ),
+				__( 'Stored value (%1$d bytes) parsed fine as JSON but decoded to an empty layout. First characters: %2$s', 'sidcraft-page-builder' ),
 				$len,
 				$excerpt
 			);
@@ -1838,7 +1838,7 @@ class Converter {
 				if ( json_last_error() === JSON_ERROR_NONE ) {
 					return sprintf(
 						/* translators: 1: byte length, 2: first characters of the stored value */
-						__( 'Stored value (%1$d bytes) parsed fine as JSON after removing slashes, but decoded to an empty layout. First characters: %2$s', 'sidcraft-syntex' ),
+						__( 'Stored value (%1$d bytes) parsed fine as JSON after removing slashes, but decoded to an empty layout. First characters: %2$s', 'sidcraft-page-builder' ),
 						$len,
 						$excerpt
 					);
@@ -1860,7 +1860,7 @@ class Converter {
 		$hint = self::json_problem_hint( $raw );
 		return sprintf(
 			/* translators: 1: byte length, 2: JSON parser error, 3: first characters of the stored value, 4: optional problem location */
-			__( 'Stored value is %1$d bytes but failed to parse as JSON (%2$s). First characters: %3$s%4$s', 'sidcraft-syntex' ),
+			__( 'Stored value is %1$d bytes but failed to parse as JSON (%2$s). First characters: %3$s%4$s', 'sidcraft-page-builder' ),
 			$len,
 			$json_err,
 			$excerpt,
@@ -1915,10 +1915,10 @@ class Converter {
 				'status'     => (string) ( $post->post_status ?? '' ),
 				'has_loom'   => $has_lb,
 				'converted'  => (string) get_post_meta( $id, self::CONVERTED_META, true ) !== '',
-				'edit_url'   => function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=sidcraft-syntex&post_id=' . $id ) : '',
+				'edit_url'   => function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=sidcraft-page-builder&post_id=' . $id ) : '',
 			);
 		}
-		$filtered = apply_filters( 'sidcraft-syntex/convert/candidates', $out, $args );
+		$filtered = apply_filters( 'sidcraft-page-builder/convert/candidates', $out, $args );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 
@@ -1936,7 +1936,7 @@ class Converter {
 		$force   = ! empty( $args['force'] );
 		$post    = function_exists( 'get_post' ) ? get_post( $post_id ) : null;
 		if ( $post_id && function_exists( 'current_user_can' ) && ! current_user_can( 'edit_post', $post_id ) && ! current_user_can( 'manage_options' ) ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot convert this document.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot convert this document.', 'sidcraft-page-builder' ) );
 		}
 		self::consume_decode_warning();
 		$source = self::source_data( $post_id );
@@ -1946,8 +1946,8 @@ class Converter {
 			return new \WP_Error(
 				'no_source',
 				$why !== ''
-					? __( 'No convertible layout data was found on this post.', 'sidcraft-syntex' ) . ' ' . $why
-					: __( 'No convertible layout data was found on this post.', 'sidcraft-syntex' )
+					? __( 'No convertible layout data was found on this post.', 'sidcraft-page-builder' ) . ' ' . $why
+					: __( 'No convertible layout data was found on this post.', 'sidcraft-page-builder' )
 			);
 		}
 		$sidsyn_key = class_exists( DocumentManager::class ) ? DocumentManager::META : '_sidsyn_document_data';
@@ -2027,7 +2027,7 @@ class Converter {
 		$src_type = (string) get_post_meta( $post->ID, self::SOURCE_TEMPLATE_TYPE, true );
 		$map      = Map::library_types();
 		$type     = $map[ $src_type ] ?? 'section';
-		$title    = $post->post_title !== '' ? $post->post_title : __( 'Converted template', 'sidcraft-syntex' );
+		$title    = $post->post_title !== '' ? $post->post_title : __( 'Converted template', 'sidcraft-page-builder' );
 		$key      = 'converted-' . $post->ID;
 		if ( method_exists( SavedTemplates::class, 'create' ) ) {
 			return SavedTemplates::create(
@@ -2133,7 +2133,7 @@ class Converter {
 		}
 		$agg['warnings'] = array_values( array_unique( $agg['warnings'] ) );
 		$agg['items']    = $items;
-		$filtered        = apply_filters( 'sidcraft-syntex/convert/report', $agg, $ids, $args );
+		$filtered        = apply_filters( 'sidcraft-page-builder/convert/report', $agg, $ids, $args );
 		return is_array( $filtered ) ? $filtered : $agg;
 	}
 

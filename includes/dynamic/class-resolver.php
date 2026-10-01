@@ -1,6 +1,6 @@
 <?php
-namespace SidcraftSyntex\Dynamic;
-use SidcraftSyntex\Document\DevMode;
+namespace SidcraftPageBuilder\Dynamic;
+use SidcraftPageBuilder\Document\DevMode;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -37,7 +37,7 @@ class Resolver {
 			$ctx['post'] = get_post( (int) $ctx['post_id'] );
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'sidcraft-syntex/dynamic_tags/context', $ctx );
+			$filtered = apply_filters( 'sidcraft-page-builder/dynamic_tags/context', $ctx );
 			if ( is_array( $filtered ) ) {
 				$ctx = $filtered;
 			}
@@ -123,7 +123,7 @@ class Resolver {
 		}
 		$raw = $tag->render( $binding, $context );
 		if ( function_exists( 'apply_filters' ) ) {
-			$raw = apply_filters( 'sidcraft-syntex/dynamic_tags/value', $raw, $tag_name, $binding, $context );
+			$raw = apply_filters( 'sidcraft-page-builder/dynamic_tags/value', $raw, $tag_name, $binding, $context );
 		}
 		$extracted = self::extract( $raw, $control_type );
 		$value = $extracted['value'];
@@ -209,7 +209,7 @@ class Resolver {
 		$s = (string) $v;
 		$s = wp_strip_all_tags( $s );
 		$s = trim( preg_replace( '/\s+/', ' ', $s ) );
-		$s = \SidcraftSyntex\Utils\Text::truncate( $s, 140, '...' );
+		$s = \SidcraftPageBuilder\Utils\Text::truncate( $s, 140, '...' );
 		return $s;
 	}
 

@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Design;
+namespace SidcraftPageBuilder\Design;
 if(!defined('ABSPATH')) exit;
 class Media {
  public static function attachment($id,$size='full'){

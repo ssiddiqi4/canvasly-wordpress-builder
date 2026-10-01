@@ -1,7 +1,7 @@
 <?php
-namespace SidcraftSyntex\Units;
+namespace SidcraftPageBuilder\Units;
 
-use SidcraftSyntex\Embed\OEmbed;
+use SidcraftPageBuilder\Embed\OEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,7 +16,7 @@ class Embed extends Unit {
 		return 'embed';
 	}
 	public function title() {
-		return __( 'Embed', 'sidcraft-syntex' );
+		return __( 'Embed', 'sidcraft-page-builder' );
 	}
 	public function icon() {
 		return "\u{29C9}";
@@ -35,9 +35,9 @@ class Embed extends Unit {
 		);
 	}
 	public function controls() {
-		$emb = __( 'Embed', 'sidcraft-syntex' );
+		$emb = __( 'Embed', 'sidcraft-page-builder' );
 		$ratios = array(
-			''     => __( 'Auto', 'sidcraft-syntex' ),
+			''     => __( 'Auto', 'sidcraft-page-builder' ),
 			'16:9' => '16:9',
 			'21:9' => '21:9',
 			'4:3'  => '4:3',
@@ -45,9 +45,9 @@ class Embed extends Unit {
 			'9:16' => '9:16',
 		);
 		return array(
-			'url'          => $this->ctrl( 'url', __( 'URL', 'sidcraft-syntex' ), 'content', $emb, array( 'dynamic' => true ) ),
-			'aspect_ratio' => $this->ctrl( 'select', __( 'Aspect Ratio', 'sidcraft-syntex' ), 'style', $emb, array( 'options' => $ratios ) ),
-			'max_width'    => $this->ctrl( 'slider', __( 'Max Width', 'sidcraft-syntex' ), 'style', $emb, array(
+			'url'          => $this->ctrl( 'url', __( 'URL', 'sidcraft-page-builder' ), 'content', $emb, array( 'dynamic' => true ) ),
+			'aspect_ratio' => $this->ctrl( 'select', __( 'Aspect Ratio', 'sidcraft-page-builder' ), 'style', $emb, array( 'options' => $ratios ) ),
+			'max_width'    => $this->ctrl( 'slider', __( 'Max Width', 'sidcraft-page-builder' ), 'style', $emb, array(
 				'units'     => array( 'px', '%', 'vw' ),
 				'range'     => array( 'min' => 0, 'max' => 1200 ),
 				'selectors' => array( '{{WRAPPER}} .lb-embed' => 'max-width: {{VALUE}};' ),
@@ -58,11 +58,11 @@ class Embed extends Unit {
 		$s   = is_array( $s ) ? $s : array();
 		$url = trim( (string) ( $s['url'] ?? '' ) );
 		if ( $url === '' ) {
-			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'Paste a URL to embed', 'sidcraft-syntex' ) . '</div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'Paste a URL to embed', 'sidcraft-page-builder' ) . '</div>';
 		}
 		$html = class_exists( OEmbed::class ) ? OEmbed::html( $url ) : '';
 		if ( $html === '' ) {
-			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'This URL could not be embedded', 'sidcraft-syntex' ) . '</div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'This URL could not be embedded', 'sidcraft-page-builder' ) . '</div>';
 		}
 		$ratio = self::ratio_value( $s['aspect_ratio'] ?? '' );
 		$max   = $this->unit( $s['max_width'] ?? '' );

@@ -85,7 +85,9 @@ function installControls() {
     s = s || {};
     const map = s.media_urls && typeof s.media_urls === "object" ? s.media_urls : {};
     if (map[id] || map[String(id)]) return map[id] || map[String(id)];
-    const hit = ((typeof window !== "undefined" && window.SidcraftSyntex1228 && window.SidcraftSyntex1228.attCache) ||
+    const hit = ((typeof window !== "undefined" &&
+      window.SidcraftPageBuilder1228 &&
+      window.SidcraftPageBuilder1228.attCache) ||
       {})[parseInt(id, 10)];
     if (hit)
       return (
@@ -102,7 +104,9 @@ function installControls() {
     const map = s && s.media_ratios && typeof s.media_ratios === "object" ? s.media_ratios : {};
     let r = parseFloat(map[id] || map[String(id)] || 0);
     if (r > 0.05 && r < 20) return r;
-    const hit = ((typeof window !== "undefined" && window.SidcraftSyntex1228 && window.SidcraftSyntex1228.attCache) ||
+    const hit = ((typeof window !== "undefined" &&
+      window.SidcraftPageBuilder1228 &&
+      window.SidcraftPageBuilder1228.attCache) ||
       {})[parseInt(id, 10)];
     if (hit) {
       const w =

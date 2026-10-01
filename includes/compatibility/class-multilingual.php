@@ -1,8 +1,8 @@
 <?php
-namespace SidcraftSyntex\Compatibility;
+namespace SidcraftPageBuilder\Compatibility;
 
-use SidcraftSyntex\Document\DocumentManager;
-use SidcraftSyntex\Units\UnitRegistry;
+use SidcraftPageBuilder\Document\DocumentManager;
+use SidcraftPageBuilder\Units\UnitRegistry;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * (`wpml-config.xml` + `pll_copy_post_metas`).
  */
 class Multilingual {
-	const DOMAIN = 'sidcraft-syntex';
-	const GROUP  = 'Sidcraft Syntex';
+	const DOMAIN = 'sidcraft-page-builder';
+	const GROUP  = 'Sidcraft Page Builder';
 
 	private static $booted = false;
 
@@ -24,8 +24,8 @@ class Multilingual {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'sidcraft-syntex/document/after_save', array( self::class, 'on_after_save' ), 50, 2 );
-		add_filter( 'sidcraft-syntex/unit/settings', array( self::class, 'filter_settings' ), 20, 4 );
+		add_action( 'sidcraft-page-builder/document/after_save', array( self::class, 'on_after_save' ), 50, 2 );
+		add_filter( 'sidcraft-page-builder/unit/settings', array( self::class, 'filter_settings' ), 20, 4 );
 		add_action( 'icl_make_duplicate', array( self::class, 'on_wpml_duplicate' ), 10, 4 );
 		add_filter( 'pll_copy_post_metas', array( self::class, 'pll_copy_metas' ), 10, 2 );
 		add_filter( 'pll_get_post_types', array( self::class, 'pll_post_types' ), 10, 2 );
@@ -43,7 +43,7 @@ class Multilingual {
 		 *
 		 * @param string[] $types
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/multilingual/types', $types );
+		$filtered = apply_filters( 'sidcraft-page-builder/multilingual/types', $types );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'sanitize_key', $filtered ) ) ) : $types;
 	}
 
@@ -86,7 +86,7 @@ class Multilingual {
 		 * @param array $doc
 		 * @param int   $post_id
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/multilingual/strings', $out, is_array( $doc ) ? $doc : array(), $post_id );
+		$filtered = apply_filters( 'sidcraft-page-builder/multilingual/strings', $out, is_array( $doc ) ? $doc : array(), $post_id );
 		return is_array( $filtered ) ? array_values( $filtered ) : $out;
 	}
 
@@ -174,7 +174,7 @@ class Multilingual {
 	}
 
 	/**
-	 * WPML duplicate: copy Sidcraft Syntex meta onto the new language post.
+	 * WPML duplicate: copy Sidcraft Page Builder meta onto the new language post.
 	 *
 	 * @param int    $master_id
 	 * @param string $lang

@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Utils;
+namespace SidcraftPageBuilder\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * a miss or when the file mtime/size change.
  */
 class JsonCache {
-	const GROUP            = 'sidcraft_syntex_json';
+	const GROUP            = 'sidcraft_page_builder_json';
 	const TRANSIENT_PREFIX = 'sidsyn_json_';
 	const TRANSIENT_MAX    = 262144;
 
@@ -214,7 +214,7 @@ class JsonCache {
 	 * @return string
 	 */
 	private static function cache_key( $path ) {
-		$ver = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '';
+		$ver = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '';
 		return substr( md5( $ver . '|' . $path ), 0, 32 );
 	}
 

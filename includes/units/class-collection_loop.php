@@ -1,11 +1,11 @@
 <?php
-namespace SidcraftSyntex\Units;
+namespace SidcraftPageBuilder\Units;
 
-use SidcraftSyntex\Document\DocumentManager;
-use SidcraftSyntex\Document\Documents;
-use SidcraftSyntex\Query\Query;
-use SidcraftSyntex\Rendering\FrontendRenderer;
-use SidcraftSyntex\Utils\Style;
+use SidcraftPageBuilder\Document\DocumentManager;
+use SidcraftPageBuilder\Document\Documents;
+use SidcraftPageBuilder\Query\Query;
+use SidcraftPageBuilder\Rendering\FrontendRenderer;
+use SidcraftPageBuilder\Utils\Style;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -33,7 +33,7 @@ class CollectionLoop extends Unit {
 		return true;
 	}
 	public function title() {
-		return __( 'Collection Loop', 'sidcraft-syntex' );
+		return __( 'Collection Loop', 'sidcraft-page-builder' );
 	}
 	public function icon() {
 		return "\u{21BB}";
@@ -97,10 +97,10 @@ class CollectionLoop extends Unit {
 			'equal_height'     => false,
 			'pagination'       => 'none',
 			'page_limit'       => 0,
-			'load_more_text'   => __( 'Load more', 'sidcraft-syntex' ),
-			'prev_text'        => __( 'Previous', 'sidcraft-syntex' ),
-			'next_text'        => __( 'Next', 'sidcraft-syntex' ),
-			'empty_message'    => __( 'No items found.', 'sidcraft-syntex' ),
+			'load_more_text'   => __( 'Load more', 'sidcraft-page-builder' ),
+			'prev_text'        => __( 'Previous', 'sidcraft-page-builder' ),
+			'next_text'        => __( 'Next', 'sidcraft-page-builder' ),
+			'empty_message'    => __( 'No items found.', 'sidcraft-page-builder' ),
 			'item_background'  => '',
 			'item_padding'     => array(
 				'top'    => '0',
@@ -123,122 +123,122 @@ class CollectionLoop extends Unit {
 	}
 
 	public function controls() {
-		$query = __( 'Query', 'sidcraft-syntex' );
-		$item  = __( 'Item Template', 'sidcraft-syntex' );
-		$lay   = __( 'Layout', 'sidcraft-syntex' );
-		$pag   = __( 'Pagination', 'sidcraft-syntex' );
-		$items = __( 'Items', 'sidcraft-syntex' );
+		$query = __( 'Query', 'sidcraft-page-builder' );
+		$item  = __( 'Item Template', 'sidcraft-page-builder' );
+		$lay   = __( 'Layout', 'sidcraft-page-builder' );
+		$pag   = __( 'Pagination', 'sidcraft-page-builder' );
+		$items = __( 'Items', 'sidcraft-page-builder' );
 		$w     = '{{WRAPPER}}';
 		$grid  = $w . ' .lb-loop-items';
 		$card  = $w . ' .lb-loop-item';
 		$nav   = $w . ' .lb-loop-pagination';
 
 		return array(
-			'query_type'      => $this->ctrl( 'select', __( 'Query Type', 'sidcraft-syntex' ), 'content', $query, array(
+			'query_type'      => $this->ctrl( 'select', __( 'Query Type', 'sidcraft-page-builder' ), 'content', $query, array(
 				'options' => array(
-					'posts' => __( 'Posts / CPT', 'sidcraft-syntex' ),
-					'terms' => __( 'Terms', 'sidcraft-syntex' ),
+					'posts' => __( 'Posts / CPT', 'sidcraft-page-builder' ),
+					'terms' => __( 'Terms', 'sidcraft-page-builder' ),
 				),
 			) ),
-			'source'          => $this->ctrl( 'select', __( 'Source', 'sidcraft-syntex' ), 'content', $query, array(
+			'source'          => $this->ctrl( 'select', __( 'Source', 'sidcraft-page-builder' ), 'content', $query, array(
 				'options'   => array(
-					'custom'  => __( 'Custom query', 'sidcraft-syntex' ),
-					'current' => __( 'Current query', 'sidcraft-syntex' ),
-					'related' => __( 'Related', 'sidcraft-syntex' ),
-					'manual'  => __( 'Manual selection', 'sidcraft-syntex' ),
+					'custom'  => __( 'Custom query', 'sidcraft-page-builder' ),
+					'current' => __( 'Current query', 'sidcraft-page-builder' ),
+					'related' => __( 'Related', 'sidcraft-page-builder' ),
+					'manual'  => __( 'Manual selection', 'sidcraft-page-builder' ),
 				),
 				'condition' => array( 'query_type' => 'posts' ),
 			) ),
-			'post_type'       => $this->ctrl( 'select', __( 'Post Type', 'sidcraft-syntex' ), 'content', $query, array(
+			'post_type'       => $this->ctrl( 'select', __( 'Post Type', 'sidcraft-page-builder' ), 'content', $query, array(
 				'options'   => self::post_type_options(),
 				'condition' => array( 'query_type' => 'posts', 'source' => array( 'custom', 'related', 'manual' ) ),
 			) ),
-			'posts_per_page'  => $this->ctrl( 'number', __( 'Items Per Page', 'sidcraft-syntex' ), 'content', $query, array(
+			'posts_per_page'  => $this->ctrl( 'number', __( 'Items Per Page', 'sidcraft-page-builder' ), 'content', $query, array(
 				'range' => array( 'min' => 1, 'max' => 100, 'step' => 1 ),
 			) ),
-			'orderby'         => $this->ctrl( 'select', __( 'Order By', 'sidcraft-syntex' ), 'content', $query, array(
+			'orderby'         => $this->ctrl( 'select', __( 'Order By', 'sidcraft-page-builder' ), 'content', $query, array(
 				'options'   => array(
-					'date'           => __( 'Date', 'sidcraft-syntex' ),
-					'title'          => __( 'Title', 'sidcraft-syntex' ),
-					'menu_order'     => __( 'Menu order', 'sidcraft-syntex' ),
-					'modified'       => __( 'Last modified', 'sidcraft-syntex' ),
-					'comment_count'  => __( 'Comment count', 'sidcraft-syntex' ),
-					'rand'           => __( 'Random', 'sidcraft-syntex' ),
-					'ID'             => __( 'ID', 'sidcraft-syntex' ),
+					'date'           => __( 'Date', 'sidcraft-page-builder' ),
+					'title'          => __( 'Title', 'sidcraft-page-builder' ),
+					'menu_order'     => __( 'Menu order', 'sidcraft-page-builder' ),
+					'modified'       => __( 'Last modified', 'sidcraft-page-builder' ),
+					'comment_count'  => __( 'Comment count', 'sidcraft-page-builder' ),
+					'rand'           => __( 'Random', 'sidcraft-page-builder' ),
+					'ID'             => __( 'ID', 'sidcraft-page-builder' ),
 					// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- WP_Query orderby option labels, not a meta query.
-					'meta_value'     => __( 'Meta value', 'sidcraft-syntex' ),
-					'meta_value_num' => __( 'Meta value (numeric)', 'sidcraft-syntex' ),
+					'meta_value'     => __( 'Meta value', 'sidcraft-page-builder' ),
+					'meta_value_num' => __( 'Meta value (numeric)', 'sidcraft-page-builder' ),
 					// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				),
 				'condition' => array( 'query_type' => 'posts', 'source!' => 'manual' ),
 			) ),
-			'order'           => $this->ctrl( 'select', __( 'Order', 'sidcraft-syntex' ), 'content', $query, array(
+			'order'           => $this->ctrl( 'select', __( 'Order', 'sidcraft-page-builder' ), 'content', $query, array(
 				'options'   => array(
-					'DESC' => __( 'Descending', 'sidcraft-syntex' ),
-					'ASC'  => __( 'Ascending', 'sidcraft-syntex' ),
+					'DESC' => __( 'Descending', 'sidcraft-page-builder' ),
+					'ASC'  => __( 'Ascending', 'sidcraft-page-builder' ),
 				),
 				'condition' => array( 'source!' => 'manual' ),
 			) ),
-			'offset'          => $this->ctrl( 'number', __( 'Offset', 'sidcraft-syntex' ), 'content', $query, array(
+			'offset'          => $this->ctrl( 'number', __( 'Offset', 'sidcraft-page-builder' ), 'content', $query, array(
 				'range'     => array( 'min' => 0, 'max' => 200, 'step' => 1 ),
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'ignore_sticky'   => $this->ctrl( 'switch', __( 'Ignore Sticky Posts', 'sidcraft-syntex' ), 'content', $query, array(
+			'ignore_sticky'   => $this->ctrl( 'switch', __( 'Ignore Sticky Posts', 'sidcraft-page-builder' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'exclude_current' => $this->ctrl( 'switch', __( 'Exclude Current Post', 'sidcraft-syntex' ), 'content', $query, array(
+			'exclude_current' => $this->ctrl( 'switch', __( 'Exclude Current Post', 'sidcraft-page-builder' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'taxonomy'        => $this->ctrl( 'select', __( 'Taxonomy', 'sidcraft-syntex' ), 'content', $query, array(
+			'taxonomy'        => $this->ctrl( 'select', __( 'Taxonomy', 'sidcraft-page-builder' ), 'content', $query, array(
 				'options' => self::taxonomy_options(),
 			) ),
-			'terms'           => $this->ctrl( 'text', __( 'Terms', 'sidcraft-syntex' ), 'content', $query, array(
-				'placeholder' => __( 'IDs or slugs, comma separated', 'sidcraft-syntex' ),
+			'terms'           => $this->ctrl( 'text', __( 'Terms', 'sidcraft-page-builder' ), 'content', $query, array(
+				'placeholder' => __( 'IDs or slugs, comma separated', 'sidcraft-page-builder' ),
 				'condition'   => array( 'query_type' => 'posts', 'source' => array( 'custom', 'related' ) ),
-				'description' => __( 'Filter posts by these terms. Related uses the current post terms in this taxonomy.', 'sidcraft-syntex' ),
+				'description' => __( 'Filter posts by these terms. Related uses the current post terms in this taxonomy.', 'sidcraft-page-builder' ),
 			) ),
-			'terms_operator'  => $this->ctrl( 'select', __( 'Terms Operator', 'sidcraft-syntex' ), 'content', $query, array(
+			'terms_operator'  => $this->ctrl( 'select', __( 'Terms Operator', 'sidcraft-page-builder' ), 'content', $query, array(
 				'options'   => array(
-					'IN'     => __( 'In', 'sidcraft-syntex' ),
-					'NOT IN' => __( 'Not in', 'sidcraft-syntex' ),
-					'AND'    => __( 'And', 'sidcraft-syntex' ),
+					'IN'     => __( 'In', 'sidcraft-page-builder' ),
+					'NOT IN' => __( 'Not in', 'sidcraft-page-builder' ),
+					'AND'    => __( 'And', 'sidcraft-page-builder' ),
 				),
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'author'          => $this->ctrl( 'text', __( 'Author', 'sidcraft-syntex' ), 'content', $query, array(
-				'placeholder' => __( "User ID or \u{201C}current\u{201D}", 'sidcraft-syntex' ),
+			'author'          => $this->ctrl( 'text', __( 'Author', 'sidcraft-page-builder' ), 'content', $query, array(
+				'placeholder' => __( "User ID or \u{201C}current\u{201D}", 'sidcraft-page-builder' ),
 				'condition'   => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'date'            => $this->ctrl( 'select', __( 'Date', 'sidcraft-syntex' ), 'content', $query, array(
+			'date'            => $this->ctrl( 'select', __( 'Date', 'sidcraft-page-builder' ), 'content', $query, array(
 				'options'   => array(
-					''      => __( 'Any time', 'sidcraft-syntex' ),
-					'today' => __( 'Today', 'sidcraft-syntex' ),
-					'week'  => __( 'This week', 'sidcraft-syntex' ),
-					'month' => __( 'This month', 'sidcraft-syntex' ),
-					'year'  => __( 'This year', 'sidcraft-syntex' ),
+					''      => __( 'Any time', 'sidcraft-page-builder' ),
+					'today' => __( 'Today', 'sidcraft-page-builder' ),
+					'week'  => __( 'This week', 'sidcraft-page-builder' ),
+					'month' => __( 'This month', 'sidcraft-page-builder' ),
+					'year'  => __( 'This year', 'sidcraft-page-builder' ),
 				),
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'search'          => $this->ctrl( 'text', __( 'Search', 'sidcraft-syntex' ), 'content', $query, array(
+			'search'          => $this->ctrl( 'text', __( 'Search', 'sidcraft-page-builder' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 				'dynamic'   => true,
 			) ),
-			'include'         => $this->ctrl( 'text', __( 'Include IDs', 'sidcraft-syntex' ), 'content', $query, array(
+			'include'         => $this->ctrl( 'text', __( 'Include IDs', 'sidcraft-page-builder' ), 'content', $query, array(
 				'placeholder' => '12, 34, 56',
 			) ),
 			// phpcs:disable WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude, WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Control names for Collection Loop settings, not a WP_Query.
-			'exclude'         => $this->ctrl( 'text', __( 'Exclude IDs', 'sidcraft-syntex' ), 'content', $query, array(
+			'exclude'         => $this->ctrl( 'text', __( 'Exclude IDs', 'sidcraft-page-builder' ), 'content', $query, array(
 				'placeholder' => '12, 34',
 				'condition'   => array( 'source!' => 'manual' ),
 			) ),
-			'meta_key'        => $this->ctrl( 'text', __( 'Meta Key', 'sidcraft-syntex' ), 'content', $query, array(
+			'meta_key'        => $this->ctrl( 'text', __( 'Meta Key', 'sidcraft-page-builder' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'meta_value'      => $this->ctrl( 'text', __( 'Meta Value', 'sidcraft-syntex' ), 'content', $query, array(
+			'meta_value'      => $this->ctrl( 'text', __( 'Meta Value', 'sidcraft-page-builder' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom', 'meta_key!' => '' ),
 			) ),
 			// phpcs:enable WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude, WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-			'meta_compare'    => $this->ctrl( 'select', __( 'Meta Compare', 'sidcraft-syntex' ), 'content', $query, array(
+			'meta_compare'    => $this->ctrl( 'select', __( 'Meta Compare', 'sidcraft-page-builder' ), 'content', $query, array(
 				'options'   => array(
 					'='           => '=',
 					'!='          => '!=',
@@ -255,179 +255,179 @@ class CollectionLoop extends Unit {
 				),
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom', 'meta_key!' => '' ),
 			) ),
-			'hide_empty'      => $this->ctrl( 'switch', __( 'Hide Empty Terms', 'sidcraft-syntex' ), 'content', $query, array(
+			'hide_empty'      => $this->ctrl( 'switch', __( 'Hide Empty Terms', 'sidcraft-page-builder' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'terms' ),
 			) ),
-			'parent'          => $this->ctrl( 'number', __( 'Parent Term', 'sidcraft-syntex' ), 'content', $query, array(
+			'parent'          => $this->ctrl( 'number', __( 'Parent Term', 'sidcraft-page-builder' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'terms' ),
-				'description' => __( 'Only direct children of this term ID. Leave empty for all.', 'sidcraft-syntex' ),
+				'description' => __( 'Only direct children of this term ID. Leave empty for all.', 'sidcraft-page-builder' ),
 			) ),
-			'terms_orderby'   => $this->ctrl( 'select', __( 'Terms Order By', 'sidcraft-syntex' ), 'content', $query, array(
+			'terms_orderby'   => $this->ctrl( 'select', __( 'Terms Order By', 'sidcraft-page-builder' ), 'content', $query, array(
 				'options'   => array(
-					'name'    => __( 'Name', 'sidcraft-syntex' ),
-					'slug'    => __( 'Slug', 'sidcraft-syntex' ),
-					'count'   => __( 'Count', 'sidcraft-syntex' ),
-					'term_id' => __( 'ID', 'sidcraft-syntex' ),
+					'name'    => __( 'Name', 'sidcraft-page-builder' ),
+					'slug'    => __( 'Slug', 'sidcraft-page-builder' ),
+					'count'   => __( 'Count', 'sidcraft-page-builder' ),
+					'term_id' => __( 'ID', 'sidcraft-page-builder' ),
 				),
 				'condition' => array( 'query_type' => 'terms' ),
 			) ),
-			'item_source'     => $this->ctrl( 'select', __( 'Item Template', 'sidcraft-syntex' ), 'content', $item, array(
+			'item_source'     => $this->ctrl( 'select', __( 'Item Template', 'sidcraft-page-builder' ), 'content', $item, array(
 				'options' => array(
-					'inline'   => __( 'Inline children', 'sidcraft-syntex' ),
-					'template' => __( 'Saved template', 'sidcraft-syntex' ),
+					'inline'   => __( 'Inline children', 'sidcraft-page-builder' ),
+					'template' => __( 'Saved template', 'sidcraft-page-builder' ),
 				),
-				'description' => __( 'Inline: drop heading, image and other widgets into the loop. Bind dynamic tags to post or term fields.', 'sidcraft-syntex' ),
+				'description' => __( 'Inline: drop heading, image and other widgets into the loop. Bind dynamic tags to post or term fields.', 'sidcraft-page-builder' ),
 			) ),
-			'template_id'     => $this->ctrl( 'select', __( 'Saved Template', 'sidcraft-syntex' ), 'content', $item, array(
+			'template_id'     => $this->ctrl( 'select', __( 'Saved Template', 'sidcraft-page-builder' ), 'content', $item, array(
 				'options'   => self::template_options(),
 				'condition' => array( 'item_source' => 'template' ),
 			) ),
-			'layout'          => $this->ctrl( 'choose', __( 'Layout', 'sidcraft-syntex' ), 'content', $lay, array(
+			'layout'          => $this->ctrl( 'choose', __( 'Layout', 'sidcraft-page-builder' ), 'content', $lay, array(
 				'options' => array(
-					'grid'     => __( 'Grid', 'sidcraft-syntex' ),
-					'list'     => __( 'List', 'sidcraft-syntex' ),
-					'carousel' => __( 'Carousel', 'sidcraft-syntex' ),
+					'grid'     => __( 'Grid', 'sidcraft-page-builder' ),
+					'list'     => __( 'List', 'sidcraft-page-builder' ),
+					'carousel' => __( 'Carousel', 'sidcraft-page-builder' ),
 				),
 			) ),
-			'carousel_show'   => $this->ctrl( 'slider', __( 'Slides to Show', 'sidcraft-syntex' ), 'content', $lay, array(
+			'carousel_show'   => $this->ctrl( 'slider', __( 'Slides to Show', 'sidcraft-page-builder' ), 'content', $lay, array(
 				'responsive'  => true,
 				'units'       => array(),
 				'range'       => array( 'min' => 1, 'max' => 8, 'step' => 1 ),
 				'condition'   => array( 'layout' => 'carousel' ),
-				'description' => __( 'Loop items slide inside this widget. Arrows do not open the saved template or reload the page.', 'sidcraft-syntex' ),
+				'description' => __( 'Loop items slide inside this widget. Arrows do not open the saved template or reload the page.', 'sidcraft-page-builder' ),
 			) ),
-			'carousel_scroll' => $this->ctrl( 'slider', __( 'Slides to Scroll', 'sidcraft-syntex' ), 'content', $lay, array(
+			'carousel_scroll' => $this->ctrl( 'slider', __( 'Slides to Scroll', 'sidcraft-page-builder' ), 'content', $lay, array(
 				'units'     => array(),
 				'range'     => array( 'min' => 1, 'max' => 8, 'step' => 1 ),
 				'condition' => array( 'layout' => 'carousel' ),
 			) ),
-			'carousel_nav'    => $this->ctrl( 'select', __( 'Navigation', 'sidcraft-syntex' ), 'content', $lay, array(
+			'carousel_nav'    => $this->ctrl( 'select', __( 'Navigation', 'sidcraft-page-builder' ), 'content', $lay, array(
 				'options'   => array(
-					'arrows' => __( 'Arrows', 'sidcraft-syntex' ),
-					'dots'   => __( 'Dots', 'sidcraft-syntex' ),
-					'both'   => __( 'Arrows and dots', 'sidcraft-syntex' ),
-					'none'   => __( 'None', 'sidcraft-syntex' ),
+					'arrows' => __( 'Arrows', 'sidcraft-page-builder' ),
+					'dots'   => __( 'Dots', 'sidcraft-page-builder' ),
+					'both'   => __( 'Arrows and dots', 'sidcraft-page-builder' ),
+					'none'   => __( 'None', 'sidcraft-page-builder' ),
 				),
 				'condition' => array( 'layout' => 'carousel' ),
 			) ),
-			'carousel_loop'   => $this->ctrl( 'switch', __( 'Infinite Loop', 'sidcraft-syntex' ), 'content', $lay, array(
+			'carousel_loop'   => $this->ctrl( 'switch', __( 'Infinite Loop', 'sidcraft-page-builder' ), 'content', $lay, array(
 				'condition' => array( 'layout' => 'carousel' ),
 			) ),
-			'carousel_autoplay' => $this->ctrl( 'switch', __( 'Autoplay', 'sidcraft-syntex' ), 'content', $lay, array(
+			'carousel_autoplay' => $this->ctrl( 'switch', __( 'Autoplay', 'sidcraft-page-builder' ), 'content', $lay, array(
 				'condition' => array( 'layout' => 'carousel' ),
 			) ),
-			'carousel_pause'  => $this->ctrl( 'switch', __( 'Pause on Hover', 'sidcraft-syntex' ), 'content', $lay, array(
+			'carousel_pause'  => $this->ctrl( 'switch', __( 'Pause on Hover', 'sidcraft-page-builder' ), 'content', $lay, array(
 				'condition' => array( 'layout' => 'carousel', 'carousel_autoplay' => true ),
 			) ),
-			'carousel_interval' => $this->ctrl( 'number', __( 'Autoplay Speed', 'sidcraft-syntex' ), 'content', $lay, array(
+			'carousel_interval' => $this->ctrl( 'number', __( 'Autoplay Speed', 'sidcraft-page-builder' ), 'content', $lay, array(
 				'range'     => array( 'min' => 500, 'max' => 15000, 'step' => 100 ),
 				'condition' => array( 'layout' => 'carousel', 'carousel_autoplay' => true ),
 			) ),
-			'carousel_speed'  => $this->ctrl( 'number', __( 'Transition Speed', 'sidcraft-syntex' ), 'content', $lay, array(
+			'carousel_speed'  => $this->ctrl( 'number', __( 'Transition Speed', 'sidcraft-page-builder' ), 'content', $lay, array(
 				'range'     => array( 'min' => 0, 'max' => 3000, 'step' => 50 ),
 				'condition' => array( 'layout' => 'carousel' ),
 			) ),
-			'static_enable'   => $this->ctrl( 'switch', __( 'Static Item Position', 'sidcraft-syntex' ), 'content', __( 'Static Item', 'sidcraft-syntex' ), array(
-				'description' => __( 'Insert a saved template into the loop at a fixed position. The post that was in that cell moves to the next cell.', 'sidcraft-syntex' ),
+			'static_enable'   => $this->ctrl( 'switch', __( 'Static Item Position', 'sidcraft-page-builder' ), 'content', __( 'Static Item', 'sidcraft-page-builder' ), array(
+				'description' => __( 'Insert a saved template into the loop at a fixed position. The post that was in that cell moves to the next cell.', 'sidcraft-page-builder' ),
 			) ),
-			'static_template_id' => $this->ctrl( 'select', __( 'Static Template', 'sidcraft-syntex' ), 'content', __( 'Static Item', 'sidcraft-syntex' ), array(
+			'static_template_id' => $this->ctrl( 'select', __( 'Static Template', 'sidcraft-page-builder' ), 'content', __( 'Static Item', 'sidcraft-page-builder' ), array(
 				'options'   => self::template_options(),
 				'condition' => array( 'static_enable' => true ),
 			) ),
-			'static_position' => $this->ctrl( 'number', __( 'Position', 'sidcraft-syntex' ), 'content', __( 'Static Item', 'sidcraft-syntex' ), array(
+			'static_position' => $this->ctrl( 'number', __( 'Position', 'sidcraft-page-builder' ), 'content', __( 'Static Item', 'sidcraft-page-builder' ), array(
 				'range'       => array( 'min' => 1, 'max' => 50, 'step' => 1 ),
 				'condition'   => array( 'static_enable' => true ),
-				'description' => __( '1 is the first cell. Position 2 places the static item second and shifts that post forward.', 'sidcraft-syntex' ),
+				'description' => __( '1 is the first cell. Position 2 places the static item second and shifts that post forward.', 'sidcraft-page-builder' ),
 			) ),
-			'static_column_span' => $this->ctrl( 'slider', __( 'Column Span', 'sidcraft-syntex' ), 'content', __( 'Static Item', 'sidcraft-syntex' ), array(
+			'static_column_span' => $this->ctrl( 'slider', __( 'Column Span', 'sidcraft-page-builder' ), 'content', __( 'Static Item', 'sidcraft-page-builder' ), array(
 				'units'     => array(),
 				'range'     => array( 'min' => 1, 'max' => 8, 'step' => 1 ),
 				'condition' => array( 'static_enable' => true, 'layout' => 'grid' ),
 			) ),
-			'static_repeat'   => $this->ctrl( 'select', __( 'Repeat', 'sidcraft-syntex' ), 'content', __( 'Static Item', 'sidcraft-syntex' ), array(
+			'static_repeat'   => $this->ctrl( 'select', __( 'Repeat', 'sidcraft-page-builder' ), 'content', __( 'Static Item', 'sidcraft-page-builder' ), array(
 				'options'   => array(
-					'once'   => __( 'Once', 'sidcraft-syntex' ),
-					'repeat' => __( 'Repeat at this position', 'sidcraft-syntex' ),
+					'once'   => __( 'Once', 'sidcraft-page-builder' ),
+					'repeat' => __( 'Repeat at this position', 'sidcraft-page-builder' ),
 				),
 				'condition' => array( 'static_enable' => true ),
 			) ),
-			'columns'         => $this->ctrl( 'slider', __( 'Columns', 'sidcraft-syntex' ), 'content', $lay, array(
+			'columns'         => $this->ctrl( 'slider', __( 'Columns', 'sidcraft-page-builder' ), 'content', $lay, array(
 				'responsive' => true,
 				'units'      => array(),
 				'range'      => array( 'min' => 1, 'max' => 8, 'step' => 1 ),
 				'condition'  => array( 'layout' => 'grid' ),
 				'selectors'  => array( $grid => '--lb-loop-cols: {{SIZE}};' ),
 			) ),
-			'column_gap'      => $this->ctrl( 'slider', __( 'Column Gap', 'sidcraft-syntex' ), 'style', $lay, array(
+			'column_gap'      => $this->ctrl( 'slider', __( 'Column Gap', 'sidcraft-page-builder' ), 'style', $lay, array(
 				'responsive' => true,
 				'units'      => array( 'px', 'em', 'rem', '%' ),
 				'range'      => array( 'min' => 0, 'max' => 80 ),
 				'selectors'  => array( $grid => 'column-gap: {{SIZE}}{{UNIT}};' ),
 			) ),
-			'row_gap'         => $this->ctrl( 'slider', __( 'Row Gap', 'sidcraft-syntex' ), 'style', $lay, array(
+			'row_gap'         => $this->ctrl( 'slider', __( 'Row Gap', 'sidcraft-page-builder' ), 'style', $lay, array(
 				'responsive' => true,
 				'units'      => array( 'px', 'em', 'rem' ),
 				'range'      => array( 'min' => 0, 'max' => 80 ),
 				'selectors'  => array( $grid => 'row-gap: {{SIZE}}{{UNIT}};' ),
 			) ),
-			'equal_height'    => $this->ctrl( 'switch', __( 'Equal Height', 'sidcraft-syntex' ), 'style', $lay, array(
+			'equal_height'    => $this->ctrl( 'switch', __( 'Equal Height', 'sidcraft-page-builder' ), 'style', $lay, array(
 				'condition' => array( 'layout' => 'grid' ),
 			) ),
-			'pagination'      => $this->ctrl( 'select', __( 'Pagination', 'sidcraft-syntex' ), 'content', $pag, array(
+			'pagination'      => $this->ctrl( 'select', __( 'Pagination', 'sidcraft-page-builder' ), 'content', $pag, array(
 				'options' => array(
-					'none'      => __( 'None', 'sidcraft-syntex' ),
-					'numbers'   => __( 'Numbers', 'sidcraft-syntex' ),
-					'prev_next' => __( 'Previous / Next', 'sidcraft-syntex' ),
-					'load_more' => __( 'Load more', 'sidcraft-syntex' ),
+					'none'      => __( 'None', 'sidcraft-page-builder' ),
+					'numbers'   => __( 'Numbers', 'sidcraft-page-builder' ),
+					'prev_next' => __( 'Previous / Next', 'sidcraft-page-builder' ),
+					'load_more' => __( 'Load more', 'sidcraft-page-builder' ),
 				),
 			) ),
-			'page_limit'      => $this->ctrl( 'number', __( 'Page Limit', 'sidcraft-syntex' ), 'content', $pag, array(
+			'page_limit'      => $this->ctrl( 'number', __( 'Page Limit', 'sidcraft-page-builder' ), 'content', $pag, array(
 				'range'       => array( 'min' => 0, 'max' => 50, 'step' => 1 ),
 				'condition'   => array( 'pagination' => array( 'numbers', 'prev_next', 'load_more' ) ),
-				'description' => __( '0 = no limit.', 'sidcraft-syntex' ),
+				'description' => __( '0 = no limit.', 'sidcraft-page-builder' ),
 			) ),
-			'load_more_text'  => $this->ctrl( 'text', __( 'Load More Text', 'sidcraft-syntex' ), 'content', $pag, array(
+			'load_more_text'  => $this->ctrl( 'text', __( 'Load More Text', 'sidcraft-page-builder' ), 'content', $pag, array(
 				'condition' => array( 'pagination' => 'load_more' ),
 			) ),
-			'prev_text'       => $this->ctrl( 'text', __( 'Previous Label', 'sidcraft-syntex' ), 'content', $pag, array(
+			'prev_text'       => $this->ctrl( 'text', __( 'Previous Label', 'sidcraft-page-builder' ), 'content', $pag, array(
 				'condition' => array( 'pagination' => array( 'numbers', 'prev_next' ) ),
 			) ),
-			'next_text'       => $this->ctrl( 'text', __( 'Next Label', 'sidcraft-syntex' ), 'content', $pag, array(
+			'next_text'       => $this->ctrl( 'text', __( 'Next Label', 'sidcraft-page-builder' ), 'content', $pag, array(
 				'condition' => array( 'pagination' => array( 'numbers', 'prev_next' ) ),
 			) ),
-			'empty_message'   => $this->ctrl( 'textarea', __( 'Nothing Found Message', 'sidcraft-syntex' ), 'content', $pag, array() ),
-			'item_background' => $this->ctrl( 'color', __( 'Item Background', 'sidcraft-syntex' ), 'style', $items, array(
+			'empty_message'   => $this->ctrl( 'textarea', __( 'Nothing Found Message', 'sidcraft-page-builder' ), 'content', $pag, array() ),
+			'item_background' => $this->ctrl( 'color', __( 'Item Background', 'sidcraft-page-builder' ), 'style', $items, array(
 				'selectors' => array( $card => 'background-color: {{VALUE}};' ),
 			) ),
-			'item_padding'    => $this->ctrl( 'dimensions', __( 'Item Padding', 'sidcraft-syntex' ), 'style', $items, array(
+			'item_padding'    => $this->ctrl( 'dimensions', __( 'Item Padding', 'sidcraft-page-builder' ), 'style', $items, array(
 				'selectors' => array( $card => 'padding: {{VALUE}};' ),
 			) ),
-			'item_radius'     => $this->ctrl( 'dimensions', __( 'Item Radius', 'sidcraft-syntex' ), 'style', $items, array(
+			'item_radius'     => $this->ctrl( 'dimensions', __( 'Item Radius', 'sidcraft-page-builder' ), 'style', $items, array(
 				'selectors' => array( $card => 'border-radius: {{VALUE}};' ),
 			) ),
-			'pag_color'       => $this->ctrl( 'color', __( 'Color', 'sidcraft-syntex' ), 'style', $pag, array(
+			'pag_color'       => $this->ctrl( 'color', __( 'Color', 'sidcraft-page-builder' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' a,' . $nav . ' span,' . $nav . ' button' => 'color: {{VALUE}};' ),
 			) ),
-			'pag_active_color'=> $this->ctrl( 'color', __( 'Active Color', 'sidcraft-syntex' ), 'style', $pag, array(
+			'pag_active_color'=> $this->ctrl( 'color', __( 'Active Color', 'sidcraft-page-builder' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' .is-current' => 'color: {{VALUE}};' ),
 			) ),
-			'pag_background'  => $this->ctrl( 'color', __( 'Background', 'sidcraft-syntex' ), 'style', $pag, array(
+			'pag_background'  => $this->ctrl( 'color', __( 'Background', 'sidcraft-page-builder' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' a,' . $nav . ' span,' . $nav . ' button' => 'background-color: {{VALUE}};' ),
 			) ),
-			'pag_hover_color' => $this->ctrl( 'color', __( 'Hover Color', 'sidcraft-syntex' ), 'style', $pag, array(
+			'pag_hover_color' => $this->ctrl( 'color', __( 'Hover Color', 'sidcraft-page-builder' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' a:hover,' . $nav . ' a:focus-visible,' . $nav . ' button:hover,' . $nav . ' button:focus-visible' => 'color: {{VALUE}};' ),
 			) ),
-			'pag_hover_background' => $this->ctrl( 'color', __( 'Hover Background', 'sidcraft-syntex' ), 'style', $pag, array(
+			'pag_hover_background' => $this->ctrl( 'color', __( 'Hover Background', 'sidcraft-page-builder' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' a:hover,' . $nav . ' a:focus-visible,' . $nav . ' button:hover,' . $nav . ' button:focus-visible' => 'background-color: {{VALUE}}; background-image: none;' ),
 			) ),
-			'pag_hover_border' => $this->ctrl( 'color', __( 'Hover Border', 'sidcraft-syntex' ), 'style', $pag, array(
+			'pag_hover_border' => $this->ctrl( 'color', __( 'Hover Border', 'sidcraft-page-builder' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' a:hover,' . $nav . ' a:focus-visible,' . $nav . ' button:hover,' . $nav . ' button:focus-visible' => 'border-color: {{VALUE}};' ),
 			) ),
 		);
 	}
 
 	public function render( $s, $children = '' ) {
-		return '<div class="' . $this->cls( $s ) . ' lb-loop-placeholder">' . esc_html__( 'Collection Loop', 'sidcraft-syntex' ) . '</div>';
+		return '<div class="' . $this->cls( $s ) . ' lb-loop-placeholder">' . esc_html__( 'Collection Loop', 'sidcraft-page-builder' ) . '</div>';
 	}
 
 	/**
@@ -476,7 +476,7 @@ class CollectionLoop extends Unit {
 				$msg = trim( (string) ( $s['empty_message'] ?? '' ) );
 				$body = $msg !== ''
 					? '<div class="lb-loop-empty">' . wp_kses_post( $msg ) . '</div>'
-					: '<div class="lb-loop-empty">' . esc_html__( 'No items found.', 'sidcraft-syntex' ) . '</div>';
+					: '<div class="lb-loop-empty">' . esc_html__( 'No items found.', 'sidcraft-page-builder' ) . '</div>';
 			} else {
 				$body = '<div class="lb-loop-items">' . $items . '</div>';
 			}
@@ -552,7 +552,7 @@ class CollectionLoop extends Unit {
 			return null;
 		}
 		$raw = get_post_meta( $id, '_sidsyn_template_data', true );
-		$doc = class_exists( '\\SidcraftSyntex\\Utils\\JsonCache' ) ? \SidcraftSyntex\Utils\JsonCache::decode( $raw, null ) : ( is_string( $raw ) ? json_decode( $raw, true ) : $raw );
+		$doc = class_exists( '\\SidcraftPageBuilder\\Utils\\JsonCache' ) ? \SidcraftPageBuilder\Utils\JsonCache::decode( $raw, null ) : ( is_string( $raw ) ? json_decode( $raw, true ) : $raw );
 		if ( ! is_array( $doc ) ) {
 			return null;
 		}
@@ -566,7 +566,7 @@ class CollectionLoop extends Unit {
 	 * Saved template this loop repeats.
 	 *
 	 * Inline loops return 0. `item_source` `template` returns `template_id`.
-	 * `sidcraft-syntex/loop/template_id` can point the same slot at a loop-item
+	 * `sidcraft-page-builder/loop/template_id` can point the same slot at a loop-item
 	 * template without a second renderer.
 	 *
 	 * @param array $settings
@@ -578,7 +578,7 @@ class CollectionLoop extends Unit {
 			$id = absint( $settings['template_id'] ?? 0 );
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'sidcraft-syntex/loop/template_id', $id, $settings );
+			$filtered = apply_filters( 'sidcraft-page-builder/loop/template_id', $id, $settings );
 			if ( is_numeric( $filtered ) ) {
 				$id = absint( $filtered );
 			}
@@ -590,8 +590,8 @@ class CollectionLoop extends Unit {
 		$template_id = self::embedded_template_id( $s );
 		if ( $template_id ) {
 			$doc = null;
-			if ( class_exists( '\\SidcraftSyntex\\Templates\\TemplateEmbed' ) ) {
-				$doc = \SidcraftSyntex\Templates\TemplateEmbed::document( $template_id );
+			if ( class_exists( '\\SidcraftPageBuilder\\Templates\\TemplateEmbed' ) ) {
+				$doc = \SidcraftPageBuilder\Templates\TemplateEmbed::document( $template_id );
 			}
 			if ( ! is_array( $doc ) ) {
 				$doc = self::template_document( $template_id );
@@ -604,21 +604,21 @@ class CollectionLoop extends Unit {
 	private function render_item( array $s, array $template, $item, $kind, $node_id, $page, $index ) {
 		if ( function_exists( 'do_action' ) ) {
 			/** Fires before one loop item renders. Pro pushes the loop post here. @param mixed $item Post or term. @param string $kind posts|terms */
-			do_action( 'sidcraft-syntex/loop/before_item', $item, $kind );
+			do_action( 'sidcraft-page-builder/loop/before_item', $item, $kind );
 		}
 		try {
 			return $this->render_item_markup( $s, $template, $item, $kind, $node_id, $page, $index );
 		} finally {
 			if ( function_exists( 'do_action' ) ) {
 				/** Fires after one loop item renders. @param mixed $item @param string $kind */
-				do_action( 'sidcraft-syntex/loop/after_item', $item, $kind );
+				do_action( 'sidcraft-page-builder/loop/after_item', $item, $kind );
 			}
 		}
 	}
 
 	private function render_item_markup( array $s, array $template, $item, $kind, $node_id, $page, $index ) {
 		if ( ! $template ) {
-			return '<article class="lb-loop-item"><div class="lb-embed-placeholder">' . esc_html__( 'Add an item template', 'sidcraft-syntex' ) . '</div></article>';
+			return '<article class="lb-loop-item"><div class="lb-embed-placeholder">' . esc_html__( 'Add an item template', 'sidcraft-page-builder' ) . '</div></article>';
 		}
 		$suffix = $node_id . '-p' . absint( $page ) . 'i' . absint( $index );
 		$html   = '';
@@ -723,8 +723,8 @@ class CollectionLoop extends Unit {
 	private function render_static_item( array $s, $span ) {
 		$id    = absint( $s['static_template_id'] ?? 0 );
 		$doc   = null;
-		if ( $id && class_exists( '\\SidcraftSyntex\\Templates\\TemplateEmbed' ) ) {
-			$doc = \SidcraftSyntex\Templates\TemplateEmbed::document( $id );
+		if ( $id && class_exists( '\\SidcraftPageBuilder\\Templates\\TemplateEmbed' ) ) {
+			$doc = \SidcraftPageBuilder\Templates\TemplateEmbed::document( $id );
 		}
 		if ( ! is_array( $doc ) ) {
 			$doc = self::template_document( $id );
@@ -790,8 +790,8 @@ class CollectionLoop extends Unit {
 		$scroll = max( 1, min( $show, absint( $this->scalar( $s['carousel_scroll'] ?? 1, 1 ) ) ?: 1 ) );
 		$buttons = '';
 		if ( in_array( $nav, array( 'arrows', 'both' ), true ) ) {
-			$buttons = '<button type="button" class="lb-loop-arrow lb-loop-prev" data-lb-loop-dir="-1" aria-label="' . esc_attr__( 'Previous slide', 'sidcraft-syntex' ) . '">&lsaquo;</button>'
-				. '<button type="button" class="lb-loop-arrow lb-loop-next" data-lb-loop-dir="1" aria-label="' . esc_attr__( 'Next slide', 'sidcraft-syntex' ) . '">&rsaquo;</button>';
+			$buttons = '<button type="button" class="lb-loop-arrow lb-loop-prev" data-lb-loop-dir="-1" aria-label="' . esc_attr__( 'Previous slide', 'sidcraft-page-builder' ) . '">&lsaquo;</button>'
+				. '<button type="button" class="lb-loop-arrow lb-loop-next" data-lb-loop-dir="1" aria-label="' . esc_attr__( 'Next slide', 'sidcraft-page-builder' ) . '">&rsaquo;</button>';
 		}
 		$dots = '';
 		if ( in_array( $nav, array( 'dots', 'both' ), true ) ) {
@@ -799,7 +799,7 @@ class CollectionLoop extends Unit {
 			$pages = max( 1, (int) ceil( max( 0, (int) $count - $show ) / $scroll ) + 1 );
 			$dots  = '<div class="lb-loop-dots">';
 			for ( $i = 0; $i < $pages; $i++ ) {
-				$dots .= '<button type="button" class="lb-loop-dot' . ( 0 === $i ? ' is-active' : '' ) . '" data-lb-loop-page="' . esc_attr( (string) $i ) . '" aria-label="' . esc_attr( sprintf( /* translators: %d: slide number */ __( 'Go to slide %d', 'sidcraft-syntex' ), $i + 1 ) ) . '"></button>';
+				$dots .= '<button type="button" class="lb-loop-dot' . ( 0 === $i ? ' is-active' : '' ) . '" data-lb-loop-page="' . esc_attr( (string) $i ) . '" aria-label="' . esc_attr( sprintf( /* translators: %d: slide number */ __( 'Go to slide %d', 'sidcraft-page-builder' ), $i + 1 ) ) . '"></button>';
 			}
 			$dots .= '</div>';
 		}
@@ -822,21 +822,21 @@ class CollectionLoop extends Unit {
 			}
 			$label = trim( (string) ( $s['load_more_text'] ?? '' ) );
 			if ( $label === '' ) {
-				$label = __( 'Load more', 'sidcraft-syntex' );
+				$label = __( 'Load more', 'sidcraft-page-builder' );
 			}
-			$rest = function_exists( 'rest_url' ) ? rest_url( 'sidcraft-syntex/v1/loop' ) : '';
+			$rest = function_exists( 'rest_url' ) ? rest_url( 'sidcraft-page-builder/v1/loop' ) : '';
 			return '<div class="lb-loop-pagination lb-loop-pagination-more"><button type="button" class="lb-loop-more" data-lb-loop-more="1" data-document="' . esc_attr( (string) $document_id ) . '" data-node="' . esc_attr( $node_id ) . '" data-page="' . esc_attr( (string) $page ) . '" data-max="' . esc_attr( (string) $max ) . '" data-rest="' . esc_url( $rest ) . '">' . esc_html( $label ) . '</button></div>';
 		}
 		$key  = Query::page_key( $node_id );
 		$prev = trim( (string) ( $s['prev_text'] ?? '' ) );
 		$next = trim( (string) ( $s['next_text'] ?? '' ) );
 		if ( $prev === '' ) {
-			$prev = __( 'Previous', 'sidcraft-syntex' );
+			$prev = __( 'Previous', 'sidcraft-page-builder' );
 		}
 		if ( $next === '' ) {
-			$next = __( 'Next', 'sidcraft-syntex' );
+			$next = __( 'Next', 'sidcraft-page-builder' );
 		}
-		$out = '<nav class="lb-loop-pagination lb-loop-pagination-' . esc_attr( $type ) . '" aria-label="' . esc_attr__( 'Collection pagination', 'sidcraft-syntex' ) . '">';
+		$out = '<nav class="lb-loop-pagination lb-loop-pagination-' . esc_attr( $type ) . '" aria-label="' . esc_attr__( 'Collection pagination', 'sidcraft-page-builder' ) . '">';
 		if ( $page > 1 ) {
 			$out .= '<a class="lb-loop-page lb-loop-prev" href="' . esc_url( $this->page_url( $key, $page - 1 ) ) . '">' . esc_html( $prev ) . '</a>';
 		} else {
@@ -872,9 +872,9 @@ class CollectionLoop extends Unit {
 
 	private static function post_type_options() {
 		$opts = array(
-			'post' => __( 'Posts', 'sidcraft-syntex' ),
-			'page' => __( 'Pages', 'sidcraft-syntex' ),
-			'any'  => __( 'Any public type', 'sidcraft-syntex' ),
+			'post' => __( 'Posts', 'sidcraft-page-builder' ),
+			'page' => __( 'Pages', 'sidcraft-page-builder' ),
+			'any'  => __( 'Any public type', 'sidcraft-page-builder' ),
 		);
 		if ( ! function_exists( 'get_post_types' ) ) {
 			return $opts;
@@ -897,8 +897,8 @@ class CollectionLoop extends Unit {
 
 	private static function taxonomy_options() {
 		$opts = array(
-			'category' => __( 'Categories', 'sidcraft-syntex' ),
-			'post_tag' => __( 'Tags', 'sidcraft-syntex' ),
+			'category' => __( 'Categories', 'sidcraft-page-builder' ),
+			'post_tag' => __( 'Tags', 'sidcraft-page-builder' ),
 		);
 		if ( ! function_exists( 'get_taxonomies' ) ) {
 			return $opts;
@@ -919,10 +919,10 @@ class CollectionLoop extends Unit {
 	}
 
 	private static function template_options() {
-		if ( class_exists( '\\SidcraftSyntex\\Templates\\SavedTemplates' ) && method_exists( '\\SidcraftSyntex\\Templates\\SavedTemplates', 'select_options' ) ) {
-			return \SidcraftSyntex\Templates\SavedTemplates::select_options();
+		if ( class_exists( '\\SidcraftPageBuilder\\Templates\\SavedTemplates' ) && method_exists( '\\SidcraftPageBuilder\\Templates\\SavedTemplates', 'select_options' ) ) {
+			return \SidcraftPageBuilder\Templates\SavedTemplates::select_options();
 		}
-		$opts = array( '0' => __( 'Select a template', 'sidcraft-syntex' ) );
+		$opts = array( '0' => __( 'Select a template', 'sidcraft-page-builder' ) );
 		if ( ! function_exists( 'get_posts' ) ) {
 			return $opts;
 		}
@@ -943,8 +943,8 @@ class CollectionLoop extends Unit {
 			$type = function_exists( 'get_post_meta' ) ? (string) get_post_meta( $p->ID, '_sidsyn_template_type', true ) : '';
 			$label = $p->post_title !== '' ? $p->post_title : ( '#' . $p->ID );
 			if ( $type !== '' ) {
-				if ( class_exists( '\\SidcraftSyntex\\Templates\\SavedTemplates' ) ) {
-					$type = \SidcraftSyntex\Templates\SavedTemplates::type_label( $type );
+				if ( class_exists( '\\SidcraftPageBuilder\\Templates\\SavedTemplates' ) ) {
+					$type = \SidcraftPageBuilder\Templates\SavedTemplates::type_label( $type );
 				}
 				$label .= ' (' . $type . ')';
 			}

@@ -1,10 +1,10 @@
 <?php
-namespace SidcraftSyntex\Templates;
+namespace SidcraftPageBuilder\Templates;
 
-use SidcraftSyntex\Document\DocumentManager;
-use SidcraftSyntex\Rendering\FrontendRenderer;
-use SidcraftSyntex\Rendering\OutputEscape;
-use SidcraftSyntex\Utils\Style;
+use SidcraftPageBuilder\Document\DocumentManager;
+use SidcraftPageBuilder\Rendering\FrontendRenderer;
+use SidcraftPageBuilder\Rendering\OutputEscape;
+use SidcraftPageBuilder\Utils\Style;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -211,7 +211,7 @@ class TemplateEmbed {
 			}
 			$css = self::scope_css( self::document_css( $id ), '#' . $wrap_id );
 			if ( $css !== '' && function_exists( 'wp_add_inline_style' ) ) {
-				wp_add_inline_style( 'sidcraft-syntex-frontend', wp_strip_all_tags( $css ) );
+				wp_add_inline_style( 'sidcraft-page-builder-frontend', wp_strip_all_tags( $css ) );
 			}
 			$class = 'lb-template-embed';
 			$extra = trim( (string) ( $args['class'] ?? '' ) );
@@ -298,7 +298,7 @@ class TemplateEmbed {
 	}
 
 	/**
-	 * Shortcode `[sidcraft_syntex_template id="" title=""]`.
+	 * Shortcode `[sidcraft_page_builder_template id="" title=""]`.
 	 *
 	 * @param array $atts
 	 * @return string
@@ -311,7 +311,7 @@ class TemplateEmbed {
 					'title' => '',
 				),
 				is_array( $atts ) ? $atts : array(),
-				'sidcraft_syntex_template'
+				'sidcraft_page_builder_template'
 			)
 			: ( is_array( $atts ) ? $atts : array() );
 		$id = absint( $atts['id'] ?? 0 );
@@ -361,7 +361,7 @@ class TemplateEmbed {
 			return;
 		}
 		if ( function_exists( 'wp_enqueue_style' ) ) {
-			wp_enqueue_style( 'sidcraft-syntex-frontend' );
+			wp_enqueue_style( 'sidcraft-page-builder-frontend' );
 		}
 	}
 }

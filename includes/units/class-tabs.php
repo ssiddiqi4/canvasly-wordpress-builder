@@ -1,8 +1,8 @@
 <?php
-namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftPageBuilder\Units; if(!defined('ABSPATH')) exit;
 /** Tabs: repeater of title/content rendered as an accessible tablist. */
 class Tabs extends Unit {
- public function type(){return 'tabs';} public function title(){return __('Tabs', 'sidcraft-syntex');} public function icon(){return "\u{229F}";} public function category(){return 'basic';}
+ public function type(){return 'tabs';} public function title(){return __('Tabs', 'sidcraft-page-builder');} public function icon(){return "\u{229F}";} public function category(){return 'basic';}
  public function keywords(){return ['tabs','tab','panel','switch','navigation'];}
  public function scripts($s=[]){return $this->frontend_scripts();}
  public function defaults(){return [
@@ -15,35 +15,35 @@ class Tabs extends Unit {
   'tab_color'=>'','tab_active_color'=>'','tab_background'=>'','tab_active_background'=>'','content_color'=>'','content_background'=>'','border_color'=>'#d7dce2','border_width'=>1,'tab_padding'=>'','content_padding'=>'',
  ];}
  public function controls(){
-  $tabs=__('Tabs', 'sidcraft-syntex'); $title=__('Title', 'sidcraft-syntex'); $content=__('Content', 'sidcraft-syntex');
+  $tabs=__('Tabs', 'sidcraft-page-builder'); $title=__('Title', 'sidcraft-page-builder'); $content=__('Content', 'sidcraft-page-builder');
   return [
-   'tabs'=>$this->ctrl('repeater',__('Tabs', 'sidcraft-syntex'),'content',$tabs,[
+   'tabs'=>$this->ctrl('repeater',__('Tabs', 'sidcraft-page-builder'),'content',$tabs,[
     'title_field'=>'{{title}}','prevent_empty'=>true,
     'fields'=>[
-     'title'=>$this->field('text',__('Title', 'sidcraft-syntex')),
-     'content'=>$this->field('wysiwyg',__('Content', 'sidcraft-syntex')),
+     'title'=>$this->field('text',__('Title', 'sidcraft-page-builder')),
+     'content'=>$this->field('wysiwyg',__('Content', 'sidcraft-page-builder')),
     ],
    ]),
-   'active'=>$this->ctrl('number',__('Active Tab', 'sidcraft-syntex'),'content',$tabs,['range'=>['min'=>0,'max'=>20]]),
-   'orientation'=>$this->ctrl('select',__('Orientation', 'sidcraft-syntex'),'content',$tabs,['options'=>['horizontal'=>__('Horizontal', 'sidcraft-syntex'),'vertical'=>__('Vertical', 'sidcraft-syntex')]]),
-   'tabs_align'=>$this->ctrl('select',__('Alignment', 'sidcraft-syntex'),'content',$tabs,['options'=>['start'=>__('Start', 'sidcraft-syntex'),'center'=>__('Center', 'sidcraft-syntex'),'end'=>__('End', 'sidcraft-syntex'),'stretch'=>__('Stretch', 'sidcraft-syntex')]]),
-   'title_tag'=>$this->ctrl('select',__('Title HTML Tag', 'sidcraft-syntex'),'content',$tabs,['options'=>self::opt_title_tags()]),
-   'nav_width'=>$this->ctrl('text',__('Navigation Width', 'sidcraft-syntex'),'style',$tabs,['condition'=>['orientation'=>'vertical']]),
-   'tab_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$title),
-   'tab_active_color'=>$this->ctrl('color',__('Active Color', 'sidcraft-syntex'),'style',$title),
-   'tab_background'=>$this->ctrl('color',__('Background', 'sidcraft-syntex'),'style',$title),
-   'tab_active_background'=>$this->ctrl('color',__('Active Background', 'sidcraft-syntex'),'style',$title),
-   'tab_padding'=>$this->ctrl('text',__('Padding', 'sidcraft-syntex'),'style',$title),
-   'content_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$content),
-   'content_background'=>$this->ctrl('color',__('Background', 'sidcraft-syntex'),'style',$content),
-   'content_padding'=>$this->ctrl('text',__('Padding', 'sidcraft-syntex'),'style',$content),
-   'border_color'=>$this->ctrl('color',__('Border Color', 'sidcraft-syntex'),'style',$tabs),
-   'border_width'=>$this->ctrl('number',__('Border Width', 'sidcraft-syntex'),'style',$tabs),
+   'active'=>$this->ctrl('number',__('Active Tab', 'sidcraft-page-builder'),'content',$tabs,['range'=>['min'=>0,'max'=>20]]),
+   'orientation'=>$this->ctrl('select',__('Orientation', 'sidcraft-page-builder'),'content',$tabs,['options'=>['horizontal'=>__('Horizontal', 'sidcraft-page-builder'),'vertical'=>__('Vertical', 'sidcraft-page-builder')]]),
+   'tabs_align'=>$this->ctrl('select',__('Alignment', 'sidcraft-page-builder'),'content',$tabs,['options'=>['start'=>__('Start', 'sidcraft-page-builder'),'center'=>__('Center', 'sidcraft-page-builder'),'end'=>__('End', 'sidcraft-page-builder'),'stretch'=>__('Stretch', 'sidcraft-page-builder')]]),
+   'title_tag'=>$this->ctrl('select',__('Title HTML Tag', 'sidcraft-page-builder'),'content',$tabs,['options'=>self::opt_title_tags()]),
+   'nav_width'=>$this->ctrl('text',__('Navigation Width', 'sidcraft-page-builder'),'style',$tabs,['condition'=>['orientation'=>'vertical']]),
+   'tab_color'=>$this->ctrl('color',__('Color', 'sidcraft-page-builder'),'style',$title),
+   'tab_active_color'=>$this->ctrl('color',__('Active Color', 'sidcraft-page-builder'),'style',$title),
+   'tab_background'=>$this->ctrl('color',__('Background', 'sidcraft-page-builder'),'style',$title),
+   'tab_active_background'=>$this->ctrl('color',__('Active Background', 'sidcraft-page-builder'),'style',$title),
+   'tab_padding'=>$this->ctrl('text',__('Padding', 'sidcraft-page-builder'),'style',$title),
+   'content_color'=>$this->ctrl('color',__('Color', 'sidcraft-page-builder'),'style',$content),
+   'content_background'=>$this->ctrl('color',__('Background', 'sidcraft-page-builder'),'style',$content),
+   'content_padding'=>$this->ctrl('text',__('Padding', 'sidcraft-page-builder'),'style',$content),
+   'border_color'=>$this->ctrl('color',__('Border Color', 'sidcraft-page-builder'),'style',$tabs),
+   'border_width'=>$this->ctrl('number',__('Border Width', 'sidcraft-page-builder'),'style',$tabs),
   ];
  }
  public function render($s,$children=''){
   $rows=$this->repeater_items($s['tabs']??'',['title','content']);
-  if(!$rows)return '<div class="lb-embed-placeholder">'.esc_html__('Add tabs', 'sidcraft-syntex').'</div>';
+  if(!$rows)return '<div class="lb-embed-placeholder">'.esc_html__('Add tabs', 'sidcraft-page-builder').'</div>';
   $active=max(0,min(count($rows)-1,absint($s['active']??0)));
   $vertical=($s['orientation']??'horizontal')==='vertical';
   $align=in_array($s['tabs_align']??'start',['start','center','end','stretch'],true)?$s['tabs_align']:'start';

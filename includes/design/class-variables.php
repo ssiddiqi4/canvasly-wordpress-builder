@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Design;
+namespace SidcraftPageBuilder\Design;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * `{{var:colors.id}}`; typography groups bind with the `typography_global` setting.
  */
 class Variables {
-	const KEY = 'sidcraft_syntex_variables';
+	const KEY = 'sidcraft_page_builder_variables';
 
 	/** Group name in `{{var:group.name}}` -> CSS custom-property prefix. */
 	const GROUP_PREFIX = array(
@@ -43,10 +43,10 @@ class Variables {
 				'accent'    => '#6c5ce7',
 			),
 			'color_titles' => array(
-				'primary'   => __( 'Primary', 'sidcraft-syntex' ),
-				'secondary' => __( 'Secondary', 'sidcraft-syntex' ),
-				'text'      => __( 'Text', 'sidcraft-syntex' ),
-				'accent'    => __( 'Accent', 'sidcraft-syntex' ),
+				'primary'   => __( 'Primary', 'sidcraft-page-builder' ),
+				'secondary' => __( 'Secondary', 'sidcraft-page-builder' ),
+				'text'      => __( 'Text', 'sidcraft-page-builder' ),
+				'accent'    => __( 'Accent', 'sidcraft-page-builder' ),
 			),
 			'sizes'        => array(
 				'space-sm' => '8px',
@@ -72,10 +72,10 @@ class Variables {
 
 	public static function default_typography() {
 		return array(
-			'primary'   => self::typo_item( __( 'Primary Headline', 'sidcraft-syntex' ), true, array( 'font_size' => '32px', 'font_weight' => '600', 'line_height' => '1.2' ) ),
-			'secondary' => self::typo_item( __( 'Secondary Headline', 'sidcraft-syntex' ), true, array( 'font_size' => '24px', 'font_weight' => '600', 'line_height' => '1.3' ) ),
-			'text'      => self::typo_item( __( 'Body Text', 'sidcraft-syntex' ), true, array( 'font_size' => '16px', 'font_weight' => '400', 'line_height' => '1.6' ) ),
-			'accent'    => self::typo_item( __( 'Accent Text', 'sidcraft-syntex' ), true, array( 'font_size' => '16px', 'font_weight' => '500', 'line_height' => '1.5' ) ),
+			'primary'   => self::typo_item( __( 'Primary Headline', 'sidcraft-page-builder' ), true, array( 'font_size' => '32px', 'font_weight' => '600', 'line_height' => '1.2' ) ),
+			'secondary' => self::typo_item( __( 'Secondary Headline', 'sidcraft-page-builder' ), true, array( 'font_size' => '24px', 'font_weight' => '600', 'line_height' => '1.3' ) ),
+			'text'      => self::typo_item( __( 'Body Text', 'sidcraft-page-builder' ), true, array( 'font_size' => '16px', 'font_weight' => '400', 'line_height' => '1.6' ) ),
+			'accent'    => self::typo_item( __( 'Accent Text', 'sidcraft-page-builder' ), true, array( 'font_size' => '16px', 'font_weight' => '500', 'line_height' => '1.5' ) ),
 		);
 	}
 
@@ -124,7 +124,7 @@ class Variables {
 	 * so the wp-admin form cannot drop custom presets.
 	 */
 	public static function save( $data ) {
-		if ( ! current_user_can( 'sidcraft_syntex_design' ) ) {
+		if ( ! current_user_can( 'sidcraft_page_builder_design' ) ) {
 			return false;
 		}
 		$old  = self::all();
@@ -188,8 +188,8 @@ class Variables {
 		}
 		$d['custom'] = $custom;
 		update_option( self::KEY, $d, false );
-		if ( class_exists( '\\SidcraftSyntex\\Settings\\GlobalSettings' ) ) {
-			\SidcraftSyntex\Settings\GlobalSettings::invalidate_css_cache();
+		if ( class_exists( '\\SidcraftPageBuilder\\Settings\\GlobalSettings' ) ) {
+			\SidcraftPageBuilder\Settings\GlobalSettings::invalidate_css_cache();
 		}
 		return $d;
 	}
@@ -352,10 +352,10 @@ class Variables {
 
 	public static function css() {
 		$d = self::all();
-		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) && \SidcraftSyntex\Settings\AdminSettings::disable_default_colors() ) {
+		if ( class_exists( '\\SidcraftPageBuilder\\Settings\\AdminSettings' ) && \SidcraftPageBuilder\Settings\AdminSettings::disable_default_colors() ) {
 			$d['colors'] = array();
 		}
-		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) && \SidcraftSyntex\Settings\AdminSettings::disable_default_fonts() ) {
+		if ( class_exists( '\\SidcraftPageBuilder\\Settings\\AdminSettings' ) && \SidcraftPageBuilder\Settings\AdminSettings::disable_default_fonts() ) {
 			$d['fonts'] = array();
 			foreach ( (array) ( $d['typography'] ?? array() ) as $id => $item ) {
 				if ( is_array( $item ) ) {
@@ -571,7 +571,7 @@ class Variables {
 	}
 
 	public static function delete_custom( $group, $name ) {
-		if ( ! current_user_can( 'sidcraft_syntex_design' ) ) {
+		if ( ! current_user_can( 'sidcraft_page_builder_design' ) ) {
 			return false;
 		}
 		$d = self::all();
@@ -585,8 +585,8 @@ class Variables {
 			unset( $d['custom'][ $g ] );
 		}
 		update_option( self::KEY, $d, false );
-		if ( class_exists( '\\SidcraftSyntex\\Settings\\GlobalSettings' ) ) {
-			\SidcraftSyntex\Settings\GlobalSettings::invalidate_css_cache();
+		if ( class_exists( '\\SidcraftPageBuilder\\Settings\\GlobalSettings' ) ) {
+			\SidcraftPageBuilder\Settings\GlobalSettings::invalidate_css_cache();
 		}
 		return true;
 	}

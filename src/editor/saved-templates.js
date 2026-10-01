@@ -117,7 +117,7 @@ function installSavedTemplates() {
   app.downloadTemplateJson = function downloadTemplateJson(data, filename) {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
-    a.download = filename || "sidcraft-syntex-template.json";
+    a.download = filename || "sidcraft-page-builder-template.json";
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1e3);
   };
@@ -126,7 +126,7 @@ function installSavedTemplates() {
       const r = await fetch(`${app.D.api}/templates/${id}/export`, { headers: { "X-WP-Nonce": app.D.nonce } });
       if (!r.ok) throw new Error();
       const d = await r.json();
-      app.downloadTemplateJson(d, `sidcraft-syntex-template-${id}.json`);
+      app.downloadTemplateJson(d, `sidcraft-page-builder-template-${id}.json`);
     } catch (e) {
       alert(app.t("Could not export template."));
     }

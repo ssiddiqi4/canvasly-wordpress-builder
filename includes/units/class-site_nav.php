@@ -7,7 +7,7 @@
  * stylesheet: horizontal (desktop headers) and vertical (sidebars). Below
  * the breakpoint the list collapses and a hamburger button opens it.
  *
- * Sidcraft Syntex unit
+ * Sidcraft Page Builder unit
  * -------------
  * Registered automatically from Plugin::register_units() as type `site_nav`
  * ("Site Menu" in the unit inserter). Drop it in a header container or a
@@ -18,7 +18,7 @@
  * Assets register on `wp_enqueue_scripts` when the plugin boots. Call the
  * template tag where the menu should print:
  *
- *   sidcraft_syntex_nav_menu( array(
+ *   sidcraft_page_builder_nav_menu( array(
  *       'theme_location' => 'primary',
  *       'layout'         => 'horizontal', // or 'vertical'
  *       'breakpoint'     => 782,
@@ -26,24 +26,24 @@
  *
  * Shortcode (page content, a Custom HTML block, or a text widget)
  * ---------------------------------------------------------------
- *   [sidcraft_syntex_nav menu="primary" layout="vertical" breakpoint="782"]
- *   [sidcraft_syntex_nav menu="12" layout="horizontal"]
+ *   [sidcraft_page_builder_nav menu="primary" layout="vertical" breakpoint="782"]
+ *   [sidcraft_page_builder_nav menu="12" layout="horizontal"]
  *
  * `menu` accepts a theme location slug, a classic menu id, or `menu:12`.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\Units {
+namespace SidcraftPageBuilder\Units {
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 class SiteNav extends Unit {
-	const STYLE_HANDLE  = 'sidcraft-syntex-site-nav';
-	const SCRIPT_HANDLE = 'sidcraft-syntex-site-nav';
-	const SHORTCODE     = 'sidcraft_syntex_nav';
+	const STYLE_HANDLE  = 'sidcraft-page-builder-site-nav';
+	const SCRIPT_HANDLE = 'sidcraft-page-builder-site-nav';
+	const SHORTCODE     = 'sidcraft_page_builder_nav';
 	const DEFAULT_BP    = 782;
 
 	/**
@@ -77,7 +77,7 @@ class SiteNav extends Unit {
 	}
 
 	public function title() {
-		return __( 'Site Menu', 'sidcraft-syntex' );
+		return __( 'Site Menu', 'sidcraft-page-builder' );
 	}
 
 	public function icon() {
@@ -111,46 +111,46 @@ class SiteNav extends Unit {
 	}
 
 	public function controls() {
-		$section = __( 'Site Menu', 'sidcraft-syntex' );
-		$button  = __( 'Menu Button', 'sidcraft-syntex' );
+		$section = __( 'Site Menu', 'sidcraft-page-builder' );
+		$button  = __( 'Menu Button', 'sidcraft-page-builder' );
 		return array(
 			'menu'         => $this->ctrl(
 				'select',
-				__( 'Menu', 'sidcraft-syntex' ),
+				__( 'Menu', 'sidcraft-page-builder' ),
 				'content',
 				$section,
 				array(
-					'description' => __( "Classic menus from Appearance \u{2192} Menus, or a theme location slug.", 'sidcraft-syntex' ),
+					'description' => __( "Classic menus from Appearance \u{2192} Menus, or a theme location slug.", 'sidcraft-page-builder' ),
 				)
 			),
 			'display_name' => $this->ctrl(
 				'text',
-				__( 'Display name', 'sidcraft-syntex' ),
+				__( 'Display name', 'sidcraft-page-builder' ),
 				'content',
 				$section,
 				array(
-					'placeholder' => __( 'Menu name', 'sidcraft-syntex' ),
-					'description' => __( 'Text shown on the button. Opening it still lists the selected menu. Leave blank to use the menu name.', 'sidcraft-syntex' ),
+					'placeholder' => __( 'Menu name', 'sidcraft-page-builder' ),
+					'description' => __( 'Text shown on the button. Opening it still lists the selected menu. Leave blank to use the menu name.', 'sidcraft-page-builder' ),
 					'condition'   => array( 'menu!' => '' ),
 				)
 			),
 			'layout'       => $this->ctrl(
 				'select',
-				__( 'Layout', 'sidcraft-syntex' ),
+				__( 'Layout', 'sidcraft-page-builder' ),
 				'content',
 				$section,
 				array(
 					'options' => array(
-						'horizontal' => __( 'Horizontal', 'sidcraft-syntex' ),
-						'vertical'   => __( 'Vertical', 'sidcraft-syntex' ),
-						'dropdown'   => __( 'Dropdown', 'sidcraft-syntex' ),
+						'horizontal' => __( 'Horizontal', 'sidcraft-page-builder' ),
+						'vertical'   => __( 'Vertical', 'sidcraft-page-builder' ),
+						'dropdown'   => __( 'Dropdown', 'sidcraft-page-builder' ),
 					),
 					'default' => 'horizontal',
 				)
 			),
 			'breakpoint'  => $this->ctrl(
 				'slider',
-				__( 'Mobile breakpoint', 'sidcraft-syntex' ),
+				__( 'Mobile breakpoint', 'sidcraft-page-builder' ),
 				'content',
 				$section,
 				array(
@@ -161,12 +161,12 @@ class SiteNav extends Unit {
 						'step' => 1,
 					),
 					'default'     => self::DEFAULT_BP,
-					'description' => __( 'The menu collapses into a hamburger button below this width.', 'sidcraft-syntex' ),
+					'description' => __( 'The menu collapses into a hamburger button below this width.', 'sidcraft-page-builder' ),
 				)
 			),
 			'radius'      => $this->ctrl(
 				'slider',
-				__( 'Border radius', 'sidcraft-syntex' ),
+				__( 'Border radius', 'sidcraft-page-builder' ),
 				'style',
 				$section,
 				array(
@@ -177,7 +177,7 @@ class SiteNav extends Unit {
 						'step' => 1,
 					),
 					'default'     => 4,
-					'description' => __( 'Rounds the menu button and dropdown corners.', 'sidcraft-syntex' ),
+					'description' => __( 'Rounds the menu button and dropdown corners.', 'sidcraft-page-builder' ),
 					'selectors'   => array(
 						'{{WRAPPER}}' => '--lb-nav-radius: {{SIZE}}{{UNIT}};',
 					),
@@ -185,7 +185,7 @@ class SiteNav extends Unit {
 			),
 			'color'       => $this->ctrl(
 				'color',
-				__( 'Text', 'sidcraft-syntex' ),
+				__( 'Text', 'sidcraft-page-builder' ),
 				'style',
 				$section,
 				array(
@@ -197,7 +197,7 @@ class SiteNav extends Unit {
 			),
 			'hover_color' => $this->ctrl(
 				'color',
-				__( 'Hover', 'sidcraft-syntex' ),
+				__( 'Hover', 'sidcraft-page-builder' ),
 				'style',
 				$section,
 				array(
@@ -209,11 +209,11 @@ class SiteNav extends Unit {
 			),
 			'background'  => $this->ctrl(
 				'color',
-				__( 'Background', 'sidcraft-syntex' ),
+				__( 'Background', 'sidcraft-page-builder' ),
 				'style',
 				$section,
 				array(
-					'description' => __( 'Colors the menu button only.', 'sidcraft-syntex' ),
+					'description' => __( 'Colors the menu button only.', 'sidcraft-page-builder' ),
 					'selectors'   => array(
 						'{{WRAPPER}}' => '--lb-nav-bg: {{VALUE}};',
 					),
@@ -221,11 +221,11 @@ class SiteNav extends Unit {
 			),
 			'button_color' => $this->ctrl(
 				'color',
-				__( 'Text', 'sidcraft-syntex' ),
+				__( 'Text', 'sidcraft-page-builder' ),
 				'style',
 				$button,
 				array(
-					'description' => __( 'Menu button text. Blank uses the menu Text colour.', 'sidcraft-syntex' ),
+					'description' => __( 'Menu button text. Blank uses the menu Text colour.', 'sidcraft-page-builder' ),
 					'selectors'   => array(
 						'{{WRAPPER}}' => '--lb-nav-btn-color: {{VALUE}};',
 					),
@@ -233,11 +233,11 @@ class SiteNav extends Unit {
 			),
 			'button_border_color' => $this->ctrl(
 				'color',
-				__( 'Border', 'sidcraft-syntex' ),
+				__( 'Border', 'sidcraft-page-builder' ),
 				'style',
 				$button,
 				array(
-					'description' => __( 'Menu button border. Blank follows the button text colour.', 'sidcraft-syntex' ),
+					'description' => __( 'Menu button border. Blank follows the button text colour.', 'sidcraft-page-builder' ),
 					'selectors'   => array(
 						'{{WRAPPER}}' => '--lb-nav-btn-border: {{VALUE}};',
 					),
@@ -245,11 +245,11 @@ class SiteNav extends Unit {
 			),
 			'button_hover_color' => $this->ctrl(
 				'color',
-				__( 'Hover Text', 'sidcraft-syntex' ),
+				__( 'Hover Text', 'sidcraft-page-builder' ),
 				'style',
 				$button,
 				array(
-					'description' => __( 'Blank uses the menu Hover colour.', 'sidcraft-syntex' ),
+					'description' => __( 'Blank uses the menu Hover colour.', 'sidcraft-page-builder' ),
 					'selectors'   => array(
 						'{{WRAPPER}}' => '--lb-nav-btn-hover-color: {{VALUE}};',
 					),
@@ -257,11 +257,11 @@ class SiteNav extends Unit {
 			),
 			'button_hover_background' => $this->ctrl(
 				'color',
-				__( 'Hover Background', 'sidcraft-syntex' ),
+				__( 'Hover Background', 'sidcraft-page-builder' ),
 				'style',
 				$button,
 				array(
-					'description' => __( 'Blank keeps the button Background on hover.', 'sidcraft-syntex' ),
+					'description' => __( 'Blank keeps the button Background on hover.', 'sidcraft-page-builder' ),
 					'selectors'   => array(
 						'{{WRAPPER}}' => '--lb-nav-btn-hover-bg: {{VALUE}};',
 					),
@@ -269,11 +269,11 @@ class SiteNav extends Unit {
 			),
 			'button_hover_border' => $this->ctrl(
 				'color',
-				__( 'Hover Border', 'sidcraft-syntex' ),
+				__( 'Hover Border', 'sidcraft-page-builder' ),
 				'style',
 				$button,
 				array(
-					'description' => __( 'Blank follows the hover text colour.', 'sidcraft-syntex' ),
+					'description' => __( 'Blank follows the hover text colour.', 'sidcraft-page-builder' ),
 					'selectors'   => array(
 						'{{WRAPPER}}' => '--lb-nav-btn-hover-border: {{VALUE}};',
 					),
@@ -315,21 +315,21 @@ class SiteNav extends Unit {
 	 * @return void
 	 */
 	public static function register_assets() {
-		if ( ! defined( 'SIDCRAFT_SYNTEX_PATH' ) || ! defined( 'SIDCRAFT_SYNTEX_URL' ) || ! function_exists( 'wp_register_style' ) ) {
+		if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_PATH' ) || ! defined( 'SIDCRAFT_PAGE_BUILDER_URL' ) || ! function_exists( 'wp_register_style' ) ) {
 			return;
 		}
-		$css = SIDCRAFT_SYNTEX_PATH . 'assets/css/site-nav.css';
-		$js  = SIDCRAFT_SYNTEX_PATH . 'assets/js/site-nav.js';
-		$ver = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? (string) SIDCRAFT_SYNTEX_VERSION : '1';
-		wp_register_style( self::STYLE_HANDLE, SIDCRAFT_SYNTEX_URL . 'assets/css/site-nav.css', array(), $ver . '-' . ( file_exists( $css ) ? filemtime( $css ) : $ver ) );
+		$css = SIDCRAFT_PAGE_BUILDER_PATH . 'assets/css/site-nav.css';
+		$js  = SIDCRAFT_PAGE_BUILDER_PATH . 'assets/js/site-nav.js';
+		$ver = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? (string) SIDCRAFT_PAGE_BUILDER_VERSION : '1';
+		wp_register_style( self::STYLE_HANDLE, SIDCRAFT_PAGE_BUILDER_URL . 'assets/css/site-nav.css', array(), $ver . '-' . ( file_exists( $css ) ? filemtime( $css ) : $ver ) );
 		if ( function_exists( 'wp_register_script' ) ) {
-			wp_register_script( self::SCRIPT_HANDLE, SIDCRAFT_SYNTEX_URL . 'assets/js/site-nav.js', array(), $ver . '-' . ( file_exists( $js ) ? filemtime( $js ) : $ver ), true );
+			wp_register_script( self::SCRIPT_HANDLE, SIDCRAFT_PAGE_BUILDER_URL . 'assets/js/site-nav.js', array(), $ver . '-' . ( file_exists( $js ) ? filemtime( $js ) : $ver ), true );
 		}
 	}
 
 	/**
 	 * Head-time enqueue when the shortcode is already in the post content.
-	 * The Sidcraft Syntex unit enqueues through FrontendAssets via styles()/scripts().
+	 * The Sidcraft Page Builder unit enqueues through FrontendAssets via styles()/scripts().
 	 *
 	 * @return void
 	 */
@@ -361,7 +361,7 @@ class SiteNav extends Unit {
 	}
 
 	/**
-	 * [sidcraft_syntex_nav menu="primary" layout="horizontal" breakpoint="782" display_name="Tickets"]
+	 * [sidcraft_page_builder_nav menu="primary" layout="horizontal" breakpoint="782" display_name="Tickets"]
 	 *
 	 * @param array<string,mixed>|string $atts
 	 * @return string
@@ -398,9 +398,9 @@ class SiteNav extends Unit {
 		if ( '' === $ref['menu'] && '' === $ref['theme_location'] && ! is_array( self::$test_items ) ) {
 			$name = trim( (string) ( $s['display_name'] ?? '' ) );
 			if ( '' === $name ) {
-				$name = __( 'Menu', 'sidcraft-syntex' );
+				$name = __( 'Menu', 'sidcraft-page-builder' );
 			}
-			return '<nav class="' . esc_attr( $this->cls( $s ) . ' lb-site-nav' ) . '" aria-label="' . esc_attr( $name ) . '"><p class="lb-embed-placeholder">' . esc_html__( 'Choose a menu', 'sidcraft-syntex' ) . '</p></nav>';
+			return '<nav class="' . esc_attr( $this->cls( $s ) . ' lb-site-nav' ) . '" aria-label="' . esc_attr( $name ) . '"><p class="lb-embed-placeholder">' . esc_html__( 'Choose a menu', 'sidcraft-page-builder' ) . '</p></nav>';
 		}
 		return self::render_menu(
 			array(
@@ -442,7 +442,7 @@ class SiteNav extends Unit {
 	 * @return string
 	 */
 	public static function render_menu( $args = array() ) {
-		$args = apply_filters( 'sidcraft-syntex/site_nav/args', is_array( $args ) ? $args : array() );
+		$args = apply_filters( 'sidcraft-page-builder/site_nav/args', is_array( $args ) ? $args : array() );
 		$args = self::args( is_array( $args ) ? $args : array() );
 
 		$list = '';
@@ -720,7 +720,7 @@ class SiteNav extends Unit {
 			$toggle = self::menu_title( $args );
 		}
 		if ( '' === $toggle ) {
-			$toggle = __( 'Menu', 'sidcraft-syntex' );
+			$toggle = __( 'Menu', 'sidcraft-page-builder' );
 		}
 		$style = self::inline_vars( $args );
 		$html  = '<nav id="' . esc_attr( $nav_id ) . '" class="' . esc_attr( implode( ' ', $classes ) ) . '" data-breakpoint="' . esc_attr( (string) $bp ) . '"' . $style . ' aria-label="' . esc_attr( $toggle ) . '">';
@@ -733,7 +733,7 @@ class SiteNav extends Unit {
 		$html .= '<span class="lb-site-nav__caret" aria-hidden="true">&#9662;</span>';
 		$html .= '</button>';
 		if ( trim( $list ) === '' ) {
-			$html .= '<p class="lb-embed-placeholder">' . esc_html__( 'Choose a menu', 'sidcraft-syntex' ) . '</p>';
+			$html .= '<p class="lb-embed-placeholder">' . esc_html__( 'Choose a menu', 'sidcraft-page-builder' ) . '</p>';
 		} else {
 			$html .= $list;
 		}
@@ -951,15 +951,15 @@ if ( ! class_exists( __NAMESPACE__ . '\\Site_Nav_Walker', false ) && class_exist
 }
 
 namespace {
-	if ( ! function_exists( 'sidcraft_syntex_nav_menu' ) ) {
+	if ( ! function_exists( 'sidcraft_page_builder_nav_menu' ) ) {
 		/**
 		 * Print a Site Menu from a theme template.
 		 *
 		 * header.php:
-		 *   sidcraft_syntex_nav_menu( array( 'theme_location' => 'primary', 'layout' => 'horizontal' ) );
+		 *   sidcraft_page_builder_nav_menu( array( 'theme_location' => 'primary', 'layout' => 'horizontal' ) );
 		 *
 		 * sidebar.php:
-		 *   sidcraft_syntex_nav_menu( array( 'theme_location' => 'primary', 'layout' => 'vertical' ) );
+		 *   sidcraft_page_builder_nav_menu( array( 'theme_location' => 'primary', 'layout' => 'vertical' ) );
 		 *
 		 * Pass `'echo' => false` to capture the markup. The plugin registers
 		 * the stylesheet and script; this tag enqueues them.
@@ -967,9 +967,9 @@ namespace {
 		 * @param array<string,mixed> $args menu, theme_location, layout, breakpoint, display_name, echo.
 		 * @return string
 		 */
-		function sidcraft_syntex_nav_menu( $args = array() ) {
+		function sidcraft_page_builder_nav_menu( $args = array() ) {
 			$args = is_array( $args ) ? $args : array();
-			return \SidcraftSyntex\Units\SiteNav::display( $args );
+			return \SidcraftPageBuilder\Units\SiteNav::display( $args );
 		}
 	}
 }

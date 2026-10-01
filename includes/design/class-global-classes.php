@@ -1,8 +1,8 @@
 <?php
-namespace SidcraftSyntex\Design;
+namespace SidcraftPageBuilder\Design;
 if(!defined('ABSPATH')) exit;
 class GlobalClasses {
- const KEY='sidcraft_syntex_global_classes';
+ const KEY='sidcraft_page_builder_global_classes';
  public static function all(){
   $raw=get_option(self::KEY,[]); if(!is_array($raw))return [];
   $out=[];
@@ -21,9 +21,9 @@ class GlobalClasses {
  // Global classes held raw CSS, which WordPress.org does not allow plugins to store. Saving is
  // disabled and nothing is printed; XEditor classes (structured properties) replace them.
  public static function save($name,$css,$extends=[],$description=''){
-  return new \WP_Error('sidsyn_global_classes_removed',__('Global classes with custom CSS are no longer supported. Use XEditor classes instead.', 'sidcraft-syntex'),['status'=>410]);
+  return new \WP_Error('sidsyn_global_classes_removed',__('Global classes with custom CSS are no longer supported. Use XEditor classes instead.', 'sidcraft-page-builder'),['status'=>410]);
  }
- public static function delete($name){if(!current_user_can('sidcraft_syntex_design'))return false;$all=self::all();unset($all[sanitize_title($name)]);foreach($all as $n=>$d){$d=self::normalize($d);$d['extends']=array_values(array_diff($d['extends'],[sanitize_title($name)]));$all[$n]=$d;}update_option(self::KEY,$all,false);return true;}
+ public static function delete($name){if(!current_user_can('sidcraft_page_builder_design'))return false;$all=self::all();unset($all[sanitize_title($name)]);foreach($all as $n=>$d){$d=self::normalize($d);$d['extends']=array_values(array_diff($d['extends'],[sanitize_title($name)]));$all[$n]=$d;}update_option(self::KEY,$all,false);return true;}
  private static function clean($css){$css=is_array($css)?'':(string)$css;return preg_replace('/<[^>]*>|expression\s*\(|javascript\s*:/i','',wp_strip_all_tags($css));}
  private static function would_cycle($name,$parents,$all,$seen=[]){
   $name=sanitize_title($name);if(isset($seen[$name]))return true;$seen[$name]=true;

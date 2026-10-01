@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Units;
+namespace SidcraftPageBuilder\Units;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -36,7 +36,7 @@ class MenuAnchor extends Unit {
 	}
 
 	public function title() {
-		return __( 'Menu Anchor', 'sidcraft-syntex' );
+		return __( 'Menu Anchor', 'sidcraft-page-builder' );
 	}
 
 	public function icon() {
@@ -47,9 +47,9 @@ class MenuAnchor extends Unit {
 		return array( 'menu', 'anchor', 'navigation', 'nav', 'header' );
 	}
 
-	const STYLE_HANDLE  = 'sidcraft-syntex-menu-anchor';
-	const SCRIPT_HANDLE = 'sidcraft-syntex-menu-anchor';
-	const SHORTCODE     = 'sidcraft_syntex_anchor';
+	const STYLE_HANDLE  = 'sidcraft-page-builder-menu-anchor';
+	const SCRIPT_HANDLE = 'sidcraft-page-builder-menu-anchor';
+	const SHORTCODE     = 'sidcraft_page_builder_anchor';
 
 	/**
 	 * Shortcode, menu injection, and asset registration.
@@ -71,17 +71,17 @@ class MenuAnchor extends Unit {
 	}
 
 	public function controls() {
-		$section = __( 'Menu Anchor', 'sidcraft-syntex' );
+		$section = __( 'Menu Anchor', 'sidcraft-page-builder' );
 		return array(
 			'menu'   => 'select',
 			'anchor' => $this->ctrl(
 				'text',
-				__( 'Anchor ID', 'sidcraft-syntex' ),
+				__( 'Anchor ID', 'sidcraft-page-builder' ),
 				'content',
 				$section,
 				array(
 					'placeholder' => 'contact-us',
-					'description' => __( 'Drop this just above the section. Then set a menu item, button, or text link to # plus this ID, for example #contact-us.', 'sidcraft-syntex' ),
+					'description' => __( 'Drop this just above the section. Then set a menu item, button, or text link to # plus this ID, for example #contact-us.', 'sidcraft-page-builder' ),
 				)
 			),
 		);
@@ -267,7 +267,7 @@ class MenuAnchor extends Unit {
 	}
 
 	/**
-	 * Append anchor links supplied by `sidcraft-syntex/menu_anchor/links`.
+	 * Append anchor links supplied by `sidcraft-page-builder/menu_anchor/links`.
 	 *
 	 * Each item is `[ 'id' => 'contact-us', 'label' => 'Contact' ]`.
 	 *
@@ -276,7 +276,7 @@ class MenuAnchor extends Unit {
 	 * @return string
 	 */
 	public static function filter_nav_items( $items, $args ) {
-		$links = apply_filters( 'sidcraft-syntex/menu_anchor/links', array(), $args );
+		$links = apply_filters( 'sidcraft-page-builder/menu_anchor/links', array(), $args );
 		if ( ! is_array( $links ) || ! $links ) {
 			return $items;
 		}
@@ -300,7 +300,7 @@ class MenuAnchor extends Unit {
 	}
 
 	/**
-	 * [sidcraft_syntex_anchor id="contact-us"]...[/sidcraft_syntex_anchor]
+	 * [sidcraft_page_builder_anchor id="contact-us"]...[/sidcraft_page_builder_anchor]
 	 *
 	 * @param array|string $atts
 	 * @param string|null  $content
@@ -335,15 +335,15 @@ class MenuAnchor extends Unit {
 	 * @return void
 	 */
 	public static function register_assets() {
-		if ( ! defined( 'SIDCRAFT_SYNTEX_PATH' ) || ! defined( 'SIDCRAFT_SYNTEX_URL' ) || ! function_exists( 'wp_register_style' ) ) {
+		if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_PATH' ) || ! defined( 'SIDCRAFT_PAGE_BUILDER_URL' ) || ! function_exists( 'wp_register_style' ) ) {
 			return;
 		}
-		$css = SIDCRAFT_SYNTEX_PATH . 'assets/css/menu-anchor.css';
-		$js  = SIDCRAFT_SYNTEX_PATH . 'assets/js/menu-anchor.js';
-		$ver = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? (string) SIDCRAFT_SYNTEX_VERSION : '1';
-		wp_register_style( self::STYLE_HANDLE, SIDCRAFT_SYNTEX_URL . 'assets/css/menu-anchor.css', array(), $ver . '-' . ( file_exists( $css ) ? filemtime( $css ) : $ver ) );
+		$css = SIDCRAFT_PAGE_BUILDER_PATH . 'assets/css/menu-anchor.css';
+		$js  = SIDCRAFT_PAGE_BUILDER_PATH . 'assets/js/menu-anchor.js';
+		$ver = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? (string) SIDCRAFT_PAGE_BUILDER_VERSION : '1';
+		wp_register_style( self::STYLE_HANDLE, SIDCRAFT_PAGE_BUILDER_URL . 'assets/css/menu-anchor.css', array(), $ver . '-' . ( file_exists( $css ) ? filemtime( $css ) : $ver ) );
 		if ( function_exists( 'wp_register_script' ) ) {
-			wp_register_script( self::SCRIPT_HANDLE, SIDCRAFT_SYNTEX_URL . 'assets/js/menu-anchor.js', array(), $ver . '-' . ( file_exists( $js ) ? filemtime( $js ) : $ver ), true );
+			wp_register_script( self::SCRIPT_HANDLE, SIDCRAFT_PAGE_BUILDER_URL . 'assets/js/menu-anchor.js', array(), $ver . '-' . ( file_exists( $js ) ? filemtime( $js ) : $ver ), true );
 		}
 	}
 
@@ -355,7 +355,7 @@ class MenuAnchor extends Unit {
 	 */
 	public static function enqueue_discovered() {
 		self::register_assets();
-		$links = apply_filters( 'sidcraft-syntex/menu_anchor/links', array(), null );
+		$links = apply_filters( 'sidcraft-page-builder/menu_anchor/links', array(), null );
 		if ( is_array( $links ) && $links ) {
 			self::enqueue();
 			return;
@@ -565,7 +565,7 @@ class MenuAnchor extends Unit {
 				$id    = $seq;
 				$label = (string) ( $attrs['label'] ?? ( $attrs['title'] ?? '' ) );
 				if ( 'core/home-link' === $name && $label === '' ) {
-					$label = __( 'Home', 'sidcraft-syntex' );
+					$label = __( 'Home', 'sidcraft-page-builder' );
 				}
 				$items[] = array(
 					'id'     => $id,

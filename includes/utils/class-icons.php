@@ -1,19 +1,19 @@
 <?php
-namespace SidcraftSyntex\Utils;
+namespace SidcraftPageBuilder\Utils;
 if(!defined('ABSPATH')) exit;
 class Icons {
  private static $icons=null;
  private static function all(){
   if(self::$icons!==null)return self::$icons;
-  $file=SIDCRAFT_SYNTEX_PATH.'assets/data/fontawesome-free-icons.json';
+  $file=SIDCRAFT_PAGE_BUILDER_PATH.'assets/data/fontawesome-free-icons.json';
   $data=[];
   $x=class_exists(JsonCache::class)?JsonCache::read($file):null;
   if(!is_array($x)&&is_readable($file)){ $raw=file_get_contents($file); $x=json_decode($raw,true); }
   if(is_array($x))foreach($x as $i){if(!empty($i['id']))$data[$i['id']]=$i;}
-  $custom=(array)get_option('sidcraft_syntex_custom_icons',[]);
+  $custom=(array)get_option('sidcraft_page_builder_custom_icons',[]);
   foreach($custom as $id=>$i){if(!empty($i['id']))$data[$i['id']]=$i;}
-  if(class_exists('\\SidcraftSyntex\\Design\\IconLibrary')){
-   foreach(\SidcraftSyntex\Design\IconLibrary::registered() as $i){
+  if(class_exists('\\SidcraftPageBuilder\\Design\\IconLibrary')){
+   foreach(\SidcraftPageBuilder\Design\IconLibrary::registered() as $i){
     if(is_array($i)&&!empty($i['id']))$data[sanitize_key((string)$i['id'])]=$i;
    }
   }

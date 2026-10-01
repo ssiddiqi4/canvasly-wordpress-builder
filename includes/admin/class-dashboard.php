@@ -1,22 +1,22 @@
 <?php
-namespace SidcraftSyntex\Admin;
+namespace SidcraftPageBuilder\Admin;
 
-use SidcraftSyntex\Settings\Roles;
+use SidcraftPageBuilder\Settings\Roles;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Sidcraft Syntex admin menu hub.
+ * Sidcraft Page Builder admin menu hub.
  *
- * One screen under Sidcraft Syntex lists every other item in that menu. Sidcraft Syntex Pro
+ * One screen under Sidcraft Page Builder lists every other item in that menu. Sidcraft Page Builder Pro
  * uses this same screen and adds its own menu items through the submenu and
- * the sidcraft-syntex/dashboard/items filter.
+ * the sidcraft-page-builder/dashboard/items filter.
  */
 class Dashboard {
-	const PAGE          = 'sidcraft-syntex-dashboard';
-	const PARENT        = 'sidcraft-syntex';
+	const PAGE          = 'sidcraft-page-builder-dashboard';
+	const PARENT        = 'sidcraft-page-builder';
 	const DOCUMENTS_URL = 'https://canvasly.pro';
 	const SUPPORT_URL   = 'https://canvasly.pro/support.html';
 
@@ -36,8 +36,8 @@ class Dashboard {
 		$cap = class_exists( Roles::class ) ? Roles::CAP_EDIT : 'edit_posts';
 		add_submenu_page(
 			self::PARENT,
-			__( 'Dashboard', 'sidcraft-syntex' ),
-			__( 'Dashboard', 'sidcraft-syntex' ),
+			__( 'Dashboard', 'sidcraft-page-builder' ),
+			__( 'Dashboard', 'sidcraft-page-builder' ),
 			$cap,
 			self::PAGE,
 			array( self::class, 'screen' )
@@ -59,14 +59,14 @@ class Dashboard {
 		}
 		$cap  = class_exists( Roles::class ) ? Roles::CAP_EDIT : 'edit_posts';
 		$item = array(
-			__( 'Documents', 'sidcraft-syntex' ),
+			__( 'Documents', 'sidcraft-page-builder' ),
 			$cap,
 			self::DOCUMENTS_URL,
-			__( 'Documents', 'sidcraft-syntex' ),
+			__( 'Documents', 'sidcraft-page-builder' ),
 		);
 		$insert_at = count( $submenu[ self::PARENT ] );
 		foreach ( $submenu[ self::PARENT ] as $i => $row ) {
-			if ( is_array( $row ) && isset( $row[2] ) && 'sidcraft-syntex-template-import' === $row[2] ) {
+			if ( is_array( $row ) && isset( $row[2] ) && 'sidcraft-page-builder-template-import' === $row[2] ) {
 				$insert_at = $i + 1;
 				break;
 			}
@@ -75,7 +75,7 @@ class Dashboard {
 	}
 
 	/**
-	 * Open Sidcraft Syntex on this screen, and keep the visual builder in the menu.
+	 * Open Sidcraft Page Builder on this screen, and keep the visual builder in the menu.
 	 */
 	public static function promote() {
 		global $submenu;
@@ -93,9 +93,9 @@ class Dashboard {
 				continue;
 			}
 			if ( isset( $item[2] ) && self::PARENT === $item[2] ) {
-				$item[0] = __( 'Editor', 'sidcraft-syntex' );
+				$item[0] = __( 'Editor', 'sidcraft-page-builder' );
 				if ( isset( $item[3] ) ) {
-					$item[3] = __( 'Editor', 'sidcraft-syntex' );
+					$item[3] = __( 'Editor', 'sidcraft-page-builder' );
 				}
 			}
 			$rest[] = $item;
@@ -144,11 +144,11 @@ class Dashboard {
 			);
 		}
 		/**
-		 * Filter dashboard cards. Sidcraft Syntex Pro appends its own admin screens here.
+		 * Filter dashboard cards. Sidcraft Page Builder Pro appends its own admin screens here.
 		 *
 		 * @param array $items
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/dashboard/items', $items );
+		$filtered = apply_filters( 'sidcraft-page-builder/dashboard/items', $items );
 		if ( ! is_array( $filtered ) ) {
 			return $items;
 		}
@@ -177,7 +177,7 @@ class Dashboard {
 	public static function screen() {
 		$cap = class_exists( Roles::class ) ? Roles::CAP_EDIT : 'edit_posts';
 		if ( function_exists( 'current_user_can' ) && ! current_user_can( $cap ) ) {
-			wp_die( esc_html__( 'You do not have permission to view the Sidcraft Syntex dashboard.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'You do not have permission to view the Sidcraft Page Builder dashboard.', 'sidcraft-page-builder' ) );
 		}
 		$by     = array();
 		foreach ( self::items() as $item ) {
@@ -192,19 +192,19 @@ class Dashboard {
 			$editor
 		);
 		$templates = '';
-		foreach ( array( 'sidcraft-syntex-template-import', 'sidcraft-syntex-tools' ) as $slug ) {
+		foreach ( array( 'sidcraft-page-builder-template-import', 'sidcraft-page-builder-tools' ) as $slug ) {
 			if ( isset( $by[ $slug ] ) ) {
 				$templates = $by[ $slug ]['url'];
 				break;
 			}
 		}
-		$tabs = array( self::PAGE => __( 'Dashboard', 'sidcraft-syntex' ) );
-		foreach ( array( 'sidcraft-syntex-settings', 'sidcraft-syntex-global', 'sidcraft-syntex-tools', 'sidcraft-syntex-pro-theme', 'sidcraft-syntex-pro-licensing' ) as $slug ) {
+		$tabs = array( self::PAGE => __( 'Dashboard', 'sidcraft-page-builder' ) );
+		foreach ( array( 'sidcraft-page-builder-settings', 'sidcraft-page-builder-global', 'sidcraft-page-builder-tools', 'sidcraft-page-builder-pro-theme', 'sidcraft-page-builder-pro-licensing' ) as $slug ) {
 			if ( isset( $by[ $slug ] ) ) {
 				$tabs[ $slug ] = $by[ $slug ]['title'];
 			}
 		}
-		$quick_slugs = array( 'sidcraft-syntex-units', 'sidcraft-syntex-roles', 'sidcraft-syntex-global', 'sidcraft-syntex-settings', 'sidcraft-syntex-pro-licensing' );
+		$quick_slugs = array( 'sidcraft-page-builder-units', 'sidcraft-page-builder-roles', 'sidcraft-page-builder-global', 'sidcraft-page-builder-settings', 'sidcraft-page-builder-pro-licensing' );
 		$quick       = array();
 		foreach ( $quick_slugs as $slug ) {
 			if ( isset( $by[ $slug ] ) ) {
@@ -222,7 +222,7 @@ class Dashboard {
 			$shown[ $item['slug'] ] = true;
 		}
 		if ( $templates !== '' ) {
-			foreach ( array( 'sidcraft-syntex-template-import', 'sidcraft-syntex-tools' ) as $slug ) {
+			foreach ( array( 'sidcraft-page-builder-template-import', 'sidcraft-page-builder-tools' ) as $slug ) {
 				if ( isset( $by[ $slug ] ) && $by[ $slug ]['url'] === $templates ) {
 					$shown[ $slug ] = true;
 					break;
@@ -238,21 +238,21 @@ class Dashboard {
 			}
 		}
 		$icons = array(
-			'sidcraft-syntex-units'       => 'dashicons-screenoptions',
-			'sidcraft-syntex-roles'       => 'dashicons-groups',
-			'sidcraft-syntex-global'      => 'dashicons-art',
-			'sidcraft-syntex-settings'    => 'dashicons-admin-generic',
+			'sidcraft-page-builder-units'       => 'dashicons-screenoptions',
+			'sidcraft-page-builder-roles'       => 'dashicons-groups',
+			'sidcraft-page-builder-global'      => 'dashicons-art',
+			'sidcraft-page-builder-settings'    => 'dashicons-admin-generic',
 			self::DOCUMENTS_URL         => 'dashicons-media-document',
 			self::SUPPORT_URL           => 'dashicons-sos',
-			'sidcraft-syntex-pro-licensing'    => 'dashicons-admin-network',
-			'sidcraft-syntex-tools'       => 'dashicons-admin-tools',
-			'sidcraft-syntex-system-info' => 'dashicons-info',
+			'sidcraft-page-builder-pro-licensing'    => 'dashicons-admin-network',
+			'sidcraft-page-builder-tools'       => 'dashicons-admin-tools',
+			'sidcraft-page-builder-system-info' => 'dashicons-info',
 		);
 		echo '<div class="wrap lb-dash">';
-		echo '<h1 class="screen-reader-text">' . esc_html__( 'Dashboard', 'sidcraft-syntex' ) . '</h1>';
+		echo '<h1 class="screen-reader-text">' . esc_html__( 'Dashboard', 'sidcraft-page-builder' ) . '</h1>';
 		echo '<div class="lb-dash-header">';
-		echo '<div class="lb-dash-brand"><span class="lb-dash-logo" aria-hidden="true">C</span><strong>Sidcraft Syntex</strong></div>';
-		echo '<nav class="lb-dash-tabs" aria-label="' . esc_attr__( 'Sidcraft Syntex', 'sidcraft-syntex' ) . '">';
+		echo '<div class="lb-dash-brand"><span class="lb-dash-logo" aria-hidden="true">C</span><strong>Sidcraft Page Builder</strong></div>';
+		echo '<nav class="lb-dash-tabs" aria-label="' . esc_attr__( 'Sidcraft Page Builder', 'sidcraft-page-builder' ) . '">';
 		foreach ( $tabs as $slug => $label ) {
 			if ( $slug === self::PAGE ) {
 				echo '<span class="is-current" aria-current="page">' . esc_html( $label ) . '</span>';
@@ -265,20 +265,20 @@ class Dashboard {
 		echo '<div class="lb-dash-body"><div class="lb-dash-main">';
 		echo '<section class="lb-dash-card lb-dash-welcome">';
 		echo '<div class="lb-dash-hello">';
-		echo '<h2>' . esc_html__( 'Hello,', 'sidcraft-syntex' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Design pages inside WordPress with Sidcraft Syntex. Start a page, or open any Sidcraft Syntex screen from this dashboard.', 'sidcraft-syntex' ) . '</p>';
+		echo '<h2>' . esc_html__( 'Hello,', 'sidcraft-page-builder' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Design pages inside WordPress with Sidcraft Page Builder. Start a page, or open any Sidcraft Page Builder screen from this dashboard.', 'sidcraft-page-builder' ) . '</p>';
 		echo '<p class="lb-dash-actions">';
-		echo '<a class="button button-primary" href="' . esc_url( $editor ) . '">' . esc_html__( 'Create New Page', 'sidcraft-syntex' ) . '</a>';
+		echo '<a class="button button-primary" href="' . esc_url( $editor ) . '">' . esc_html__( 'Create New Page', 'sidcraft-page-builder' ) . '</a>';
 		if ( $templates !== '' ) {
-			echo '<a class="button lb-dash-button-soft" href="' . esc_url( $templates ) . '">' . esc_html__( 'Explore Templates', 'sidcraft-syntex' ) . '</a>';
+			echo '<a class="button lb-dash-button-soft" href="' . esc_url( $templates ) . '">' . esc_html__( 'Explore Templates', 'sidcraft-page-builder' ) . '</a>';
 		}
 		echo '</p></div>';
 		echo '<div class="lb-dash-promo">';
-		echo '<strong>' . esc_html__( 'Welcome to Sidcraft Syntex', 'sidcraft-syntex' ) . '</strong>';
-		echo '<span>' . esc_html__( 'Build in the visual editor', 'sidcraft-syntex' ) . '</span>';
-		echo '<a class="lb-dash-play" href="' . esc_url( $editor ) . '">' . esc_html__( 'Start', 'sidcraft-syntex' ) . '</a>';
+		echo '<strong>' . esc_html__( 'Welcome to Sidcraft Page Builder', 'sidcraft-page-builder' ) . '</strong>';
+		echo '<span>' . esc_html__( 'Build in the visual editor', 'sidcraft-page-builder' ) . '</span>';
+		echo '<a class="lb-dash-play" href="' . esc_url( $editor ) . '">' . esc_html__( 'Start', 'sidcraft-page-builder' ) . '</a>';
 		echo '</div></section>';
-		echo '<section class="lb-dash-block"><h2>' . esc_html__( 'Quick Settings', 'sidcraft-syntex' ) . '</h2>';
+		echo '<section class="lb-dash-block"><h2>' . esc_html__( 'Quick Settings', 'sidcraft-page-builder' ) . '</h2>';
 		echo '<div class="lb-dash-quick">';
 		$documents_placed = false;
 		foreach ( $quick as $item ) {
@@ -286,9 +286,9 @@ class Dashboard {
 			echo '<a class="lb-dash-setting" href="' . esc_url( $item['url'] ) . '">';
 			echo '<span class="lb-dash-setting-icon dashicons ' . esc_attr( $icon ) . '" aria-hidden="true"></span>';
 			echo '<strong>' . esc_html( $item['title'] ) . '</strong>';
-			echo '<span>' . esc_html__( 'Configure', 'sidcraft-syntex' ) . '</span>';
+			echo '<span>' . esc_html__( 'Configure', 'sidcraft-page-builder' ) . '</span>';
 			echo '</a>';
-			if ( 'sidcraft-syntex-settings' === $item['slug'] ) {
+			if ( 'sidcraft-page-builder-settings' === $item['slug'] ) {
 				self::render_documents_card();
 				self::render_support_card();
 				$documents_placed = true;
@@ -299,16 +299,16 @@ class Dashboard {
 			self::render_support_card();
 		}
 		echo '</div></section>';
-		echo '<section class="lb-dash-block"><div class="lb-dash-block-head"><h2>' . esc_html__( 'Get Started', 'sidcraft-syntex' ) . '</h2></div>';
+		echo '<section class="lb-dash-block"><div class="lb-dash-block-head"><h2>' . esc_html__( 'Get Started', 'sidcraft-page-builder' ) . '</h2></div>';
 		echo '<div class="lb-dash-lessons">';
 		$lessons = array(
-			array( $editor, __( 'Create a page', 'sidcraft-syntex' ) ),
+			array( $editor, __( 'Create a page', 'sidcraft-page-builder' ) ),
 		);
-		if ( isset( $by['sidcraft-syntex-units'] ) ) {
-			$lessons[] = array( $by['sidcraft-syntex-units']['url'], __( 'Choose units', 'sidcraft-syntex' ) );
+		if ( isset( $by['sidcraft-page-builder-units'] ) ) {
+			$lessons[] = array( $by['sidcraft-page-builder-units']['url'], __( 'Choose units', 'sidcraft-page-builder' ) );
 		}
-		if ( isset( $by['sidcraft-syntex-settings'] ) ) {
-			$lessons[] = array( $by['sidcraft-syntex-settings']['url'], __( 'Site settings', 'sidcraft-syntex' ) );
+		if ( isset( $by['sidcraft-page-builder-settings'] ) ) {
+			$lessons[] = array( $by['sidcraft-page-builder-settings']['url'], __( 'Site settings', 'sidcraft-page-builder' ) );
 		}
 		foreach ( $lessons as $lesson ) {
 			echo '<a class="lb-dash-lesson" href="' . esc_url( $lesson[0] ) . '"><span>' . esc_html( $lesson[1] ) . '</span><i aria-hidden="true"></i></a>';
@@ -320,13 +320,13 @@ class Dashboard {
 		if ( $templates !== '' ) {
 			echo '<section class="lb-dash-card lb-dash-templates">';
 			echo '<div class="lb-dash-sheets" aria-hidden="true"><span></span><span></span><span></span></div>';
-			echo '<h2>' . esc_html__( 'Build pages faster with templates', 'sidcraft-syntex' ) . '</h2>';
-			echo '<p>' . esc_html__( 'Start from a saved template, then change it in the editor.', 'sidcraft-syntex' ) . '</p>';
-			echo '<a class="button button-primary" href="' . esc_url( $templates ) . '">' . esc_html__( 'Explore Templates', 'sidcraft-syntex' ) . '</a>';
+			echo '<h2>' . esc_html__( 'Build pages faster with templates', 'sidcraft-page-builder' ) . '</h2>';
+			echo '<p>' . esc_html__( 'Start from a saved template, then change it in the editor.', 'sidcraft-page-builder' ) . '</p>';
+			echo '<a class="button button-primary" href="' . esc_url( $templates ) . '">' . esc_html__( 'Explore Templates', 'sidcraft-page-builder' ) . '</a>';
 			echo '</section>';
 		}
 		if ( $access ) {
-			echo '<section class="lb-dash-card lb-dash-access"><h2>' . esc_html__( 'Quick Access', 'sidcraft-syntex' ) . '</h2><ul>';
+			echo '<section class="lb-dash-card lb-dash-access"><h2>' . esc_html__( 'Quick Access', 'sidcraft-page-builder' ) . '</h2><ul>';
 			foreach ( $access as $item ) {
 				$icon = isset( $icons[ $item['slug'] ] ) ? $icons[ $item['slug'] ] : 'dashicons-admin-links';
 				echo '<li><a href="' . esc_url( $item['url'] ) . '"><span class="dashicons ' . esc_attr( $icon ) . '" aria-hidden="true"></span>' . esc_html( $item['title'] ) . '</a></li>';
@@ -342,8 +342,8 @@ class Dashboard {
 	private static function render_documents_card() {
 		echo '<a class="lb-dash-setting" href="' . esc_url( self::DOCUMENTS_URL ) . '" target="_blank" rel="noopener noreferrer">';
 		echo '<span class="lb-dash-setting-icon dashicons dashicons-media-document" aria-hidden="true"></span>';
-		echo '<strong>' . esc_html__( 'Documents', 'sidcraft-syntex' ) . '</strong>';
-		echo '<span>' . esc_html__( 'Open', 'sidcraft-syntex' ) . '</span>';
+		echo '<strong>' . esc_html__( 'Documents', 'sidcraft-page-builder' ) . '</strong>';
+		echo '<span>' . esc_html__( 'Open', 'sidcraft-page-builder' ) . '</span>';
 		echo '</a>';
 	}
 
@@ -354,11 +354,11 @@ class Dashboard {
 		echo '<div class="lb-dash-support">';
 		echo '<a class="lb-dash-setting" href="' . esc_url( self::SUPPORT_URL ) . '" target="_blank" rel="noopener noreferrer">';
 		echo '<span class="lb-dash-setting-icon dashicons dashicons-sos" aria-hidden="true"></span>';
-		echo '<strong>' . esc_html__( 'Support', 'sidcraft-syntex' ) . '</strong>';
-		echo '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'sidcraft-syntex' ) . '</span>';
-		echo '<span>' . esc_html__( 'Open', 'sidcraft-syntex' ) . '</span>';
+		echo '<strong>' . esc_html__( 'Support', 'sidcraft-page-builder' ) . '</strong>';
+		echo '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'sidcraft-page-builder' ) . '</span>';
+		echo '<span>' . esc_html__( 'Open', 'sidcraft-page-builder' ) . '</span>';
 		echo '</a>';
-		echo '<p class="description">' . esc_html__( 'E-Mail support is provided only to Sidcraft Syntex Pro licensed users.', 'sidcraft-syntex' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'E-Mail support is provided only to Sidcraft Page Builder Pro licensed users.', 'sidcraft-page-builder' ) . '</p>';
 		echo '</div>';
 	}
 
@@ -366,39 +366,39 @@ class Dashboard {
 	 * Lite vs Pro chart. Sits in the dashboard sidebar.
 	 */
 	public static function render_comparison() {
-		$pro_price = __( 'From $59 / year', 'sidcraft-syntex' );
-		if ( class_exists( '\SidcraftSyntexPro\License' ) && method_exists( '\SidcraftSyntexPro\License', 'plans' ) ) {
+		$pro_price = __( 'From $59 / year', 'sidcraft-page-builder' );
+		if ( class_exists( '\SidcraftPageBuilderPro\License' ) && method_exists( '\SidcraftPageBuilderPro\License', 'plans' ) ) {
 			$prices = array();
-			foreach ( \SidcraftSyntexPro\License::plans() as $plan ) {
+			foreach ( \SidcraftPageBuilderPro\License::plans() as $plan ) {
 				if ( isset( $plan['price_usd'] ) ) {
 					$prices[] = (int) $plan['price_usd'];
 				}
 			}
 			if ( $prices ) {
 				$pro_price = sprintf(
-					/* translators: %d: lowest Sidcraft Syntex Pro annual price in US dollars. */
-					__( 'From $%d / year', 'sidcraft-syntex' ),
+					/* translators: %d: lowest Sidcraft Page Builder Pro annual price in US dollars. */
+					__( 'From $%d / year', 'sidcraft-page-builder' ),
 					min( $prices )
 				);
 			}
 		}
 		echo '<section class="lb-dash-card lb-dash-compare">';
 		echo '<table class="lb-dash-compare-table">';
-		echo '<caption class="screen-reader-text">' . esc_html__( 'Sidcraft Syntex versus Sidcraft Syntex Pro', 'sidcraft-syntex' ) . '</caption>';
+		echo '<caption class="screen-reader-text">' . esc_html__( 'Sidcraft Page Builder versus Sidcraft Page Builder Pro', 'sidcraft-page-builder' ) . '</caption>';
 		echo '<thead><tr class="lb-dash-compare-banner">';
-		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Syntex', 'sidcraft-syntex' ) . '</strong>';
-		echo '<span>' . esc_html__( 'Feature Comparison', 'sidcraft-syntex' ) . '</span>';
-		echo '<em>' . esc_html__( 'Two plugins. One document model.', 'sidcraft-syntex' ) . '</em></th>';
-		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Syntex', 'sidcraft-syntex' ) . '</strong>';
-		echo '<span>' . esc_html__( 'Free', 'sidcraft-syntex' ) . '</span>';
-		echo '<em>' . esc_html__( 'Visual page builder', 'sidcraft-syntex' ) . '</em></th>';
-		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Syntex Pro', 'sidcraft-syntex' ) . '</strong>';
+		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Page Builder', 'sidcraft-page-builder' ) . '</strong>';
+		echo '<span>' . esc_html__( 'Feature Comparison', 'sidcraft-page-builder' ) . '</span>';
+		echo '<em>' . esc_html__( 'Two plugins. One document model.', 'sidcraft-page-builder' ) . '</em></th>';
+		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Page Builder', 'sidcraft-page-builder' ) . '</strong>';
+		echo '<span>' . esc_html__( 'Free', 'sidcraft-page-builder' ) . '</span>';
+		echo '<em>' . esc_html__( 'Visual page builder', 'sidcraft-page-builder' ) . '</em></th>';
+		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Page Builder Pro', 'sidcraft-page-builder' ) . '</strong>';
 		echo '<span>' . esc_html( $pro_price ) . '</span>';
-		echo '<em>' . esc_html__( 'Theme, shop, and payments', 'sidcraft-syntex' ) . '</em></th>';
+		echo '<em>' . esc_html__( 'Theme, shop, and payments', 'sidcraft-page-builder' ) . '</em></th>';
 		echo '</tr><tr class="lb-dash-compare-cols">';
-		echo '<th scope="col">' . esc_html__( 'Feature', 'sidcraft-syntex' ) . '</th>';
-		echo '<th scope="col">' . esc_html__( 'Lite', 'sidcraft-syntex' ) . '</th>';
-		echo '<th scope="col">' . esc_html__( 'Pro', 'sidcraft-syntex' ) . '</th>';
+		echo '<th scope="col">' . esc_html__( 'Feature', 'sidcraft-page-builder' ) . '</th>';
+		echo '<th scope="col">' . esc_html__( 'Lite', 'sidcraft-page-builder' ) . '</th>';
+		echo '<th scope="col">' . esc_html__( 'Pro', 'sidcraft-page-builder' ) . '</th>';
 		echo '</tr></thead><tbody>';
 		$group = '';
 		foreach ( self::comparison_rows() as $row ) {
@@ -417,43 +417,43 @@ class Dashboard {
 			echo '</tr>';
 		}
 		echo '</tbody><tfoot><tr>';
-		echo '<th scope="row">' . esc_html__( 'Price', 'sidcraft-syntex' ) . '</th>';
-		echo '<td><strong>' . esc_html__( 'Free', 'sidcraft-syntex' ) . '</strong><span>' . esc_html__( 'Start building', 'sidcraft-syntex' ) . '</span></td>';
-		echo '<td><strong>' . esc_html( $pro_price ) . '</strong><span>' . esc_html__( 'Same features on every plan', 'sidcraft-syntex' ) . '</span></td>';
+		echo '<th scope="row">' . esc_html__( 'Price', 'sidcraft-page-builder' ) . '</th>';
+		echo '<td><strong>' . esc_html__( 'Free', 'sidcraft-page-builder' ) . '</strong><span>' . esc_html__( 'Start building', 'sidcraft-page-builder' ) . '</span></td>';
+		echo '<td><strong>' . esc_html( $pro_price ) . '</strong><span>' . esc_html__( 'Same features on every plan', 'sidcraft-page-builder' ) . '</span></td>';
 		echo '</tr></tfoot></table>';
-		echo '<p class="lb-dash-compare-note">' . esc_html__( 'Pro loads only when Lite is active and at least version 0.12.73. WooCommerce elements stay unloaded without WooCommerce. Without a valid Pro key, new Pro elements are dropped on save.', 'sidcraft-syntex' ) . '</p>';
+		echo '<p class="lb-dash-compare-note">' . esc_html__( 'Pro loads only when Lite is active and at least version 0.12.73. WooCommerce elements stay unloaded without WooCommerce. Without a valid Pro key, new Pro elements are dropped on save.', 'sidcraft-page-builder' ) . '</p>';
 		echo '</section>';
 	}
 
 	/**
 	 * Pro annual plans under the comparison chart.
 	 *
-	 * Rendered from Lite so the cards stay visible when Sidcraft Syntex Pro is not
+	 * Rendered from Lite so the cards stay visible when Sidcraft Page Builder Pro is not
 	 * installed or its license is not active. Prices match License::plans().
 	 */
 	public static function render_pro_pricing() {
 		echo '<section class="lb-dash-pricing">';
-		echo '<h2>' . esc_html__( 'Licensing', 'sidcraft-syntex' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Choose a Sidcraft Syntex Pro annual plan. Checkout and license-key delivery are handled on the Sidcraft Syntex license site.', 'sidcraft-syntex' ) . '</p>';
-		echo '<div class="sidcraft-syntex-pricing-grid">';
+		echo '<h2>' . esc_html__( 'Licensing', 'sidcraft-page-builder' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Choose a Sidcraft Page Builder Pro annual plan. Checkout and license-key delivery are handled on the Sidcraft Page Builder license site.', 'sidcraft-page-builder' ) . '</p>';
+		echo '<div class="sidcraft-page-builder-pricing-grid">';
 		foreach ( self::pro_plans() as $code => $plan ) {
 			$sites      = isset( $plan['sites_allowed'] ) ? (int) $plan['sites_allowed'] : 1;
 			$price      = isset( $plan['price_usd'] ) ? (int) $plan['price_usd'] : 0;
 			$name       = isset( $plan['name'] ) ? (string) $plan['name'] : '';
 			$site_label = sprintf(
 				/* translators: %d: number of sites included in the plan. */
-				_n( '%d site included', '%d sites included', $sites, 'sidcraft-syntex' ),
+				_n( '%d site included', '%d sites included', $sites, 'sidcraft-page-builder' ),
 				$sites
 			);
-			echo '<div class="sidcraft-syntex-pricing-card">';
+			echo '<div class="sidcraft-page-builder-pricing-card">';
 			echo '<h3>' . esc_html( $name ) . '</h3>';
-			echo '<p class="sidcraft-syntex-pricing-price">$' . esc_html( (string) $price ) . ' <span>' . esc_html__( '/ year', 'sidcraft-syntex' ) . '</span></p>';
-			echo '<p class="sidcraft-syntex-pricing-meta">' . esc_html( $site_label ) . '</p>';
+			echo '<p class="sidcraft-page-builder-pricing-price">$' . esc_html( (string) $price ) . ' <span>' . esc_html__( '/ year', 'sidcraft-page-builder' ) . '</span></p>';
+			echo '<p class="sidcraft-page-builder-pricing-meta">' . esc_html( $site_label ) . '</p>';
 			echo '<p><a class="button button-primary" href="' . esc_url( self::pro_plan_url( (string) $code ) ) . '" target="_blank" rel="noopener noreferrer">';
 			echo esc_html(
 				sprintf(
 					/* translators: %s: license plan name. */
-					__( 'Purchase %s', 'sidcraft-syntex' ),
+					__( 'Purchase %s', 'sidcraft-page-builder' ),
 					$name
 				)
 			);
@@ -466,8 +466,8 @@ class Dashboard {
 	 * @return array<string,array{name:string,price_usd:int,sites_allowed:int}>
 	 */
 	private static function pro_plans() {
-		if ( class_exists( '\SidcraftSyntexPro\License' ) && method_exists( '\SidcraftSyntexPro\License', 'plans' ) ) {
-			$plans = \SidcraftSyntexPro\License::plans();
+		if ( class_exists( '\SidcraftPageBuilderPro\License' ) && method_exists( '\SidcraftPageBuilderPro\License', 'plans' ) ) {
+			$plans = \SidcraftPageBuilderPro\License::plans();
 			if ( is_array( $plans ) && $plans ) {
 				return $plans;
 			}
@@ -497,14 +497,14 @@ class Dashboard {
 	}
 
 	/**
-	 * Checkout URL on the Sidcraft Syntex license site, with the plan preselected.
+	 * Checkout URL on the Sidcraft Page Builder license site, with the plan preselected.
 	 *
 	 * @param string $code
 	 * @return string
 	 */
 	private static function pro_plan_url( $code ) {
-		if ( class_exists( '\SidcraftSyntexPro\License' ) && method_exists( '\SidcraftSyntexPro\License', 'plan_purchase_url' ) ) {
-			$url = \SidcraftSyntexPro\License::plan_purchase_url( $code );
+		if ( class_exists( '\SidcraftPageBuilderPro\License' ) && method_exists( '\SidcraftPageBuilderPro\License', 'plan_purchase_url' ) ) {
+			$url = \SidcraftPageBuilderPro\License::plan_purchase_url( $code );
 			if ( is_string( $url ) && $url !== '' && strpos( $url, 'plan=' ) !== false ) {
 				return $url;
 			}
@@ -519,10 +519,10 @@ class Dashboard {
 	 */
 	private static function comparison_mark( $state, $note ) {
 		if ( 'no' === $state ) {
-			return '<span class="lb-dash-mark lb-dash-mark-no" aria-label="' . esc_attr( __( 'Not included', 'sidcraft-syntex' ) ) . '">&#10007;</span>';
+			return '<span class="lb-dash-mark lb-dash-mark-no" aria-label="' . esc_attr( __( 'Not included', 'sidcraft-page-builder' ) ) . '">&#10007;</span>';
 		}
 		if ( 'yes' === $state && $note === '' ) {
-			return '<span class="lb-dash-mark lb-dash-mark-yes" aria-label="' . esc_attr( __( 'Included', 'sidcraft-syntex' ) ) . '">&#10003;</span>';
+			return '<span class="lb-dash-mark lb-dash-mark-yes" aria-label="' . esc_attr( __( 'Included', 'sidcraft-page-builder' ) ) . '">&#10003;</span>';
 		}
 		$html = '';
 		if ( 'yes' === $state ) {
@@ -540,220 +540,220 @@ class Dashboard {
 	private static function comparison_rows() {
 		return array(
 			array(
-				'group'     => __( 'Builder', 'sidcraft-syntex' ),
-				'name'      => __( 'Visual editor', 'sidcraft-syntex' ),
-				'detail'    => __( 'Drag-and-drop canvas, nested containers, CSS Grid, desktop, tablet, and mobile.', 'sidcraft-syntex' ),
+				'group'     => __( 'Builder', 'sidcraft-page-builder' ),
+				'name'      => __( 'Visual editor', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Drag-and-drop canvas, nested containers, CSS Grid, desktop, tablet, and mobile.', 'sidcraft-page-builder' ),
 				'lite'      => 'yes',
 				'lite_note' => '',
 				'pro'       => 'yes',
 				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Builder', 'sidcraft-syntex' ),
-				'name'      => __( 'Core elements', 'sidcraft-syntex' ),
-				'detail'    => __( 'Heading, text, image, button, gallery, video, tabs, form, price table, collection loop, and the rest of the Lite library.', 'sidcraft-syntex' ),
+				'group'     => __( 'Builder', 'sidcraft-page-builder' ),
+				'name'      => __( 'Core elements', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Heading, text, image, button, gallery, video, tabs, form, price table, collection loop, and the rest of the Lite library.', 'sidcraft-page-builder' ),
 				'lite'      => 'yes',
 				'lite_note' => '',
 				'pro'       => 'yes',
 				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Builder', 'sidcraft-syntex' ),
-				'name'      => __( 'Design system', 'sidcraft-syntex' ),
-				'detail'    => __( 'Global colors, typography, variables, classes, components, and site-kit import and export.', 'sidcraft-syntex' ),
+				'group'     => __( 'Builder', 'sidcraft-page-builder' ),
+				'name'      => __( 'Design system', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Global colors, typography, variables, classes, components, and site-kit import and export.', 'sidcraft-page-builder' ),
 				'lite'      => 'yes',
 				'lite_note' => '',
 				'pro'       => 'yes',
-				'pro_note'  => __( 'Kit also carries Pro theme templates', 'sidcraft-syntex' ),
+				'pro_note'  => __( 'Kit also carries Pro theme templates', 'sidcraft-page-builder' ),
 			),
 			array(
-				'group'     => __( 'Builder', 'sidcraft-syntex' ),
-				'name'      => __( 'Style and custom CSS', 'sidcraft-syntex' ),
-				'detail'    => __( 'Typography, spacing, borders, shadows, visibility, ARIA, and CSS on the element or the page.', 'sidcraft-syntex' ),
-				'lite'      => 'yes',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Builder', 'sidcraft-syntex' ),
-				'name'      => __( 'Entrance and exit motion', 'sidcraft-syntex' ),
-				'detail'    => __( 'CSS presets, custom keyframes, and viewport, load, hover, click, and scroll triggers.', 'sidcraft-syntex' ),
+				'group'     => __( 'Builder', 'sidcraft-page-builder' ),
+				'name'      => __( 'Style and custom CSS', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Typography, spacing, borders, shadows, visibility, ARIA, and CSS on the element or the page.', 'sidcraft-page-builder' ),
 				'lite'      => 'yes',
 				'lite_note' => '',
 				'pro'       => 'yes',
 				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Builder', 'sidcraft-syntex' ),
-				'name'      => __( 'Sticky, scroll, and page transitions', 'sidcraft-syntex' ),
-				'detail'    => __( 'Stick to top or bottom, scroll opacity, slide, and scale, scroll snap, and page transitions.', 'sidcraft-syntex' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Content', 'sidcraft-syntex' ),
-				'name'      => __( 'Saved templates', 'sidcraft-syntex' ),
-				'detail'    => __( 'Shortcode, Gutenberg block, template widget, or sidebar widget.', 'sidcraft-syntex' ),
-				'lite'      => 'note',
-				'lite_note' => __( 'Page templates', 'sidcraft-syntex' ),
-				'pro'       => 'note',
-				'pro_note'  => __( 'Also header, footer, popup, loop item, section', 'sidcraft-syntex' ),
-			),
-			array(
-				'group'     => __( 'Content', 'sidcraft-syntex' ),
-				'name'      => __( 'Collection loop', 'sidcraft-syntex' ),
-				'detail'    => __( 'Query posts or terms, with numbered, previous-next, or load-more pagination.', 'sidcraft-syntex' ),
+				'group'     => __( 'Builder', 'sidcraft-page-builder' ),
+				'name'      => __( 'Entrance and exit motion', 'sidcraft-page-builder' ),
+				'detail'    => __( 'CSS presets, custom keyframes, and viewport, load, hover, click, and scroll triggers.', 'sidcraft-page-builder' ),
 				'lite'      => 'yes',
 				'lite_note' => '',
 				'pro'       => 'yes',
-				'pro_note'  => __( 'Loop-item templates and a taxonomy filter', 'sidcraft-syntex' ),
+				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Content', 'sidcraft-syntex' ),
-				'name'      => __( 'Dynamic tags', 'sidcraft-syntex' ),
-				'detail'    => __( 'Values that resolve in the editor and on the front end.', 'sidcraft-syntex' ),
+				'group'     => __( 'Builder', 'sidcraft-page-builder' ),
+				'name'      => __( 'Sticky, scroll, and page transitions', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Stick to top or bottom, scroll opacity, slide, and scale, scroll snap, and page transitions.', 'sidcraft-page-builder' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Content', 'sidcraft-page-builder' ),
+				'name'      => __( 'Saved templates', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Shortcode, Gutenberg block, template widget, or sidebar widget.', 'sidcraft-page-builder' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'Post, author, site, user, archive, term', 'sidcraft-syntex' ),
+				'lite_note' => __( 'Page templates', 'sidcraft-page-builder' ),
 				'pro'       => 'note',
-				'pro_note'  => __( 'Plus request, custom fields, ACF, product price and SKU', 'sidcraft-syntex' ),
+				'pro_note'  => __( 'Also header, footer, popup, loop item, section', 'sidcraft-page-builder' ),
 			),
 			array(
-				'group'     => __( 'Content', 'sidcraft-syntex' ),
-				'name'      => __( 'Forms', 'sidcraft-syntex' ),
-				'detail'    => __( 'Lite keeps the form element. Pro extends fields and what happens after submit.', 'sidcraft-syntex' ),
+				'group'     => __( 'Content', 'sidcraft-page-builder' ),
+				'name'      => __( 'Collection loop', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Query posts or terms, with numbered, previous-next, or load-more pagination.', 'sidcraft-page-builder' ),
+				'lite'      => 'yes',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => __( 'Loop-item templates and a taxonomy filter', 'sidcraft-page-builder' ),
+			),
+			array(
+				'group'     => __( 'Content', 'sidcraft-page-builder' ),
+				'name'      => __( 'Dynamic tags', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Values that resolve in the editor and on the front end.', 'sidcraft-page-builder' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'One email', 'sidcraft-syntex' ),
+				'lite_note' => __( 'Post, author, site, user, archive, term', 'sidcraft-page-builder' ),
 				'pro'       => 'note',
-				'pro_note'  => __( 'Email, redirect, webhook, submissions log, CSV', 'sidcraft-syntex' ),
+				'pro_note'  => __( 'Plus request, custom fields, ACF, product price and SKU', 'sidcraft-page-builder' ),
 			),
 			array(
-				'group'     => __( 'Content', 'sidcraft-syntex' ),
-				'name'      => __( 'Extra form fields', 'sidcraft-syntex' ),
-				'detail'    => __( 'Number, date, radio, acceptance, and file upload.', 'sidcraft-syntex' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Content', 'sidcraft-syntex' ),
-				'name'      => __( 'Pro elements', 'sidcraft-syntex' ),
-				'detail'    => __( 'Call to action, countdown, carousels, hotspot, price list, off-canvas, Lottie, video playlist, and the rest of the Pro set.', 'sidcraft-syntex' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Theme', 'sidcraft-syntex' ),
-				'name'      => __( 'Theme Builder', 'sidcraft-syntex' ),
-				'detail'    => __( 'Header, footer, single, archive, search, 404, and section, with display rules.', 'sidcraft-syntex' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Theme', 'sidcraft-syntex' ),
-				'name'      => __( 'Theme elements', 'sidcraft-syntex' ),
-				'detail'    => __( 'Site identity, the current post, archives, author, comments, breadcrumbs, search, and a sitemap.', 'sidcraft-syntex' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Theme', 'sidcraft-syntex' ),
-				'name'      => __( 'Popups', 'sidcraft-syntex' ),
-				'detail'    => __( 'Load, scroll, click, exit, and inactivity triggers. A link can open one.', 'sidcraft-syntex' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Theme', 'sidcraft-syntex' ),
-				'name'      => __( 'Display conditions', 'sidcraft-syntex' ),
-				'detail'    => __( 'Hide one element by role, login, date, author, taxonomy, or URL parameter.', 'sidcraft-syntex' ),
+				'group'     => __( 'Content', 'sidcraft-page-builder' ),
+				'name'      => __( 'Forms', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Lite keeps the form element. Pro extends fields and what happens after submit.', 'sidcraft-page-builder' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'Device visibility only', 'sidcraft-syntex' ),
+				'lite_note' => __( 'One email', 'sidcraft-page-builder' ),
+				'pro'       => 'note',
+				'pro_note'  => __( 'Email, redirect, webhook, submissions log, CSV', 'sidcraft-page-builder' ),
+			),
+			array(
+				'group'     => __( 'Content', 'sidcraft-page-builder' ),
+				'name'      => __( 'Extra form fields', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Number, date, radio, acceptance, and file upload.', 'sidcraft-page-builder' ),
+				'lite'      => 'no',
+				'lite_note' => '',
 				'pro'       => 'yes',
 				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Theme', 'sidcraft-syntex' ),
-				'name'      => __( 'Menus', 'sidcraft-syntex' ),
-				'detail'    => __( 'WordPress menus with dropdowns, and a mega menu from a section template.', 'sidcraft-syntex' ),
+				'group'     => __( 'Content', 'sidcraft-page-builder' ),
+				'name'      => __( 'Pro elements', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Call to action, countdown, carousels, hotspot, price list, off-canvas, Lottie, video playlist, and the rest of the Pro set.', 'sidcraft-page-builder' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Theme', 'sidcraft-page-builder' ),
+				'name'      => __( 'Theme Builder', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Header, footer, single, archive, search, 404, and section, with display rules.', 'sidcraft-page-builder' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Theme', 'sidcraft-page-builder' ),
+				'name'      => __( 'Theme elements', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Site identity, the current post, archives, author, comments, breadcrumbs, search, and a sitemap.', 'sidcraft-page-builder' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Theme', 'sidcraft-page-builder' ),
+				'name'      => __( 'Popups', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Load, scroll, click, exit, and inactivity triggers. A link can open one.', 'sidcraft-page-builder' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Theme', 'sidcraft-page-builder' ),
+				'name'      => __( 'Display conditions', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Hide one element by role, login, date, author, taxonomy, or URL parameter.', 'sidcraft-page-builder' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'Site navigation element', 'sidcraft-syntex' ),
-				'pro'       => 'note',
-				'pro_note'  => __( 'Nav Menu and mega menu', 'sidcraft-syntex' ),
+				'lite_note' => __( 'Device visibility only', 'sidcraft-page-builder' ),
+				'pro'       => 'yes',
+				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Theme', 'sidcraft-syntex' ),
-				'name'      => __( 'Custom code, fonts, and icons', 'sidcraft-syntex' ),
-				'detail'    => __( 'Site-wide snippets, uploaded font files, and extra icon sets.', 'sidcraft-syntex' ),
+				'group'     => __( 'Theme', 'sidcraft-page-builder' ),
+				'name'      => __( 'Menus', 'sidcraft-page-builder' ),
+				'detail'    => __( 'WordPress menus with dropdowns, and a mega menu from a section template.', 'sidcraft-page-builder' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'Per-element CSS, Google Fonts, icon manager', 'sidcraft-syntex' ),
+				'lite_note' => __( 'Site navigation element', 'sidcraft-page-builder' ),
 				'pro'       => 'note',
-				'pro_note'  => __( 'Site snippets, uploaded fonts, custom icon sets', 'sidcraft-syntex' ),
+				'pro_note'  => __( 'Nav Menu and mega menu', 'sidcraft-page-builder' ),
 			),
 			array(
-				'group'     => __( 'Shop', 'sidcraft-syntex' ),
-				'name'      => __( 'WooCommerce templates', 'sidcraft-syntex' ),
-				'detail'    => __( 'Product and product-archive locations. Unloaded without WooCommerce.', 'sidcraft-syntex' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'note',
-				'pro_note'  => __( 'When WooCommerce is active', 'sidcraft-syntex' ),
-			),
-			array(
-				'group'     => __( 'Shop', 'sidcraft-syntex' ),
-				'name'      => __( 'Product and cart elements', 'sidcraft-syntex' ),
-				'detail'    => __( 'Product parts, menu cart, and notices. Cart, checkout, and my account print WooCommerce forms.', 'sidcraft-syntex' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'note',
-				'pro_note'  => __( 'When WooCommerce is active', 'sidcraft-syntex' ),
-			),
-			array(
-				'group'     => __( 'Shop', 'sidcraft-syntex' ),
-				'name'      => __( 'Hosted payments', 'sidcraft-syntex' ),
-				'detail'    => __( 'Stripe, PayPal, Square, Razorpay, Mollie, and Authorize.net. Card data stays on the gateway.', 'sidcraft-syntex' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Platform', 'sidcraft-syntex' ),
-				'name'      => __( 'Editor notes', 'sidcraft-syntex' ),
-				'detail'    => __( 'Notes on a node for people who can edit. Not public comments.', 'sidcraft-syntex' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Platform', 'sidcraft-syntex' ),
-				'name'      => __( 'AI connection', 'sidcraft-syntex' ),
-				'detail'    => __( 'AI connection, MCP host, and the layout-schema API.', 'sidcraft-syntex' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Platform', 'sidcraft-syntex' ),
-				'name'      => __( 'License', 'sidcraft-syntex' ),
-				'detail'    => __( 'An inactive key blocks new Pro elements and Pro REST routes.', 'sidcraft-syntex' ),
+				'group'     => __( 'Theme', 'sidcraft-page-builder' ),
+				'name'      => __( 'Custom code, fonts, and icons', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Site-wide snippets, uploaded font files, and extra icon sets.', 'sidcraft-page-builder' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'No license', 'sidcraft-syntex' ),
+				'lite_note' => __( 'Per-element CSS, Google Fonts, icon manager', 'sidcraft-page-builder' ),
 				'pro'       => 'note',
-				'pro_note'  => __( 'Annual key, same features on every plan', 'sidcraft-syntex' ),
+				'pro_note'  => __( 'Site snippets, uploaded fonts, custom icon sets', 'sidcraft-page-builder' ),
+			),
+			array(
+				'group'     => __( 'Shop', 'sidcraft-page-builder' ),
+				'name'      => __( 'WooCommerce templates', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Product and product-archive locations. Unloaded without WooCommerce.', 'sidcraft-page-builder' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'note',
+				'pro_note'  => __( 'When WooCommerce is active', 'sidcraft-page-builder' ),
+			),
+			array(
+				'group'     => __( 'Shop', 'sidcraft-page-builder' ),
+				'name'      => __( 'Product and cart elements', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Product parts, menu cart, and notices. Cart, checkout, and my account print WooCommerce forms.', 'sidcraft-page-builder' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'note',
+				'pro_note'  => __( 'When WooCommerce is active', 'sidcraft-page-builder' ),
+			),
+			array(
+				'group'     => __( 'Shop', 'sidcraft-page-builder' ),
+				'name'      => __( 'Hosted payments', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Stripe, PayPal, Square, Razorpay, Mollie, and Authorize.net. Card data stays on the gateway.', 'sidcraft-page-builder' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Platform', 'sidcraft-page-builder' ),
+				'name'      => __( 'Editor notes', 'sidcraft-page-builder' ),
+				'detail'    => __( 'Notes on a node for people who can edit. Not public comments.', 'sidcraft-page-builder' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Platform', 'sidcraft-page-builder' ),
+				'name'      => __( 'AI connection', 'sidcraft-page-builder' ),
+				'detail'    => __( 'AI connection, MCP host, and the layout-schema API.', 'sidcraft-page-builder' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Platform', 'sidcraft-page-builder' ),
+				'name'      => __( 'License', 'sidcraft-page-builder' ),
+				'detail'    => __( 'An inactive key blocks new Pro elements and Pro REST routes.', 'sidcraft-page-builder' ),
+				'lite'      => 'note',
+				'lite_note' => __( 'No license', 'sidcraft-page-builder' ),
+				'pro'       => 'note',
+				'pro_note'  => __( 'Annual key, same features on every plan', 'sidcraft-page-builder' ),
 			),
 		);
 	}
@@ -764,16 +764,16 @@ class Dashboard {
 	 */
 	private static function description( $slug ) {
 		$map = array(
-			'sidcraft-syntex'                  => __( 'Open the visual builder.', 'sidcraft-syntex' ),
-			'sidcraft-syntex-units'            => __( 'Enable units and limit them by role.', 'sidcraft-syntex' ),
-			'sidcraft-syntex-roles'            => __( 'Choose which roles can edit and design.', 'sidcraft-syntex' ),
-			'sidcraft-syntex-settings'         => __( 'Site options, integrations, performance, and tools.', 'sidcraft-syntex' ),
-			'sidcraft-syntex-global'           => __( 'Colors, fonts, and global design tokens.', 'sidcraft-syntex' ),
-			'sidcraft-syntex-tools'            => __( 'Regenerate CSS, replace URLs, and import a kit.', 'sidcraft-syntex' ),
-			'sidcraft-syntex-system-info'      => __( 'Environment report for support.', 'sidcraft-syntex' ),
-			'sidcraft-syntex-template-import'  => __( 'Import saved templates.', 'sidcraft-syntex' ),
-			self::DOCUMENTS_URL              => __( 'Sidcraft Syntex documentation.', 'sidcraft-syntex' ),
-			self::SUPPORT_URL                => __( 'E-Mail support is provided only to Sidcraft Syntex Pro licensed users.', 'sidcraft-syntex' ),
+			'sidcraft-page-builder'                  => __( 'Open the visual builder.', 'sidcraft-page-builder' ),
+			'sidcraft-page-builder-units'            => __( 'Enable units and limit them by role.', 'sidcraft-page-builder' ),
+			'sidcraft-page-builder-roles'            => __( 'Choose which roles can edit and design.', 'sidcraft-page-builder' ),
+			'sidcraft-page-builder-settings'         => __( 'Site options, integrations, performance, and tools.', 'sidcraft-page-builder' ),
+			'sidcraft-page-builder-global'           => __( 'Colors, fonts, and global design tokens.', 'sidcraft-page-builder' ),
+			'sidcraft-page-builder-tools'            => __( 'Regenerate CSS, replace URLs, and import a kit.', 'sidcraft-page-builder' ),
+			'sidcraft-page-builder-system-info'      => __( 'Environment report for support.', 'sidcraft-page-builder' ),
+			'sidcraft-page-builder-template-import'  => __( 'Import saved templates.', 'sidcraft-page-builder' ),
+			self::DOCUMENTS_URL              => __( 'Sidcraft Page Builder documentation.', 'sidcraft-page-builder' ),
+			self::SUPPORT_URL                => __( 'E-Mail support is provided only to Sidcraft Page Builder Pro licensed users.', 'sidcraft-page-builder' ),
 		);
 		return isset( $map[ $slug ] ) ? $map[ $slug ] : '';
 	}

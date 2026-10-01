@@ -1,9 +1,9 @@
 <?php
-namespace SidcraftSyntex\Ops;
+namespace SidcraftPageBuilder\Ops;
 
-use SidcraftSyntex\Design\Kit;
-use SidcraftSyntex\Settings\AdminSettings;
-use SidcraftSyntex\Settings\GlobalSettings;
+use SidcraftPageBuilder\Design\Kit;
+use SidcraftPageBuilder\Settings\AdminSettings;
+use SidcraftPageBuilder\Settings\GlobalSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,20 +12,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Snapshot the current plugin as a ZIP and restore a previous version (Roadmap 7.3).
  *
- * Archives live in uploads/sidcraft-syntex/rollback. A snapshot is taken automatically
- * before a WordPress plugin update of Sidcraft Syntex, and can be taken manually.
+ * Archives live in uploads/sidcraft-page-builder/rollback. A snapshot is taken automatically
+ * before a WordPress plugin update of Sidcraft Page Builder, and can be taken manually.
  */
 class Rollback {
-	const NOTICE = 'sidcraft_syntex_rollback_notice';
+	const NOTICE = 'sidcraft_page_builder_rollback_notice';
 
 	public static function init() {
-		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
 		add_filter( 'upgrader_pre_install', array( self::class, 'on_pre_install' ), 10, 2 );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_post_sidsyn_rollback', array( self::class, 'handle_restore' ) );
 			add_action( 'admin_post_sidsyn_rollback_snapshot', array( self::class, 'handle_snapshot' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
-			add_action( 'sidcraft-syntex/tools/screen', array( self::class, 'tools_screen' ), 23 );
+			add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'tools_screen' ), 23 );
 		}
 	}
 
@@ -41,7 +41,7 @@ class Rollback {
 		if ( $dir === '' && function_exists( 'wp_upload_dir' ) ) {
 			$up = wp_upload_dir();
 			if ( empty( $up['error'] ) && ! empty( $up['basedir'] ) ) {
-				$dir = trailingslashit( $up['basedir'] ) . 'sidcraft-syntex/rollback';
+				$dir = trailingslashit( $up['basedir'] ) . 'sidcraft-page-builder/rollback';
 			}
 		}
 		/**
@@ -49,7 +49,7 @@ class Rollback {
 		 *
 		 * @param string $dir
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/rollback/dir', $dir );
+		$filtered = apply_filters( 'sidcraft-page-builder/rollback/dir', $dir );
 		return is_string( $filtered ) && $filtered !== '' ? untrailingslashit( $filtered ) : untrailingslashit( $dir );
 	}
 
@@ -74,7 +74,7 @@ class Rollback {
 		if ( ! is_array( $files ) ) {
 			return array();
 		}
-		$current = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '';
+		$current = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '';
 		$out     = array();
 		foreach ( $files as $file ) {
 			if ( ! is_file( $file ) ) {
@@ -105,7 +105,7 @@ class Rollback {
 	 */
 	public static function parse_name( $name ) {
 		$name = (string) $name;
-		if ( preg_match( '/^sidcraft-syntex-(.+)-(\d{8}-\d{6})\.zip$/', $name, $m ) ) {
+		if ( preg_match( '/^sidcraft-page-builder-(.+)-(\d{8}-\d{6})\.zip$/', $name, $m ) ) {
 			$ts = \DateTime::createFromFormat( 'Ymd-His', $m[2], new \DateTimeZone( 'UTC' ) );
 			return array(
 				'version' => (string) $m[1],
@@ -129,33 +129,33 @@ class Rollback {
 		$args    = is_array( $args ) ? $args : array();
 		$source  = isset( $args['source'] ) && is_string( $args['source'] ) && $args['source'] !== ''
 			? untrailingslashit( $args['source'] )
-			: untrailingslashit( SIDCRAFT_SYNTEX_PATH );
+			: untrailingslashit( SIDCRAFT_PAGE_BUILDER_PATH );
 		$version = isset( $args['version'] ) && is_string( $args['version'] ) && $args['version'] !== ''
 			? self::sanitize_version( $args['version'] )
-			: self::sanitize_version( defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0' );
+			: self::sanitize_version( defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '0' );
 		if ( $source === '' || ! is_dir( $source ) ) {
-			return new \WP_Error( 'rollback_source', __( 'The plugin directory could not be read.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'rollback_source', __( 'The plugin directory could not be read.', 'sidcraft-page-builder' ) );
 		}
 		$dir = self::dir();
 		if ( $dir === '' ) {
-			return new \WP_Error( 'rollback_dir', __( 'The rollback directory is not available.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'rollback_dir', __( 'The rollback directory is not available.', 'sidcraft-page-builder' ) );
 		}
 		if ( ! is_dir( $dir ) ) {
 			wp_mkdir_p( $dir );
 		}
 		if ( ! is_dir( $dir ) || ! wp_is_writable( $dir ) ) {
-			return new \WP_Error( 'rollback_dir', __( 'The rollback directory is not writable.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'rollback_dir', __( 'The rollback directory is not writable.', 'sidcraft-page-builder' ) );
 		}
 		$stamp = gmdate( 'Ymd-His' );
-		$name  = 'sidcraft-syntex-' . $version . '-' . $stamp . '.zip';
+		$name  = 'sidcraft-page-builder-' . $version . '-' . $stamp . '.zip';
 		$path  = $dir . '/' . $name;
 		$slug  = basename( $source );
 		if ( $slug === '' || $slug === '.' || $slug === '..' ) {
-			$slug = 'sidcraft-syntex';
+			$slug = 'sidcraft-page-builder';
 		}
 		$entries = self::collect_entries( $source, $slug );
 		if ( ! $entries ) {
-			return new \WP_Error( 'rollback_empty', __( 'Nothing was found to archive.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'rollback_empty', __( 'Nothing was found to archive.', 'sidcraft-page-builder' ) );
 		}
 		$written = self::zip_write( $path, $entries );
 		if ( is_wp_error( $written ) ) {
@@ -168,7 +168,7 @@ class Rollback {
 		 * @param string $path
 		 * @param string $version
 		 */
-		do_action( 'sidcraft-syntex/rollback/snapshot', $path, $version );
+		do_action( 'sidcraft-page-builder/rollback/snapshot', $path, $version );
 		return array(
 			'file'    => $path,
 			'name'    => $name,
@@ -192,7 +192,7 @@ class Rollback {
 		foreach ( $drop as $row ) {
 			$path = (string) ( $row['path'] ?? '' );
 			if ( $path !== '' && is_file( $path ) && self::is_inside_dir( $path, self::dir() ) ) {
-				if ( \SidcraftSyntex\Utils\Filesystem::delete_file( $path ) ) {
+				if ( \SidcraftPageBuilder\Utils\Filesystem::delete_file( $path ) ) {
 					$gone++;
 				}
 			}
@@ -216,9 +216,9 @@ class Rollback {
 		}
 		$dest = isset( $args['dest'] ) && is_string( $args['dest'] ) && $args['dest'] !== ''
 			? untrailingslashit( $args['dest'] )
-			: untrailingslashit( SIDCRAFT_SYNTEX_PATH );
+			: untrailingslashit( SIDCRAFT_PAGE_BUILDER_PATH );
 		if ( $dest === '' || ! is_dir( $dest ) ) {
-			return new \WP_Error( 'rollback_dest', __( 'The plugin directory could not be written.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'rollback_dest', __( 'The plugin directory could not be written.', 'sidcraft-page-builder' ) );
 		}
 		if ( ! array_key_exists( 'snapshot', $args ) || $args['snapshot'] ) {
 			$snap = self::snapshot( array( 'source' => $dest ) );
@@ -242,7 +242,7 @@ class Rollback {
 		 * @param string $file
 		 * @param string $dest
 		 */
-		do_action( 'sidcraft-syntex/rollback/restore', $file, $dest );
+		do_action( 'sidcraft-page-builder/rollback/restore', $file, $dest );
 		return array(
 			'restored' => basename( $file ),
 			'version'  => $parsed['version'],
@@ -273,15 +273,15 @@ class Rollback {
 	 * @return bool
 	 */
 	public static function is_self( $plugin ) {
-		$self = function_exists( 'plugin_basename' ) && defined( 'SIDCRAFT_SYNTEX_FILE' )
-			? plugin_basename( SIDCRAFT_SYNTEX_FILE )
-			: 'sidcraft-syntex/sidcraft-syntex.php';
-		return $plugin === $self || basename( (string) $plugin ) === 'sidcraft-syntex.php';
+		$self = function_exists( 'plugin_basename' ) && defined( 'SIDCRAFT_PAGE_BUILDER_FILE' )
+			? plugin_basename( SIDCRAFT_PAGE_BUILDER_FILE )
+			: 'sidcraft-page-builder/sidcraft-page-builder.php';
+		return $plugin === $self || basename( (string) $plugin ) === 'sidcraft-page-builder.php';
 	}
 
 	public static function handle_restore() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can roll back Sidcraft Syntex.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'Only administrators can roll back Sidcraft Page Builder.', 'sidcraft-page-builder' ) );
 		}
 		check_admin_referer( 'sidsyn_rollback' );
 		$name   = isset( $_POST['zip'] ) ? sanitize_file_name( wp_unslash( $_POST['zip'] ) ) : '';
@@ -293,7 +293,7 @@ class Rollback {
 				'updated',
 				sprintf(
 					/* translators: %s: plugin version */
-					__( 'Sidcraft Syntex was restored to version %s. Reload this page.', 'sidcraft-syntex' ),
+					__( 'Sidcraft Page Builder was restored to version %s. Reload this page.', 'sidcraft-page-builder' ),
 					$result['version'] !== '' ? $result['version'] : $result['restored']
 				)
 			);
@@ -303,7 +303,7 @@ class Rollback {
 
 	public static function handle_snapshot() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can roll back Sidcraft Syntex.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'Only administrators can roll back Sidcraft Page Builder.', 'sidcraft-page-builder' ) );
 		}
 		check_admin_referer( 'sidsyn_rollback_snapshot' );
 		$result = self::snapshot();
@@ -314,7 +314,7 @@ class Rollback {
 				'updated',
 				sprintf(
 					/* translators: %s: zip file name */
-					__( 'Stored current version as %s.', 'sidcraft-syntex' ),
+					__( 'Stored current version as %s.', 'sidcraft-page-builder' ),
 					$result['name']
 				)
 			);
@@ -326,25 +326,25 @@ class Rollback {
 		if ( ! self::can_manage() ) {
 			return;
 		}
-		echo '<hr><h2>' . esc_html__( 'Version rollback', 'sidcraft-syntex' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Store a ZIP of the current plugin and restore a previous version. A snapshot is also taken automatically before WordPress updates Sidcraft Syntex.', 'sidcraft-syntex' ) . '</p>';
+		echo '<hr><h2>' . esc_html__( 'Version rollback', 'sidcraft-page-builder' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Store a ZIP of the current plugin and restore a previous version. A snapshot is also taken automatically before WordPress updates Sidcraft Page Builder.', 'sidcraft-page-builder' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-bottom:12px">';
 		wp_nonce_field( 'sidsyn_rollback_snapshot' );
 		echo '<input type="hidden" name="action" value="sidsyn_rollback_snapshot">';
 		if ( class_exists( AdminSettings::class ) ) {
 			AdminSettings::echo_return_tab( 'tools' );
 		}
-		echo '<p><button class="button" type="submit">' . esc_html__( 'Store current version', 'sidcraft-syntex' ) . '</button></p>';
+		echo '<p><button class="button" type="submit">' . esc_html__( 'Store current version', 'sidcraft-page-builder' ) . '</button></p>';
 		echo '</form>';
 		$list = self::versions();
 		if ( ! $list ) {
-			echo '<p>' . esc_html__( 'No stored plugin versions yet.', 'sidcraft-syntex' ) . '</p>';
+			echo '<p>' . esc_html__( 'No stored plugin versions yet.', 'sidcraft-page-builder' ) . '</p>';
 			return;
 		}
 		echo '<table class="widefat striped lb-ops-table"><thead><tr>';
-		echo '<th>' . esc_html__( 'Version', 'sidcraft-syntex' ) . '</th>';
-		echo '<th>' . esc_html__( 'Stored', 'sidcraft-syntex' ) . '</th>';
-		echo '<th>' . esc_html__( 'Size', 'sidcraft-syntex' ) . '</th>';
+		echo '<th>' . esc_html__( 'Version', 'sidcraft-page-builder' ) . '</th>';
+		echo '<th>' . esc_html__( 'Stored', 'sidcraft-page-builder' ) . '</th>';
+		echo '<th>' . esc_html__( 'Size', 'sidcraft-page-builder' ) . '</th>';
 		echo '<th></th></tr></thead><tbody>';
 		foreach ( $list as $row ) {
 			$when = ! empty( $row['time'] ) && function_exists( 'wp_date' )
@@ -353,20 +353,20 @@ class Rollback {
 			echo '<tr>';
 			echo '<td><code>' . esc_html( $row['version'] !== '' ? $row['version'] : $row['name'] ) . '</code>';
 			if ( ! empty( $row['current'] ) ) {
-				echo ' <span class="lb-ops-status">' . esc_html__( 'current', 'sidcraft-syntex' ) . '</span>';
+				echo ' <span class="lb-ops-status">' . esc_html__( 'current', 'sidcraft-page-builder' ) . '</span>';
 			}
 			echo '</td>';
 			echo '<td>' . esc_html( (string) $when ) . '</td>';
 			echo '<td>' . esc_html( function_exists( 'size_format' ) ? (string) size_format( (int) $row['size'] ) : (string) $row['size'] ) . '</td>';
 			echo '<td>';
-			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="return confirm(' . esc_attr( wp_json_encode( __( 'Replace the installed plugin with this stored version?', 'sidcraft-syntex' ) ) ) . ');">';
+			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="return confirm(' . esc_attr( wp_json_encode( __( 'Replace the installed plugin with this stored version?', 'sidcraft-page-builder' ) ) ) . ');">';
 			wp_nonce_field( 'sidsyn_rollback' );
 			echo '<input type="hidden" name="action" value="sidsyn_rollback">';
 			echo '<input type="hidden" name="zip" value="' . esc_attr( $row['name'] ) . '">';
 			if ( class_exists( AdminSettings::class ) ) {
 				AdminSettings::echo_return_tab( 'tools' );
 			}
-			echo '<button class="button" type="submit">' . esc_html__( 'Restore', 'sidcraft-syntex' ) . '</button>';
+			echo '<button class="button" type="submit">' . esc_html__( 'Restore', 'sidcraft-page-builder' ) . '</button>';
 			echo '</form>';
 			echo '</td></tr>';
 		}
@@ -377,7 +377,7 @@ class Rollback {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-page-builder/v1';
 		register_rest_route(
 			$ns,
 			'/rollback',
@@ -436,7 +436,7 @@ class Rollback {
 	}
 
 	public static function admin_notice() {
-		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::is_plugin_page() ) {
+		if ( class_exists( '\\SidcraftPageBuilder\\Admin\\AdminContext' ) && ! \SidcraftPageBuilder\Admin\AdminContext::is_plugin_page() ) {
 			return;
 		}
 		$key  = self::NOTICE . '_' . get_current_user_id();
@@ -465,12 +465,12 @@ class Rollback {
 	public static function resolve_zip( $name ) {
 		$name = basename( str_replace( '\\', '/', (string) $name ) );
 		if ( $name === '' || strtolower( substr( $name, -4 ) ) !== '.zip' || strpos( $name, '..' ) !== false ) {
-			return new \WP_Error( 'rollback_zip', __( 'That rollback archive was not found.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'rollback_zip', __( 'That rollback archive was not found.', 'sidcraft-page-builder' ) );
 		}
 		$dir  = self::dir();
 		$path = $dir . '/' . $name;
 		if ( ! is_readable( $path ) || ! self::is_inside_dir( $path, $dir ) ) {
-			return new \WP_Error( 'rollback_zip', __( 'That rollback archive was not found.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'rollback_zip', __( 'That rollback archive was not found.', 'sidcraft-page-builder' ) );
 		}
 		return $path;
 	}
@@ -533,14 +533,14 @@ class Rollback {
 		if ( class_exists( Kit::class ) && method_exists( Kit::class, 'zip_write' ) ) {
 			$ok = Kit::zip_write( $path, $entries );
 			if ( is_wp_error( $ok ) ) {
-				return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'sidcraft-syntex' ) );
+				return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'sidcraft-page-builder' ) );
 			}
 			return true;
 		}
 		if ( class_exists( '\ZipArchive' ) ) {
 			$zip = new \ZipArchive();
 			if ( $zip->open( $path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE ) !== true ) {
-				return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'sidcraft-syntex' ) );
+				return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'sidcraft-page-builder' ) );
 			}
 			foreach ( $entries as $entry ) {
 				$name = (string) ( $entry['name'] ?? '' );
@@ -585,7 +585,7 @@ class Rollback {
 		}
 		$eocd = pack( 'VvvvvVVv', 0x06054b50, 0, 0, count( $records ), count( $records ), strlen( $central ), $offset, 0 );
 		if ( file_put_contents( $path, $body . $central . $eocd ) === false ) {
-			return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'sidcraft-page-builder' ) );
 		}
 		return true;
 	}
@@ -604,7 +604,7 @@ class Rollback {
 			wp_mkdir_p( $tmp );
 		}
 		if ( ! is_dir( $tmp ) ) {
-			return new \WP_Error( 'rollback_tmp', __( 'Could not create a temporary folder for the rollback.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'rollback_tmp', __( 'Could not create a temporary folder for the rollback.', 'sidcraft-page-builder' ) );
 		}
 		$ok = self::zip_extract( $zip, $tmp );
 		if ( is_wp_error( $ok ) ) {
@@ -614,7 +614,7 @@ class Rollback {
 		$root = self::find_plugin_root( $tmp );
 		if ( $root === '' ) {
 			self::rmdir_tree( $tmp );
-			return new \WP_Error( 'rollback_plugin', __( 'The archive does not contain a Sidcraft Syntex plugin.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'rollback_plugin', __( 'The archive does not contain a Sidcraft Page Builder plugin.', 'sidcraft-page-builder' ) );
 		}
 		return array(
 			'tmp'  => $tmp,
@@ -632,7 +632,7 @@ class Rollback {
 		if ( class_exists( '\ZipArchive' ) ) {
 			$za = new \ZipArchive();
 			if ( $za->open( $zip ) !== true ) {
-				return new \WP_Error( 'rollback_zip', __( 'The rollback archive could not be opened.', 'sidcraft-syntex' ) );
+				return new \WP_Error( 'rollback_zip', __( 'The rollback archive could not be opened.', 'sidcraft-page-builder' ) );
 			}
 			for ( $i = 0; $i < $za->numFiles; $i++ ) {
 				$name = $za->getNameIndex( $i );
@@ -707,7 +707,7 @@ class Rollback {
 	public static function zip_read_stored( $path ) {
 		$bin = is_readable( $path ) ? file_get_contents( $path ) : false;
 		if ( $bin === false ) {
-			return new \WP_Error( 'rollback_zip', __( 'The rollback archive could not be opened.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'rollback_zip', __( 'The rollback archive could not be opened.', 'sidcraft-page-builder' ) );
 		}
 		$out    = array();
 		$offset = 0;
@@ -746,18 +746,18 @@ class Rollback {
 		if ( is_wp_error( $extracted ) ) {
 			return $extracted;
 		}
-		$file = $extracted['root'] . '/sidcraft-syntex.php';
+		$file = $extracted['root'] . '/sidcraft-page-builder.php';
 		$data = is_readable( $file ) ? (string) file_get_contents( $file ) : '';
 		self::rmdir_tree( $extracted['tmp'] );
-		if ( $data === '' || stripos( $data, 'Plugin Name:' ) === false || stripos( $data, 'Sidcraft Syntex' ) === false ) {
-			return new \WP_Error( 'rollback_plugin', __( 'The archive does not contain a Sidcraft Syntex plugin.', 'sidcraft-syntex' ) );
+		if ( $data === '' || stripos( $data, 'Plugin Name:' ) === false || stripos( $data, 'Sidcraft Page Builder' ) === false ) {
+			return new \WP_Error( 'rollback_plugin', __( 'The archive does not contain a Sidcraft Page Builder plugin.', 'sidcraft-page-builder' ) );
 		}
 		$version = '';
 		if ( preg_match( '/^\s*\*\s*Version:\s*(.+)$/mi', $data, $m ) ) {
 			$version = trim( $m[1] );
 		}
 		return array(
-			'name'    => 'Sidcraft Syntex',
+			'name'    => 'Sidcraft Page Builder',
 			'version' => $version,
 		);
 	}
@@ -768,7 +768,7 @@ class Rollback {
 	 */
 	public static function find_plugin_root( $dir ) {
 		$dir = untrailingslashit( $dir );
-		if ( self::is_plugin_file( $dir . '/sidcraft-syntex.php' ) ) {
+		if ( self::is_plugin_file( $dir . '/sidcraft-page-builder.php' ) ) {
 			return $dir;
 		}
 		$items = @scandir( $dir );
@@ -780,7 +780,7 @@ class Rollback {
 				continue;
 			}
 			$path = $dir . '/' . $item;
-			if ( is_dir( $path ) && self::is_plugin_file( $path . '/sidcraft-syntex.php' ) ) {
+			if ( is_dir( $path ) && self::is_plugin_file( $path . '/sidcraft-page-builder.php' ) ) {
 				return $path;
 			}
 		}
@@ -796,7 +796,7 @@ class Rollback {
 			return false;
 		}
 		$head = (string) file_get_contents( $file, false, null, 0, 8192 );
-		return stripos( $head, 'Plugin Name:' ) !== false && stripos( $head, 'Sidcraft Syntex' ) !== false;
+		return stripos( $head, 'Plugin Name:' ) !== false && stripos( $head, 'Sidcraft Page Builder' ) !== false;
 	}
 
 	/**
@@ -808,7 +808,7 @@ class Rollback {
 		$from = untrailingslashit( $from );
 		$to   = untrailingslashit( $to );
 		if ( ! is_dir( $from ) || ! is_dir( $to ) ) {
-			return new \WP_Error( 'rollback_copy', __( 'Could not copy plugin files.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'rollback_copy', __( 'Could not copy plugin files.', 'sidcraft-page-builder' ) );
 		}
 		$iter = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator( $from, \FilesystemIterator::SKIP_DOTS ),
@@ -832,7 +832,7 @@ class Rollback {
 				wp_mkdir_p( $dir );
 			}
 			if ( ! @copy( $file->getPathname(), $dest ) ) {
-				return new \WP_Error( 'rollback_copy', __( 'Could not copy plugin files.', 'sidcraft-syntex' ) );
+				return new \WP_Error( 'rollback_copy', __( 'Could not copy plugin files.', 'sidcraft-page-builder' ) );
 			}
 		}
 		return true;
@@ -842,7 +842,7 @@ class Rollback {
 	 * @param string $dir
 	 */
 	public static function rmdir_tree( $dir ) {
-		\SidcraftSyntex\Utils\Filesystem::rmdir_tree( $dir );
+		\SidcraftPageBuilder\Utils\Filesystem::rmdir_tree( $dir );
 	}
 
 	private static function redirect_back() {
@@ -857,7 +857,7 @@ class Rollback {
 			exit;
 		}
 		$ref = wp_get_referer();
-		wp_safe_redirect( $ref ? $ref : admin_url( 'admin.php?page=sidcraft-syntex-tools' ) );
+		wp_safe_redirect( $ref ? $ref : admin_url( 'admin.php?page=sidcraft-page-builder-tools' ) );
 		exit;
 	}
 

@@ -1,7 +1,7 @@
 <?php
-namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftPageBuilder\Units; if(!defined('ABSPATH')) exit;
 class Shortcode extends Unit {
- public function type(){return 'shortcode';} public function title(){return __('Shortcode', 'sidcraft-syntex');} public function icon(){return '[]';} public function category(){return 'basic';}
+ public function type(){return 'shortcode';} public function title(){return __('Shortcode', 'sidcraft-page-builder');} public function icon(){return '[]';} public function category(){return 'basic';}
  public function defaults(){return ['shortcode'=>''];} public function controls(){return ['shortcode'=>'text'];}
  public function styles($settings=[]){
   $code=(string)($settings['shortcode']??'');
@@ -42,13 +42,13 @@ class Shortcode extends Unit {
   $assets=self::styles_since($before);
   $forms=self::queued_form_styles($html,$before);
   $links=array_values(array_unique(array_merge($assets['links'],$forms['links'])));
-  $tags=self::stylesheet_tags($links,'sidcraft-syntex-shortcode-style');
+  $tags=self::stylesheet_tags($links,'sidcraft-page-builder-shortcode-style');
   $css=trim((string)($assets['css']??'')."\n".(string)($forms['css']??''));
   if($css!==''){
    $css=wp_strip_all_tags($css);
-   $tags.=\SidcraftSyntex\Utils\InlineStyle::tag('sidcraft-syntex-shortcode-'.substr(md5($css),0,12),$css);
+   $tags.=\SidcraftPageBuilder\Utils\InlineStyle::tag('sidcraft-page-builder-shortcode-'.substr(md5($css),0,12),$css);
   }
-  return '<div class="lb-shortcode">'.\SidcraftSyntex\Rendering\OutputEscape::raw($tags.$html).'</div>';
+  return '<div class="lb-shortcode">'.\SidcraftPageBuilder\Rendering\OutputEscape::raw($tags.$html).'</div>';
  }
 
  /**
@@ -74,8 +74,8 @@ class Shortcode extends Unit {
     $echoed = (string) ob_get_clean() . $echoed;
    }
    $html = $echoed . $html;
-   if ( class_exists( '\\SidcraftSyntex\\Templates\\ThemeChrome' ) ) {
-    $html = \SidcraftSyntex\Templates\ThemeChrome::safe_html( $html );
+   if ( class_exists( '\\SidcraftPageBuilder\\Templates\\ThemeChrome' ) ) {
+    $html = \SidcraftPageBuilder\Templates\ThemeChrome::safe_html( $html );
    }
    $assets = self::styles_since( $before );
    $forms  = self::queued_form_styles( $html, $before );
@@ -85,8 +85,8 @@ class Shortcode extends Unit {
     'links' => array_values( array_unique( array_merge( $assets['links'], $forms['links'] ) ) ),
    );
   };
-  if ( class_exists( '\\SidcraftSyntex\\Templates\\ThemeChrome' ) ) {
-   return \SidcraftSyntex\Templates\ThemeChrome::with_post( absint( $post_id ), $run );
+  if ( class_exists( '\\SidcraftPageBuilder\\Templates\\ThemeChrome' ) ) {
+   return \SidcraftPageBuilder\Templates\ThemeChrome::with_post( absint( $post_id ), $run );
   }
   return $run();
  }
@@ -103,7 +103,7 @@ class Shortcode extends Unit {
   $code = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $code );
   $code = trim( (string) $code );
   if ( strlen( $code ) > 4000 ) {
-   $code = \SidcraftSyntex\Utils\Text::cut_bytes( $code, 0, 4000 );
+   $code = \SidcraftPageBuilder\Utils\Text::cut_bytes( $code, 0, 4000 );
   }
   if ( ! preg_match( '/\[[\w-]+/', $code ) ) {
    return '';

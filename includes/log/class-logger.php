@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Log;
+namespace SidcraftPageBuilder\Log;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Rotating file logger (Roadmap 7.4).
  *
- * Writes `uploads/sidcraft-syntex/logs/sidcraft-syntex.log` with debug/info/notice/warning/error
+ * Writes `uploads/sidcraft-page-builder/logs/sidcraft-page-builder.log` with debug/info/notice/warning/error
  * levels. Files rotate at 1 MB and the last five archives are kept.
  */
 class Logger {
@@ -18,8 +18,8 @@ class Logger {
 	const WARNING = 'warning';
 	const ERROR   = 'error';
 
-	const FILE      = 'sidcraft-syntex.log';
-	const SUBDIR    = 'sidcraft-syntex/logs';
+	const FILE      = 'sidcraft-page-builder.log';
+	const SUBDIR    = 'sidcraft-page-builder/logs';
 	const MAX_BYTES = 1048576;
 	const KEEP      = 5;
 
@@ -43,15 +43,15 @@ class Logger {
 	 */
 	public static function threshold() {
 		$default = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? self::DEBUG : self::INFO;
-		if ( defined( 'SIDCRAFT_SYNTEX_LOG_LEVEL' ) && is_string( SIDCRAFT_SYNTEX_LOG_LEVEL ) ) {
-			$default = strtolower( SIDCRAFT_SYNTEX_LOG_LEVEL );
+		if ( defined( 'SIDCRAFT_PAGE_BUILDER_LOG_LEVEL' ) && is_string( SIDCRAFT_PAGE_BUILDER_LOG_LEVEL ) ) {
+			$default = strtolower( SIDCRAFT_PAGE_BUILDER_LOG_LEVEL );
 		}
 		/**
 		 * Filter the minimum log level (`debug|info|notice|warning|error`).
 		 *
 		 * @param string $default
 		 */
-		$level = apply_filters( 'sidcraft-syntex/logger/level', $default );
+		$level = apply_filters( 'sidcraft-page-builder/logger/level', $default );
 		$level = is_string( $level ) ? strtolower( $level ) : $default;
 		$all   = self::levels();
 		return isset( $all[ $level ] ) ? $level : self::INFO;
@@ -88,7 +88,7 @@ class Logger {
 		 *
 		 * @param string $dir
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/logger/dir', $dir );
+		$filtered = apply_filters( 'sidcraft-page-builder/logger/dir', $dir );
 		return is_string( $filtered ) && $filtered !== '' ? untrailingslashit( $filtered ) : untrailingslashit( $dir );
 	}
 
@@ -110,7 +110,7 @@ class Logger {
 		 *
 		 * @param int $n
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/logger/keep', $n );
+		$filtered = apply_filters( 'sidcraft-page-builder/logger/keep', $n );
 		return max( 1, min( 20, absint( $filtered ) ) );
 	}
 
@@ -124,7 +124,7 @@ class Logger {
 		 *
 		 * @param int $n
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/logger/max_bytes', $n );
+		$filtered = apply_filters( 'sidcraft-page-builder/logger/max_bytes', $n );
 		return max( 1024, absint( $filtered ) );
 	}
 
@@ -176,7 +176,7 @@ class Logger {
 		 * @param string $message
 		 * @param array  $context
 		 */
-		$write = apply_filters( 'sidcraft-syntex/logger/write', true, $level, $message, $context );
+		$write = apply_filters( 'sidcraft-page-builder/logger/write', true, $level, $message, $context );
 		if ( ! $write ) {
 			return false;
 		}
@@ -227,7 +227,7 @@ class Logger {
 			$text = self::read_tail_bytes( $path );
 		}
 		if ( $text === '' ) {
-			$prev = self::dir() . '/sidcraft-syntex-1.log';
+			$prev = self::dir() . '/sidcraft-page-builder-1.log';
 			if ( is_readable( $prev ) ) {
 				$text = self::read_tail_bytes( $prev );
 			}
@@ -256,13 +256,13 @@ class Logger {
 		if ( $dir === '' || ! is_dir( $dir ) ) {
 			return true;
 		}
-		$files = glob( $dir . '/sidcraft-syntex*.log' );
+		$files = glob( $dir . '/sidcraft-page-builder*.log' );
 		if ( ! is_array( $files ) ) {
 			return true;
 		}
 		$ok = true;
 		foreach ( $files as $file ) {
-			if ( is_file( $file ) && ! \SidcraftSyntex\Utils\Filesystem::delete_file( $file ) ) {
+			if ( is_file( $file ) && ! \SidcraftPageBuilder\Utils\Filesystem::delete_file( $file ) ) {
 				$ok = false;
 			}
 		}
@@ -320,7 +320,7 @@ class Logger {
 			return;
 		}
 		$keep = self::keep();
-		$base = $dir . '/sidcraft-syntex';
+		$base = $dir . '/sidcraft-page-builder';
 		$last = $base . '-' . $keep . '.log';
 		if ( is_file( $last ) ) {
 			wp_delete_file( $last );
@@ -329,12 +329,12 @@ class Logger {
 			$src = $base . '-' . $i . '.log';
 			$dst = $base . '-' . ( $i + 1 ) . '.log';
 			if ( is_file( $src ) ) {
-				\SidcraftSyntex\Utils\Filesystem::move( $src, $dst );
+				\SidcraftPageBuilder\Utils\Filesystem::move( $src, $dst );
 			}
 		}
 		$current = $base . '.log';
 		if ( is_file( $current ) ) {
-			\SidcraftSyntex\Utils\Filesystem::move( $current, $base . '-1.log' );
+			\SidcraftPageBuilder\Utils\Filesystem::move( $current, $base . '-1.log' );
 		}
 	}
 
@@ -386,7 +386,7 @@ class Logger {
 		if ( $size < 1 ) {
 			return '';
 		}
-		$all = \SidcraftSyntex\Utils\Filesystem::get_contents( $path );
+		$all = \SidcraftPageBuilder\Utils\Filesystem::get_contents( $path );
 		if ( $all === '' ) {
 			return '';
 		}

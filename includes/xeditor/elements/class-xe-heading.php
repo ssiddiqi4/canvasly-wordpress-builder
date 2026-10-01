@@ -2,10 +2,10 @@
 /**
  * XEditor Heading.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\XEditor\Elements;
+namespace SidcraftPageBuilder\XEditor\Elements;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,7 +19,7 @@ class XeHeading extends XEditorElement {
 	}
 
 	public function title() {
-		return __( 'Heading', 'sidcraft-syntex' ) . ' (XEditor)';
+		return __( 'Heading', 'sidcraft-page-builder' ) . ' (XEditor)';
 	}
 
 	public function icon() {
@@ -32,18 +32,18 @@ class XeHeading extends XEditorElement {
 
 	public function defaults() {
 		return array(
-			'text' => __( 'Add your heading', 'sidcraft-syntex' ),
+			'text' => __( 'Add your heading', 'sidcraft-page-builder' ),
 			'tag'  => 'h2',
 			'link' => '',
 		);
 	}
 
 	protected function own_controls() {
-		$sec = __( 'Heading', 'sidcraft-syntex' );
+		$sec = __( 'Heading', 'sidcraft-page-builder' );
 		return array(
-			'text' => $this->ctrl( 'textarea', __( 'Title', 'sidcraft-syntex' ), 'content', $sec, array( 'dynamic' => true, 'description' => __( 'Tokens such as {{post.title}} work inside an XEditor Loop.', 'sidcraft-syntex' ) ) ),
+			'text' => $this->ctrl( 'textarea', __( 'Title', 'sidcraft-page-builder' ), 'content', $sec, array( 'dynamic' => true, 'description' => __( 'Tokens such as {{post.title}} work inside an XEditor Loop.', 'sidcraft-page-builder' ) ) ),
 			'tag'  => $this->tag_control( $sec ),
-			'link' => $this->ctrl( 'url', __( 'Link', 'sidcraft-syntex' ), 'content', $sec, array( 'dynamic' => true, 'placeholder' => 'https:// or {{post.url}}' ) ),
+			'link' => $this->ctrl( 'url', __( 'Link', 'sidcraft-page-builder' ), 'content', $sec, array( 'dynamic' => true, 'placeholder' => 'https:// or {{post.url}}' ) ),
 		) + $this->typography_controls();
 	}
 

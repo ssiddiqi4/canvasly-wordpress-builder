@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Settings;
+namespace SidcraftPageBuilder\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -26,7 +26,7 @@ class Breakpoints {
 		return array(
 			'mobile'       => array(
 				'name'      => 'mobile',
-				'label'     => __( 'Mobile', 'sidcraft-syntex' ),
+				'label'     => __( 'Mobile', 'sidcraft-page-builder' ),
 				'short'     => 'M',
 				'enabled'   => true,
 				'value'     => 767,
@@ -35,7 +35,7 @@ class Breakpoints {
 			),
 			'mobile_extra' => array(
 				'name'      => 'mobile_extra',
-				'label'     => __( 'Mobile Extra', 'sidcraft-syntex' ),
+				'label'     => __( 'Mobile Extra', 'sidcraft-page-builder' ),
 				'short'     => 'M+',
 				'enabled'   => false,
 				'value'     => 880,
@@ -44,7 +44,7 @@ class Breakpoints {
 			),
 			'tablet'       => array(
 				'name'      => 'tablet',
-				'label'     => __( 'Tablet', 'sidcraft-syntex' ),
+				'label'     => __( 'Tablet', 'sidcraft-page-builder' ),
 				'short'     => 'T',
 				'enabled'   => true,
 				'value'     => 1024,
@@ -53,7 +53,7 @@ class Breakpoints {
 			),
 			'tablet_extra' => array(
 				'name'      => 'tablet_extra',
-				'label'     => __( 'Tablet Extra', 'sidcraft-syntex' ),
+				'label'     => __( 'Tablet Extra', 'sidcraft-page-builder' ),
 				'short'     => 'T+',
 				'enabled'   => false,
 				'value'     => 1200,
@@ -62,7 +62,7 @@ class Breakpoints {
 			),
 			'laptop'       => array(
 				'name'      => 'laptop',
-				'label'     => __( 'Laptop', 'sidcraft-syntex' ),
+				'label'     => __( 'Laptop', 'sidcraft-page-builder' ),
 				'short'     => 'L',
 				'enabled'   => false,
 				'value'     => 1366,
@@ -71,7 +71,7 @@ class Breakpoints {
 			),
 			'desktop'      => array(
 				'name'      => 'desktop',
-				'label'     => __( 'Desktop', 'sidcraft-syntex' ),
+				'label'     => __( 'Desktop', 'sidcraft-page-builder' ),
 				'short'     => 'D',
 				'enabled'   => true,
 				'value'     => 0,
@@ -80,7 +80,7 @@ class Breakpoints {
 			),
 			'widescreen'   => array(
 				'name'      => 'widescreen',
-				'label'     => __( 'Widescreen', 'sidcraft-syntex' ),
+				'label'     => __( 'Widescreen', 'sidcraft-page-builder' ),
 				'short'     => 'W',
 				'enabled'   => false,
 				'value'     => 2400,
@@ -173,7 +173,7 @@ class Breakpoints {
 				$out[ $name ]['direction'] = 'max';
 			}
 		}
-		$filtered = apply_filters( 'sidcraft-syntex/breakpoints', $out );
+		$filtered = apply_filters( 'sidcraft-page-builder/breakpoints', $out );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 

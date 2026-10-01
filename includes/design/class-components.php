@@ -1,7 +1,7 @@
 <?php
-namespace SidcraftSyntex\Design;
+namespace SidcraftPageBuilder\Design;
 
-use SidcraftSyntex\Utils\JsonCache;
+use SidcraftPageBuilder\Utils\JsonCache;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -134,11 +134,11 @@ class Components {
 
 	public static function save( $title, $document, $exposed = array(), $id = 0, $key = '' ) {
 		if ( ! current_user_can( 'edit_pages' ) ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot manage components.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot manage components.', 'sidcraft-page-builder' ), array( 'status' => 403 ) );
 		}
 		$title = sanitize_text_field( $title );
 		if ( ! $title ) {
-			return new \WP_Error( 'invalid', __( 'Component title required.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'Component title required.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
 		}
 		$id  = absint( $id );
 		$key = sanitize_key( $key ?: self::key_for_title( $title ) );
