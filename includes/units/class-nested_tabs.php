@@ -1,12 +1,12 @@
 <?php
-namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
 /**
  * Nested Tabs: each repeater item is a slot that can hold any child unit.
  * The text-only Tabs widget is kept for legacy documents.
  */
 class NestedTabs extends Unit {
  public function type(){return 'nested_tabs';}
- public function title(){return __('Nested Tabs', 'canvasly-lite');}
+ public function title(){return __('Nested Tabs', 'sidcraft-syntex');}
  public function icon(){return "\u{29C9}";}
  public function category(){return 'basic';}
  public function keywords(){return ['tabs','nested','panel','slot','tab'];}
@@ -23,34 +23,34 @@ class NestedTabs extends Unit {
   'tab_color'=>'','tab_active_color'=>'','tab_background'=>'','tab_active_background'=>'','content_color'=>'','content_background'=>'','border_color'=>'#d7dce2','border_width'=>1,'tab_padding'=>'','content_padding'=>'',
  ];}
  public function controls(){
-  $tabs=__('Tabs', 'canvasly-lite'); $title=__('Title', 'canvasly-lite'); $content=__('Content', 'canvasly-lite');
+  $tabs=__('Tabs', 'sidcraft-syntex'); $title=__('Title', 'sidcraft-syntex'); $content=__('Content', 'sidcraft-syntex');
   return [
-   'tabs'=>$this->ctrl('repeater',__('Tabs', 'canvasly-lite'),'content',$tabs,[
+   'tabs'=>$this->ctrl('repeater',__('Tabs', 'sidcraft-syntex'),'content',$tabs,[
     'title_field'=>'{{title}}','prevent_empty'=>true,
     'fields'=>[
-     'title'=>$this->field('text',__('Title', 'canvasly-lite')),
+     'title'=>$this->field('text',__('Title', 'sidcraft-syntex')),
     ],
    ]),
-   'active'=>$this->ctrl('number',__('Active Tab', 'canvasly-lite'),'content',$tabs,['range'=>['min'=>0,'max'=>20]]),
-   'orientation'=>$this->ctrl('select',__('Orientation', 'canvasly-lite'),'content',$tabs,['options'=>['horizontal'=>__('Horizontal', 'canvasly-lite'),'vertical'=>__('Vertical', 'canvasly-lite')]]),
-   'tabs_align'=>$this->ctrl('select',__('Alignment', 'canvasly-lite'),'content',$tabs,['options'=>['start'=>__('Start', 'canvasly-lite'),'center'=>__('Center', 'canvasly-lite'),'end'=>__('End', 'canvasly-lite'),'stretch'=>__('Stretch', 'canvasly-lite')]]),
-   'title_tag'=>$this->ctrl('select',__('Title HTML Tag', 'canvasly-lite'),'content',$tabs,['options'=>self::opt_title_tags()]),
-   'nav_width'=>$this->ctrl('text',__('Navigation Width', 'canvasly-lite'),'style',$tabs,['condition'=>['orientation'=>'vertical']]),
-   'tab_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$title),
-   'tab_active_color'=>$this->ctrl('color',__('Active Color', 'canvasly-lite'),'style',$title),
-   'tab_background'=>$this->ctrl('color',__('Background', 'canvasly-lite'),'style',$title),
-   'tab_active_background'=>$this->ctrl('color',__('Active Background', 'canvasly-lite'),'style',$title),
-   'tab_padding'=>$this->ctrl('text',__('Padding', 'canvasly-lite'),'style',$title),
-   'content_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$content),
-   'content_background'=>$this->ctrl('color',__('Background', 'canvasly-lite'),'style',$content),
-   'content_padding'=>$this->ctrl('text',__('Padding', 'canvasly-lite'),'style',$content),
-   'border_color'=>$this->ctrl('color',__('Border Color', 'canvasly-lite'),'style',$tabs),
-   'border_width'=>$this->ctrl('number',__('Border Width', 'canvasly-lite'),'style',$tabs),
+   'active'=>$this->ctrl('number',__('Active Tab', 'sidcraft-syntex'),'content',$tabs,['range'=>['min'=>0,'max'=>20]]),
+   'orientation'=>$this->ctrl('select',__('Orientation', 'sidcraft-syntex'),'content',$tabs,['options'=>['horizontal'=>__('Horizontal', 'sidcraft-syntex'),'vertical'=>__('Vertical', 'sidcraft-syntex')]]),
+   'tabs_align'=>$this->ctrl('select',__('Alignment', 'sidcraft-syntex'),'content',$tabs,['options'=>['start'=>__('Start', 'sidcraft-syntex'),'center'=>__('Center', 'sidcraft-syntex'),'end'=>__('End', 'sidcraft-syntex'),'stretch'=>__('Stretch', 'sidcraft-syntex')]]),
+   'title_tag'=>$this->ctrl('select',__('Title HTML Tag', 'sidcraft-syntex'),'content',$tabs,['options'=>self::opt_title_tags()]),
+   'nav_width'=>$this->ctrl('text',__('Navigation Width', 'sidcraft-syntex'),'style',$tabs,['condition'=>['orientation'=>'vertical']]),
+   'tab_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$title),
+   'tab_active_color'=>$this->ctrl('color',__('Active Color', 'sidcraft-syntex'),'style',$title),
+   'tab_background'=>$this->ctrl('color',__('Background', 'sidcraft-syntex'),'style',$title),
+   'tab_active_background'=>$this->ctrl('color',__('Active Background', 'sidcraft-syntex'),'style',$title),
+   'tab_padding'=>$this->ctrl('text',__('Padding', 'sidcraft-syntex'),'style',$title),
+   'content_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$content),
+   'content_background'=>$this->ctrl('color',__('Background', 'sidcraft-syntex'),'style',$content),
+   'content_padding'=>$this->ctrl('text',__('Padding', 'sidcraft-syntex'),'style',$content),
+   'border_color'=>$this->ctrl('color',__('Border Color', 'sidcraft-syntex'),'style',$tabs),
+   'border_width'=>$this->ctrl('number',__('Border Width', 'sidcraft-syntex'),'style',$tabs),
   ];
  }
  public function render($s,$children=''){
   $slots=$this->slots($s);
-  if(!$slots)return '<div class="lb-embed-placeholder">'.esc_html__('Add tabs', 'canvasly-lite').'</div>';
+  if(!$slots)return '<div class="lb-embed-placeholder">'.esc_html__('Add tabs', 'sidcraft-syntex').'</div>';
   $html=is_array($children)?$children:[];
   $active=max(0,min(count($slots)-1,absint($s['active']??0)));
   $vertical=($s['orientation']??'horizontal')==='vertical';
@@ -66,7 +66,7 @@ class NestedTabs extends Unit {
   $nav='';$panels='';
   foreach($slots as $i=>$slot){
    $is=$i===$active; $tid=$uid.'-tab'.$i; $pid=$uid.'-panel'.$i;
-   $sid=$slot['id']; $title=$slot['title']!==''?$slot['title']:sprintf(/* translators: %d tab index */__('Tab %d', 'canvasly-lite'),$i+1);
+   $sid=$slot['id']; $title=$slot['title']!==''?$slot['title']:sprintf(/* translators: %d tab index */__('Tab %d', 'sidcraft-syntex'),$i+1);
    $nav.='<'.$tag.' class="lb-tab-button'.($is?' is-active':'').'" role="tab" tabindex="'.($is?'0':'-1').'" id="'.esc_attr($tid).'" aria-selected="'.($is?'true':'false').'" aria-controls="'.esc_attr($pid).'">'.wp_kses_post($title).'</'.$tag.'>';
    $panels.='<div class="lb-tab-panel lb-slot-panel" role="tabpanel" id="'.esc_attr($pid).'" data-lb-slot="'.esc_attr($sid).'" aria-labelledby="'.esc_attr($tid).'"'.($is?'':' hidden').'>'.($html[$sid]??'').'</div>';
   }

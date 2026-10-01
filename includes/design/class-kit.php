@@ -1,10 +1,10 @@
 <?php
-namespace CanvaslyLite\Design;
+namespace SidcraftSyntex\Design;
 
-use CanvaslyLite\Document\DocumentManager;
-use CanvaslyLite\Document\Documents;
-use CanvaslyLite\Settings\GlobalSettings;
-use CanvaslyLite\Settings\KitSettings;
+use SidcraftSyntex\Document\DocumentManager;
+use SidcraftSyntex\Document\Documents;
+use SidcraftSyntex\Settings\GlobalSettings;
+use SidcraftSyntex\Settings\KitSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -21,29 +21,29 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Kit {
 	const SCHEMA      = '1.0';
-	const TYPE        = 'canvasly-lite-kit';
-	const TRANSIENT   = 'canvasly_lite_kit_export_';
-	const NOTICE      = 'canvasly_lite_kit_notice';
-	const SOURCE_META = '_lb_kit_source';
+	const TYPE        = 'sidcraft-syntex-kit';
+	const TRANSIENT   = 'sidcraft_syntex_kit_export_';
+	const NOTICE      = 'sidcraft_syntex_kit_notice';
+	const SOURCE_META = '_sidsyn_kit_source';
 	const MAX_CONTENT = 80;
 	const MAX_MEDIA   = 200;
 
 	public static function init() {
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_menu', array( self::class, 'menu' ), 20 );
-			add_action( 'admin_post_lb_kit_export', array( self::class, 'handle_export' ) );
-			add_action( 'admin_post_lb_kit_import', array( self::class, 'handle_import' ) );
+			add_action( 'admin_post_sidsyn_kit_export', array( self::class, 'handle_export' ) );
+			add_action( 'admin_post_sidsyn_kit_import', array( self::class, 'handle_import' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
 		}
 	}
 
 	public static function menu() {
 		add_submenu_page(
-			'canvasly-lite',
-			__( 'Tools', 'canvasly-lite' ),
-			__( 'Tools', 'canvasly-lite' ),
+			'sidcraft-syntex',
+			__( 'Tools', 'sidcraft-syntex' ),
+			__( 'Tools', 'sidcraft-syntex' ),
 			'manage_options',
-			'canvasly-lite-tools',
+			'sidcraft-syntex-tools',
 			array( self::class, 'screen' )
 		);
 	}
@@ -81,7 +81,7 @@ class Kit {
 			'schema'          => DesignSystem::SCHEMA,
 			'type'            => self::TYPE,
 			'exported_at'     => function_exists( 'current_time' ) ? current_time( 'c' ) : gmdate( 'c' ),
-			'generator'       => defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '0',
+			'generator'       => defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0',
 			'variables'       => isset( $ds['variables'] ) && is_array( $ds['variables'] ) ? $ds['variables'] : array(),
 			'theme_style'     => isset( $ds['theme_style'] ) && is_array( $ds['theme_style'] ) ? $ds['theme_style'] : array(),
 			'kit_settings'    => isset( $ds['kit_settings'] ) && is_array( $ds['kit_settings'] ) ? $ds['kit_settings'] : array(),
@@ -99,7 +99,7 @@ class Kit {
 		 * @param array $kit
 		 * @param array $args
 		 */
-		$filtered = apply_filters( 'canvasly-lite/kit/export_payload', $kit, $args );
+		$filtered = apply_filters( 'sidcraft-syntex/kit/export_payload', $kit, $args );
 		return is_array( $filtered ) ? $filtered : $kit;
 	}
 
@@ -120,7 +120,7 @@ class Kit {
 		return array(
 			'schema'      => self::SCHEMA,
 			'type'        => self::TYPE,
-			'generator'   => defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '0',
+			'generator'   => defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0',
 			'exported_at' => $kit['exported_at'] ?? ( function_exists( 'current_time' ) ? current_time( 'c' ) : gmdate( 'c' ) ),
 			'site'        => $site,
 			'includes'    => array(
@@ -184,7 +184,7 @@ class Kit {
 		}
 		$q   = new \WP_Query(
 			array(
-				'post_type'      => 'lb_template',
+				'post_type'      => 'sidsyn_template',
 				'post_status'    => array( 'publish', 'draft', 'private' ),
 				'posts_per_page' => 200,
 				'orderby'        => 'title',
@@ -194,29 +194,29 @@ class Kit {
 		);
 		$out = array();
 		foreach ( (array) $q->posts as $p ) {
-			$d = get_post_meta( $p->ID, '_lb_template_data', true );
+			$d = get_post_meta( $p->ID, '_sidsyn_template_data', true );
 			$d = is_string( $d ) ? json_decode( $d, true ) : $d;
-			$key = (string) get_post_meta( $p->ID, '_lb_template_key', true );
+			$key = (string) get_post_meta( $p->ID, '_sidsyn_template_key', true );
 			if ( $key === '' ) {
 				$key = sanitize_title( $p->post_title );
 			}
 			$thumb = function_exists( 'get_post_thumbnail_id' ) ? absint( get_post_thumbnail_id( $p->ID ) ) : 0;
 			$cats  = array();
-			if ( class_exists( '\\CanvaslyLite\\Templates\\SavedTemplates' ) ) {
-				$cats = \CanvaslyLite\Templates\SavedTemplates::category_slugs( $p->ID );
+			if ( class_exists( '\\SidcraftSyntex\\Templates\\SavedTemplates' ) ) {
+				$cats = \SidcraftSyntex\Templates\SavedTemplates::category_slugs( $p->ID );
 			}
 			$row = array(
 				'id'           => (int) $p->ID,
 				'title'        => $p->post_title,
 				'slug'         => $p->post_name,
 				'key'          => $key,
-				'type'         => get_post_meta( $p->ID, '_lb_template_type', true ) ?: 'page',
+				'type'         => get_post_meta( $p->ID, '_sidsyn_template_type', true ) ?: 'page',
 				'categories'   => $cats,
 				'thumbnail_id' => $thumb,
 				'document'     => is_array( $d ) ? $d : array(),
 			);
-			if ( class_exists( '\CanvaslyLite\Theme\Locations' ) ) {
-				$row = \CanvaslyLite\Theme\Locations::with_export_locations( $row, (int) $p->ID, is_array( $d ) ? $d : array() );
+			if ( class_exists( '\SidcraftSyntex\Theme\Locations' ) ) {
+				$row = \SidcraftSyntex\Theme\Locations::with_export_locations( $row, (int) $p->ID, is_array( $d ) ? $d : array() );
 			}
 			$out[] = $row;
 		}
@@ -278,8 +278,8 @@ class Kit {
 			'featured_image_id' => $thumb,
 			'document'          => is_array( $doc ) ? $doc : array(),
 		);
-		if ( class_exists( '\CanvaslyLite\Theme\Locations' ) ) {
-			$row = \CanvaslyLite\Theme\Locations::with_export_locations( $row, $id, is_array( $doc ) ? $doc : array() );
+		if ( class_exists( '\SidcraftSyntex\Theme\Locations' ) ) {
+			$row = \SidcraftSyntex\Theme\Locations::with_export_locations( $row, $id, is_array( $doc ) ? $doc : array() );
 		}
 		return $row;
 	}
@@ -502,7 +502,7 @@ class Kit {
 	public static function write_zip( $args = array() ) {
 		$args = self::normalize_args( $args );
 		/** Fires before a kit ZIP is built. @param array $args */
-		do_action( 'canvasly-lite/kit/before_export', $args );
+		do_action( 'sidcraft-syntex/kit/before_export', $args );
 
 		$kit   = self::payload( $args );
 		$media = array();
@@ -514,7 +514,7 @@ class Kit {
 		if ( $slug === '' ) {
 			$slug = 'site';
 		}
-		$filename = 'canvasly-lite-kit-' . $slug . '-' . gmdate( 'Ymd' ) . '.zip';
+		$filename = 'sidcraft-syntex-kit-' . $slug . '-' . gmdate( 'Ymd' ) . '.zip';
 		$dir      = self::temp_dir( 'lb-kit-ex' );
 		if ( is_wp_error( $dir ) ) {
 			return $dir;
@@ -545,7 +545,7 @@ class Kit {
 
 		if ( ! file_exists( $path ) ) {
 			self::rmdir_tree( $dir );
-			return new \WP_Error( 'zip_create', __( 'Could not create the kit ZIP.', 'canvasly-lite' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'zip_create', __( 'Could not create the kit ZIP.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
 		}
 		return array(
 			'path'     => $path,
@@ -564,7 +564,7 @@ class Kit {
 	 */
 	public static function publish_export( $args = array() ) {
 		if ( ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'Only administrators can export a kit.', 'canvasly-lite' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'Only administrators can export a kit.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
 		}
 		$built = self::write_zip( $args );
 		if ( is_wp_error( $built ) ) {
@@ -577,9 +577,9 @@ class Kit {
 		}
 		$token    = self::random_token();
 		$dest     = $dest_dir . '/' . $token . '.zip';
-		if ( ! \CanvaslyLite\Utils\Filesystem::move( $built['path'], $dest ) && ! @copy( $built['path'], $dest ) ) {
+		if ( ! \SidcraftSyntex\Utils\Filesystem::move( $built['path'], $dest ) && ! @copy( $built['path'], $dest ) ) {
 			self::cleanup_built( $built );
-			return new \WP_Error( 'zip_store', __( 'Could not store the kit ZIP.', 'canvasly-lite' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'zip_store', __( 'Could not store the kit ZIP.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
 		}
 		self::cleanup_built( $built );
 		set_transient(
@@ -596,7 +596,7 @@ class Kit {
 			'filename' => $built['filename'],
 			'bytes'    => filesize( $dest ),
 			'manifest' => $built['manifest'],
-			'url'      => rest_url( 'canvasly-lite/v1/kit/download/' . $token ),
+			'url'      => rest_url( 'sidcraft-syntex/v1/kit/download/' . $token ),
 		);
 	}
 
@@ -628,7 +628,7 @@ class Kit {
 			}
 		}
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Binary ZIP download of a locally generated kit.
-		echo \CanvaslyLite\Utils\Filesystem::get_contents( $path );
+		echo \SidcraftSyntex\Utils\Filesystem::get_contents( $path );
 	}
 
 	/**
@@ -641,7 +641,7 @@ class Kit {
 	 */
 	public static function import( $source, $mode = 'merge', $args = array() ) {
 		if ( ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'Only administrators can import a kit.', 'canvasly-lite' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'Only administrators can import a kit.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
 		}
 		$mode = in_array( $mode, array( 'merge', 'replace' ), true ) ? $mode : 'merge';
 		$args = is_array( $args ) ? $args : array();
@@ -652,13 +652,13 @@ class Kit {
 		} elseif ( is_string( $source ) && is_readable( $source ) ) {
 			$result = self::import_file( $source, $mode, $include_content );
 		} else {
-			return new \WP_Error( 'invalid_kit', __( 'The kit file could not be read.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid_kit', __( 'The kit file could not be read.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		if ( ! is_wp_error( $result ) && class_exists( GlobalSettings::class ) ) {
 			GlobalSettings::invalidate_css_cache();
 		}
 		/** Fires after a kit import attempt. @param array|\WP_Error $result @param string $mode */
-		do_action( 'canvasly-lite/kit/after_import', $result, $mode );
+		do_action( 'sidcraft-syntex/kit/after_import', $result, $mode );
 		return $result;
 	}
 
@@ -668,7 +668,7 @@ class Kit {
 			$raw = file_get_contents( $path );
 			$d   = json_decode( (string) $raw, true );
 			if ( ! is_array( $d ) ) {
-				return new \WP_Error( 'invalid_kit', __( 'The kit JSON is not valid.', 'canvasly-lite' ), array( 'status' => 400 ) );
+				return new \WP_Error( 'invalid_kit', __( 'The kit JSON is not valid.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 			}
 			return self::import_payload( $d, $mode, $include_content );
 		}
@@ -702,11 +702,11 @@ class Kit {
 		}
 		if ( ! $kit ) {
 			self::rmdir_tree( $dir );
-			return new \WP_Error( 'invalid_kit', __( 'The kit ZIP is missing kit.json.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid_kit', __( 'The kit ZIP is missing kit.json.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		if ( $manifest && ( $manifest['type'] ?? '' ) !== '' && ( $manifest['type'] ?? '' ) !== self::TYPE ) {
 			self::rmdir_tree( $dir );
-			return new \WP_Error( 'invalid_kit', __( 'This ZIP is not a Canvasly kit.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid_kit', __( 'This ZIP is not a Sidcraft Syntex kit.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		$media = self::read_json( $dir . '/media.json' );
 		if ( ! is_array( $media ) ) {
@@ -727,12 +727,12 @@ class Kit {
 	 */
 	public static function import_payload( $kit, $mode = 'merge', $include_content = true, $media = array(), $media_dir = null ) {
 		if ( ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'Only administrators can import a kit.', 'canvasly-lite' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'Only administrators can import a kit.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
 		}
 		$kit  = is_array( $kit ) ? $kit : array();
 		$mode = in_array( $mode, array( 'merge', 'replace' ), true ) ? $mode : 'merge';
-		if ( isset( $kit['type'] ) && $kit['type'] !== self::TYPE && $kit['type'] !== 'canvasly-lite-design-system' && ! isset( $kit['variables'] ) && ! isset( $kit['schema'] ) ) {
-			return new \WP_Error( 'invalid_kit', __( 'This file is not a Canvasly kit.', 'canvasly-lite' ), array( 'status' => 400 ) );
+		if ( isset( $kit['type'] ) && $kit['type'] !== self::TYPE && $kit['type'] !== 'sidcraft-syntex-design-system' && ! isset( $kit['variables'] ) && ! isset( $kit['schema'] ) ) {
+			return new \WP_Error( 'invalid_kit', __( 'This file is not a Sidcraft Syntex kit.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 
 		$id_map  = array();
@@ -944,11 +944,11 @@ class Kit {
 		if ( $key && class_exists( '\WP_Query' ) ) {
 			$q = new \WP_Query(
 				array(
-					'post_type'      => 'lb_template',
+					'post_type'      => 'sidsyn_template',
 					'post_status'    => 'any',
 					'posts_per_page' => 1,
 					// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Kit import reuses an existing template by its stored key.
-					'meta_key'       => '_lb_template_key',
+					'meta_key'       => '_sidsyn_template_key',
 					'meta_value'     => $key,
 					// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 					'fields'         => 'ids',
@@ -969,7 +969,7 @@ class Kit {
 		} else {
 			$id = wp_insert_post(
 				array(
-					'post_type'   => 'lb_template',
+					'post_type'   => 'sidsyn_template',
 					'post_status' => 'publish',
 					'post_title'  => $title,
 					'post_name'   => sanitize_title( $item['slug'] ?? $title ),
@@ -979,16 +979,16 @@ class Kit {
 		if ( is_wp_error( $id ) || ! $id ) {
 			return 0;
 		}
-		update_post_meta( $id, '_lb_template_data', wp_json_encode( $doc ) );
-		if ( class_exists( '\\CanvaslyLite\\Templates\\SavedTemplates' ) ) {
-			$type = \CanvaslyLite\Templates\SavedTemplates::normalize_type( $type ?: 'page' );
+		update_post_meta( $id, '_sidsyn_template_data', wp_json_encode( $doc ) );
+		if ( class_exists( '\\SidcraftSyntex\\Templates\\SavedTemplates' ) ) {
+			$type = \SidcraftSyntex\Templates\SavedTemplates::normalize_type( $type ?: 'page' );
 		}
-		update_post_meta( $id, '_lb_template_type', $type ?: 'page' );
-		update_post_meta( $id, '_lb_template_key', $key );
+		update_post_meta( $id, '_sidsyn_template_type', $type ?: 'page' );
+		update_post_meta( $id, '_sidsyn_template_key', $key );
 		/** Fires after a kit template row is written. @param int $id @param array $item */
-		do_action( 'canvasly-lite/kit/template_saved', absint( $id ), is_array( $item ) ? $item : array() );
-		if ( class_exists( '\\CanvaslyLite\\Templates\\SavedTemplates' ) && ! empty( $item['categories'] ) ) {
-			\CanvaslyLite\Templates\SavedTemplates::set_categories( $id, $item['categories'] );
+		do_action( 'sidcraft-syntex/kit/template_saved', absint( $id ), is_array( $item ) ? $item : array() );
+		if ( class_exists( '\\SidcraftSyntex\\Templates\\SavedTemplates' ) && ! empty( $item['categories'] ) ) {
+			\SidcraftSyntex\Templates\SavedTemplates::set_categories( $id, $item['categories'] );
 		}
 		$thumb = absint( $item['thumbnail_id'] ?? $item['featured_image_id'] ?? 0 );
 		if ( $thumb && function_exists( 'set_post_thumbnail' ) ) {
@@ -1086,7 +1086,7 @@ class Kit {
 	/**
 	 * Delete templates during a replace import.
 	 *
-	 * The default is every `lb_template`. `canvasly-lite/kit/replace_template_ids`
+	 * The default is every `sidsyn_template`. `sidcraft-syntex/kit/replace_template_ids`
 	 * can narrow that set. Ids outside the queried set are ignored, so the
 	 * filter cannot delete pages or other post types.
 	 */
@@ -1096,7 +1096,7 @@ class Kit {
 		}
 		$q   = new \WP_Query(
 			array(
-				'post_type'      => 'lb_template',
+				'post_type'      => 'sidsyn_template',
 				'post_status'    => 'any',
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
@@ -1113,9 +1113,9 @@ class Kit {
 		/**
 		 * Template ids a replace import may delete.
 		 *
-		 * @param int[] $ids All lb_template ids.
+		 * @param int[] $ids All sidsyn_template ids.
 		 */
-		$filtered = apply_filters( 'canvasly-lite/kit/replace_template_ids', $ids );
+		$filtered = apply_filters( 'sidcraft-syntex/kit/replace_template_ids', $ids );
 		if ( ! is_array( $filtered ) ) {
 			$filtered = $ids;
 		}
@@ -1148,9 +1148,9 @@ class Kit {
 
 	public static function handle_export() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can export a kit.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can export a kit.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_kit_export' );
+		check_admin_referer( 'sidsyn_kit_export' );
 		$ids = array();
 		if ( isset( $_POST['content_ids'] ) ) {
 			$ids = array_map( 'absint', (array) wp_unslash( $_POST['content_ids'] ) );
@@ -1175,9 +1175,9 @@ class Kit {
 
 	public static function handle_import() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can import a kit.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can import a kit.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_kit_import' );
+		check_admin_referer( 'sidsyn_kit_import' );
 		$file = array(
 			'name'     => isset( $_FILES['kit']['name'] ) ? sanitize_file_name( wp_unslash( $_FILES['kit']['name'] ) ) : '',
 			'type'     => isset( $_FILES['kit']['type'] ) ? sanitize_mime_type( wp_unslash( $_FILES['kit']['type'] ) ) : '',
@@ -1187,7 +1187,7 @@ class Kit {
 			'size'     => isset( $_FILES['kit']['size'] ) ? absint( $_FILES['kit']['size'] ) : 0,
 		);
 		if ( $file['tmp_name'] === '' || ! is_uploaded_file( $file['tmp_name'] ) ) {
-			self::store_notice( 'error', __( 'Choose a kit ZIP or JSON file to import.', 'canvasly-lite' ) );
+			self::store_notice( 'error', __( 'Choose a kit ZIP or JSON file to import.', 'sidcraft-syntex' ) );
 			wp_safe_redirect( self::tools_url() );
 			exit;
 		}
@@ -1204,7 +1204,7 @@ class Kit {
 				'success',
 				sprintf(
 					/* translators: 1: templates, 2: media items, 3: pages */
-					__( 'Kit imported. %1$d templates, %2$d media items, %3$d pages.', 'canvasly-lite' ),
+					__( 'Kit imported. %1$d templates, %2$d media items, %3$d pages.', 'sidcraft-syntex' ),
 					(int) ( $result['templates'] ?? 0 ),
 					(int) ( $result['media'] ?? 0 ),
 					(int) ( $result['content'] ?? 0 )
@@ -1228,11 +1228,11 @@ class Kit {
 
 	public static function admin_notice() {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) ) {
-			if ( ! \CanvaslyLite\Settings\AdminSettings::is_ops_screen( $screen ) ) {
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
+			if ( ! \SidcraftSyntex\Settings\AdminSettings::is_ops_screen( $screen ) ) {
 				return;
 			}
-		} elseif ( ! $screen || ( $screen->id ?? '' ) !== 'canvasly-lite_page_canvasly-lite-tools' ) {
+		} elseif ( ! $screen || ( $screen->id ?? '' ) !== 'sidcraft-syntex_page_sidcraft-syntex-tools' ) {
 			return;
 		}
 		$n = get_transient( self::NOTICE . '_' . get_current_user_id() );
@@ -1245,81 +1245,81 @@ class Kit {
 	}
 
 	public static function tools_url() {
-		if ( class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) ) {
-			return \CanvaslyLite\Settings\AdminSettings::tools_or_settings_url();
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
+			return \SidcraftSyntex\Settings\AdminSettings::tools_or_settings_url();
 		}
-		return admin_url( 'admin.php?page=canvasly-lite-tools' );
+		return admin_url( 'admin.php?page=sidcraft-syntex-tools' );
 	}
 
 	public static function render_forms() {
 		$pages = self::content_candidates();
 		$tab   = '';
-		if ( class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) && isset( $_GET['page'] ) && sanitize_key( wp_unslash( $_GET['page'] ) ) === \CanvaslyLite\Settings\AdminSettings::PAGE ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) && isset( $_GET['page'] ) && sanitize_key( wp_unslash( $_GET['page'] ) ) === \SidcraftSyntex\Settings\AdminSettings::PAGE ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$tab = 'tools';
 		}
 
-		echo '<h2>' . esc_html__( 'Export Kit', 'canvasly-lite' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Export Kit', 'sidcraft-syntex' ) . '</h2>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		wp_nonce_field( 'lb_kit_export' );
-		echo '<input type="hidden" name="action" value="lb_kit_export">';
-		if ( $tab !== '' && class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) ) {
-			\CanvaslyLite\Settings\AdminSettings::echo_return_tab( $tab );
+		wp_nonce_field( 'sidsyn_kit_export' );
+		echo '<input type="hidden" name="action" value="sidsyn_kit_export">';
+		if ( $tab !== '' && class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
+			\SidcraftSyntex\Settings\AdminSettings::echo_return_tab( $tab );
 		}
 		echo '<table class="form-table"><tbody>';
-		echo '<tr><th>' . esc_html__( 'Include', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="include_templates" value="1" checked> ' . esc_html__( 'Saved templates', 'canvasly-lite' ) . '</label><br>';
-		echo '<label><input type="checkbox" name="include_media" value="1" checked> ' . esc_html__( 'Media files', 'canvasly-lite' ) . '</label><br>';
-		echo '<label><input type="checkbox" name="include_content" value="1" id="lb-kit-include-content"> ' . esc_html__( 'Selected pages and posts', 'canvasly-lite' ) . '</label>';
+		echo '<tr><th>' . esc_html__( 'Include', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="include_templates" value="1" checked> ' . esc_html__( 'Saved templates', 'sidcraft-syntex' ) . '</label><br>';
+		echo '<label><input type="checkbox" name="include_media" value="1" checked> ' . esc_html__( 'Media files', 'sidcraft-syntex' ) . '</label><br>';
+		echo '<label><input type="checkbox" name="include_content" value="1" id="lb-kit-include-content"> ' . esc_html__( 'Selected pages and posts', 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Content', 'canvasly-lite' ) . '</th><td>';
+		echo '<tr><th>' . esc_html__( 'Content', 'sidcraft-syntex' ) . '</th><td>';
 		if ( $pages ) {
 			echo '<fieldset style="max-height:220px;overflow:auto;border:1px solid #dcdcde;padding:8px 12px;max-width:480px">';
 			foreach ( $pages as $p ) {
 				echo '<label style="display:block;margin:3px 0;"><input type="checkbox" name="content_ids[]" value="' . esc_attr( (string) ( $p['id'] ?? 0 ) ) . '"> ' . esc_html( ( $p['title'] ?? '' ) . ' (' . ( $p['type'] ?? 'page' ) . ')' ) . '</label>';
 			}
 			echo '</fieldset>';
-			echo '<p class="description">' . esc_html__( 'Leave unchecked to skip content, or tick Include selected pages and choose items. Imported pages are created as drafts.', 'canvasly-lite' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'Leave unchecked to skip content, or tick Include selected pages and choose items. Imported pages are created as drafts.', 'sidcraft-syntex' ) . '</p>';
 		} else {
-			echo '<p class="description">' . esc_html__( 'No Canvasly pages were found.', 'canvasly-lite' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'No Sidcraft Syntex pages were found.', 'sidcraft-syntex' ) . '</p>';
 		}
 		echo '</td></tr></tbody></table>';
-		echo '<p><button class="button button-primary">' . esc_html__( 'Download Kit ZIP', 'canvasly-lite' ) . '</button></p>';
+		echo '<p><button class="button button-primary">' . esc_html__( 'Download Kit ZIP', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form>';
 
-		echo '<hr><h2>' . esc_html__( 'Import Kit', 'canvasly-lite' ) . '</h2>';
+		echo '<hr><h2>' . esc_html__( 'Import Kit', 'sidcraft-syntex' ) . '</h2>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" enctype="multipart/form-data">';
-		wp_nonce_field( 'lb_kit_import' );
-		echo '<input type="hidden" name="action" value="lb_kit_import">';
-		if ( $tab !== '' && class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) ) {
-			\CanvaslyLite\Settings\AdminSettings::echo_return_tab( $tab );
+		wp_nonce_field( 'sidsyn_kit_import' );
+		echo '<input type="hidden" name="action" value="sidsyn_kit_import">';
+		if ( $tab !== '' && class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
+			\SidcraftSyntex\Settings\AdminSettings::echo_return_tab( $tab );
 		}
 		echo '<table class="form-table"><tbody>';
-		echo '<tr><th><label for="lb-kit-file">' . esc_html__( 'Kit file', 'canvasly-lite' ) . '</label></th><td>';
+		echo '<tr><th><label for="lb-kit-file">' . esc_html__( 'Kit file', 'sidcraft-syntex' ) . '</label></th><td>';
 		echo '<input id="lb-kit-file" type="file" name="kit" accept=".zip,.json,application/zip,application/json" required>';
-		echo '<p class="description">' . esc_html__( 'Accepts a Canvasly kit ZIP or a design-system JSON file.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Accepts a Sidcraft Syntex kit ZIP or a design-system JSON file.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Conflict mode', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="radio" name="mode" value="merge" checked> ' . esc_html__( "Merge \u{2014} keep existing tokens and add incoming ones", 'canvasly-lite' ) . '</label><br>';
-		echo '<label><input type="radio" name="mode" value="replace"> ' . esc_html__( "Replace \u{2014} overwrite site settings, tokens, classes, components and templates", 'canvasly-lite' ) . '</label>';
+		echo '<tr><th>' . esc_html__( 'Conflict mode', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="radio" name="mode" value="merge" checked> ' . esc_html__( "Merge \u{2014} keep existing tokens and add incoming ones", 'sidcraft-syntex' ) . '</label><br>';
+		echo '<label><input type="radio" name="mode" value="replace"> ' . esc_html__( "Replace \u{2014} overwrite site settings, tokens, classes, components and templates", 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Content', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="include_content" value="1" checked> ' . esc_html__( 'Import pages included in the kit (as drafts)', 'canvasly-lite' ) . '</label>';
+		echo '<tr><th>' . esc_html__( 'Content', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="include_content" value="1" checked> ' . esc_html__( 'Import pages included in the kit (as drafts)', 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr></tbody></table>';
-		echo '<p><button class="button button-primary">' . esc_html__( 'Import Kit', 'canvasly-lite' ) . '</button></p>';
+		echo '<p><button class="button button-primary">' . esc_html__( 'Import Kit', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form>';
 	}
 
 	public static function screen() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can manage kits.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can manage kits.', 'sidcraft-syntex' ) );
 		}
-		echo '<div class="wrap"><h1>' . esc_html__( 'Canvasly Tools', 'canvasly-lite' ) . '</h1>';
-		echo '<p class="description">' . esc_html__( 'Export or import a site kit: settings, design tokens, templates and optional content with media.', 'canvasly-lite' ) . '</p>';
+		echo '<div class="wrap"><h1>' . esc_html__( 'Sidcraft Syntex Tools', 'sidcraft-syntex' ) . '</h1>';
+		echo '<p class="description">' . esc_html__( 'Export or import a site kit: settings, design tokens, templates and optional content with media.', 'sidcraft-syntex' ) . '</p>';
 		self::render_forms();
 		/**
 		 * Extra Tools sections (CSS print / Regenerate CSS, Replace URL, layout converter, ...).
 		 */
-		do_action( 'canvasly-lite/tools/screen' );
+		do_action( 'sidcraft-syntex/tools/screen' );
 		echo '</div>';
 	}
 
@@ -1344,7 +1344,7 @@ class Kit {
 
 	private static function safe_filename( $name ) {
 		$name = preg_replace( '/[^a-zA-Z0-9._-]/', '-', (string) $name );
-		return $name !== '' ? $name : 'canvasly-lite-kit.zip';
+		return $name !== '' ? $name : 'sidcraft-syntex-kit.zip';
 	}
 
 	private static function random_token() {
@@ -1361,7 +1361,7 @@ class Kit {
 			wp_mkdir_p( $dir );
 		}
 		if ( ! is_dir( $dir ) ) {
-			return new \WP_Error( 'temp_dir', __( 'Could not create a temporary folder for the kit.', 'canvasly-lite' ) );
+			return new \WP_Error( 'temp_dir', __( 'Could not create a temporary folder for the kit.', 'sidcraft-syntex' ) );
 		}
 		return $dir;
 	}
@@ -1374,7 +1374,7 @@ class Kit {
 		if ( ! empty( $u['error'] ) ) {
 			return new \WP_Error( 'upload_dir', (string) $u['error'] );
 		}
-		$dir = trailingslashit( $u['basedir'] ) . 'canvasly-lite/kits';
+		$dir = trailingslashit( $u['basedir'] ) . 'sidcraft-syntex/kits';
 		if ( function_exists( 'wp_mkdir_p' ) ) {
 			wp_mkdir_p( $dir );
 		}
@@ -1395,7 +1395,7 @@ class Kit {
 	}
 
 	private static function rmdir_tree( $dir ) {
-		\CanvaslyLite\Utils\Filesystem::rmdir_tree( $dir );
+		\SidcraftSyntex\Utils\Filesystem::rmdir_tree( $dir );
 	}
 
 	/**
@@ -1409,7 +1409,7 @@ class Kit {
 		if ( class_exists( '\ZipArchive' ) ) {
 			$zip = new \ZipArchive();
 			if ( $zip->open( $path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE ) !== true ) {
-				return new \WP_Error( 'zip_create', __( 'Could not create the kit ZIP.', 'canvasly-lite' ), array( 'status' => 500 ) );
+				return new \WP_Error( 'zip_create', __( 'Could not create the kit ZIP.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
 			}
 			foreach ( $entries as $entry ) {
 				$name = (string) ( $entry['name'] ?? '' );
@@ -1454,7 +1454,7 @@ class Kit {
 		}
 		$eocd = pack( 'VvvvvVVv', 0x06054b50, 0, 0, count( $records ), count( $records ), strlen( $central ), $offset, 0 );
 		if ( file_put_contents( $path, $body . $central . $eocd ) === false ) {
-			return new \WP_Error( 'zip_create', __( 'Could not create the kit ZIP.', 'canvasly-lite' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'zip_create', __( 'Could not create the kit ZIP.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
 		}
 		return true;
 	}
@@ -1465,12 +1465,12 @@ class Kit {
 	 */
 	public static function zip_read( $path ) {
 		if ( ! is_readable( $path ) ) {
-			return new \WP_Error( 'invalid_kit', __( 'The kit ZIP could not be opened.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid_kit', __( 'The kit ZIP could not be opened.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		if ( class_exists( '\ZipArchive' ) ) {
 			$zip = new \ZipArchive();
 			if ( $zip->open( $path ) !== true ) {
-				return new \WP_Error( 'invalid_kit', __( 'The kit ZIP could not be opened.', 'canvasly-lite' ), array( 'status' => 400 ) );
+				return new \WP_Error( 'invalid_kit', __( 'The kit ZIP could not be opened.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 			}
 			$out = array();
 			for ( $i = 0; $i < $zip->numFiles; $i++ ) {
@@ -1488,7 +1488,7 @@ class Kit {
 		}
 		$raw = file_get_contents( $path );
 		if ( $raw === false ) {
-			return new \WP_Error( 'invalid_kit', __( 'The kit ZIP could not be opened.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid_kit', __( 'The kit ZIP could not be opened.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		$out = array();
 		$pos = 0;
@@ -1528,7 +1528,7 @@ class Kit {
 			}
 		}
 		if ( ! $out ) {
-			return new \WP_Error( 'invalid_kit', __( 'The kit ZIP could not be opened.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid_kit', __( 'The kit ZIP could not be opened.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		return $out;
 	}

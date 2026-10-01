@@ -2,10 +2,10 @@
 /**
  * XEditor Button: <a> when a link is set, otherwise <button type="button">.
  *
- * @package CanvaslyLite
+ * @package SidcraftSyntex
  */
 
-namespace CanvaslyLite\XEditor\Elements;
+namespace SidcraftSyntex\XEditor\Elements;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,7 +19,7 @@ class XeButton extends XEditorElement {
 	}
 
 	public function title() {
-		return __( 'Button', 'canvasly-lite' ) . ' (XEditor)';
+		return __( 'Button', 'sidcraft-syntex' ) . ' (XEditor)';
 	}
 
 	public function icon() {
@@ -36,7 +36,7 @@ class XeButton extends XEditorElement {
 
 	public function defaults() {
 		return array(
-			'text'     => __( 'Click here', 'canvasly-lite' ),
+			'text'     => __( 'Click here', 'sidcraft-syntex' ),
 			'link'     => '',
 			'new_tab'  => false,
 			'nofollow' => false,
@@ -44,12 +44,12 @@ class XeButton extends XEditorElement {
 	}
 
 	protected function own_controls() {
-		$sec = __( 'Button', 'canvasly-lite' );
+		$sec = __( 'Button', 'sidcraft-syntex' );
 		return array(
-			'text'     => $this->ctrl( 'text', __( 'Text', 'canvasly-lite' ), 'content', $sec, array( 'dynamic' => true ) ),
-			'link'     => $this->ctrl( 'url', __( 'Link', 'canvasly-lite' ), 'content', $sec, array( 'dynamic' => true, 'placeholder' => 'https:// or {{post.url}}', 'description' => __( 'Without a link the element prints a <button> for scripts and interactions.', 'canvasly-lite' ) ) ),
-			'new_tab'  => $this->ctrl( 'switch', __( 'Open in new tab', 'canvasly-lite' ), 'content', $sec ),
-			'nofollow' => $this->ctrl( 'switch', __( 'Add nofollow', 'canvasly-lite' ), 'content', $sec ),
+			'text'     => $this->ctrl( 'text', __( 'Text', 'sidcraft-syntex' ), 'content', $sec, array( 'dynamic' => true ) ),
+			'link'     => $this->ctrl( 'url', __( 'Link', 'sidcraft-syntex' ), 'content', $sec, array( 'dynamic' => true, 'placeholder' => 'https:// or {{post.url}}', 'description' => __( 'Without a link the element prints a <button> for scripts and interactions.', 'sidcraft-syntex' ) ) ),
+			'new_tab'  => $this->ctrl( 'switch', __( 'Open in new tab', 'sidcraft-syntex' ), 'content', $sec ),
+			'nofollow' => $this->ctrl( 'switch', __( 'Add nofollow', 'sidcraft-syntex' ), 'content', $sec ),
 		) + $this->typography_controls();
 	}
 

@@ -1,12 +1,12 @@
 <?php
-namespace CanvaslyLite\Cli;
+namespace SidcraftSyntex\Cli;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * `wp canvasly-lite` subcommands.
+ * `wp sidcraft-syntex` subcommands.
  *
  * Methods are named for WP-CLI (underscores become hyphens).
  */
@@ -38,9 +38,9 @@ class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp canvasly-lite regenerate-css
-	 *     wp canvasly-lite regenerate-css --scope=global
-	 *     wp canvasly-lite regenerate-css --scope=post --id=12
+	 *     wp sidcraft-syntex regenerate-css
+	 *     wp sidcraft-syntex regenerate-css --scope=global
+	 *     wp sidcraft-syntex regenerate-css --scope=post --id=12
 	 *
 	 * @when after_wp_load
 	 *
@@ -72,7 +72,7 @@ class Command {
 		self::ok(
 			sprintf(
 				/* translators: 1: files written, 2: posts processed, 3: failures */
-				__( 'Regenerated CSS (%1$d written, %2$d posts, %3$d failed).', 'canvasly-lite' ),
+				__( 'Regenerated CSS (%1$d written, %2$d posts, %3$d failed).', 'sidcraft-syntex' ),
 				$written,
 				$posts,
 				$failed
@@ -90,8 +90,8 @@ class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp canvasly-lite flush-cache
-	 *     wp canvasly-lite flush-cache --id=12
+	 *     wp sidcraft-syntex flush-cache
+	 *     wp sidcraft-syntex flush-cache --id=12
 	 *
 	 * @when after_wp_load
 	 *
@@ -106,13 +106,13 @@ class Command {
 			self::ok(
 				sprintf(
 					/* translators: %d: post ID */
-					__( 'Flushed Canvasly caches for post %d.', 'canvasly-lite' ),
+					__( 'Flushed Sidcraft Syntex caches for post %d.', 'sidcraft-syntex' ),
 					$id
 				)
 			);
 			return;
 		}
-		self::ok( __( 'Flushed Canvasly caches site-wide.', 'canvasly-lite' ) );
+		self::ok( __( 'Flushed Sidcraft Syntex caches site-wide.', 'sidcraft-syntex' ) );
 	}
 
 	/**
@@ -131,8 +131,8 @@ class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp canvasly-lite replace-url https://staging.example.com https://www.example.com
-	 *     wp canvasly-lite replace-url https://old.test https://new.test --dry-run
+	 *     wp sidcraft-syntex replace-url https://staging.example.com https://www.example.com
+	 *     wp sidcraft-syntex replace-url https://old.test https://new.test --dry-run
 	 *
 	 * @when after_wp_load
 	 *
@@ -163,7 +163,7 @@ class Command {
 						'Dry run: %1$d replacement across %2$d item.',
 						'Dry run: %1$d replacements across %2$d items.',
 						$count,
-						'canvasly-lite'
+						'sidcraft-syntex'
 					),
 					$count,
 					$posts
@@ -178,7 +178,7 @@ class Command {
 					'Replaced %1$d occurrence across %2$d item.',
 					'Replaced %1$d occurrences across %2$d items.',
 					$count,
-					'canvasly-lite'
+					'sidcraft-syntex'
 				),
 				$count,
 				$posts
@@ -211,8 +211,8 @@ class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp canvasly-lite import ./canvasly-lite-kit.zip
-	 *     wp canvasly-lite import ./kit.json --mode=replace --skip-content
+	 *     wp sidcraft-syntex import ./sidcraft-syntex-kit.zip
+	 *     wp sidcraft-syntex import ./kit.json --mode=replace --skip-content
 	 *
 	 * @when after_wp_load
 	 *
@@ -241,7 +241,7 @@ class Command {
 		self::ok(
 			sprintf(
 				/* translators: 1: templates, 2: content items, 3: mode */
-				__( 'Imported kit (%1$d templates, %2$d content, mode: %3$s).', 'canvasly-lite' ),
+				__( 'Imported kit (%1$d templates, %2$d content, mode: %3$s).', 'sidcraft-syntex' ),
 				(int) ( $out['templates'] ?? 0 ),
 				(int) ( $out['content'] ?? 0 ),
 				(string) ( $out['mode'] ?? 'merge' )
@@ -277,8 +277,8 @@ class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp canvasly-lite export
-	 *     wp canvasly-lite export ./kit.zip --content --content-ids=12,15
+	 *     wp sidcraft-syntex export
+	 *     wp sidcraft-syntex export ./kit.zip --content --content-ids=12,15
 	 *
 	 * @when after_wp_load
 	 *
@@ -307,14 +307,14 @@ class Command {
 		self::ok(
 			sprintf(
 				/* translators: %s: file path */
-				__( 'Exported kit to %s.', 'canvasly-lite' ),
+				__( 'Exported kit to %s.', 'sidcraft-syntex' ),
 				(string) ( $out['path'] ?? '' )
 			)
 		);
 	}
 
 	/**
-	 * Convert stored third-party builder JSON into Canvasly documents.
+	 * Convert stored third-party builder JSON into Sidcraft Syntex documents.
 	 *
 	 * ## OPTIONS
 	 *
@@ -325,12 +325,12 @@ class Command {
 	 * : Report mapping without saving.
 	 *
 	 * [--force]
-	 * : Overwrite an existing Canvasly document on the same post.
+	 * : Overwrite an existing Sidcraft Syntex document on the same post.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp canvasly-lite convert --dry-run
-	 *     wp canvasly-lite convert --ids=12,15 --force
+	 *     wp sidcraft-syntex convert --dry-run
+	 *     wp sidcraft-syntex convert --ids=12,15 --force
 	 *
 	 * @when after_wp_load
 	 *
@@ -355,7 +355,7 @@ class Command {
 			self::ok(
 				sprintf(
 					/* translators: %d: number of posts */
-					_n( 'Dry run finished for %d item.', 'Dry run finished for %d items.', $count, 'canvasly-lite' ),
+					_n( 'Dry run finished for %d item.', 'Dry run finished for %d items.', $count, 'sidcraft-syntex' ),
 					$count
 				)
 			);
@@ -364,7 +364,7 @@ class Command {
 		self::ok(
 			sprintf(
 				/* translators: %d: number of converted posts */
-				_n( 'Converted %d item.', 'Converted %d items.', $count, 'canvasly-lite' ),
+				_n( 'Converted %d item.', 'Converted %d items.', $count, 'sidcraft-syntex' ),
 				$count
 			)
 		);

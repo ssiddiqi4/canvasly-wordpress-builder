@@ -1,14 +1,14 @@
 <?php
-namespace CanvaslyLite\Compatibility;
+namespace SidcraftSyntex\Compatibility;
 
-use CanvaslyLite\Document\DocumentManager;
+use SidcraftSyntex\Document\DocumentManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Shared Canvasly post-meta keys and JSON write/repair helpers.
+ * Shared Sidcraft Syntex post-meta keys and JSON write/repair helpers.
  *
  * WordPress `update_post_meta()` unslashes values. JSON documents contain
  * `\"` sequences, so writes must `wp_slash()` first or quotes inside strings
@@ -22,9 +22,9 @@ class Meta {
 	 */
 	public static function json_keys() {
 		$keys = array(
-			'_lb_document_data',
-			'_lb_template_data',
-			'_lb_component_data',
+			'_sidsyn_document_data',
+			'_sidsyn_template_data',
+			'_sidsyn_component_data',
 		);
 		if ( class_exists( DocumentManager::class ) ) {
 			$keys[] = DocumentManager::META;
@@ -35,7 +35,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'canvasly-lite/portability/json_keys', $keys );
+		$filtered = apply_filters( 'sidcraft-syntex/portability/json_keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 
@@ -46,7 +46,7 @@ class Meta {
 	 */
 	public static function replaceable_keys() {
 		$keys = self::json_keys();
-		$keys[] = '_lb_css_cache';
+		$keys[] = '_sidsyn_css_cache';
 		if ( class_exists( DocumentManager::class ) ) {
 			$keys[] = DocumentManager::CSS_CACHE;
 		}
@@ -56,7 +56,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'canvasly-lite/replace_url/keys', $keys );
+		$filtered = apply_filters( 'sidcraft-syntex/replace_url/keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 
@@ -67,14 +67,14 @@ class Meta {
 	 */
 	public static function ephemeral_keys() {
 		$keys = array(
-			'_lb_css_cache',
-			'_lb_css_hash',
-			'_lb_autosave_data',
-			'_lb_asset_version',
-			'_lb_frag_gen',
-			'_lb_document_revisions',
-			'_lb_revision_label',
-			'_lb_revisions_migrated',
+			'_sidsyn_css_cache',
+			'_sidsyn_css_hash',
+			'_sidsyn_autosave_data',
+			'_sidsyn_asset_version',
+			'_sidsyn_frag_gen',
+			'_sidsyn_document_revisions',
+			'_sidsyn_revision_label',
+			'_sidsyn_revisions_migrated',
 		);
 		if ( class_exists( DocumentManager::class ) ) {
 			$keys[] = DocumentManager::CSS_CACHE;
@@ -87,7 +87,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'canvasly-lite/portability/ephemeral_keys', $keys );
+		$filtered = apply_filters( 'sidcraft-syntex/portability/ephemeral_keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 
@@ -98,19 +98,19 @@ class Meta {
 	 */
 	public static function copyable_keys() {
 		$keys = array(
-			'_lb_document_data',
-			'_lb_document_version',
-			'_lb_document_updated',
-			'_lb_template_data',
-			'_lb_template_type',
-			'_lb_template_key',
-			'_lb_component_data',
-			'_lb_component_key',
-			'_lb_component_version',
-			'_lb_component_exposed',
-			'_lb_kit_source',
-			'_lb_converted_from',
-			'_lb_converted_at',
+			'_sidsyn_document_data',
+			'_sidsyn_document_version',
+			'_sidsyn_document_updated',
+			'_sidsyn_template_data',
+			'_sidsyn_template_type',
+			'_sidsyn_template_key',
+			'_sidsyn_component_data',
+			'_sidsyn_component_key',
+			'_sidsyn_component_version',
+			'_sidsyn_component_exposed',
+			'_sidsyn_kit_source',
+			'_sidsyn_converted_from',
+			'_sidsyn_converted_at',
 		);
 		if ( class_exists( DocumentManager::class ) ) {
 			$keys[] = DocumentManager::META;
@@ -123,7 +123,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'canvasly-lite/duplicate/meta_keys', $keys );
+		$filtered = apply_filters( 'sidcraft-syntex/duplicate/meta_keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 
@@ -144,14 +144,14 @@ class Meta {
 		if ( in_array( $key, self::ephemeral_keys(), true ) ) {
 			return true;
 		}
-		if ( strpos( $key, '_lb_lock_' ) === 0 ) {
+		if ( strpos( $key, '_sidsyn_lock_' ) === 0 ) {
 			return true;
 		}
 		return false;
 	}
 
 	/**
-	 * Whether this key is Canvasly post meta.
+	 * Whether this key is Sidcraft Syntex post meta.
 	 *
 	 * @param string $key
 	 * @return bool

@@ -1,8 +1,8 @@
 <?php
-namespace CanvaslyLite\Templates;
+namespace SidcraftSyntex\Templates;
 
-use CanvaslyLite\Document\DocumentManager;
-use CanvaslyLite\Rendering\FrontendRenderer;
+use SidcraftSyntex\Document\DocumentManager;
+use SidcraftSyntex\Rendering\FrontendRenderer;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,15 +12,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Saved Templates CPT, types, categories and admin list table (Roadmap 5.1).
  */
 class SavedTemplates {
-	const POST_TYPE = 'lb_template';
-	const TAXONOMY  = 'lb_template_category';
-	const META_DATA = '_lb_template_data';
-	const META_TYPE = '_lb_template_type';
-	const META_KEY  = '_lb_template_key';
-	const NOTICE    = 'canvasly_lite_template_notice';
+	const POST_TYPE = 'sidsyn_template';
+	const TAXONOMY  = 'sidsyn_template_category';
+	const META_DATA = '_sidsyn_template_data';
+	const META_TYPE = '_sidsyn_template_type';
+	const META_KEY  = '_sidsyn_template_key';
+	const NOTICE    = 'sidcraft_syntex_template_notice';
 
 	public static function init() {
-		add_shortcode( 'canvasly_lite_template', array( self::class, 'shortcode' ) );
+		add_shortcode( 'sidcraft_syntex_template', array( self::class, 'shortcode' ) );
 		if ( function_exists( 'is_admin' ) && ! is_admin() ) {
 			return;
 		}
@@ -37,8 +37,8 @@ class SavedTemplates {
 		add_filter( 'post_row_actions', array( self::class, 'row_actions' ), 10, 2 );
 		add_filter( 'bulk_actions-edit-' . self::POST_TYPE, array( self::class, 'bulk_actions' ) );
 		add_filter( 'handle_bulk_actions-edit-' . self::POST_TYPE, array( self::class, 'handle_bulk' ), 10, 3 );
-		add_action( 'admin_post_lb_template_export', array( self::class, 'handle_export' ) );
-		add_action( 'admin_post_lb_template_import', array( self::class, 'handle_import' ) );
+		add_action( 'admin_post_sidsyn_template_export', array( self::class, 'handle_export' ) );
+		add_action( 'admin_post_sidsyn_template_import', array( self::class, 'handle_import' ) );
 		add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
 		add_action( 'load-post-new.php', array( self::class, 'redirect_new' ) );
 		add_filter( 'display_post_states', array( self::class, 'post_states' ), 10, 2 );
@@ -46,18 +46,18 @@ class SavedTemplates {
 
 	public static function register() {
 		$labels = array(
-			'name'               => __( 'Saved Templates', 'canvasly-lite' ),
-			'singular_name'      => __( 'Template', 'canvasly-lite' ),
-			'add_new'            => __( 'Add Template', 'canvasly-lite' ),
-			'add_new_item'       => __( 'Add Template', 'canvasly-lite' ),
-			'edit_item'          => __( 'Edit Template', 'canvasly-lite' ),
-			'new_item'           => __( 'New Template', 'canvasly-lite' ),
-			'view_item'          => __( 'View Template', 'canvasly-lite' ),
-			'search_items'       => __( 'Search Templates', 'canvasly-lite' ),
-			'not_found'          => __( 'No templates found.', 'canvasly-lite' ),
-			'not_found_in_trash' => __( 'No templates found in Trash.', 'canvasly-lite' ),
-			'all_items'          => __( 'Saved Templates', 'canvasly-lite' ),
-			'menu_name'          => __( 'Saved Templates', 'canvasly-lite' ),
+			'name'               => __( 'Saved Templates', 'sidcraft-syntex' ),
+			'singular_name'      => __( 'Template', 'sidcraft-syntex' ),
+			'add_new'            => __( 'Add Template', 'sidcraft-syntex' ),
+			'add_new_item'       => __( 'Add Template', 'sidcraft-syntex' ),
+			'edit_item'          => __( 'Edit Template', 'sidcraft-syntex' ),
+			'new_item'           => __( 'New Template', 'sidcraft-syntex' ),
+			'view_item'          => __( 'View Template', 'sidcraft-syntex' ),
+			'search_items'       => __( 'Search Templates', 'sidcraft-syntex' ),
+			'not_found'          => __( 'No templates found.', 'sidcraft-syntex' ),
+			'not_found_in_trash' => __( 'No templates found in Trash.', 'sidcraft-syntex' ),
+			'all_items'          => __( 'Saved Templates', 'sidcraft-syntex' ),
+			'menu_name'          => __( 'Saved Templates', 'sidcraft-syntex' ),
 		);
 		register_post_type(
 			self::POST_TYPE,
@@ -66,7 +66,7 @@ class SavedTemplates {
 				'public'              => false,
 				'publicly_queryable'  => false,
 				'show_ui'             => true,
-				'show_in_menu'        => 'canvasly-lite',
+				'show_in_menu'        => 'sidcraft-syntex',
 				'show_in_rest'        => false,
 				'exclude_from_search' => true,
 				'capability_type'     => 'page',
@@ -79,15 +79,15 @@ class SavedTemplates {
 		);
 
 		$tax_labels = array(
-			'name'          => __( 'Template Categories', 'canvasly-lite' ),
-			'singular_name' => __( 'Template Category', 'canvasly-lite' ),
-			'search_items'  => __( 'Search Categories', 'canvasly-lite' ),
-			'all_items'     => __( 'All Categories', 'canvasly-lite' ),
-			'edit_item'     => __( 'Edit Category', 'canvasly-lite' ),
-			'update_item'   => __( 'Update Category', 'canvasly-lite' ),
-			'add_new_item'  => __( 'Add Category', 'canvasly-lite' ),
-			'new_item_name' => __( 'New Category Name', 'canvasly-lite' ),
-			'menu_name'     => __( 'Categories', 'canvasly-lite' ),
+			'name'          => __( 'Template Categories', 'sidcraft-syntex' ),
+			'singular_name' => __( 'Template Category', 'sidcraft-syntex' ),
+			'search_items'  => __( 'Search Categories', 'sidcraft-syntex' ),
+			'all_items'     => __( 'All Categories', 'sidcraft-syntex' ),
+			'edit_item'     => __( 'Edit Category', 'sidcraft-syntex' ),
+			'update_item'   => __( 'Update Category', 'sidcraft-syntex' ),
+			'add_new_item'  => __( 'Add Category', 'sidcraft-syntex' ),
+			'new_item_name' => __( 'New Category Name', 'sidcraft-syntex' ),
+			'menu_name'     => __( 'Categories', 'sidcraft-syntex' ),
 		);
 		register_taxonomy(
 			self::TAXONOMY,
@@ -113,22 +113,22 @@ class SavedTemplates {
 	 */
 	public static function types() {
 		$types = array(
-			'page'            => __( 'Page', 'canvasly-lite' ),
-			'section'         => __( 'Section', 'canvasly-lite' ),
-			'container'       => __( 'Container', 'canvasly-lite' ),
-			'header'          => __( 'Header', 'canvasly-lite' ),
-			'footer'          => __( 'Footer', 'canvasly-lite' ),
-			'single'          => __( 'Single', 'canvasly-lite' ),
-			'archive'         => __( 'Archive', 'canvasly-lite' ),
-			'loop_item'       => __( 'Loop Item', 'canvasly-lite' ),
-			'floating_button' => __( 'Floating Button', 'canvasly-lite' ),
+			'page'            => __( 'Page', 'sidcraft-syntex' ),
+			'section'         => __( 'Section', 'sidcraft-syntex' ),
+			'container'       => __( 'Container', 'sidcraft-syntex' ),
+			'header'          => __( 'Header', 'sidcraft-syntex' ),
+			'footer'          => __( 'Footer', 'sidcraft-syntex' ),
+			'single'          => __( 'Single', 'sidcraft-syntex' ),
+			'archive'         => __( 'Archive', 'sidcraft-syntex' ),
+			'loop_item'       => __( 'Loop Item', 'sidcraft-syntex' ),
+			'floating_button' => __( 'Floating Button', 'sidcraft-syntex' ),
 		);
 		/**
 		 * Filter the saved-template type map.
 		 *
 		 * @param array<string,string> $types
 		 */
-		$filtered = apply_filters( 'canvasly-lite/templates/types', $types );
+		$filtered = apply_filters( 'sidcraft-syntex/templates/types', $types );
 		return is_array( $filtered ) ? $filtered : $types;
 	}
 
@@ -176,11 +176,11 @@ class SavedTemplates {
 	}
 
 	public static function editor_url( $id ) {
-		return admin_url( 'admin.php?page=canvasly-lite&post_id=' . absint( $id ) );
+		return admin_url( 'admin.php?page=sidcraft-syntex&post_id=' . absint( $id ) );
 	}
 
 	public static function shortcode_for( $id ) {
-		return '[canvasly_lite_template id="' . absint( $id ) . '"]';
+		return '[sidcraft_syntex_template id="' . absint( $id ) . '"]';
 	}
 
 	/**
@@ -190,7 +190,7 @@ class SavedTemplates {
 	 * @return array<string,string>
 	 */
 	public static function select_options( $include_empty = true ) {
-		$opts = $include_empty ? array( '0' => __( 'Select a template', 'canvasly-lite' ) ) : array();
+		$opts = $include_empty ? array( '0' => __( 'Select a template', 'sidcraft-syntex' ) ) : array();
 		foreach ( self::query( array( 'per_page' => 200, 'light' => true ) ) as $item ) {
 			$id = absint( $item['id'] ?? 0 );
 			if ( ! $id ) {
@@ -233,7 +233,7 @@ class SavedTemplates {
 	public static function save_document( $id, $doc ) {
 		$id = absint( $id );
 		if ( ! $id || ! self::is_template( $id ) ) {
-			return new \WP_Error( 'not_found', __( 'Template not found', 'canvasly-lite' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-syntex' ), array( 'status' => 404 ) );
 		}
 		$doc = is_array( $doc ) ? $doc : array();
 		if ( class_exists( DocumentManager::class ) ) {
@@ -258,12 +258,12 @@ class SavedTemplates {
 	 */
 	public static function create( $args ) {
 		if ( ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot manage templates.', 'canvasly-lite' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot manage templates.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
 		}
 		$args  = is_array( $args ) ? $args : array();
 		$title = sanitize_text_field( $args['title'] ?? '' );
 		if ( $title === '' ) {
-			$title = __( 'Template', 'canvasly-lite' );
+			$title = __( 'Template', 'sidcraft-syntex' );
 		}
 		$type = self::normalize_type( $args['type'] ?? 'page' );
 		$key  = sanitize_key( $args['key'] ?? '' );
@@ -280,7 +280,7 @@ class SavedTemplates {
 			true
 		);
 		if ( is_wp_error( $id ) || ! $id ) {
-			return $id ? $id : new \WP_Error( 'create_failed', __( 'Could not create the template.', 'canvasly-lite' ), array( 'status' => 500 ) );
+			return $id ? $id : new \WP_Error( 'create_failed', __( 'Could not create the template.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
 		}
 		$id  = absint( $id );
 		$doc = is_array( $args['document'] ?? null ) ? $args['document'] : ( class_exists( DocumentManager::class ) ? DocumentManager::empty() : array( 'version' => '1.0', 'root' => array() ) );
@@ -300,7 +300,7 @@ class SavedTemplates {
 	public static function create_blank( $title = '' ) {
 		return self::create(
 			array(
-				'title' => $title !== '' ? $title : __( 'Untitled Template', 'canvasly-lite' ),
+				'title' => $title !== '' ? $title : __( 'Untitled Template', 'sidcraft-syntex' ),
 				'type'  => 'page',
 			)
 		);
@@ -314,21 +314,21 @@ class SavedTemplates {
 		$id = absint( $id );
 		$p  = function_exists( 'get_post' ) ? get_post( $id ) : null;
 		if ( ! $p || $p->post_type !== self::POST_TYPE ) {
-			return new \WP_Error( 'not_found', __( 'Template not found', 'canvasly-lite' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-syntex' ), array( 'status' => 404 ) );
 		}
 		if ( ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot manage templates.', 'canvasly-lite' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot manage templates.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
 		}
 		$new = wp_insert_post(
 			array(
 				'post_type'   => self::POST_TYPE,
 				'post_status' => 'publish',
-				'post_title'  => $p->post_title . ' ' . __( 'Copy', 'canvasly-lite' ),
+				'post_title'  => $p->post_title . ' ' . __( 'Copy', 'sidcraft-syntex' ),
 			),
 			true
 		);
 		if ( is_wp_error( $new ) || ! $new ) {
-			return $new ? $new : new \WP_Error( 'create_failed', __( 'Could not duplicate the template.', 'canvasly-lite' ) );
+			return $new ? $new : new \WP_Error( 'create_failed', __( 'Could not duplicate the template.', 'sidcraft-syntex' ) );
 		}
 		$new = absint( $new );
 		$d   = get_post_meta( $id, self::META_DATA, true );
@@ -386,8 +386,8 @@ class SavedTemplates {
 		if ( ! $light ) {
 			$row['document'] = $doc;
 		}
-		if ( class_exists( '\CanvaslyLite\Theme\Locations' ) ) {
-			$row = \CanvaslyLite\Theme\Locations::with_export_locations( $row, $id, is_array( $doc ) ? $doc : array() );
+		if ( class_exists( '\SidcraftSyntex\Theme\Locations' ) ) {
+			$row = \SidcraftSyntex\Theme\Locations::with_export_locations( $row, $id, is_array( $doc ) ? $doc : array() );
 		}
 		return $row;
 	}
@@ -514,29 +514,29 @@ class SavedTemplates {
 
 	public static function menu() {
 		add_submenu_page(
-			'canvasly-lite',
-			__( 'Import Templates', 'canvasly-lite' ),
-			__( 'Import Templates', 'canvasly-lite' ),
+			'sidcraft-syntex',
+			__( 'Import Templates', 'sidcraft-syntex' ),
+			__( 'Import Templates', 'sidcraft-syntex' ),
 			'edit_pages',
-			'canvasly-lite-template-import',
+			'sidcraft-syntex-template-import',
 			array( self::class, 'import_screen' )
 		);
 	}
 
 	public static function admin_assets( $hook_suffix = '' ) {
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) && ! \CanvaslyLite\Admin\AdminContext::should_enqueue( $hook_suffix ) ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::should_enqueue( $hook_suffix ) ) {
 			return;
 		}
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 		$id     = $screen && isset( $screen->id ) ? (string) $screen->id : (string) $hook_suffix;
-		if ( strpos( $id, self::POST_TYPE ) === false && strpos( $id, 'canvasly-lite-template-import' ) === false ) {
+		if ( strpos( $id, self::POST_TYPE ) === false && strpos( $id, 'sidcraft-syntex-template-import' ) === false ) {
 			return;
 		}
 		wp_enqueue_style(
-			'canvasly-lite-admin-templates',
-			CANVASLY_LITE_URL . 'assets/css/admin-templates.css',
+			'sidcraft-syntex-admin-templates',
+			SIDCRAFT_SYNTEX_URL . 'assets/css/admin-templates.css',
 			array(),
-			defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '0'
+			defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0'
 		);
 	}
 
@@ -566,36 +566,36 @@ class SavedTemplates {
 		$out = array();
 		foreach ( (array) $cols as $key => $label ) {
 			if ( $key === 'title' ) {
-				$out['lb_thumb'] = __( 'Thumbnail', 'canvasly-lite' );
+				$out['sidsyn_thumb'] = __( 'Thumbnail', 'sidcraft-syntex' );
 				$out[ $key ]     = $label;
-				$out['lb_type']  = __( 'Type', 'canvasly-lite' );
+				$out['sidsyn_type']  = __( 'Type', 'sidcraft-syntex' );
 				continue;
 			}
 			if ( $key === 'date' ) {
-				$out['lb_shortcode'] = __( 'Shortcode', 'canvasly-lite' );
+				$out['sidsyn_shortcode'] = __( 'Shortcode', 'sidcraft-syntex' );
 			}
 			$out[ $key ] = $label;
 		}
-		if ( ! isset( $out['lb_thumb'] ) ) {
-			$out = array( 'lb_thumb' => __( 'Thumbnail', 'canvasly-lite' ) ) + $out;
+		if ( ! isset( $out['sidsyn_thumb'] ) ) {
+			$out = array( 'sidsyn_thumb' => __( 'Thumbnail', 'sidcraft-syntex' ) ) + $out;
 		}
-		if ( ! isset( $out['lb_type'] ) ) {
-			$out['lb_type'] = __( 'Type', 'canvasly-lite' );
+		if ( ! isset( $out['sidsyn_type'] ) ) {
+			$out['sidsyn_type'] = __( 'Type', 'sidcraft-syntex' );
 		}
-		if ( ! isset( $out['lb_shortcode'] ) ) {
-			$out['lb_shortcode'] = __( 'Shortcode', 'canvasly-lite' );
+		if ( ! isset( $out['sidsyn_shortcode'] ) ) {
+			$out['sidsyn_shortcode'] = __( 'Shortcode', 'sidcraft-syntex' );
 		}
 		return $out;
 	}
 
 	public static function sortable_columns( $cols ) {
-		$cols['lb_type'] = 'lb_type';
+		$cols['sidsyn_type'] = 'sidsyn_type';
 		return $cols;
 	}
 
 	public static function column( $column, $post_id ) {
 		$post_id = absint( $post_id );
-		if ( $column === 'lb_thumb' ) {
+		if ( $column === 'sidsyn_thumb' ) {
 			$thumb = function_exists( 'get_the_post_thumbnail' ) ? get_the_post_thumbnail( $post_id, array( 60, 60 ) ) : '';
 			if ( $thumb ) {
 				echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -605,12 +605,12 @@ class SavedTemplates {
 			}
 			return;
 		}
-		if ( $column === 'lb_type' ) {
+		if ( $column === 'sidsyn_type' ) {
 			$type = self::normalize_type( get_post_meta( $post_id, self::META_TYPE, true ) ?: 'page' );
 			echo '<span class="lb-template-type">' . esc_html( self::type_label( $type ) ) . '</span>';
 			return;
 		}
-		if ( $column === 'lb_shortcode' ) {
+		if ( $column === 'sidsyn_shortcode' ) {
 			$code = self::shortcode_for( $post_id );
 			echo '<code class="lb-template-shortcode" data-lb-copy="' . esc_attr( $code ) . '">' . esc_html( $code ) . '</code>';
 		}
@@ -621,15 +621,15 @@ class SavedTemplates {
 			return;
 		}
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only list-table filter.
-		$current = isset( $_GET['lb_template_type'] ) ? sanitize_key( wp_unslash( $_GET['lb_template_type'] ) ) : '';
+		$current = isset( $_GET['sidsyn_template_type'] ) ? sanitize_key( wp_unslash( $_GET['sidsyn_template_type'] ) ) : '';
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		echo '<select name="lb_template_type" id="lb-filter-template-type">';
-		echo '<option value="">' . esc_html__( 'All types', 'canvasly-lite' ) . '</option>';
+		echo '<select name="sidsyn_template_type" id="lb-filter-template-type">';
+		echo '<option value="">' . esc_html__( 'All types', 'sidcraft-syntex' ) . '</option>';
 		foreach ( self::types() as $slug => $label ) {
 			echo '<option value="' . esc_attr( $slug ) . '"' . selected( $current, $slug, false ) . '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select> ';
-		echo '<a class="button" href="' . esc_url( self::import_url() ) . '">' . esc_html__( 'Import', 'canvasly-lite' ) . '</a>';
+		echo '<a class="button" href="' . esc_url( self::import_url() ) . '">' . esc_html__( 'Import', 'sidcraft-syntex' ) . '</a>';
 	}
 
 	public static function filter_query( $q ) {
@@ -640,13 +640,13 @@ class SavedTemplates {
 			return;
 		}
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only list-table filter.
-		$type = isset( $_GET['lb_template_type'] ) ? sanitize_key( wp_unslash( $_GET['lb_template_type'] ) ) : '';
+		$type = isset( $_GET['sidsyn_template_type'] ) ? sanitize_key( wp_unslash( $_GET['sidsyn_template_type'] ) ) : '';
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		if ( $type !== '' ) {
 			$q->set( 'meta_key', self::META_TYPE );
 			$q->set( 'meta_value', self::normalize_type( $type ) );
 		}
-		if ( $q->get( 'orderby' ) === 'lb_type' ) {
+		if ( $q->get( 'orderby' ) === 'sidsyn_type' ) {
 			$q->set( 'meta_key', self::META_TYPE );
 			$q->set( 'orderby', 'meta_value' );
 		}
@@ -657,14 +657,14 @@ class SavedTemplates {
 			return $actions;
 		}
 		$id   = (int) $post->ID;
-		$edit = '<a href="' . esc_url( self::editor_url( $id ) ) . '">' . esc_html__( 'Edit with Canvasly', 'canvasly-lite' ) . '</a>';
-		$exp  = '<a href="' . esc_url( self::export_url( $id ) ) . '">' . esc_html__( 'Export', 'canvasly-lite' ) . '</a>';
+		$edit = '<a href="' . esc_url( self::editor_url( $id ) ) . '">' . esc_html__( 'Edit with Sidcraft Syntex', 'sidcraft-syntex' ) . '</a>';
+		$exp  = '<a href="' . esc_url( self::export_url( $id ) ) . '">' . esc_html__( 'Export', 'sidcraft-syntex' ) . '</a>';
 		$out  = array();
 		if ( isset( $actions['edit'] ) ) {
 			$out['edit'] = $actions['edit'];
 		}
-		$out['lb_edit']   = $edit;
-		$out['lb_export'] = $exp;
+		$out['sidsyn_edit']   = $edit;
+		$out['sidsyn_export'] = $exp;
 		foreach ( $actions as $k => $html ) {
 			if ( ! isset( $out[ $k ] ) ) {
 				$out[ $k ] = $html;
@@ -674,12 +674,12 @@ class SavedTemplates {
 	}
 
 	public static function bulk_actions( $actions ) {
-		$actions['lb_export'] = __( 'Export', 'canvasly-lite' );
+		$actions['sidsyn_export'] = __( 'Export', 'sidcraft-syntex' );
 		return $actions;
 	}
 
 	public static function handle_bulk( $redirect, $action, $ids ) {
-		if ( $action !== 'lb_export' ) {
+		if ( $action !== 'sidsyn_export' ) {
 			return $redirect;
 		}
 		$ids = array_values( array_filter( array_map( 'absint', (array) $ids ) ) );
@@ -695,18 +695,18 @@ class SavedTemplates {
 
 	public static function export_url( $id ) {
 		return wp_nonce_url(
-			admin_url( 'admin-post.php?action=lb_template_export&template_id=' . absint( $id ) ),
-			'lb_template_export_' . absint( $id )
+			admin_url( 'admin-post.php?action=sidsyn_template_export&template_id=' . absint( $id ) ),
+			'sidsyn_template_export_' . absint( $id )
 		);
 	}
 
 	public static function handle_export() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'You cannot export templates.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'You cannot export templates.', 'sidcraft-syntex' ) );
 		}
 		$id = absint( $_GET['template_id'] ?? $_POST['template_id'] ?? 0 );
 		if ( $id ) {
-			check_admin_referer( 'lb_template_export_' . $id );
+			check_admin_referer( 'sidsyn_template_export_' . $id );
 			if ( class_exists( TemplateIO::class ) ) {
 				TemplateIO::stream( array( $id ) );
 				exit;
@@ -718,9 +718,9 @@ class SavedTemplates {
 
 	public static function handle_import() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'You cannot import templates.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'You cannot import templates.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_template_import' );
+		check_admin_referer( 'sidsyn_template_import' );
 		$file = array(
 			'name'     => isset( $_FILES['template_file']['name'] ) ? sanitize_file_name( wp_unslash( $_FILES['template_file']['name'] ) ) : '',
 			'type'     => isset( $_FILES['template_file']['type'] ) ? sanitize_mime_type( wp_unslash( $_FILES['template_file']['type'] ) ) : '',
@@ -730,11 +730,11 @@ class SavedTemplates {
 			'size'     => isset( $_FILES['template_file']['size'] ) ? absint( $_FILES['template_file']['size'] ) : 0,
 		);
 		if ( $file['tmp_name'] === '' ) {
-			self::store_notice( 'error', __( 'Choose a JSON or ZIP file to import.', 'canvasly-lite' ) );
+			self::store_notice( 'error', __( 'Choose a JSON or ZIP file to import.', 'sidcraft-syntex' ) );
 			wp_safe_redirect( self::import_url() );
 			exit;
 		}
-		$result = class_exists( TemplateIO::class ) ? TemplateIO::import( $file['tmp_name'] ) : new \WP_Error( 'missing', __( 'Importer is unavailable.', 'canvasly-lite' ) );
+		$result = class_exists( TemplateIO::class ) ? TemplateIO::import( $file['tmp_name'] ) : new \WP_Error( 'missing', __( 'Importer is unavailable.', 'sidcraft-syntex' ) );
 		if ( is_wp_error( $result ) ) {
 			self::store_notice( 'error', $result->get_error_message() );
 		} else {
@@ -742,7 +742,7 @@ class SavedTemplates {
 				'success',
 				sprintf(
 					/* translators: 1: templates imported, 2: media items */
-					__( 'Imported %1$d template(s) and %2$d media item(s).', 'canvasly-lite' ),
+					__( 'Imported %1$d template(s) and %2$d media item(s).', 'sidcraft-syntex' ),
 					(int) ( $result['templates'] ?? 0 ),
 					(int) ( $result['media'] ?? 0 )
 				)
@@ -753,31 +753,31 @@ class SavedTemplates {
 	}
 
 	public static function import_url() {
-		return admin_url( 'admin.php?page=canvasly-lite-template-import' );
+		return admin_url( 'admin.php?page=sidcraft-syntex-template-import' );
 	}
 
 	public static function import_screen() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'You cannot import templates.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'You cannot import templates.', 'sidcraft-syntex' ) );
 		}
-		echo '<div class="wrap"><h1>' . esc_html__( 'Import Templates', 'canvasly-lite' ) . '</h1>';
-		echo '<p class="description">' . esc_html__( 'Import Canvasly templates from a JSON file or a ZIP that includes media. Remote image URLs are downloaded and remapped.', 'canvasly-lite' ) . '</p>';
+		echo '<div class="wrap"><h1>' . esc_html__( 'Import Templates', 'sidcraft-syntex' ) . '</h1>';
+		echo '<p class="description">' . esc_html__( 'Import Sidcraft Syntex templates from a JSON file or a ZIP that includes media. Remote image URLs are downloaded and remapped.', 'sidcraft-syntex' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" enctype="multipart/form-data">';
-		wp_nonce_field( 'lb_template_import' );
-		echo '<input type="hidden" name="action" value="lb_template_import">';
-		echo '<table class="form-table"><tbody><tr><th><label for="lb-template-file">' . esc_html__( 'Template file', 'canvasly-lite' ) . '</label></th><td>';
+		wp_nonce_field( 'sidsyn_template_import' );
+		echo '<input type="hidden" name="action" value="sidsyn_template_import">';
+		echo '<table class="form-table"><tbody><tr><th><label for="lb-template-file">' . esc_html__( 'Template file', 'sidcraft-syntex' ) . '</label></th><td>';
 		echo '<input id="lb-template-file" type="file" name="template_file" accept=".json,.zip,application/json,application/zip" required>';
-		echo '<p class="description">' . esc_html__( 'Accepts a Canvasly template JSON, a multi-template JSON, or a ZIP with templates.json / kit.json and a media folder.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Accepts a Sidcraft Syntex template JSON, a multi-template JSON, or a ZIP with templates.json / kit.json and a media folder.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr></tbody></table>';
-		echo '<p><button class="button button-primary">' . esc_html__( 'Import Templates', 'canvasly-lite' ) . '</button> ';
-		echo '<a class="button" href="' . esc_url( admin_url( 'edit.php?post_type=' . self::POST_TYPE ) ) . '">' . esc_html__( 'Back to templates', 'canvasly-lite' ) . '</a></p>';
+		echo '<p><button class="button button-primary">' . esc_html__( 'Import Templates', 'sidcraft-syntex' ) . '</button> ';
+		echo '<a class="button" href="' . esc_url( admin_url( 'edit.php?post_type=' . self::POST_TYPE ) ) . '">' . esc_html__( 'Back to templates', 'sidcraft-syntex' ) . '</a></p>';
 		echo '</form></div>';
 	}
 
 	public static function metaboxes() {
 		add_meta_box(
 			'lb-template-details',
-			__( 'Template Details', 'canvasly-lite' ),
+			__( 'Template Details', 'sidcraft-syntex' ),
 			array( self::class, 'metabox' ),
 			self::POST_TYPE,
 			'side',
@@ -789,25 +789,25 @@ class SavedTemplates {
 		if ( ! $post ) {
 			return;
 		}
-		wp_nonce_field( 'lb_template_meta', 'lb_template_meta_nonce' );
+		wp_nonce_field( 'sidsyn_template_meta', 'sidsyn_template_meta_nonce' );
 		$type = self::normalize_type( get_post_meta( $post->ID, self::META_TYPE, true ) ?: 'page' );
-		echo '<p><label for="lb-template-type"><strong>' . esc_html__( 'Type', 'canvasly-lite' ) . '</strong></label></p>';
-		echo '<select id="lb-template-type" name="lb_template_type" style="width:100%">';
+		echo '<p><label for="lb-template-type"><strong>' . esc_html__( 'Type', 'sidcraft-syntex' ) . '</strong></label></p>';
+		echo '<select id="lb-template-type" name="sidsyn_template_type" style="width:100%">';
 		foreach ( self::types() as $slug => $label ) {
 			echo '<option value="' . esc_attr( $slug ) . '"' . selected( $type, $slug, false ) . '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Used by the library, Collection Loop, Template widget, shortcode, and Gutenberg block.', 'canvasly-lite' ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Shortcode', 'canvasly-lite' ) . '</strong></p>';
+		echo '<p class="description">' . esc_html__( 'Used by the library, Collection Loop, Template widget, shortcode, and Gutenberg block.', 'sidcraft-syntex' ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Shortcode', 'sidcraft-syntex' ) . '</strong></p>';
 		echo '<code>' . esc_html( self::shortcode_for( $post->ID ) ) . '</code>';
-		echo '<p><a class="button button-primary" href="' . esc_url( self::editor_url( $post->ID ) ) . '">' . esc_html__( 'Edit with Canvasly', 'canvasly-lite' ) . '</a></p>';
+		echo '<p><a class="button button-primary" href="' . esc_url( self::editor_url( $post->ID ) ) . '">' . esc_html__( 'Edit with Sidcraft Syntex', 'sidcraft-syntex' ) . '</a></p>';
 	}
 
 	public static function save_metabox( $post_id, $post ) {
 		if ( ! $post_id || ! $post || $post->post_type !== self::POST_TYPE ) {
 			return;
 		}
-		if ( ! isset( $_POST['lb_template_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['lb_template_meta_nonce'] ) ), 'lb_template_meta' ) ) {
+		if ( ! isset( $_POST['sidsyn_template_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sidsyn_template_meta_nonce'] ) ), 'sidsyn_template_meta' ) ) {
 			return;
 		}
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -816,8 +816,8 @@ class SavedTemplates {
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
-		if ( isset( $_POST['lb_template_type'] ) ) {
-			update_post_meta( $post_id, self::META_TYPE, self::normalize_type( sanitize_key( wp_unslash( $_POST['lb_template_type'] ) ) ) );
+		if ( isset( $_POST['sidsyn_template_type'] ) ) {
+			update_post_meta( $post_id, self::META_TYPE, self::normalize_type( sanitize_key( wp_unslash( $_POST['sidsyn_template_type'] ) ) ) );
 		}
 	}
 
@@ -826,7 +826,7 @@ class SavedTemplates {
 			return $states;
 		}
 		$type = self::normalize_type( get_post_meta( $post->ID, self::META_TYPE, true ) ?: 'page' );
-		$states['lb_type'] = self::type_label( $type );
+		$states['sidsyn_type'] = self::type_label( $type );
 		return $states;
 	}
 
@@ -850,7 +850,7 @@ class SavedTemplates {
 			return;
 		}
 		$id = (string) ( $screen->id ?? '' );
-		if ( strpos( $id, self::POST_TYPE ) === false && strpos( $id, 'canvasly-lite-template-import' ) === false ) {
+		if ( strpos( $id, self::POST_TYPE ) === false && strpos( $id, 'sidcraft-syntex-template-import' ) === false ) {
 			return;
 		}
 		$n = get_transient( self::NOTICE . '_' . get_current_user_id() );
@@ -863,7 +863,7 @@ class SavedTemplates {
 	}
 
 	/**
-	 * Render `[canvasly_lite_template id=""]`. Enqueues CSS/JS for the embedded template.
+	 * Render `[sidcraft_syntex_template id=""]`. Enqueues CSS/JS for the embedded template.
 	 *
 	 * @param array $atts
 	 * @return string
@@ -890,14 +890,14 @@ class SavedTemplates {
 		$html         = '';
 		if ( class_exists( FrontendRenderer::class ) ) {
 			if ( function_exists( 'wp_enqueue_style' ) ) {
-				wp_enqueue_style( 'canvasly-lite-frontend' );
+				wp_enqueue_style( 'sidcraft-syntex-frontend' );
 			}
-			if ( class_exists( '\\CanvaslyLite\\Design\\CssPrint' ) ) {
-				\CanvaslyLite\Design\CssPrint::enqueue_for_document( $id );
+			if ( class_exists( '\\SidcraftSyntex\\Design\\CssPrint' ) ) {
+				\SidcraftSyntex\Design\CssPrint::enqueue_for_document( $id );
 			} elseif ( class_exists( DocumentManager::class ) ) {
 				$css = DocumentManager::compiled_css( $id );
 				if ( $css && function_exists( 'wp_add_inline_style' ) ) {
-					wp_add_inline_style( 'canvasly-lite-frontend', $css );
+					wp_add_inline_style( 'sidcraft-syntex-frontend', $css );
 				}
 			}
 			$html = FrontendRenderer::render_document( $doc, $id );
@@ -937,7 +937,7 @@ class SavedTemplates {
 		$d     = is_array( $req->get_json_params() ) ? $req->get_json_params() : array();
 		$title = sanitize_text_field( $d['title'] ?? '' );
 		if ( $title === '' ) {
-			return new \WP_Error( 'invalid', __( 'Template title required', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'Template title required', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		$id = self::create(
 			array(
@@ -977,10 +977,10 @@ class SavedTemplates {
 	public static function rest_export( $req ) {
 		$id = absint( $req['id'] ?? 0 );
 		if ( ! $id || ! self::is_template( $id ) ) {
-			return new \WP_Error( 'not_found', __( 'Template not found', 'canvasly-lite' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-syntex' ), array( 'status' => 404 ) );
 		}
 		if ( ! class_exists( TemplateIO::class ) ) {
-			return new \WP_Error( 'missing', __( 'Exporter is unavailable.', 'canvasly-lite' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'missing', __( 'Exporter is unavailable.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
 		}
 		return rest_ensure_response( TemplateIO::payload( array( $id ) ) );
 	}
@@ -996,17 +996,17 @@ class SavedTemplates {
 		}
 		$ids = array_values( array_filter( array_map( 'absint', (array) $ids ) ) );
 		if ( ! $ids ) {
-			return new \WP_Error( 'invalid', __( 'Select at least one template to export.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'Select at least one template to export.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		if ( ! class_exists( TemplateIO::class ) ) {
-			return new \WP_Error( 'missing', __( 'Exporter is unavailable.', 'canvasly-lite' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'missing', __( 'Exporter is unavailable.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
 		}
 		return rest_ensure_response( TemplateIO::payload( $ids ) );
 	}
 
 	public static function rest_import( $req ) {
 		if ( ! class_exists( TemplateIO::class ) ) {
-			return new \WP_Error( 'missing', __( 'Importer is unavailable.', 'canvasly-lite' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'missing', __( 'Importer is unavailable.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
 		}
 		$files = $req->get_file_params();
 		$file  = $files['file'] ?? ( $files['template'] ?? null );
@@ -1016,7 +1016,7 @@ class SavedTemplates {
 		}
 		$d = $req->get_json_params();
 		if ( ! is_array( $d ) ) {
-			return new \WP_Error( 'invalid', __( 'Upload a JSON or ZIP file, or send template JSON.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'Upload a JSON or ZIP file, or send template JSON.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		$r = TemplateIO::import_payload( $d );
 		return is_wp_error( $r ) ? $r : rest_ensure_response( $r );
@@ -1025,10 +1025,10 @@ class SavedTemplates {
 	public static function rest_thumbnail( $req ) {
 		$id = absint( $req['id'] ?? 0 );
 		if ( ! $id || ! self::is_template( $id ) ) {
-			return new \WP_Error( 'not_found', __( 'Template not found', 'canvasly-lite' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-syntex' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $id ) && ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot update this template.', 'canvasly-lite' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot update this template.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
 		}
 		$d        = is_array( $req->get_json_params() ) ? $req->get_json_params() : array();
 		$media_id = absint( $d['thumbnail_id'] ?? $d['attachment_id'] ?? 0 );
@@ -1059,7 +1059,7 @@ class SavedTemplates {
 				)
 			);
 		}
-		return new \WP_Error( 'invalid', __( 'Send a thumbnail image or media id.', 'canvasly-lite' ), array( 'status' => 400 ) );
+		return new \WP_Error( 'invalid', __( 'Send a thumbnail image or media id.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 	}
 
 	public static function rest_types() {

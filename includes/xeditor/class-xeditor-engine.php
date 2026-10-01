@@ -1,19 +1,19 @@
 <?php
 /**
- * XEditorEngine — boots the unified, CSS-first XEditor layer of Canvasly.
+ * XEditorEngine — boots the unified, CSS-first XEditor layer of Sidcraft Syntex.
  *
  * Responsibilities:
  *   - registers the Atomic Elements (Div Block, Flexbox, Grid, Heading, Paragraph,
- *     Image, Button) and the Loop data model (engine supplied by Canvasly Pro);
+ *     Image, Button) and the Loop data model (engine supplied by Sidcraft Syntex Pro);
  *   - registers the `xe_classes` control type (class stacking on every unit);
  *   - exposes REST routes for the Classes & Variables Manager;
  *   - enqueues the editor module (assets/js/xeditor.js) and localizes its data;
  *   - prints the compiled `--xe-var-*` / `.xe-class-*` stylesheet on the frontend.
  *
- * @package CanvaslyLite
+ * @package SidcraftSyntex
  */
 
-namespace CanvaslyLite\XEditor;
+namespace SidcraftSyntex\XEditor;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,7 +25,7 @@ require_once __DIR__ . '/class-xeditor-access.php';
 
 class XEditorEngine {
 	const VERSION      = '1.0.0';
-	const STYLE_HANDLE = 'canvasly-xeditor';
+	const STYLE_HANDLE = 'sidcraft-syntex-xeditor';
 
 	/** @var bool */
 	private static $booted = false;
@@ -37,8 +37,8 @@ class XEditorEngine {
 	 */
 	public static function elements() {
 		$el = 'elements/';
-		$ns = 'CanvaslyLite\\XEditor\\Elements\\';
-		$lp = 'CanvaslyLite\\XEditor\\';
+		$ns = 'SidcraftSyntex\\XEditor\\Elements\\';
+		$lp = 'SidcraftSyntex\\XEditor\\';
 		return array(
 			'xe_div_block'   => array( $el . 'class-xe-div-block.php', $ns . 'XeDivBlock' ),
 			'xe_flexbox'     => array( $el . 'class-xe-flexbox.php', $ns . 'XeFlexbox' ),
@@ -68,14 +68,14 @@ class XEditorEngine {
 		}
 		self::$booted = true;
 		XEditorAccess::init();
-		add_action( 'canvasly-lite/units/register', array( self::class, 'register_units' ), 5 );
-		add_action( 'canvasly-lite/controls/register', array( self::class, 'register_controls' ) );
-		add_action( 'canvasly-lite/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'canvasly-lite/editor/enqueue', array( self::class, 'enqueue_editor' ) );
-		add_filter( 'canvasly-lite/editor/localize_data', array( self::class, 'localize' ), 20, 2 );
-		add_action( 'canvasly-lite/frontend/enqueue', array( self::class, 'register_frontend' ) );
-		add_filter( 'canvasly-lite/unit/styles', array( self::class, 'unit_styles' ), 10, 3 );
-		add_filter( 'canvasly-lite/unit/cacheable', array( self::class, 'cacheable' ), 10, 2 );
+		add_action( 'sidcraft-syntex/units/register', array( self::class, 'register_units' ), 5 );
+		add_action( 'sidcraft-syntex/controls/register', array( self::class, 'register_controls' ) );
+		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-syntex/editor/enqueue', array( self::class, 'enqueue_editor' ) );
+		add_filter( 'sidcraft-syntex/editor/localize_data', array( self::class, 'localize' ), 20, 2 );
+		add_action( 'sidcraft-syntex/frontend/enqueue', array( self::class, 'register_frontend' ) );
+		add_filter( 'sidcraft-syntex/unit/styles', array( self::class, 'unit_styles' ), 10, 3 );
+		add_filter( 'sidcraft-syntex/unit/cacheable', array( self::class, 'cacheable' ), 10, 2 );
 	}
 
 	/**
@@ -115,7 +115,7 @@ class XEditorEngine {
 			},
 			null,
 			array(
-				'label'   => __( 'Classes', 'canvasly-lite' ),
+				'label'   => __( 'Classes', 'sidcraft-syntex' ),
 				'default' => array(),
 			)
 		);
@@ -128,8 +128,8 @@ class XEditorEngine {
 	/**
 	 * @param string $ns
 	 */
-	public static function routes( $ns = 'canvasly-lite/v1' ) {
-		$ns = is_string( $ns ) && '' !== $ns ? $ns : 'canvasly-lite/v1';
+	public static function routes( $ns = 'sidcraft-syntex/v1' ) {
+		$ns = is_string( $ns ) && '' !== $ns ? $ns : 'sidcraft-syntex/v1';
 		register_rest_route(
 			$ns,
 			'/xeditor/design',
@@ -150,16 +150,16 @@ class XEditorEngine {
 
 	/** @return bool */
 	public static function can_read() {
-		if ( class_exists( '\\CanvaslyLite\\Settings\\Roles' ) && method_exists( '\\CanvaslyLite\\Settings\\Roles', 'can_edit' ) ) {
-			return \CanvaslyLite\Settings\Roles::can_edit();
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\Roles' ) && method_exists( '\\SidcraftSyntex\\Settings\\Roles', 'can_edit' ) ) {
+			return \SidcraftSyntex\Settings\Roles::can_edit();
 		}
 		return current_user_can( 'edit_posts' );
 	}
 
 	/** @return bool */
 	public static function can_design() {
-		if ( class_exists( '\\CanvaslyLite\\Api\\Rest' ) && method_exists( '\\CanvaslyLite\\Api\\Rest', 'can_design' ) ) {
-			return \CanvaslyLite\Api\Rest::can_design();
+		if ( class_exists( '\\SidcraftSyntex\\Api\\Rest' ) && method_exists( '\\SidcraftSyntex\\Api\\Rest', 'can_design' ) ) {
+			return \SidcraftSyntex\Api\Rest::can_design();
 		}
 		return current_user_can( 'manage_options' );
 	}
@@ -197,11 +197,11 @@ class XEditorEngine {
 	 */
 	public static function enqueue_editor( $post_id = 0 ) {
 		unset( $post_id );
-		$root = defined( 'CANVASLY_LITE_PATH' ) ? CANVASLY_LITE_PATH : dirname( __DIR__, 2 ) . '/';
-		$url  = defined( 'CANVASLY_LITE_URL' ) ? CANVASLY_LITE_URL : '';
-		$ver  = ( defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : self::VERSION ) . '-' . ( file_exists( $root . 'assets/js/xeditor.js' ) ? filemtime( $root . 'assets/js/xeditor.js' ) : '0' );
-		wp_enqueue_style( 'canvasly-xeditor-editor', $url . 'assets/css/xeditor-editor.css', array( 'canvasly-lite-editor' ), $ver );
-		wp_enqueue_script( 'canvasly-xeditor-editor', $url . 'assets/js/xeditor.js', array( 'canvasly-lite-editor' ), $ver, true );
+		$root = defined( 'SIDCRAFT_SYNTEX_PATH' ) ? SIDCRAFT_SYNTEX_PATH : dirname( __DIR__, 2 ) . '/';
+		$url  = defined( 'SIDCRAFT_SYNTEX_URL' ) ? SIDCRAFT_SYNTEX_URL : '';
+		$ver  = ( defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : self::VERSION ) . '-' . ( file_exists( $root . 'assets/js/xeditor.js' ) ? filemtime( $root . 'assets/js/xeditor.js' ) : '0' );
+		wp_enqueue_style( 'sidcraft-syntex-xeditor-editor', $url . 'assets/css/xeditor-editor.css', array( 'sidcraft-syntex-editor' ), $ver );
+		wp_enqueue_script( 'sidcraft-syntex-xeditor-editor', $url . 'assets/js/xeditor.js', array( 'sidcraft-syntex-editor' ), $ver, true );
 	}
 
 	/**
@@ -221,7 +221,7 @@ class XEditorEngine {
 			'access'   => XEditorAccess::editor_data(),
 			'elements' => self::menu(),
 			'tokens'   => self::token_catalog(),
-			'rest'     => function_exists( 'rest_url' ) ? esc_url_raw( rest_url( 'canvasly-lite/v1/xeditor/design' ) ) : '',
+			'rest'     => function_exists( 'rest_url' ) ? esc_url_raw( rest_url( 'sidcraft-syntex/v1/xeditor/design' ) ) : '',
 			'canSave'  => self::can_design(),
 		);
 		// The old "Atomic" catalog now points at XEditor elements so legacy UI stays consistent.
@@ -240,21 +240,21 @@ class XEditorEngine {
 	 */
 	public static function menu() {
 		$rows = array(
-			array( 'xe_div_block', __( 'Div Block', 'canvasly-lite' ), 'structure', "\u{25A2}" ),
-			array( 'xe_flexbox', __( 'Flexbox', 'canvasly-lite' ), 'structure', "\u{21C6}" ),
-			array( 'xe_grid', __( 'Grid', 'canvasly-lite' ), 'structure', "\u{25A6}" ),
-			array( 'xe_heading', __( 'Heading', 'canvasly-lite' ), 'basic', 'H' ),
-			array( 'xe_paragraph', __( 'Paragraph', 'canvasly-lite' ), 'basic', "\u{00B6}" ),
-			array( 'xe_image', __( 'Image', 'canvasly-lite' ), 'basic', "\u{25A7}" ),
-			array( 'xe_button', __( 'Button', 'canvasly-lite' ), 'basic', "\u{25AD}" ),
-			array( 'xe_loop', __( 'Loop', 'canvasly-lite' ), 'pro', "\u{27F3}" ),
-			array( 'icon', __( 'Icon', 'canvasly-lite' ), 'classic', "\u{2605}" ),
-			array( 'spacer', __( 'Spacer', 'canvasly-lite' ), 'classic', "\u{2195}" ),
-			array( 'divider', __( 'Divider', 'canvasly-lite' ), 'classic', "\u{2015}" ),
-			array( 'video', __( 'Video', 'canvasly-lite' ), 'classic', "\u{25B6}" ),
-			array( 'icon_box', __( 'Icon Box', 'canvasly-lite' ), 'classic', "\u{2606}" ),
-			array( 'image_box', __( 'Image Box', 'canvasly-lite' ), 'classic', "\u{25A3}" ),
-			array( 'container', __( 'Container', 'canvasly-lite' ), 'classic', "\u{25A1}" ),
+			array( 'xe_div_block', __( 'Div Block', 'sidcraft-syntex' ), 'structure', "\u{25A2}" ),
+			array( 'xe_flexbox', __( 'Flexbox', 'sidcraft-syntex' ), 'structure', "\u{21C6}" ),
+			array( 'xe_grid', __( 'Grid', 'sidcraft-syntex' ), 'structure', "\u{25A6}" ),
+			array( 'xe_heading', __( 'Heading', 'sidcraft-syntex' ), 'basic', 'H' ),
+			array( 'xe_paragraph', __( 'Paragraph', 'sidcraft-syntex' ), 'basic', "\u{00B6}" ),
+			array( 'xe_image', __( 'Image', 'sidcraft-syntex' ), 'basic', "\u{25A7}" ),
+			array( 'xe_button', __( 'Button', 'sidcraft-syntex' ), 'basic', "\u{25AD}" ),
+			array( 'xe_loop', __( 'Loop', 'sidcraft-syntex' ), 'pro', "\u{27F3}" ),
+			array( 'icon', __( 'Icon', 'sidcraft-syntex' ), 'classic', "\u{2605}" ),
+			array( 'spacer', __( 'Spacer', 'sidcraft-syntex' ), 'classic', "\u{2195}" ),
+			array( 'divider', __( 'Divider', 'sidcraft-syntex' ), 'classic', "\u{2015}" ),
+			array( 'video', __( 'Video', 'sidcraft-syntex' ), 'classic', "\u{25B6}" ),
+			array( 'icon_box', __( 'Icon Box', 'sidcraft-syntex' ), 'classic', "\u{2606}" ),
+			array( 'image_box', __( 'Image Box', 'sidcraft-syntex' ), 'classic', "\u{25A3}" ),
+			array( 'container', __( 'Container', 'sidcraft-syntex' ), 'classic', "\u{25A1}" ),
 		);
 		$out = array();
 		foreach ( $rows as $r ) {
@@ -271,19 +271,19 @@ class XEditorEngine {
 	/** @return array<int,array{token:string,label:string}> */
 	public static function token_catalog() {
 		$t = array(
-			'{{post.title}}'          => __( 'Post title', 'canvasly-lite' ),
-			'{{post.url}}'            => __( 'Post URL', 'canvasly-lite' ),
-			'{{post.excerpt}}'        => __( 'Excerpt', 'canvasly-lite' ),
-			'{{post.featured_image}}' => __( 'Featured image URL', 'canvasly-lite' ),
-			'{{post.date}}'           => __( 'Publish date', 'canvasly-lite' ),
-			'{{post.author}}'         => __( 'Author name', 'canvasly-lite' ),
-			'{{post.terms:category}}' => __( 'Categories', 'canvasly-lite' ),
-			'{{post.comments}}'       => __( 'Comment count', 'canvasly-lite' ),
-			'{{post.meta:key}}'       => __( 'Custom field (replace key)', 'canvasly-lite' ),
-			'{{term.name}}'           => __( 'Term name (term loops)', 'canvasly-lite' ),
-			'{{term.url}}'            => __( 'Term URL (term loops)', 'canvasly-lite' ),
-			'{{term.count}}'          => __( 'Term post count', 'canvasly-lite' ),
-			'{{loop.number}}'         => __( 'Item number (1, 2, 3...)', 'canvasly-lite' ),
+			'{{post.title}}'          => __( 'Post title', 'sidcraft-syntex' ),
+			'{{post.url}}'            => __( 'Post URL', 'sidcraft-syntex' ),
+			'{{post.excerpt}}'        => __( 'Excerpt', 'sidcraft-syntex' ),
+			'{{post.featured_image}}' => __( 'Featured image URL', 'sidcraft-syntex' ),
+			'{{post.date}}'           => __( 'Publish date', 'sidcraft-syntex' ),
+			'{{post.author}}'         => __( 'Author name', 'sidcraft-syntex' ),
+			'{{post.terms:category}}' => __( 'Categories', 'sidcraft-syntex' ),
+			'{{post.comments}}'       => __( 'Comment count', 'sidcraft-syntex' ),
+			'{{post.meta:key}}'       => __( 'Custom field (replace key)', 'sidcraft-syntex' ),
+			'{{term.name}}'           => __( 'Term name (term loops)', 'sidcraft-syntex' ),
+			'{{term.url}}'            => __( 'Term URL (term loops)', 'sidcraft-syntex' ),
+			'{{term.count}}'          => __( 'Term post count', 'sidcraft-syntex' ),
+			'{{loop.number}}'         => __( 'Item number (1, 2, 3...)', 'sidcraft-syntex' ),
 		);
 		$out = array();
 		foreach ( $t as $token => $label ) {
@@ -331,7 +331,7 @@ class XEditorEngine {
 		if ( ! function_exists( 'wp_register_style' ) ) {
 			return;
 		}
-		wp_register_style( self::STYLE_HANDLE, false, array(), defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : self::VERSION );
+		wp_register_style( self::STYLE_HANDLE, false, array(), defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : self::VERSION );
 		wp_add_inline_style( self::STYLE_HANDLE, self::base_css() . XEditorClassesManager::css() );
 	}
 

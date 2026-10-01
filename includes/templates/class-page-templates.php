@@ -1,7 +1,7 @@
 <?php
-namespace CanvaslyLite\Templates;
+namespace SidcraftSyntex\Templates;
 
-use CanvaslyLite\Document\DocumentManager;
+use SidcraftSyntex\Document\DocumentManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -51,13 +51,13 @@ class PageTemplates {
 		$doc = DocumentManager::get( $post_id );
 		$tpl = self::normalize( is_array( $doc['settings'] ?? null ) ? ( $doc['settings']['template'] ?? self::DEFAULT ) : self::DEFAULT );
 		/**
-		 * Filter the page template used for a Canvasly document.
+		 * Filter the page template used for a Sidcraft Syntex document.
 		 *
 		 * @param string $tpl     default|full_width|canvas
 		 * @param int    $post_id
 		 * @param array  $doc
 		 */
-		$filtered = apply_filters( 'canvasly-lite/document/template', $tpl, $post_id, $doc );
+		$filtered = apply_filters( 'sidcraft-syntex/document/template', $tpl, $post_id, $doc );
 		return self::normalize( is_string( $filtered ) ? $filtered : $tpl );
 	}
 
@@ -71,18 +71,18 @@ class PageTemplates {
 	public static function file_for( $template, $post_id = 0 ) {
 		$template = self::normalize( $template );
 		$map      = array(
-			self::CANVAS     => CANVASLY_LITE_PATH . 'includes/templates/canvas.php',
-			self::FULL_WIDTH => CANVASLY_LITE_PATH . 'includes/templates/full-width.php',
+			self::CANVAS     => SIDCRAFT_SYNTEX_PATH . 'includes/templates/canvas.php',
+			self::FULL_WIDTH => SIDCRAFT_SYNTEX_PATH . 'includes/templates/full-width.php',
 		);
 		$file     = $map[ $template ] ?? '';
 		/**
-		 * Filter the PHP file used for a Canvasly page template.
+		 * Filter the PHP file used for a Sidcraft Syntex page template.
 		 *
 		 * @param string $file     Absolute path, or empty to keep the theme template.
 		 * @param string $template default|full_width|canvas
 		 * @param int    $post_id
 		 */
-		$file = apply_filters( 'canvasly-lite/document/template_file', $file, $template, $post_id );
+		$file = apply_filters( 'sidcraft-syntex/document/template_file', $file, $template, $post_id );
 		if ( is_string( $file ) && $file !== '' && is_readable( $file ) ) {
 			return $file;
 		}

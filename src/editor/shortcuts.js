@@ -1,6 +1,6 @@
 import { app } from "./app.js";
-var SHORTCUT_STORAGE = "canvasly-lite.shortcuts";
-var FINDER_RECENT_STORAGE = "canvasly-lite.finder.recent";
+var SHORTCUT_STORAGE = "sidcraft-syntex.shortcuts";
+var FINDER_RECENT_STORAGE = "sidcraft-syntex.finder.recent";
 function isMacPlatform(ua) {
   const src = String(
     ua ||
@@ -526,7 +526,7 @@ function installShortcuts() {
   function openPage(id) {
     if (String(id) === String(app.D.postId)) return;
     if (app.dirty && !window.confirm(app.t("You have unsaved changes. Leave the editor?"))) return;
-    window.location.href = `${app.D.adminUrl}admin.php?page=canvasly-lite&post_id=${id}`;
+    window.location.href = `${app.D.adminUrl}admin.php?page=sidcraft-syntex&post_id=${id}`;
   }
   app.collectFinderItems = function collectFinderItems(query) {
     const q = String(query || "");
@@ -857,7 +857,7 @@ function installShortcuts() {
     try {
       item.run && item.run();
     } catch (e) {
-      if (window.console && console.error) console.error("[Canvasly] finder action failed:", e);
+      if (window.console && console.error) console.error("[Sidcraft Syntex] finder action failed:", e);
     }
     hooks().doAction("editor/finder/run", item, app.LB);
   };

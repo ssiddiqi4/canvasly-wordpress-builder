@@ -1,5 +1,5 @@
 (function () {
-	var href = window.canvaslyLiteAdminIcon || '';
+	var href = window.sidcraftSyntexAdminIcon || '';
 	function apply() {
 		var head = document.head;
 		if (!head || !href) {

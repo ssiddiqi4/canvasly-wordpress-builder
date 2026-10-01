@@ -1,11 +1,11 @@
 <?php
-namespace CanvaslyLite\Upgrade;
+namespace SidcraftSyntex\Upgrade;
 
-use CanvaslyLite\Design\CssPrint;
-use CanvaslyLite\Document\DocumentManager;
-use CanvaslyLite\Document\Documents;
-use CanvaslyLite\Log\Logger;
-use CanvaslyLite\Settings\AdminSettings;
+use SidcraftSyntex\Design\CssPrint;
+use SidcraftSyntex\Document\DocumentManager;
+use SidcraftSyntex\Document\Documents;
+use SidcraftSyntex\Log\Logger;
+use SidcraftSyntex\Settings\AdminSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,17 +14,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Versioned upgrade callbacks with background-batched document migrations (Roadmap 7.4).
  *
- * `Upgrades::run()` compares `canvasly_lite_version` to `CANVASLY_LITE_VERSION` and
+ * `Upgrades::run()` compares `sidcraft_syntex_version` to `SIDCRAFT_SYNTEX_VERSION` and
  * queues callbacks whose version is greater than the stored version. Document
  * tasks walk posts in pages of `batch_size()` via WP-Cron and `admin_init`.
  */
 class Upgrades {
-	const OPTION_VERSION = 'canvasly_lite_version';
-	const OPTION_QUEUE   = 'canvasly_lite_upgrade_queue';
-	const OPTION_FAILED  = 'canvasly_lite_upgrade_failed';
-	const LOCK           = 'canvasly_lite_upgrade_lock';
-	const CRON           = 'canvasly_lite_upgrade_batch';
-	const NOTICE         = 'canvasly_lite_upgrade_notice';
+	const OPTION_VERSION = 'sidcraft_syntex_version';
+	const OPTION_QUEUE   = 'sidcraft_syntex_upgrade_queue';
+	const OPTION_FAILED  = 'sidcraft_syntex_upgrade_failed';
+	const LOCK           = 'sidcraft_syntex_upgrade_lock';
+	const CRON           = 'sidcraft_syntex_upgrade_batch';
+	const NOTICE         = 'sidcraft_syntex_upgrade_notice';
 	const BATCH          = 40;
 	const LOCK_TTL       = 120;
 
@@ -33,12 +33,12 @@ class Upgrades {
 		add_action( 'admin_init', array( self::class, 'maybe_continue' ), 5 );
 		add_action( self::CRON, array( self::class, 'cron_batch' ) );
 		add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
-		add_action( 'canvasly-lite/tools/screen', array( self::class, 'tools_screen' ), 26 );
-		add_action( 'canvasly-lite/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'admin_post_lb_upgrade_retry', array( self::class, 'handle_retry' ) );
-		add_action( 'admin_post_lb_upgrade_run', array( self::class, 'handle_run' ) );
-		add_action( 'admin_post_lb_log_clear', array( self::class, 'handle_clear_log' ) );
-		add_action( 'admin_post_lb_log_download', array( self::class, 'handle_download_log' ) );
+		add_action( 'sidcraft-syntex/tools/screen', array( self::class, 'tools_screen' ), 26 );
+		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'admin_post_sidsyn_upgrade_retry', array( self::class, 'handle_retry' ) );
+		add_action( 'admin_post_sidsyn_upgrade_run', array( self::class, 'handle_run' ) );
+		add_action( 'admin_post_sidsyn_log_clear', array( self::class, 'handle_clear_log' ) );
+		add_action( 'admin_post_sidsyn_log_download', array( self::class, 'handle_download_log' ) );
 	}
 
 	public static function can_manage() {
@@ -67,7 +67,7 @@ class Upgrades {
 	 * @return string
 	 */
 	public static function current_version() {
-		return defined( 'CANVASLY_LITE_VERSION' ) ? (string) CANVASLY_LITE_VERSION : '0';
+		return defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? (string) SIDCRAFT_SYNTEX_VERSION : '0';
 	}
 
 	/**
@@ -99,7 +99,7 @@ class Upgrades {
 		 *
 		 * @param array $map
 		 */
-		$filtered = apply_filters( 'canvasly-lite/upgrades/register', $map );
+		$filtered = apply_filters( 'sidcraft-syntex/upgrades/register', $map );
 		return is_array( $filtered ) ? $filtered : $map;
 	}
 
@@ -138,7 +138,7 @@ class Upgrades {
 	 * Compare stored vs current version and start a queue when they differ.
 	 */
 	public static function maybe_run() {
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) && ! \CanvaslyLite\Admin\AdminContext::allows_background() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::allows_background() ) {
 			return;
 		}
 		self::run( false );
@@ -151,11 +151,11 @@ class Upgrades {
 		if ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() ) {
 			return;
 		}
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) ) {
-			if ( \CanvaslyLite\Admin\AdminContext::is_autosave() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) ) {
+			if ( \SidcraftSyntex\Admin\AdminContext::is_autosave() ) {
 				return;
 			}
-			if ( ! \CanvaslyLite\Admin\AdminContext::allows_background() ) {
+			if ( ! \SidcraftSyntex\Admin\AdminContext::allows_background() ) {
 				return;
 			}
 		}
@@ -231,7 +231,7 @@ class Upgrades {
 		 * @param string $to
 		 * @param array  $tasks
 		 */
-		do_action( 'canvasly-lite/upgrade/before', $from, $to, $tasks );
+		do_action( 'sidcraft-syntex/upgrade/before', $from, $to, $tasks );
 		self::process_batch();
 		return self::status();
 	}
@@ -449,10 +449,10 @@ class Upgrades {
 		}
 		$types = class_exists( Documents::class ) ? Documents::enabled() : array( 'post', 'page' );
 		$types = is_array( $types ) ? $types : array( 'post', 'page' );
-		$types[] = 'lb_template';
-		$types[] = 'lb_component';
+		$types[] = 'sidsyn_template';
+		$types[] = 'sidsyn_component';
 		$types   = array_values( array_unique( array_filter( $types ) ) );
-		$meta    = class_exists( DocumentManager::class ) ? DocumentManager::META : '_lb_document_data';
+		$meta    = class_exists( DocumentManager::class ) ? DocumentManager::META : '_sidsyn_document_data';
 		$q       = new \WP_Query(
 			array(
 				'post_type'              => $types,
@@ -460,7 +460,7 @@ class Upgrades {
 				'posts_per_page'         => $limit,
 				'offset'                 => $offset,
 				'fields'                 => 'ids',
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Upgrade batch selects posts that store Canvasly document JSON.
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Upgrade batch selects posts that store Sidcraft Syntex document JSON.
 				'meta_query'             => array(
 					'relation' => 'OR',
 					array(
@@ -468,11 +468,11 @@ class Upgrades {
 						'compare' => 'EXISTS',
 					),
 					array(
-						'key'     => '_lb_template_data',
+						'key'     => '_sidsyn_template_data',
 						'compare' => 'EXISTS',
 					),
 					array(
-						'key'     => '_lb_component_data',
+						'key'     => '_sidsyn_component_data',
 						'compare' => 'EXISTS',
 					),
 				),
@@ -497,7 +497,7 @@ class Upgrades {
 		 * @param int   $offset
 		 * @param int   $limit
 		 */
-		$filtered = apply_filters( 'canvasly-lite/upgrades/document_ids', $ids, $offset, $limit );
+		$filtered = apply_filters( 'sidcraft-syntex/upgrades/document_ids', $ids, $offset, $limit );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'absint', $filtered ) ) ) : $ids;
 	}
 
@@ -511,7 +511,7 @@ class Upgrades {
 		 *
 		 * @param int $n
 		 */
-		$filtered = apply_filters( 'canvasly-lite/upgrades/batch_size', $n );
+		$filtered = apply_filters( 'sidcraft-syntex/upgrades/batch_size', $n );
 		return max( 1, min( 200, absint( $filtered ) ) );
 	}
 
@@ -564,7 +564,7 @@ class Upgrades {
 		if ( ! self::can_manage() ) {
 			return;
 		}
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) && ! \CanvaslyLite\Admin\AdminContext::is_plugin_page() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::is_plugin_page() ) {
 			return;
 		}
 		$key  = self::NOTICE . '_' . ( function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0 );
@@ -582,14 +582,14 @@ class Upgrades {
 			echo esc_html(
 				sprintf(
 					/* translators: 1: previous version, 2: new version */
-					__( 'Canvasly could not finish an upgrade from %1$s to %2$s.', 'canvasly-lite' ),
+					__( 'Sidcraft Syntex could not finish an upgrade from %1$s to %2$s.', 'sidcraft-syntex' ),
 					(string) ( $failed['from'] ?? '' ),
 					(string) ( $failed['to'] ?? self::current_version() )
 				)
 			);
 			echo ' ' . esc_html( (string) $failed['error'] );
-			echo ' <a href="' . esc_url( $url ) . '">' . esc_html__( 'Retry upgrade', 'canvasly-lite' ) . '</a>';
-			echo ' <a href="' . esc_url( self::tools_url() ) . '">' . esc_html__( 'View log', 'canvasly-lite' ) . '</a>';
+			echo ' <a href="' . esc_url( $url ) . '">' . esc_html__( 'Retry upgrade', 'sidcraft-syntex' ) . '</a>';
+			echo ' <a href="' . esc_url( self::tools_url() ) . '">' . esc_html__( 'View log', 'sidcraft-syntex' ) . '</a>';
 			echo '</p></div>';
 			return;
 		}
@@ -602,7 +602,7 @@ class Upgrades {
 		$ops    = class_exists( AdminSettings::class ) && AdminSettings::is_ops_screen( $screen );
 		if ( ! $ops && function_exists( 'get_current_screen' ) ) {
 			$id = is_object( $screen ) ? (string) ( $screen->id ?? '' ) : '';
-			if ( $id !== '' && strpos( $id, 'canvasly-lite' ) === false ) {
+			if ( $id !== '' && strpos( $id, 'sidcraft-syntex' ) === false ) {
 				return;
 			}
 		}
@@ -612,7 +612,7 @@ class Upgrades {
 		echo esc_html(
 			sprintf(
 				/* translators: %d: documents processed in the current task */
-				__( 'Canvasly is applying document upgrades in the background (%d processed so far).', 'canvasly-lite' ),
+				__( 'Sidcraft Syntex is applying document upgrades in the background (%d processed so far).', 'sidcraft-syntex' ),
 				$done
 			)
 		);
@@ -625,18 +625,18 @@ class Upgrades {
 		}
 		$s     = self::status();
 		$state = (string) ( $s['state'] ?? 'idle' );
-		echo '<hr><h2>' . esc_html__( 'Upgrades and log', 'canvasly-lite' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'When the plugin version changes, Canvasly runs versioned callbacks and re-saves documents in the background so schema migrations persist. Failures appear as an admin notice with a retry link.', 'canvasly-lite' ) . '</p>';
+		echo '<hr><h2>' . esc_html__( 'Upgrades and log', 'sidcraft-syntex' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'When the plugin version changes, Sidcraft Syntex runs versioned callbacks and re-saves documents in the background so schema migrations persist. Failures appear as an admin notice with a retry link.', 'sidcraft-syntex' ) . '</p>';
 		echo '<table class="form-table" role="presentation"><tbody>';
-		echo '<tr><th>' . esc_html__( 'Installed', 'canvasly-lite' ) . '</th><td><code>' . esc_html( (string) $s['stored'] ) . '</code></td></tr>';
-		echo '<tr><th>' . esc_html__( 'Plugin', 'canvasly-lite' ) . '</th><td><code>' . esc_html( (string) $s['current'] ) . '</code></td></tr>';
-		echo '<tr><th>' . esc_html__( 'Status', 'canvasly-lite' ) . '</th><td>' . esc_html( self::state_label( $state ) ) . '</td></tr>';
+		echo '<tr><th>' . esc_html__( 'Installed', 'sidcraft-syntex' ) . '</th><td><code>' . esc_html( (string) $s['stored'] ) . '</code></td></tr>';
+		echo '<tr><th>' . esc_html__( 'Plugin', 'sidcraft-syntex' ) . '</th><td><code>' . esc_html( (string) $s['current'] ) . '</code></td></tr>';
+		echo '<tr><th>' . esc_html__( 'Status', 'sidcraft-syntex' ) . '</th><td>' . esc_html( self::state_label( $state ) ) . '</td></tr>';
 		if ( ! empty( $s['task']['id'] ) ) {
-			echo '<tr><th>' . esc_html__( 'Current task', 'canvasly-lite' ) . '</th><td><code>' . esc_html( (string) $s['task']['id'] ) . '</code>';
+			echo '<tr><th>' . esc_html__( 'Current task', 'sidcraft-syntex' ) . '</th><td><code>' . esc_html( (string) $s['task']['id'] ) . '</code>';
 			echo " \u{2014} " . esc_html(
 				sprintf(
 					/* translators: %d: processed count */
-					__( '%d processed', 'canvasly-lite' ),
+					__( '%d processed', 'sidcraft-syntex' ),
 					absint( $s['task']['processed'] ?? 0 )
 				)
 			);
@@ -646,42 +646,42 @@ class Upgrades {
 
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-bottom:12px">';
 		if ( $state === 'failed' ) {
-			wp_nonce_field( 'lb_upgrade_retry' );
-			echo '<input type="hidden" name="action" value="lb_upgrade_retry">';
+			wp_nonce_field( 'sidsyn_upgrade_retry' );
+			echo '<input type="hidden" name="action" value="sidsyn_upgrade_retry">';
 			if ( class_exists( AdminSettings::class ) ) {
 				AdminSettings::echo_return_tab( 'tools' );
 			}
-			echo '<p><button class="button button-primary" type="submit">' . esc_html__( 'Retry upgrade', 'canvasly-lite' ) . '</button></p>';
+			echo '<p><button class="button button-primary" type="submit">' . esc_html__( 'Retry upgrade', 'sidcraft-syntex' ) . '</button></p>';
 		} else {
-			wp_nonce_field( 'lb_upgrade_run' );
-			echo '<input type="hidden" name="action" value="lb_upgrade_run">';
+			wp_nonce_field( 'sidsyn_upgrade_run' );
+			echo '<input type="hidden" name="action" value="sidsyn_upgrade_run">';
 			if ( class_exists( AdminSettings::class ) ) {
 				AdminSettings::echo_return_tab( 'tools' );
 			}
-			$label = $state === 'running' ? __( 'Continue upgrade', 'canvasly-lite' ) : __( 'Migrate documents now', 'canvasly-lite' );
+			$label = $state === 'running' ? __( 'Continue upgrade', 'sidcraft-syntex' ) : __( 'Migrate documents now', 'sidcraft-syntex' );
 			echo '<p><button class="button" type="submit">' . esc_html( $label ) . '</button></p>';
 		}
 		echo '</form>';
 
 		$tail = class_exists( Logger::class ) ? Logger::tail( 80 ) : '';
 		$size = class_exists( Logger::class ) ? Logger::size() : 0;
-		echo '<h3>' . esc_html__( 'Log', 'canvasly-lite' ) . '</h3>';
+		echo '<h3>' . esc_html__( 'Log', 'sidcraft-syntex' ) . '</h3>';
 		echo '<p class="description">' . esc_html(
 			sprintf(
 				/* translators: %s: log file size */
-				__( 'Rotating file under uploads/canvasly-lite/logs (%s).', 'canvasly-lite' ),
+				__( 'Rotating file under uploads/sidcraft-syntex/logs (%s).', 'sidcraft-syntex' ),
 				function_exists( 'size_format' ) ? (string) size_format( $size ) : (string) $size
 			)
 		) . '</p>';
 		echo '<textarea class="large-text code" rows="12" readonly>' . esc_textarea( $tail ) . '</textarea>';
-		echo '<p><a class="button" href="' . esc_url( self::download_log_url() ) . '">' . esc_html__( 'Download log', 'canvasly-lite' ) . '</a></p>';
+		echo '<p><a class="button" href="' . esc_url( self::download_log_url() ) . '">' . esc_html__( 'Download log', 'sidcraft-syntex' ) . '</a></p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		wp_nonce_field( 'lb_log_clear' );
-		echo '<input type="hidden" name="action" value="lb_log_clear">';
+		wp_nonce_field( 'sidsyn_log_clear' );
+		echo '<input type="hidden" name="action" value="sidsyn_log_clear">';
 		if ( class_exists( AdminSettings::class ) ) {
 			AdminSettings::echo_return_tab( 'tools' );
 		}
-		echo '<p><button class="button" type="submit">' . esc_html__( 'Clear log', 'canvasly-lite' ) . '</button></p>';
+		echo '<p><button class="button" type="submit">' . esc_html__( 'Clear log', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form>';
 	}
 
@@ -689,7 +689,7 @@ class Upgrades {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'canvasly-lite/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
 		register_rest_route(
 			$ns,
 			'/upgrades',
@@ -768,54 +768,54 @@ class Upgrades {
 
 	public static function handle_retry() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can run upgrades.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can run upgrades.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_upgrade_retry' );
+		check_admin_referer( 'sidsyn_upgrade_retry' );
 		self::retry();
-		self::store_notice( 'success', __( 'The upgrade was resumed.', 'canvasly-lite' ) );
+		self::store_notice( 'success', __( 'The upgrade was resumed.', 'sidcraft-syntex' ) );
 		self::redirect_back();
 	}
 
 	public static function handle_run() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can run upgrades.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can run upgrades.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_upgrade_run' );
+		check_admin_referer( 'sidsyn_upgrade_run' );
 		$queue = self::queue();
 		if ( $queue && ( $queue['status'] ?? '' ) === 'running' ) {
 			self::process_batch();
-			self::store_notice( 'success', __( 'The upgrade continued.', 'canvasly-lite' ) );
+			self::store_notice( 'success', __( 'The upgrade continued.', 'sidcraft-syntex' ) );
 		} elseif ( $queue && ( $queue['status'] ?? '' ) === 'failed' ) {
 			self::retry();
-			self::store_notice( 'success', __( 'The upgrade was resumed.', 'canvasly-lite' ) );
+			self::store_notice( 'success', __( 'The upgrade was resumed.', 'sidcraft-syntex' ) );
 		} else {
 			self::run( true );
-			self::store_notice( 'success', __( 'Document migrations started.', 'canvasly-lite' ) );
+			self::store_notice( 'success', __( 'Document migrations started.', 'sidcraft-syntex' ) );
 		}
 		self::redirect_back();
 	}
 
 	public static function handle_clear_log() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can clear the log.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can clear the log.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_log_clear' );
+		check_admin_referer( 'sidsyn_log_clear' );
 		if ( class_exists( Logger::class ) ) {
 			Logger::clear();
 		}
-		self::store_notice( 'success', __( 'The log was cleared.', 'canvasly-lite' ) );
+		self::store_notice( 'success', __( 'The log was cleared.', 'sidcraft-syntex' ) );
 		self::redirect_back();
 	}
 
 	public static function handle_download_log() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can download the log.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can download the log.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_log_download' );
+		check_admin_referer( 'sidsyn_log_download' );
 		$path = class_exists( Logger::class ) ? Logger::path() : '';
 		$text = ( $path && is_readable( $path ) ) ? (string) file_get_contents( $path ) : '';
 		$date = gmdate( 'Y-m-d' );
-		$filename = 'canvasly-lite-log-' . $date . '.log';
+		$filename = 'sidcraft-syntex-log-' . $date . '.log';
 		if ( function_exists( 'nocache_headers' ) ) {
 			nocache_headers();
 		}
@@ -909,7 +909,7 @@ class Upgrades {
 		if ( ! is_callable( $cb ) ) {
 			return array(
 				'done'  => false,
-				'error' => __( 'Upgrade callback is missing.', 'canvasly-lite' ),
+				'error' => __( 'Upgrade callback is missing.', 'sidcraft-syntex' ),
 			);
 		}
 		try {
@@ -975,7 +975,7 @@ class Upgrades {
 		 * @param string $from
 		 * @param string $to
 		 */
-		do_action( 'canvasly-lite/upgrade/after', $from, $to );
+		do_action( 'sidcraft-syntex/upgrade/after', $from, $to );
 	}
 
 	/**
@@ -1010,7 +1010,7 @@ class Upgrades {
 		 *
 		 * @param int $delay
 		 */
-		$delay = absint( apply_filters( 'canvasly-lite/upgrades/delay', $delay ) );
+		$delay = absint( apply_filters( 'sidcraft-syntex/upgrades/delay', $delay ) );
 		wp_schedule_single_event( time() + max( 1, $delay ), self::CRON );
 	}
 
@@ -1037,27 +1037,27 @@ class Upgrades {
 	 */
 	private static function state_label( $state ) {
 		if ( $state === 'running' ) {
-			return __( 'Running', 'canvasly-lite' );
+			return __( 'Running', 'sidcraft-syntex' );
 		}
 		if ( $state === 'failed' ) {
-			return __( 'Failed', 'canvasly-lite' );
+			return __( 'Failed', 'sidcraft-syntex' );
 		}
-		return __( 'Idle', 'canvasly-lite' );
+		return __( 'Idle', 'sidcraft-syntex' );
 	}
 
 	/**
 	 * @return string
 	 */
 	public static function retry_url() {
-		$url = wp_nonce_url( admin_url( 'admin-post.php?action=lb_upgrade_retry' ), 'lb_upgrade_retry' );
-		return is_string( $url ) ? $url : admin_url( 'admin-post.php?action=lb_upgrade_retry' );
+		$url = wp_nonce_url( admin_url( 'admin-post.php?action=sidsyn_upgrade_retry' ), 'sidsyn_upgrade_retry' );
+		return is_string( $url ) ? $url : admin_url( 'admin-post.php?action=sidsyn_upgrade_retry' );
 	}
 
 	/**
 	 * @return string
 	 */
 	public static function download_log_url() {
-		return wp_nonce_url( admin_url( 'admin-post.php?action=lb_log_download' ), 'lb_log_download' );
+		return wp_nonce_url( admin_url( 'admin-post.php?action=sidsyn_log_download' ), 'sidsyn_log_download' );
 	}
 
 	/**
@@ -1067,7 +1067,7 @@ class Upgrades {
 		if ( class_exists( AdminSettings::class ) ) {
 			return AdminSettings::url( 'tools' );
 		}
-		return admin_url( 'admin.php?page=canvasly-lite-tools' );
+		return admin_url( 'admin.php?page=sidcraft-syntex-tools' );
 	}
 
 	private static function redirect_back() {
@@ -1079,7 +1079,7 @@ class Upgrades {
 			}
 		}
 		$ref = function_exists( 'wp_get_referer' ) ? wp_get_referer() : '';
-		wp_safe_redirect( $ref ? $ref : admin_url( 'admin.php?page=canvasly-lite-tools' ) );
+		wp_safe_redirect( $ref ? $ref : admin_url( 'admin.php?page=sidcraft-syntex-tools' ) );
 		exit;
 	}
 

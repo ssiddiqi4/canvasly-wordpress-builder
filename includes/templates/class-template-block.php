@@ -1,20 +1,20 @@
 <?php
-namespace CanvaslyLite\Templates;
+namespace SidcraftSyntex\Templates;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Gutenberg `canvasly-lite/template` block.
+ * Gutenberg `sidcraft-syntex/template` block.
  *
  * Loaded from the plugin bootstrap *and* from the native-editor zero-bootstrap
  * path so the block still appears in post.php / post-new.php.
  */
 class TemplateBlock {
-	const NAME   = 'canvasly-lite/template';
-	const SCRIPT = 'canvasly-lite-template-block';
-	const STYLE  = 'canvasly-lite-template-block-editor';
+	const NAME   = 'sidcraft-syntex/template';
+	const SCRIPT = 'sidcraft-syntex-template-block';
+	const STYLE  = 'sidcraft-syntex-template-block-editor';
 
 	/** @var bool */
 	private static $booted = false;
@@ -35,13 +35,13 @@ class TemplateBlock {
 	public static function category( $categories, $context = null ) {
 		$categories = is_array( $categories ) ? $categories : array();
 		foreach ( $categories as $cat ) {
-			if ( is_array( $cat ) && ( $cat['slug'] ?? '' ) === 'canvasly-lite' ) {
+			if ( is_array( $cat ) && ( $cat['slug'] ?? '' ) === 'sidcraft-syntex' ) {
 				return $categories;
 			}
 		}
 		$categories[] = array(
-			'slug'  => 'canvasly-lite',
-			'title' => __( 'Canvasly', 'canvasly-lite' ),
+			'slug'  => 'sidcraft-syntex',
+			'title' => __( 'Sidcraft Syntex', 'sidcraft-syntex' ),
 			'icon'  => 'layout',
 		);
 		return $categories;
@@ -52,7 +52,7 @@ class TemplateBlock {
 			return;
 		}
 		self::register_assets();
-		$dir = defined( 'CANVASLY_LITE_PATH' ) ? CANVASLY_LITE_PATH . 'assets/blocks/template' : '';
+		$dir = defined( 'SIDCRAFT_SYNTEX_PATH' ) ? SIDCRAFT_SYNTEX_PATH . 'assets/blocks/template' : '';
 		$args = array(
 			'editor_script'   => self::SCRIPT,
 			'editor_style'    => self::STYLE,
@@ -69,8 +69,8 @@ class TemplateBlock {
 			return;
 		}
 		$args['api_version'] = 3;
-		$args['title']       = __( 'Canvasly Template', 'canvasly-lite' );
-		$args['category']    = 'canvasly-lite';
+		$args['title']       = __( 'Sidcraft Syntex Template', 'sidcraft-syntex' );
+		$args['category']    = 'sidcraft-syntex';
 		$args['icon']        = 'layout';
 		$args['supports']    = array(
 			'html'      => false,
@@ -85,10 +85,10 @@ class TemplateBlock {
 		if ( ! function_exists( 'wp_register_script' ) ) {
 			return;
 		}
-		$ver = defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '0';
-		$url = defined( 'CANVASLY_LITE_URL' ) ? CANVASLY_LITE_URL : '';
-		$js  = defined( 'CANVASLY_LITE_PATH' ) ? CANVASLY_LITE_PATH . 'assets/js/blocks/template.js' : '';
-		$css = defined( 'CANVASLY_LITE_PATH' ) ? CANVASLY_LITE_PATH . 'assets/css/blocks/template-editor.css' : '';
+		$ver = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0';
+		$url = defined( 'SIDCRAFT_SYNTEX_URL' ) ? SIDCRAFT_SYNTEX_URL : '';
+		$js  = defined( 'SIDCRAFT_SYNTEX_PATH' ) ? SIDCRAFT_SYNTEX_PATH . 'assets/js/blocks/template.js' : '';
+		$css = defined( 'SIDCRAFT_SYNTEX_PATH' ) ? SIDCRAFT_SYNTEX_PATH . 'assets/css/blocks/template-editor.css' : '';
 		$mtime = function_exists( 'is_admin' ) && is_admin();
 		if ( $js && is_readable( $js ) ) {
 			$jsver = $ver . ( $mtime ? '-' . (string) filemtime( $js ) : '' );
@@ -99,8 +99,8 @@ class TemplateBlock {
 				$jsver,
 				true
 			);
-			if ( function_exists( 'wp_set_script_translations' ) && defined( 'CANVASLY_LITE_PATH' ) ) {
-				wp_set_script_translations( self::SCRIPT, 'canvasly-lite', CANVASLY_LITE_PATH . 'languages' );
+			if ( function_exists( 'wp_set_script_translations' ) && defined( 'SIDCRAFT_SYNTEX_PATH' ) ) {
+				wp_set_script_translations( self::SCRIPT, 'sidcraft-syntex', SIDCRAFT_SYNTEX_PATH . 'languages' );
 			}
 		}
 		if ( $css && is_readable( $css ) ) {

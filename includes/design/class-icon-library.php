@@ -1,8 +1,8 @@
 <?php
-namespace CanvaslyLite\Design;
+namespace SidcraftSyntex\Design;
 if(!defined('ABSPATH')) exit;
 class IconLibrary {
- const KEY='canvasly_lite_custom_icons';
+ const KEY='sidcraft_syntex_custom_icons';
  public static function builtins(){return [
   ['id'=>'spark','title'=>'Spark','category'=>'Shapes','svg'=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z" fill="currentColor"/></svg>'],
   ['id'=>'arrow','title'=>'Arrow','category'=>'Arrows','svg'=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h12.2l-4.6-4.6L13 5l7 7-7 7-1.4-1.4 4.6-4.6H4v-2z" fill="currentColor"/></svg>'],
@@ -18,17 +18,17 @@ class IconLibrary {
  ];}
  public static function all(){return array_merge(self::builtins(),array_values((array)get_option(self::KEY,[])),self::registered());}
  /**
-  * Icons added on `canvasly-lite/icons/register`. Fired each call so a set
+  * Icons added on `sidcraft-syntex/icons/register`. Fired each call so a set
   * registered during the request is visible to the editor and to Icons::svg().
   *
   * @return array<int,array>
   */
  public static function registered(){
   $sets=new IconSets();
-  do_action('canvasly-lite/icons/register',$sets);
+  do_action('sidcraft-syntex/icons/register',$sets);
   $icons=$sets->all();
   return is_array($icons)?$icons:[];
  }
- public static function save($id,$title,$category,$svg){if(!current_user_can('canvasly_lite_design'))return new \WP_Error('forbidden',__('You cannot manage custom icons.', 'canvasly-lite'));$id=sanitize_key($id?:sanitize_title($title));$svg=wp_kses($svg,['svg'=>['viewBox'=>true,'viewbox'=>true,'aria-hidden'=>true,'role'=>true,'xmlns'=>true,'width'=>true,'height'=>true],'path'=>['d'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'fill-rule'=>true,'clip-rule'=>true]]);if(!$id||strpos($svg,'<svg')===false)return new \WP_Error('invalid',__('Valid SVG icon required.', 'canvasly-lite'));$all=(array)get_option(self::KEY,[]);$all[$id]=['id'=>$id,'title'=>sanitize_text_field($title?:$id),'category'=>sanitize_text_field($category?:'Custom'),'svg'=>$svg];update_option(self::KEY,$all,false);return $all[$id];}
- public static function delete($id){if(!current_user_can('canvasly_lite_design'))return false;$all=(array)get_option(self::KEY,[]);unset($all[sanitize_key($id)]);update_option(self::KEY,$all,false);return true;}
+ public static function save($id,$title,$category,$svg){if(!current_user_can('sidcraft_syntex_design'))return new \WP_Error('forbidden',__('You cannot manage custom icons.', 'sidcraft-syntex'));$id=sanitize_key($id?:sanitize_title($title));$svg=wp_kses($svg,['svg'=>['viewBox'=>true,'viewbox'=>true,'aria-hidden'=>true,'role'=>true,'xmlns'=>true,'width'=>true,'height'=>true],'path'=>['d'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'fill-rule'=>true,'clip-rule'=>true]]);if(!$id||strpos($svg,'<svg')===false)return new \WP_Error('invalid',__('Valid SVG icon required.', 'sidcraft-syntex'));$all=(array)get_option(self::KEY,[]);$all[$id]=['id'=>$id,'title'=>sanitize_text_field($title?:$id),'category'=>sanitize_text_field($category?:'Custom'),'svg'=>$svg];update_option(self::KEY,$all,false);return $all[$id];}
+ public static function delete($id){if(!current_user_can('sidcraft_syntex_design'))return false;$all=(array)get_option(self::KEY,[]);unset($all[sanitize_key($id)]);update_option(self::KEY,$all,false);return true;}
 }

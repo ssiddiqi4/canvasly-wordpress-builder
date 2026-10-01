@@ -1,7 +1,7 @@
 <?php
-namespace CanvaslyLite\Settings;
+namespace SidcraftSyntex\Settings;
 
-use CanvaslyLite\Design\Variables;
+use SidcraftSyntex\Design\Variables;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * custom_logo, site_icon). Layout/lightbox/background compile to global CSS.
  */
 class KitSettings {
-	const KEY  = 'canvasly_lite_kit_settings';
+	const KEY  = 'sidcraft_syntex_kit_settings';
 	const ROOT = '.lb-page, .lb-frame-root';
 
 	public static function init() {
@@ -67,12 +67,12 @@ class KitSettings {
 		$out   = self::sanitize_map( is_array( $saved ) ? $saved : array() );
 		$out   = self::merge_identity_from_core( $out );
 		/** Filter the kit settings map. @param array $out */
-		$filtered = apply_filters( 'canvasly-lite/kit_settings', $out );
+		$filtered = apply_filters( 'sidcraft-syntex/kit_settings', $out );
 		return is_array( $filtered ) ? self::sanitize_map( self::merge_identity_from_core( $filtered ) ) : $out;
 	}
 
 	public static function save( $data ) {
-		if ( ! current_user_can( 'canvasly_lite_design' ) ) {
+		if ( ! current_user_can( 'sidcraft_syntex_design' ) ) {
 			return false;
 		}
 		$clean = self::sanitize_map( is_array( $data ) ? $data : array() );
@@ -97,8 +97,8 @@ class KitSettings {
 		if ( $w !== '' ) {
 			return $w;
 		}
-		if ( class_exists( '\\CanvaslyLite\\Compatibility\\ThemeSupport' ) ) {
-			$tw = \CanvaslyLite\Compatibility\ThemeSupport::content_width();
+		if ( class_exists( '\\SidcraftSyntex\\Compatibility\\ThemeSupport' ) ) {
+			$tw = \SidcraftSyntex\Compatibility\ThemeSupport::content_width();
 			if ( $tw !== '' ) {
 				return $tw;
 			}
@@ -237,8 +237,8 @@ class KitSettings {
 		}
 
 		$title_sel = trim( (string) ( $d['layout']['page_title_selector'] ?? '' ) );
-		if ( $title_sel === '' && class_exists( '\\CanvaslyLite\\Compatibility\\ThemeSupport' ) ) {
-			$title_sel = \CanvaslyLite\Compatibility\ThemeSupport::page_title_selector();
+		if ( $title_sel === '' && class_exists( '\\SidcraftSyntex\\Compatibility\\ThemeSupport' ) ) {
+			$title_sel = \SidcraftSyntex\Compatibility\ThemeSupport::page_title_selector();
 		}
 		if ( $title_sel !== '' ) {
 			$out .= self::prefixed_selector( 'body.lb-document', $title_sel ) . '{display:none;}';
@@ -291,7 +291,7 @@ class KitSettings {
 			$css = '/*lb-kit-style*/' . $css . '/*lb-kit-style-end*/';
 		}
 		/** Filter compiled kit CSS. @param string $css @param array $d */
-		$filtered = apply_filters( 'canvasly-lite/kit_settings/css', $css, $d );
+		$filtered = apply_filters( 'sidcraft-syntex/kit_settings/css', $css, $d );
 		return is_string( $filtered ) ? $filtered : $css;
 	}
 

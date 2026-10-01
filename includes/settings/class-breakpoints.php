@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Settings;
+namespace SidcraftSyntex\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -26,7 +26,7 @@ class Breakpoints {
 		return array(
 			'mobile'       => array(
 				'name'      => 'mobile',
-				'label'     => __( 'Mobile', 'canvasly-lite' ),
+				'label'     => __( 'Mobile', 'sidcraft-syntex' ),
 				'short'     => 'M',
 				'enabled'   => true,
 				'value'     => 767,
@@ -35,7 +35,7 @@ class Breakpoints {
 			),
 			'mobile_extra' => array(
 				'name'      => 'mobile_extra',
-				'label'     => __( 'Mobile Extra', 'canvasly-lite' ),
+				'label'     => __( 'Mobile Extra', 'sidcraft-syntex' ),
 				'short'     => 'M+',
 				'enabled'   => false,
 				'value'     => 880,
@@ -44,7 +44,7 @@ class Breakpoints {
 			),
 			'tablet'       => array(
 				'name'      => 'tablet',
-				'label'     => __( 'Tablet', 'canvasly-lite' ),
+				'label'     => __( 'Tablet', 'sidcraft-syntex' ),
 				'short'     => 'T',
 				'enabled'   => true,
 				'value'     => 1024,
@@ -53,7 +53,7 @@ class Breakpoints {
 			),
 			'tablet_extra' => array(
 				'name'      => 'tablet_extra',
-				'label'     => __( 'Tablet Extra', 'canvasly-lite' ),
+				'label'     => __( 'Tablet Extra', 'sidcraft-syntex' ),
 				'short'     => 'T+',
 				'enabled'   => false,
 				'value'     => 1200,
@@ -62,7 +62,7 @@ class Breakpoints {
 			),
 			'laptop'       => array(
 				'name'      => 'laptop',
-				'label'     => __( 'Laptop', 'canvasly-lite' ),
+				'label'     => __( 'Laptop', 'sidcraft-syntex' ),
 				'short'     => 'L',
 				'enabled'   => false,
 				'value'     => 1366,
@@ -71,7 +71,7 @@ class Breakpoints {
 			),
 			'desktop'      => array(
 				'name'      => 'desktop',
-				'label'     => __( 'Desktop', 'canvasly-lite' ),
+				'label'     => __( 'Desktop', 'sidcraft-syntex' ),
 				'short'     => 'D',
 				'enabled'   => true,
 				'value'     => 0,
@@ -80,7 +80,7 @@ class Breakpoints {
 			),
 			'widescreen'   => array(
 				'name'      => 'widescreen',
-				'label'     => __( 'Widescreen', 'canvasly-lite' ),
+				'label'     => __( 'Widescreen', 'sidcraft-syntex' ),
 				'short'     => 'W',
 				'enabled'   => false,
 				'value'     => 2400,
@@ -173,7 +173,7 @@ class Breakpoints {
 				$out[ $name ]['direction'] = 'max';
 			}
 		}
-		$filtered = apply_filters( 'canvasly-lite/breakpoints', $out );
+		$filtered = apply_filters( 'sidcraft-syntex/breakpoints', $out );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 

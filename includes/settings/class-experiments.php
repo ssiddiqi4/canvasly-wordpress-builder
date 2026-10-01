@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Settings;
+namespace SidcraftSyntex\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -23,62 +23,62 @@ class Experiments {
 	public static function builtins() {
 		return array(
 			'nested_units'   => array(
-				'title'       => __( 'Nested Tabs, Accordion and Toggle', 'canvasly-lite' ),
-				'description' => __( 'Panels that accept any child unit. Legacy text-only widgets stay available.', 'canvasly-lite' ),
+				'title'       => __( 'Nested Tabs, Accordion and Toggle', 'sidcraft-syntex' ),
+				'description' => __( 'Panels that accept any child unit. Legacy text-only widgets stay available.', 'sidcraft-syntex' ),
 				'status'      => self::STABLE,
 				'default'     => self::ACTIVE,
 			),
 			'collection_loop'   => array(
-				'title'       => __( 'Collection Loop', 'canvasly-lite' ),
-				'description' => __( 'Query builder for posts, custom types and terms with item templates and pagination.', 'canvasly-lite' ),
+				'title'       => __( 'Collection Loop', 'sidcraft-syntex' ),
+				'description' => __( 'Query builder for posts, custom types and terms with item templates and pagination.', 'sidcraft-syntex' ),
 				'status'      => self::STABLE,
 				'default'     => self::ACTIVE,
 			),
 			'interactions_v2'   => array(
-				'title'       => __( 'Interactions 2.0', 'canvasly-lite' ),
-				'description' => __( 'Entrance and exit presets, custom keyframes, and scroll-progress triggers.', 'canvasly-lite' ),
+				'title'       => __( 'Interactions 2.0', 'sidcraft-syntex' ),
+				'description' => __( 'Entrance and exit presets, custom keyframes, and scroll-progress triggers.', 'sidcraft-syntex' ),
 				'status'      => self::STABLE,
 				'default'     => self::ACTIVE,
 			),
 			'code_editor'       => array(
-				'title'       => __( 'Code editor control', 'canvasly-lite' ),
-				'description' => __( 'CodeMirror via WordPress for HTML, CSS, JavaScript and Custom CSS.', 'canvasly-lite' ),
+				'title'       => __( 'Code editor control', 'sidcraft-syntex' ),
+				'description' => __( 'CodeMirror via WordPress for HTML, CSS, JavaScript and Custom CSS.', 'sidcraft-syntex' ),
 				'status'      => self::STABLE,
 				'default'     => self::ACTIVE,
 			),
 			'grid_container'    => array(
-				'title'       => __( 'Grid container', 'canvasly-lite' ),
-				'description' => __( 'CSS Grid layout with tracks, gaps, auto-flow and per-child placement.', 'canvasly-lite' ),
+				'title'       => __( 'Grid container', 'sidcraft-syntex' ),
+				'description' => __( 'CSS Grid layout with tracks, gaps, auto-flow and per-child placement.', 'sidcraft-syntex' ),
 				'status'      => self::STABLE,
 				'default'     => self::ACTIVE,
 			),
 			'kit_export'        => array(
-				'title'       => __( 'Site kit export and import', 'canvasly-lite' ),
-				'description' => __( 'ZIP of site settings, design tokens, templates and optional content with media.', 'canvasly-lite' ),
+				'title'       => __( 'Site kit export and import', 'sidcraft-syntex' ),
+				'description' => __( 'ZIP of site settings, design tokens, templates and optional content with media.', 'sidcraft-syntex' ),
 				'status'      => self::STABLE,
 				'default'     => self::ACTIVE,
 			),
 			'form_recaptcha'    => array(
-				'title'       => __( 'Form reCAPTCHA', 'canvasly-lite' ),
-				'description' => __( 'Verify Form submissions with Google reCAPTCHA v2 or v3 when keys are set under Integrations.', 'canvasly-lite' ),
+				'title'       => __( 'Form reCAPTCHA', 'sidcraft-syntex' ),
+				'description' => __( 'Verify Form submissions with Google reCAPTCHA v2 or v3 when keys are set under Integrations.', 'sidcraft-syntex' ),
 				'status'      => self::BETA,
 				'default'     => self::INACTIVE,
 			),
 			'google_maps_embed' => array(
-				'title'       => __( 'Google Maps Embed API', 'canvasly-lite' ),
-				'description' => __( 'Use the Maps Embed API (requires an API key) instead of the public iframe embed.', 'canvasly-lite' ),
+				'title'       => __( 'Google Maps Embed API', 'sidcraft-syntex' ),
+				'description' => __( 'Use the Maps Embed API (requires an API key) instead of the public iframe embed.', 'sidcraft-syntex' ),
 				'status'      => self::BETA,
 				'default'     => self::ACTIVE,
 			),
 			'atomic_classes'    => array(
-				'title'       => __( 'Atomic utility classes', 'canvasly-lite' ),
-				'description' => __( 'Per-unit utility class generation for spacing and display.', 'canvasly-lite' ),
+				'title'       => __( 'Atomic utility classes', 'sidcraft-syntex' ),
+				'description' => __( 'Per-unit utility class generation for spacing and display.', 'sidcraft-syntex' ),
 				'status'      => self::BETA,
 				'default'     => self::INACTIVE,
 			),
 			'editor_top_bar'    => array(
-				'title'       => __( 'Editor top bar', 'canvasly-lite' ),
-				'description' => __( 'Compact editor chrome. Incomplete; leave inactive unless you are testing.', 'canvasly-lite' ),
+				'title'       => __( 'Editor top bar', 'sidcraft-syntex' ),
+				'description' => __( 'Compact editor chrome. Incomplete; leave inactive unless you are testing.', 'sidcraft-syntex' ),
 				'status'      => self::ALPHA,
 				'default'     => self::INACTIVE,
 			),
@@ -102,7 +102,7 @@ class Experiments {
 		 *
 		 * @param array $out
 		 */
-		$filtered = apply_filters( 'canvasly-lite/experiments/register', $out );
+		$filtered = apply_filters( 'sidcraft-syntex/experiments/register', $out );
 		if ( ! is_array( $filtered ) ) {
 			return $out;
 		}
@@ -176,7 +176,7 @@ class Experiments {
 	 * @return array<string,string>
 	 */
 	public static function stored() {
-		$key = class_exists( GlobalSettings::class ) ? GlobalSettings::KEY : 'canvasly_lite_global_settings';
+		$key = class_exists( GlobalSettings::class ) ? GlobalSettings::KEY : 'sidcraft_syntex_global_settings';
 		$g   = (array) get_option( $key, array() );
 		$ex  = $g['experiments'] ?? array();
 		return is_array( $ex ) ? $ex : array();
@@ -201,7 +201,7 @@ class Experiments {
 		 * @param bool   $on
 		 * @param string $id
 		 */
-		$filtered = apply_filters( 'canvasly-lite/experiments/active', $on, $id );
+		$filtered = apply_filters( 'sidcraft-syntex/experiments/active', $on, $id );
 		return (bool) $filtered;
 	}
 
@@ -238,9 +238,9 @@ class Experiments {
 	 */
 	public static function status_label( $status ) {
 		$map = array(
-			self::ALPHA  => __( 'Alpha', 'canvasly-lite' ),
-			self::BETA   => __( 'Beta', 'canvasly-lite' ),
-			self::STABLE => __( 'Stable', 'canvasly-lite' ),
+			self::ALPHA  => __( 'Alpha', 'sidcraft-syntex' ),
+			self::BETA   => __( 'Beta', 'sidcraft-syntex' ),
+			self::STABLE => __( 'Stable', 'sidcraft-syntex' ),
 		);
 		$key = self::sanitize_status( $status );
 		return $map[ $key ] ?? $map[ self::BETA ];

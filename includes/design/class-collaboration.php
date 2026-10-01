@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Design;
+namespace SidcraftSyntex\Design;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -8,13 +8,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Document editing lock via WordPress `_edit_lock` and Heartbeat.
  *
- * Replaces the custom `_lb_lock_{id}` meta used before Roadmap 7.5. The REST
+ * Replaces the custom `_sidsyn_lock_{id}` meta used before Roadmap 7.5. The REST
  * `/lock/{id}` endpoint and editor Lock button keep the same JSON shape:
  * `{locked, user, name, time, lock}`.
  */
 class Collaboration {
 	const META   = '_edit_lock';
-	const LEGACY = '_lb_lock_';
+	const LEGACY = '_sidsyn_lock_';
 	const WINDOW = 150;
 
 	private static $booted = false;
@@ -145,7 +145,7 @@ class Collaboration {
 	}
 
 	/**
-	 * Heartbeat payload `canvasly-lite-lock`: `{post_id, takeover}`.
+	 * Heartbeat payload `sidcraft-syntex-lock`: `{post_id, takeover}`.
 	 *
 	 * @param array $response
 	 * @param array $data
@@ -154,18 +154,18 @@ class Collaboration {
 	public static function on_heartbeat( $response, $data ) {
 		$response = is_array( $response ) ? $response : array();
 		$data     = is_array( $data ) ? $data : array();
-		if ( empty( $data['canvasly-lite-lock'] ) || ! is_array( $data['canvasly-lite-lock'] ) ) {
+		if ( empty( $data['sidcraft-syntex-lock'] ) || ! is_array( $data['sidcraft-syntex-lock'] ) ) {
 			return $response;
 		}
-		$post_id  = absint( $data['canvasly-lite-lock']['post_id'] ?? 0 );
-		$takeover = ! empty( $data['canvasly-lite-lock']['takeover'] );
+		$post_id  = absint( $data['sidcraft-syntex-lock']['post_id'] ?? 0 );
+		$takeover = ! empty( $data['sidcraft-syntex-lock']['takeover'] );
 		if ( ! $post_id ) {
 			return $response;
 		}
 		if ( function_exists( 'current_user_can' ) && ! current_user_can( 'edit_post', $post_id ) ) {
 			return $response;
 		}
-		$response['canvasly-lite-lock'] = self::heartbeat( $post_id, $takeover );
+		$response['sidcraft-syntex-lock'] = self::heartbeat( $post_id, $takeover );
 		return $response;
 	}
 
@@ -240,7 +240,7 @@ class Collaboration {
 	}
 
 	/**
-	 * Read a still-valid legacy `_lb_lock_{id}` and migrate it to `_edit_lock`.
+	 * Read a still-valid legacy `_sidsyn_lock_{id}` and migrate it to `_edit_lock`.
 	 *
 	 * @param int $post_id
 	 * @return array{time:int,user:int,name?:string}|null

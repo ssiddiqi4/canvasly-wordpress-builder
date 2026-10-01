@@ -1,7 +1,7 @@
 <?php
-namespace CanvaslyLite\Units;
+namespace SidcraftSyntex\Units;
 
-use CanvaslyLite\Embed\OEmbed;
+use SidcraftSyntex\Embed\OEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,7 +12,7 @@ class Html extends Unit {
 		return 'html';
 	}
 	public function title() {
-		return __( 'HTML', 'canvasly-lite' );
+		return __( 'HTML', 'sidcraft-syntex' );
 	}
 	public function icon() {
 		return '<>';
@@ -35,10 +35,10 @@ class Html extends Unit {
 				return '<div class="' . $this->cls( $s ) . ' lb-html lb-html-embed">' . $html . '</div>';
 			}
 		}
-		if ( class_exists( '\\CanvaslyLite\\Controls\\Code' ) ) {
-			$raw = \CanvaslyLite\Controls\Code::sanitize_html( $raw );
-		} elseif ( class_exists( '\\CanvaslyLite\\Templates\\ThemeChrome' ) ) {
-			$raw = \CanvaslyLite\Templates\ThemeChrome::safe_html( $raw );
+		if ( class_exists( '\\SidcraftSyntex\\Controls\\Code' ) ) {
+			$raw = \SidcraftSyntex\Controls\Code::sanitize_html( $raw );
+		} elseif ( class_exists( '\\SidcraftSyntex\\Templates\\ThemeChrome' ) ) {
+			$raw = \SidcraftSyntex\Templates\ThemeChrome::safe_html( $raw );
 		}
 		return '<div class="' . $this->cls( $s ) . ' lb-html">' . $raw . '</div>';
 	}

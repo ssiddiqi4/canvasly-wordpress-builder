@@ -1,8 +1,8 @@
 <?php
-namespace CanvaslyLite\Design;
+namespace SidcraftSyntex\Design;
 
-use CanvaslyLite\Dynamic\Resolver;
-use CanvaslyLite\Settings\GlobalSettings;
+use SidcraftSyntex\Dynamic\Resolver;
+use SidcraftSyntex\Settings\GlobalSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -21,12 +21,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Optimize {
 	const TTL_DEFAULT      = 86400;
-	const META_GEN         = '_lb_frag_gen';
-	const OPTION_GEN       = 'canvasly_lite_frag_gen';
-	const TRANSIENT_PREFIX = 'lb_el_';
-	const CACHE_GROUP      = 'canvasly_lite_frag';
+	const META_GEN         = '_sidsyn_frag_gen';
+	const OPTION_GEN       = 'sidcraft_syntex_frag_gen';
+	const TRANSIENT_PREFIX = 'sidsyn_el_';
+	const CACHE_GROUP      = 'sidcraft_syntex_frag';
 	const RUNTIME_MAX      = 250;
-	const PURGE_FLAG       = 'canvasly_lite_frag_transients_purged';
+	const PURGE_FLAG       = 'sidcraft_syntex_frag_transients_purged';
 
 	/** @var bool */
 	private static $booted = false;
@@ -42,14 +42,14 @@ class Optimize {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'canvasly-lite/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'canvasly-lite/document/after_save', array( self::class, 'on_after_save' ), 15, 1 );
+		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-syntex/document/after_save', array( self::class, 'on_after_save' ), 15, 1 );
 		add_action( 'deleted_post', array( self::class, 'invalidate_post' ) );
 		add_action( 'init', array( self::class, 'maybe_purge_option_transients' ), 30 );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
-			add_action( 'canvasly-lite/tools/screen', array( self::class, 'screen' ), 7 );
-			add_action( 'admin_post_lb_optimize_settings', array( self::class, 'handle_settings' ) );
-			add_action( 'admin_post_lb_optimize_flush', array( self::class, 'handle_flush' ) );
+			add_action( 'sidcraft-syntex/tools/screen', array( self::class, 'screen' ), 7 );
+			add_action( 'admin_post_sidsyn_optimize_settings', array( self::class, 'handle_settings' ) );
+			add_action( 'admin_post_sidsyn_optimize_flush', array( self::class, 'handle_flush' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
 		}
 	}
@@ -78,7 +78,7 @@ class Optimize {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'canvasly-lite/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
 		register_rest_route(
 			$ns,
 			'/optimize',
@@ -165,10 +165,10 @@ class Optimize {
 		if ( class_exists( GlobalSettings::class ) ) {
 			update_option( GlobalSettings::KEY, $g, false );
 		} else {
-			update_option( 'canvasly_lite_unit_cache', $g['unit_cache'] ?? true, false );
-			update_option( 'canvasly_lite_unit_cache_ttl', $g['unit_cache_ttl'] ?? self::TTL_DEFAULT, false );
-			update_option( 'canvasly_lite_lazy_load', $g['lazy_load'] ?? true, false );
-			update_option( 'canvasly_lite_optimized_markup', $g['optimized_markup'] ?? false, false );
+			update_option( 'sidcraft_syntex_unit_cache', $g['unit_cache'] ?? true, false );
+			update_option( 'sidcraft_syntex_unit_cache_ttl', $g['unit_cache_ttl'] ?? self::TTL_DEFAULT, false );
+			update_option( 'sidcraft_syntex_lazy_load', $g['lazy_load'] ?? true, false );
+			update_option( 'sidcraft_syntex_optimized_markup', $g['optimized_markup'] ?? false, false );
 		}
 		self::flush_all();
 		$after_lazy = self::lazy_load();
@@ -234,7 +234,7 @@ class Optimize {
 		 *
 		 * @param bool $on
 		 */
-		$filtered = apply_filters( 'canvasly-lite/optimize/unit_cache', $on );
+		$filtered = apply_filters( 'sidcraft-syntex/optimize/unit_cache', $on );
 		return ! empty( $filtered );
 	}
 
@@ -246,7 +246,7 @@ class Optimize {
 		 *
 		 * @param int $ttl
 		 */
-		$filtered = apply_filters( 'canvasly-lite/optimize/ttl', $ttl );
+		$filtered = apply_filters( 'sidcraft-syntex/optimize/ttl', $ttl );
 		return self::sanitize_ttl( is_numeric( $filtered ) ? $filtered : $ttl );
 	}
 
@@ -258,7 +258,7 @@ class Optimize {
 		 *
 		 * @param bool $on
 		 */
-		$filtered = apply_filters( 'canvasly-lite/optimize/lazy_load', $on );
+		$filtered = apply_filters( 'sidcraft-syntex/optimize/lazy_load', $on );
 		return ! empty( $filtered );
 	}
 
@@ -270,7 +270,7 @@ class Optimize {
 		 *
 		 * @param bool $on
 		 */
-		$filtered = apply_filters( 'canvasly-lite/optimize/markup', $on );
+		$filtered = apply_filters( 'sidcraft-syntex/optimize/markup', $on );
 		return ! empty( $filtered );
 	}
 
@@ -286,7 +286,7 @@ class Optimize {
 				return $g[ $key ];
 			}
 		}
-		$opt = get_option( 'canvasly_lite_' . $key, null );
+		$opt = get_option( 'sidcraft_syntex_' . $key, null );
 		return $opt === null ? $default : $opt;
 	}
 
@@ -313,7 +313,7 @@ class Optimize {
 		 *
 		 * @param string[] $types
 		 */
-		$filtered = apply_filters( 'canvasly-lite/optimize/live_types', $types );
+		$filtered = apply_filters( 'sidcraft-syntex/optimize/live_types', $types );
 		return is_array( $filtered ) ? array_values( array_map( 'strval', $filtered ) ) : $types;
 	}
 
@@ -363,7 +363,7 @@ class Optimize {
 		}
 		$ok = true;
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'canvasly-lite/unit/cacheable', $ok, $node );
+			$filtered = apply_filters( 'sidcraft-syntex/unit/cacheable', $ok, $node );
 			$ok       = ! empty( $filtered );
 		}
 		return $ok;
@@ -425,12 +425,12 @@ class Optimize {
 	}
 
 	/**
-	 * One-time removal of leaked `_transient_lb_el_*` rows from wp_options.
+	 * One-time removal of leaked `_transient_sidsyn_el_*` rows from wp_options.
 	 * Older builds stored a unique transient per fragment; generation bumps
 	 * left those rows unreachable until a manual options-table cleanup.
 	 */
 	public static function maybe_purge_option_transients() {
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) && ! \CanvaslyLite\Admin\AdminContext::allows_background() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::allows_background() ) {
 			return;
 		}
 		if ( function_exists( 'get_option' ) && get_option( self::PURGE_FLAG ) ) {
@@ -481,7 +481,7 @@ class Optimize {
 	 */
 	public static function cache_key( array $node, $post_id = 0 ) {
 		$payload = array(
-			'v'  => defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '',
+			'v'  => defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '',
 			'g'  => self::generation( $post_id ),
 			'id' => (string) ( $node['id'] ?? '' ),
 			't'  => (string) ( $node['type'] ?? '' ),
@@ -842,7 +842,7 @@ class Optimize {
 		if ( ! empty( $n['children'] ) ) {
 			return false;
 		}
-		if ( class_exists( '\\CanvaslyLite\\Controls\\Groups' ) && \CanvaslyLite\Controls\Groups::has_layers( $s ) ) {
+		if ( class_exists( '\\SidcraftSyntex\\Controls\\Groups' ) && \SidcraftSyntex\Controls\Groups::has_layers( $s ) ) {
 			return false;
 		}
 		if ( ! empty( $n['interactions'] ) && is_array( $n['interactions'] ) ) {
@@ -912,17 +912,17 @@ class Optimize {
 	}
 
 	public static function tools_url() {
-		if ( class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) ) {
-			return \CanvaslyLite\Settings\AdminSettings::tools_or_settings_url();
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
+			return \SidcraftSyntex\Settings\AdminSettings::tools_or_settings_url();
 		}
-		return admin_url( 'admin.php?page=canvasly-lite-tools' );
+		return admin_url( 'admin.php?page=sidcraft-syntex-tools' );
 	}
 
 	public static function handle_settings() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can change performance settings.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can change performance settings.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_optimize_settings' );
+		check_admin_referer( 'sidsyn_optimize_settings' );
 		$hours = max( 1, min( 168, absint( wp_unslash( $_POST['unit_cache_ttl'] ?? 24 ) ) ) );
 		$hour  = defined( 'HOUR_IN_SECONDS' ) ? HOUR_IN_SECONDS : 3600;
 		self::save_from(
@@ -933,18 +933,18 @@ class Optimize {
 				'optimized_markup'  => ! empty( $_POST['optimized_markup'] ),
 			)
 		);
-		self::store_notice( 'success', __( 'Performance settings saved.', 'canvasly-lite' ) );
+		self::store_notice( 'success', __( 'Performance settings saved.', 'sidcraft-syntex' ) );
 		wp_safe_redirect( self::tools_url() );
 		exit;
 	}
 
 	public static function handle_flush() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can flush the unit cache.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can flush the unit cache.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_optimize_flush' );
+		check_admin_referer( 'sidsyn_optimize_flush' );
 		self::flush_all();
-		self::store_notice( 'success', __( 'Unit fragment cache flushed.', 'canvasly-lite' ) );
+		self::store_notice( 'success', __( 'Unit fragment cache flushed.', 'sidcraft-syntex' ) );
 		wp_safe_redirect( self::tools_url() );
 		exit;
 	}
@@ -956,7 +956,7 @@ class Optimize {
 	private static function store_notice( $type, $message ) {
 		if ( function_exists( 'set_transient' ) ) {
 			set_transient(
-				'canvasly_lite_optimize_notice_' . get_current_user_id(),
+				'sidcraft_syntex_optimize_notice_' . get_current_user_id(),
 				array( 'type' => $type, 'message' => $message ),
 				defined( 'MINUTE_IN_SECONDS' ) ? 10 * MINUTE_IN_SECONDS : 600
 			);
@@ -965,18 +965,18 @@ class Optimize {
 
 	public static function admin_notice() {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) ) {
-			if ( ! \CanvaslyLite\Settings\AdminSettings::is_ops_screen( $screen ) ) {
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
+			if ( ! \SidcraftSyntex\Settings\AdminSettings::is_ops_screen( $screen ) ) {
 				return;
 			}
-		} elseif ( ! $screen || ( $screen->id ?? '' ) !== 'canvasly-lite_page_canvasly-lite-tools' ) {
+		} elseif ( ! $screen || ( $screen->id ?? '' ) !== 'sidcraft-syntex_page_sidcraft-syntex-tools' ) {
 			return;
 		}
-		$n = get_transient( 'canvasly_lite_optimize_notice_' . get_current_user_id() );
+		$n = get_transient( 'sidcraft_syntex_optimize_notice_' . get_current_user_id() );
 		if ( ! is_array( $n ) ) {
 			return;
 		}
-		delete_transient( 'canvasly_lite_optimize_notice_' . get_current_user_id() );
+		delete_transient( 'sidcraft_syntex_optimize_notice_' . get_current_user_id() );
 		$class = ( $n['type'] ?? '' ) === 'success' ? 'notice-success' : 'notice-error';
 		echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible"><p>' . esc_html( (string) ( $n['message'] ?? '' ) ) . '</p></div>';
 	}
@@ -991,32 +991,32 @@ class Optimize {
 		$lazy  = self::lazy_load();
 		$mark  = self::markup();
 
-		echo '<hr><h2>' . esc_html__( 'Performance', 'canvasly-lite' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Fragment cache stores rendered HTML in memory (and the object cache when one is present) for units that do not use dynamic tags. It is not written to the WordPress options table. Lazy load defers background images below the first one and sets fetchpriority on the first image. Optimized markup removes the extra node wrapper when the widget already has a single root.', 'canvasly-lite' ) . '</p>';
+		echo '<hr><h2>' . esc_html__( 'Performance', 'sidcraft-syntex' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Fragment cache stores rendered HTML in memory (and the object cache when one is present) for units that do not use dynamic tags. It is not written to the WordPress options table. Lazy load defers background images below the first one and sets fetchpriority on the first image. Optimized markup removes the extra node wrapper when the widget already has a single root.', 'sidcraft-syntex' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		wp_nonce_field( 'lb_optimize_settings' );
-		echo '<input type="hidden" name="action" value="lb_optimize_settings">';
+		wp_nonce_field( 'sidsyn_optimize_settings' );
+		echo '<input type="hidden" name="action" value="sidsyn_optimize_settings">';
 		echo '<table class="form-table"><tbody>';
-		echo '<tr><th>' . esc_html__( 'Unit cache', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="unit_cache" value="1"' . ( $cache ? ' checked' : '' ) . '> ' . esc_html__( 'Cache HTML fragments for non-dynamic units.', 'canvasly-lite' ) . '</label>';
+		echo '<tr><th>' . esc_html__( 'Unit cache', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="unit_cache" value="1"' . ( $cache ? ' checked' : '' ) . '> ' . esc_html__( 'Cache HTML fragments for non-dynamic units.', 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Cache TTL (hours)', 'canvasly-lite' ) . '</th><td>';
+		echo '<tr><th>' . esc_html__( 'Cache TTL (hours)', 'sidcraft-syntex' ) . '</th><td>';
 		echo '<input type="number" min="1" max="168" name="unit_cache_ttl" value="' . esc_attr( (string) $hours ) . '">';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Lazy load', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="lazy_load" value="1"' . ( $lazy ? ' checked' : '' ) . '> ' . esc_html__( 'Lazy-load background images below the first one, fetchpriority=high on the first image, loading=lazy after.', 'canvasly-lite' ) . '</label>';
+		echo '<tr><th>' . esc_html__( 'Lazy load', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="lazy_load" value="1"' . ( $lazy ? ' checked' : '' ) . '> ' . esc_html__( 'Lazy-load background images below the first one, fetchpriority=high on the first image, loading=lazy after.', 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Optimized markup', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="optimized_markup" value="1"' . ( $mark ? ' checked' : '' ) . '> ' . esc_html__( "Remove the extra node wrapper on simple widgets (heading, image, button, \u{2026}) when safe.", 'canvasly-lite' ) . '</label>';
+		echo '<tr><th>' . esc_html__( 'Optimized markup', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="optimized_markup" value="1"' . ( $mark ? ' checked' : '' ) . '> ' . esc_html__( "Remove the extra node wrapper on simple widgets (heading, image, button, \u{2026}) when safe.", 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr>';
 		echo '</tbody></table>';
-		echo '<p><button class="button" type="submit">' . esc_html__( 'Save performance settings', 'canvasly-lite' ) . '</button></p>';
+		echo '<p><button class="button" type="submit">' . esc_html__( 'Save performance settings', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form>';
 
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		wp_nonce_field( 'lb_optimize_flush' );
-		echo '<input type="hidden" name="action" value="lb_optimize_flush">';
-		echo '<p><button class="button" type="submit">' . esc_html__( 'Flush unit cache', 'canvasly-lite' ) . '</button></p>';
+		wp_nonce_field( 'sidsyn_optimize_flush' );
+		echo '<input type="hidden" name="action" value="sidsyn_optimize_flush">';
+		echo '<p><button class="button" type="submit">' . esc_html__( 'Flush unit cache', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form>';
 	}
 }

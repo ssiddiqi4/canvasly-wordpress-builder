@@ -1,11 +1,11 @@
-/*! Canvasly — Cloudflare Turnstile loader (explicit rendering + submit gate). */
+/*! Sidcraft Syntex — Cloudflare Turnstile loader (explicit rendering + submit gate). */
 (function () {
 	'use strict';
 	var FIELD = 'cf-turnstile-response';
 	var ids = [];
 	var BUTTONS = 'button[type="submit"], button:not([type]), input[type="submit"], input[type="image"], .cp-pay-gateway, [data-lb-turnstile-lock]';
 
-	/** Standalone Turnstile unit: the Canvasly form(s) in the nearest container that holds both. */
+	/** Standalone Turnstile unit: the Sidcraft Syntex form(s) in the nearest container that holds both. */
 	function scopeForms(el) {
 		var node = el.closest('.lb-node, .xe-node') || el;
 		var scope = node.parentElement;
@@ -79,7 +79,7 @@
 		if (!window.turnstile || typeof window.turnstile.render !== 'function') return;
 		(root || document).querySelectorAll('.lb-turnstile[data-sitekey]').forEach(function (el) {
 			if (el.getAttribute('data-lb-rendered')) return;
-			// Widgets inside a hidden tab or panel render when it is shown (see CanvaslyTurnstile.render).
+			// Widgets inside a hidden tab or panel render when it is shown (see SidcraftSyntexTurnstile.render).
 			if (el.closest('[hidden]')) return;
 			el.setAttribute('data-lb-rendered', '1');
 			var opts = {
@@ -114,7 +114,7 @@
 		});
 	}
 
-	/** A standalone Turnstile unit protects the Canvasly form(s) in the same container. */
+	/** A standalone Turnstile unit protects the Sidcraft Syntex form(s) in the same container. */
 	function tokenFromSibling(form) {
 		var node = form.closest('.lb-node, .xe-node') || form;
 		var scope = node.parentElement;
@@ -137,7 +137,7 @@
 		return false;
 	}
 
-	// Capture phase: runs before the Canvasly form handler builds its FormData.
+	// Capture phase: runs before the Sidcraft Syntex form handler builds its FormData.
 	document.addEventListener(
 		'submit',
 		function (e) {
@@ -182,7 +182,7 @@
 		true
 	);
 
-	window.CanvaslyTurnstile = {
+	window.SidcraftSyntexTurnstile = {
 		render: render,
 		lock: lock,
 		/** Current token of the widget inside `root` (a form), or ''. */
@@ -207,7 +207,7 @@
 			});
 		},
 	};
-	window.canvaslyTurnstileReady = function () {
+	window.sidcraftSyntexTurnstileReady = function () {
 		render(document);
 	};
 	(function style() {
@@ -225,9 +225,9 @@
 	} else {
 		render(document);
 	}
-	if (window.CanvaslyLiteFrontend) {
-		var prev = window.CanvaslyLiteFrontend.init;
-		window.CanvaslyLiteFrontend.init = function (root) {
+	if (window.SidcraftSyntexFrontend) {
+		var prev = window.SidcraftSyntexFrontend.init;
+		window.SidcraftSyntexFrontend.init = function (root) {
 			if (typeof prev === 'function') prev(root);
 			render(root || document);
 		};

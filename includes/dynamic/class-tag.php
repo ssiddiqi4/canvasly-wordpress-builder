@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Dynamic;
+namespace SidcraftSyntex\Dynamic;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

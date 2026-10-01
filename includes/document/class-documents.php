@@ -1,19 +1,19 @@
 <?php
-namespace CanvaslyLite\Document;
+namespace SidcraftSyntex\Document;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Which public post types Canvasly can edit.
+ * Which public post types Sidcraft Syntex can edit.
  *
  * Reads the `post_types` global setting (default `post` and `page`) and is
  * safe to load before the rest of the plugin so the Gutenberg zero-bootstrap
  * guard can use it.
  */
 class Documents {
-	const OPTION_KEY = 'canvasly_lite_global_settings';
+	const OPTION_KEY = 'sidcraft_syntex_global_settings';
 
 	/** @var string[]|null */
 	private static $enabled = null;
@@ -26,7 +26,7 @@ class Documents {
 	}
 
 	/**
-	 * Built-in or plugin types that must never be treated as Canvasly documents.
+	 * Built-in or plugin types that must never be treated as Sidcraft Syntex documents.
 	 *
 	 * @return string[]
 	 */
@@ -46,9 +46,9 @@ class Documents {
 			'wp_navigation',
 			'wp_font_family',
 			'wp_font_face',
-			'lb_template',
-			'lb_component',
-			'lb_global_class',
+			'sidsyn_template',
+			'sidsyn_component',
+			'sidsyn_global_class',
 		);
 	}
 
@@ -114,17 +114,17 @@ class Documents {
 			$types = self::normalize( $option['post_types'] );
 		}
 		/**
-		 * Filter the post types Canvasly can edit.
+		 * Filter the post types Sidcraft Syntex can edit.
 		 *
 		 * @param string[] $types
 		 */
-		$filtered = apply_filters( 'canvasly-lite/documents/post_types', $types );
+		$filtered = apply_filters( 'sidcraft-syntex/documents/post_types', $types );
 		self::$enabled_raw = $option;
 		return self::$enabled = self::normalize( is_array( $filtered ) ? $filtered : $types );
 	}
 
 	/**
-	 * Whether Canvasly may edit this post type.
+	 * Whether Sidcraft Syntex may edit this post type.
 	 *
 	 * @param string $post_type
 	 * @return bool
@@ -210,7 +210,7 @@ class Documents {
 		}
 		foreach ( self::defaults() as $slug ) {
 			if ( ! isset( $out[ $slug ] ) ) {
-				$out[ $slug ] = $slug === 'page' ? __( 'Pages', 'canvasly-lite' ) : __( 'Posts', 'canvasly-lite' );
+				$out[ $slug ] = $slug === 'page' ? __( 'Pages', 'sidcraft-syntex' ) : __( 'Posts', 'sidcraft-syntex' );
 			}
 		}
 		$ordered = array();
@@ -227,7 +227,7 @@ class Documents {
 		 *
 		 * @param array<string,string> $out slug => label
 		 */
-		$filtered = apply_filters( 'canvasly-lite/documents/available_post_types', $out );
+		$filtered = apply_filters( 'sidcraft-syntex/documents/available_post_types', $out );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 

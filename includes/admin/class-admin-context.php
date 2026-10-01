@@ -1,7 +1,7 @@
 <?php
-namespace CanvaslyLite\Admin;
+namespace SidcraftSyntex\Admin;
 
-use CanvaslyLite\Document\Documents;
+use SidcraftSyntex\Document\Documents;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * secondary admin logic stay off unrelated wp-admin pages.
  */
 class AdminContext {
-	const EDITOR_SLUG = 'canvasly-lite';
+	const EDITOR_SLUG = 'sidcraft-syntex';
 
 	/** @var array<string,mixed> */
 	private static $memo = array();
@@ -121,7 +121,7 @@ class AdminContext {
 	}
 
 	/**
-	 * Canvasly admin.php screens (editor, settings, tools, roles, templates, ...).
+	 * Sidcraft Syntex admin.php screens (editor, settings, tools, roles, templates, ...).
 	 *
 	 * @param string $hook_suffix `admin_enqueue_scripts` argument.
 	 * @return bool
@@ -134,11 +134,11 @@ class AdminContext {
 		if ( $hook === '' ) {
 			return false;
 		}
-		return strpos( $hook, 'canvasly-lite' ) !== false || strpos( $hook, 'lb_template' ) !== false;
+		return strpos( $hook, 'sidcraft-syntex' ) !== false || strpos( $hook, 'sidsyn_template' ) !== false;
 	}
 
 	/**
-	 * Post list / add / edit screens for Canvasly-enabled types or saved templates.
+	 * Post list / add / edit screens for Sidcraft Syntex-enabled types or saved templates.
 	 *
 	 * @param string $hook_suffix
 	 * @return bool
@@ -147,12 +147,12 @@ class AdminContext {
 		$pagenow   = self::pagenow();
 		$screens   = array( 'post.php', 'post-new.php', 'edit.php' );
 		$hook      = is_string( $hook_suffix ) ? $hook_suffix : '';
-		$from_hook = in_array( $hook, $screens, true ) || strpos( $hook, 'lb_template' ) !== false;
+		$from_hook = in_array( $hook, $screens, true ) || strpos( $hook, 'sidsyn_template' ) !== false;
 		if ( ! in_array( $pagenow, $screens, true ) && ! $from_hook ) {
 			return false;
 		}
 		$type = self::current_post_type( $hook_suffix );
-		if ( $type === 'lb_template' || $type === 'lb_component' ) {
+		if ( $type === 'sidsyn_template' || $type === 'sidsyn_component' ) {
 			return true;
 		}
 		if ( class_exists( Documents::class ) ) {
@@ -192,14 +192,14 @@ class AdminContext {
 			$type = 'post';
 		}
 		$hook = is_string( $hook_suffix ) ? $hook_suffix : '';
-		if ( $type === '' && strpos( $hook, 'lb_template' ) !== false ) {
-			$type = 'lb_template';
+		if ( $type === '' && strpos( $hook, 'sidsyn_template' ) !== false ) {
+			$type = 'sidsyn_template';
 		}
 		return self::$memo['post_type'] = $type;
 	}
 
 	/**
-	 * Enqueue plugin JS/CSS only on Canvasly screens or a relevant post-type editor.
+	 * Enqueue plugin JS/CSS only on Sidcraft Syntex screens or a relevant post-type editor.
 	 *
 	 * @param string $hook_suffix
 	 * @return bool
@@ -209,14 +209,14 @@ class AdminContext {
 	}
 
 	/**
-	 * Fullscreen visual builder (`admin.php?page=canvasly-lite`).
+	 * Fullscreen visual builder (`admin.php?page=sidcraft-syntex`).
 	 *
 	 * @param string $hook_suffix
 	 * @return bool
 	 */
 	public static function is_editor_page( $hook_suffix = '' ) {
 		$hook = is_string( $hook_suffix ) ? $hook_suffix : '';
-		if ( $hook === 'toplevel_page_canvasly-lite' ) {
+		if ( $hook === 'toplevel_page_sidcraft-syntex' ) {
 			return true;
 		}
 		return self::plugin_page_slug() === self::EDITOR_SLUG;
@@ -238,7 +238,7 @@ class AdminContext {
 			return false;
 		}
 		if ( self::is_rest() ) {
-			return strpos( self::rest_route(), '/canvasly-lite/' ) !== false;
+			return strpos( self::rest_route(), '/sidcraft-syntex/' ) !== false;
 		}
 		return self::is_plugin_page();
 	}

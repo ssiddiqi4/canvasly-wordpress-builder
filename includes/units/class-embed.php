@@ -1,7 +1,7 @@
 <?php
-namespace CanvaslyLite\Units;
+namespace SidcraftSyntex\Units;
 
-use CanvaslyLite\Embed\OEmbed;
+use SidcraftSyntex\Embed\OEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,7 +16,7 @@ class Embed extends Unit {
 		return 'embed';
 	}
 	public function title() {
-		return __( 'Embed', 'canvasly-lite' );
+		return __( 'Embed', 'sidcraft-syntex' );
 	}
 	public function icon() {
 		return "\u{29C9}";
@@ -35,9 +35,9 @@ class Embed extends Unit {
 		);
 	}
 	public function controls() {
-		$emb = __( 'Embed', 'canvasly-lite' );
+		$emb = __( 'Embed', 'sidcraft-syntex' );
 		$ratios = array(
-			''     => __( 'Auto', 'canvasly-lite' ),
+			''     => __( 'Auto', 'sidcraft-syntex' ),
 			'16:9' => '16:9',
 			'21:9' => '21:9',
 			'4:3'  => '4:3',
@@ -45,9 +45,9 @@ class Embed extends Unit {
 			'9:16' => '9:16',
 		);
 		return array(
-			'url'          => $this->ctrl( 'url', __( 'URL', 'canvasly-lite' ), 'content', $emb, array( 'dynamic' => true ) ),
-			'aspect_ratio' => $this->ctrl( 'select', __( 'Aspect Ratio', 'canvasly-lite' ), 'style', $emb, array( 'options' => $ratios ) ),
-			'max_width'    => $this->ctrl( 'slider', __( 'Max Width', 'canvasly-lite' ), 'style', $emb, array(
+			'url'          => $this->ctrl( 'url', __( 'URL', 'sidcraft-syntex' ), 'content', $emb, array( 'dynamic' => true ) ),
+			'aspect_ratio' => $this->ctrl( 'select', __( 'Aspect Ratio', 'sidcraft-syntex' ), 'style', $emb, array( 'options' => $ratios ) ),
+			'max_width'    => $this->ctrl( 'slider', __( 'Max Width', 'sidcraft-syntex' ), 'style', $emb, array(
 				'units'     => array( 'px', '%', 'vw' ),
 				'range'     => array( 'min' => 0, 'max' => 1200 ),
 				'selectors' => array( '{{WRAPPER}} .lb-embed' => 'max-width: {{VALUE}};' ),
@@ -58,11 +58,11 @@ class Embed extends Unit {
 		$s   = is_array( $s ) ? $s : array();
 		$url = trim( (string) ( $s['url'] ?? '' ) );
 		if ( $url === '' ) {
-			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'Paste a URL to embed', 'canvasly-lite' ) . '</div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'Paste a URL to embed', 'sidcraft-syntex' ) . '</div>';
 		}
 		$html = class_exists( OEmbed::class ) ? OEmbed::html( $url ) : '';
 		if ( $html === '' ) {
-			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'This URL could not be embedded', 'canvasly-lite' ) . '</div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-embed-placeholder">' . esc_html__( 'This URL could not be embedded', 'sidcraft-syntex' ) . '</div>';
 		}
 		$ratio = self::ratio_value( $s['aspect_ratio'] ?? '' );
 		$max   = $this->unit( $s['max_width'] ?? '' );

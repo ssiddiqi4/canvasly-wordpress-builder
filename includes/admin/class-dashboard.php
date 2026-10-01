@@ -1,22 +1,22 @@
 <?php
-namespace CanvaslyLite\Admin;
+namespace SidcraftSyntex\Admin;
 
-use CanvaslyLite\Settings\Roles;
+use SidcraftSyntex\Settings\Roles;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Canvasly admin menu hub.
+ * Sidcraft Syntex admin menu hub.
  *
- * One screen under Canvasly lists every other item in that menu. Canvasly Pro
+ * One screen under Sidcraft Syntex lists every other item in that menu. Sidcraft Syntex Pro
  * uses this same screen and adds its own menu items through the submenu and
- * the canvasly-lite/dashboard/items filter.
+ * the sidcraft-syntex/dashboard/items filter.
  */
 class Dashboard {
-	const PAGE          = 'canvasly-lite-dashboard';
-	const PARENT        = 'canvasly-lite';
+	const PAGE          = 'sidcraft-syntex-dashboard';
+	const PARENT        = 'sidcraft-syntex';
 	const DOCUMENTS_URL = 'https://canvasly.pro';
 	const SUPPORT_URL   = 'https://canvasly.pro/support.html';
 
@@ -36,8 +36,8 @@ class Dashboard {
 		$cap = class_exists( Roles::class ) ? Roles::CAP_EDIT : 'edit_posts';
 		add_submenu_page(
 			self::PARENT,
-			__( 'Dashboard', 'canvasly-lite' ),
-			__( 'Dashboard', 'canvasly-lite' ),
+			__( 'Dashboard', 'sidcraft-syntex' ),
+			__( 'Dashboard', 'sidcraft-syntex' ),
 			$cap,
 			self::PAGE,
 			array( self::class, 'screen' )
@@ -59,14 +59,14 @@ class Dashboard {
 		}
 		$cap  = class_exists( Roles::class ) ? Roles::CAP_EDIT : 'edit_posts';
 		$item = array(
-			__( 'Documents', 'canvasly-lite' ),
+			__( 'Documents', 'sidcraft-syntex' ),
 			$cap,
 			self::DOCUMENTS_URL,
-			__( 'Documents', 'canvasly-lite' ),
+			__( 'Documents', 'sidcraft-syntex' ),
 		);
 		$insert_at = count( $submenu[ self::PARENT ] );
 		foreach ( $submenu[ self::PARENT ] as $i => $row ) {
-			if ( is_array( $row ) && isset( $row[2] ) && 'canvasly-lite-template-import' === $row[2] ) {
+			if ( is_array( $row ) && isset( $row[2] ) && 'sidcraft-syntex-template-import' === $row[2] ) {
 				$insert_at = $i + 1;
 				break;
 			}
@@ -75,7 +75,7 @@ class Dashboard {
 	}
 
 	/**
-	 * Open Canvasly on this screen, and keep the visual builder in the menu.
+	 * Open Sidcraft Syntex on this screen, and keep the visual builder in the menu.
 	 */
 	public static function promote() {
 		global $submenu;
@@ -93,9 +93,9 @@ class Dashboard {
 				continue;
 			}
 			if ( isset( $item[2] ) && self::PARENT === $item[2] ) {
-				$item[0] = __( 'Editor', 'canvasly-lite' );
+				$item[0] = __( 'Editor', 'sidcraft-syntex' );
 				if ( isset( $item[3] ) ) {
-					$item[3] = __( 'Editor', 'canvasly-lite' );
+					$item[3] = __( 'Editor', 'sidcraft-syntex' );
 				}
 			}
 			$rest[] = $item;
@@ -144,11 +144,11 @@ class Dashboard {
 			);
 		}
 		/**
-		 * Filter dashboard cards. Canvasly Pro appends its own admin screens here.
+		 * Filter dashboard cards. Sidcraft Syntex Pro appends its own admin screens here.
 		 *
 		 * @param array $items
 		 */
-		$filtered = apply_filters( 'canvasly-lite/dashboard/items', $items );
+		$filtered = apply_filters( 'sidcraft-syntex/dashboard/items', $items );
 		if ( ! is_array( $filtered ) ) {
 			return $items;
 		}
@@ -177,7 +177,7 @@ class Dashboard {
 	public static function screen() {
 		$cap = class_exists( Roles::class ) ? Roles::CAP_EDIT : 'edit_posts';
 		if ( function_exists( 'current_user_can' ) && ! current_user_can( $cap ) ) {
-			wp_die( esc_html__( 'You do not have permission to view the Canvasly dashboard.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'You do not have permission to view the Sidcraft Syntex dashboard.', 'sidcraft-syntex' ) );
 		}
 		$by     = array();
 		foreach ( self::items() as $item ) {
@@ -192,19 +192,19 @@ class Dashboard {
 			$editor
 		);
 		$templates = '';
-		foreach ( array( 'canvasly-lite-template-import', 'canvasly-lite-tools' ) as $slug ) {
+		foreach ( array( 'sidcraft-syntex-template-import', 'sidcraft-syntex-tools' ) as $slug ) {
 			if ( isset( $by[ $slug ] ) ) {
 				$templates = $by[ $slug ]['url'];
 				break;
 			}
 		}
-		$tabs = array( self::PAGE => __( 'Dashboard', 'canvasly-lite' ) );
-		foreach ( array( 'canvasly-lite-settings', 'canvasly-lite-global', 'canvasly-lite-tools', 'canvasly-pro-theme', 'canvasly-pro-licensing' ) as $slug ) {
+		$tabs = array( self::PAGE => __( 'Dashboard', 'sidcraft-syntex' ) );
+		foreach ( array( 'sidcraft-syntex-settings', 'sidcraft-syntex-global', 'sidcraft-syntex-tools', 'sidcraft-syntex-pro-theme', 'sidcraft-syntex-pro-licensing' ) as $slug ) {
 			if ( isset( $by[ $slug ] ) ) {
 				$tabs[ $slug ] = $by[ $slug ]['title'];
 			}
 		}
-		$quick_slugs = array( 'canvasly-lite-units', 'canvasly-lite-roles', 'canvasly-lite-global', 'canvasly-lite-settings', 'canvasly-pro-licensing' );
+		$quick_slugs = array( 'sidcraft-syntex-units', 'sidcraft-syntex-roles', 'sidcraft-syntex-global', 'sidcraft-syntex-settings', 'sidcraft-syntex-pro-licensing' );
 		$quick       = array();
 		foreach ( $quick_slugs as $slug ) {
 			if ( isset( $by[ $slug ] ) ) {
@@ -222,7 +222,7 @@ class Dashboard {
 			$shown[ $item['slug'] ] = true;
 		}
 		if ( $templates !== '' ) {
-			foreach ( array( 'canvasly-lite-template-import', 'canvasly-lite-tools' ) as $slug ) {
+			foreach ( array( 'sidcraft-syntex-template-import', 'sidcraft-syntex-tools' ) as $slug ) {
 				if ( isset( $by[ $slug ] ) && $by[ $slug ]['url'] === $templates ) {
 					$shown[ $slug ] = true;
 					break;
@@ -238,21 +238,21 @@ class Dashboard {
 			}
 		}
 		$icons = array(
-			'canvasly-lite-units'       => 'dashicons-screenoptions',
-			'canvasly-lite-roles'       => 'dashicons-groups',
-			'canvasly-lite-global'      => 'dashicons-art',
-			'canvasly-lite-settings'    => 'dashicons-admin-generic',
+			'sidcraft-syntex-units'       => 'dashicons-screenoptions',
+			'sidcraft-syntex-roles'       => 'dashicons-groups',
+			'sidcraft-syntex-global'      => 'dashicons-art',
+			'sidcraft-syntex-settings'    => 'dashicons-admin-generic',
 			self::DOCUMENTS_URL         => 'dashicons-media-document',
 			self::SUPPORT_URL           => 'dashicons-sos',
-			'canvasly-pro-licensing'    => 'dashicons-admin-network',
-			'canvasly-lite-tools'       => 'dashicons-admin-tools',
-			'canvasly-lite-system-info' => 'dashicons-info',
+			'sidcraft-syntex-pro-licensing'    => 'dashicons-admin-network',
+			'sidcraft-syntex-tools'       => 'dashicons-admin-tools',
+			'sidcraft-syntex-system-info' => 'dashicons-info',
 		);
 		echo '<div class="wrap lb-dash">';
-		echo '<h1 class="screen-reader-text">' . esc_html__( 'Dashboard', 'canvasly-lite' ) . '</h1>';
+		echo '<h1 class="screen-reader-text">' . esc_html__( 'Dashboard', 'sidcraft-syntex' ) . '</h1>';
 		echo '<div class="lb-dash-header">';
-		echo '<div class="lb-dash-brand"><span class="lb-dash-logo" aria-hidden="true">C</span><strong>Canvasly</strong></div>';
-		echo '<nav class="lb-dash-tabs" aria-label="' . esc_attr__( 'Canvasly', 'canvasly-lite' ) . '">';
+		echo '<div class="lb-dash-brand"><span class="lb-dash-logo" aria-hidden="true">C</span><strong>Sidcraft Syntex</strong></div>';
+		echo '<nav class="lb-dash-tabs" aria-label="' . esc_attr__( 'Sidcraft Syntex', 'sidcraft-syntex' ) . '">';
 		foreach ( $tabs as $slug => $label ) {
 			if ( $slug === self::PAGE ) {
 				echo '<span class="is-current" aria-current="page">' . esc_html( $label ) . '</span>';
@@ -265,20 +265,20 @@ class Dashboard {
 		echo '<div class="lb-dash-body"><div class="lb-dash-main">';
 		echo '<section class="lb-dash-card lb-dash-welcome">';
 		echo '<div class="lb-dash-hello">';
-		echo '<h2>' . esc_html__( 'Hello,', 'canvasly-lite' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Design pages inside WordPress with Canvasly. Start a page, or open any Canvasly screen from this dashboard.', 'canvasly-lite' ) . '</p>';
+		echo '<h2>' . esc_html__( 'Hello,', 'sidcraft-syntex' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Design pages inside WordPress with Sidcraft Syntex. Start a page, or open any Sidcraft Syntex screen from this dashboard.', 'sidcraft-syntex' ) . '</p>';
 		echo '<p class="lb-dash-actions">';
-		echo '<a class="button button-primary" href="' . esc_url( $editor ) . '">' . esc_html__( 'Create New Page', 'canvasly-lite' ) . '</a>';
+		echo '<a class="button button-primary" href="' . esc_url( $editor ) . '">' . esc_html__( 'Create New Page', 'sidcraft-syntex' ) . '</a>';
 		if ( $templates !== '' ) {
-			echo '<a class="button lb-dash-button-soft" href="' . esc_url( $templates ) . '">' . esc_html__( 'Explore Templates', 'canvasly-lite' ) . '</a>';
+			echo '<a class="button lb-dash-button-soft" href="' . esc_url( $templates ) . '">' . esc_html__( 'Explore Templates', 'sidcraft-syntex' ) . '</a>';
 		}
 		echo '</p></div>';
 		echo '<div class="lb-dash-promo">';
-		echo '<strong>' . esc_html__( 'Welcome to Canvasly', 'canvasly-lite' ) . '</strong>';
-		echo '<span>' . esc_html__( 'Build in the visual editor', 'canvasly-lite' ) . '</span>';
-		echo '<a class="lb-dash-play" href="' . esc_url( $editor ) . '">' . esc_html__( 'Start', 'canvasly-lite' ) . '</a>';
+		echo '<strong>' . esc_html__( 'Welcome to Sidcraft Syntex', 'sidcraft-syntex' ) . '</strong>';
+		echo '<span>' . esc_html__( 'Build in the visual editor', 'sidcraft-syntex' ) . '</span>';
+		echo '<a class="lb-dash-play" href="' . esc_url( $editor ) . '">' . esc_html__( 'Start', 'sidcraft-syntex' ) . '</a>';
 		echo '</div></section>';
-		echo '<section class="lb-dash-block"><h2>' . esc_html__( 'Quick Settings', 'canvasly-lite' ) . '</h2>';
+		echo '<section class="lb-dash-block"><h2>' . esc_html__( 'Quick Settings', 'sidcraft-syntex' ) . '</h2>';
 		echo '<div class="lb-dash-quick">';
 		$documents_placed = false;
 		foreach ( $quick as $item ) {
@@ -286,9 +286,9 @@ class Dashboard {
 			echo '<a class="lb-dash-setting" href="' . esc_url( $item['url'] ) . '">';
 			echo '<span class="lb-dash-setting-icon dashicons ' . esc_attr( $icon ) . '" aria-hidden="true"></span>';
 			echo '<strong>' . esc_html( $item['title'] ) . '</strong>';
-			echo '<span>' . esc_html__( 'Configure', 'canvasly-lite' ) . '</span>';
+			echo '<span>' . esc_html__( 'Configure', 'sidcraft-syntex' ) . '</span>';
 			echo '</a>';
-			if ( 'canvasly-lite-settings' === $item['slug'] ) {
+			if ( 'sidcraft-syntex-settings' === $item['slug'] ) {
 				self::render_documents_card();
 				self::render_support_card();
 				$documents_placed = true;
@@ -299,16 +299,16 @@ class Dashboard {
 			self::render_support_card();
 		}
 		echo '</div></section>';
-		echo '<section class="lb-dash-block"><div class="lb-dash-block-head"><h2>' . esc_html__( 'Get Started', 'canvasly-lite' ) . '</h2></div>';
+		echo '<section class="lb-dash-block"><div class="lb-dash-block-head"><h2>' . esc_html__( 'Get Started', 'sidcraft-syntex' ) . '</h2></div>';
 		echo '<div class="lb-dash-lessons">';
 		$lessons = array(
-			array( $editor, __( 'Create a page', 'canvasly-lite' ) ),
+			array( $editor, __( 'Create a page', 'sidcraft-syntex' ) ),
 		);
-		if ( isset( $by['canvasly-lite-units'] ) ) {
-			$lessons[] = array( $by['canvasly-lite-units']['url'], __( 'Choose units', 'canvasly-lite' ) );
+		if ( isset( $by['sidcraft-syntex-units'] ) ) {
+			$lessons[] = array( $by['sidcraft-syntex-units']['url'], __( 'Choose units', 'sidcraft-syntex' ) );
 		}
-		if ( isset( $by['canvasly-lite-settings'] ) ) {
-			$lessons[] = array( $by['canvasly-lite-settings']['url'], __( 'Site settings', 'canvasly-lite' ) );
+		if ( isset( $by['sidcraft-syntex-settings'] ) ) {
+			$lessons[] = array( $by['sidcraft-syntex-settings']['url'], __( 'Site settings', 'sidcraft-syntex' ) );
 		}
 		foreach ( $lessons as $lesson ) {
 			echo '<a class="lb-dash-lesson" href="' . esc_url( $lesson[0] ) . '"><span>' . esc_html( $lesson[1] ) . '</span><i aria-hidden="true"></i></a>';
@@ -320,13 +320,13 @@ class Dashboard {
 		if ( $templates !== '' ) {
 			echo '<section class="lb-dash-card lb-dash-templates">';
 			echo '<div class="lb-dash-sheets" aria-hidden="true"><span></span><span></span><span></span></div>';
-			echo '<h2>' . esc_html__( 'Build pages faster with templates', 'canvasly-lite' ) . '</h2>';
-			echo '<p>' . esc_html__( 'Start from a saved template, then change it in the editor.', 'canvasly-lite' ) . '</p>';
-			echo '<a class="button button-primary" href="' . esc_url( $templates ) . '">' . esc_html__( 'Explore Templates', 'canvasly-lite' ) . '</a>';
+			echo '<h2>' . esc_html__( 'Build pages faster with templates', 'sidcraft-syntex' ) . '</h2>';
+			echo '<p>' . esc_html__( 'Start from a saved template, then change it in the editor.', 'sidcraft-syntex' ) . '</p>';
+			echo '<a class="button button-primary" href="' . esc_url( $templates ) . '">' . esc_html__( 'Explore Templates', 'sidcraft-syntex' ) . '</a>';
 			echo '</section>';
 		}
 		if ( $access ) {
-			echo '<section class="lb-dash-card lb-dash-access"><h2>' . esc_html__( 'Quick Access', 'canvasly-lite' ) . '</h2><ul>';
+			echo '<section class="lb-dash-card lb-dash-access"><h2>' . esc_html__( 'Quick Access', 'sidcraft-syntex' ) . '</h2><ul>';
 			foreach ( $access as $item ) {
 				$icon = isset( $icons[ $item['slug'] ] ) ? $icons[ $item['slug'] ] : 'dashicons-admin-links';
 				echo '<li><a href="' . esc_url( $item['url'] ) . '"><span class="dashicons ' . esc_attr( $icon ) . '" aria-hidden="true"></span>' . esc_html( $item['title'] ) . '</a></li>';
@@ -342,8 +342,8 @@ class Dashboard {
 	private static function render_documents_card() {
 		echo '<a class="lb-dash-setting" href="' . esc_url( self::DOCUMENTS_URL ) . '" target="_blank" rel="noopener noreferrer">';
 		echo '<span class="lb-dash-setting-icon dashicons dashicons-media-document" aria-hidden="true"></span>';
-		echo '<strong>' . esc_html__( 'Documents', 'canvasly-lite' ) . '</strong>';
-		echo '<span>' . esc_html__( 'Open', 'canvasly-lite' ) . '</span>';
+		echo '<strong>' . esc_html__( 'Documents', 'sidcraft-syntex' ) . '</strong>';
+		echo '<span>' . esc_html__( 'Open', 'sidcraft-syntex' ) . '</span>';
 		echo '</a>';
 	}
 
@@ -354,11 +354,11 @@ class Dashboard {
 		echo '<div class="lb-dash-support">';
 		echo '<a class="lb-dash-setting" href="' . esc_url( self::SUPPORT_URL ) . '" target="_blank" rel="noopener noreferrer">';
 		echo '<span class="lb-dash-setting-icon dashicons dashicons-sos" aria-hidden="true"></span>';
-		echo '<strong>' . esc_html__( 'Support', 'canvasly-lite' ) . '</strong>';
-		echo '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'canvasly-lite' ) . '</span>';
-		echo '<span>' . esc_html__( 'Open', 'canvasly-lite' ) . '</span>';
+		echo '<strong>' . esc_html__( 'Support', 'sidcraft-syntex' ) . '</strong>';
+		echo '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'sidcraft-syntex' ) . '</span>';
+		echo '<span>' . esc_html__( 'Open', 'sidcraft-syntex' ) . '</span>';
 		echo '</a>';
-		echo '<p class="description">' . esc_html__( 'E-Mail support is provided only to Canvasly Pro licensed users.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'E-Mail support is provided only to Sidcraft Syntex Pro licensed users.', 'sidcraft-syntex' ) . '</p>';
 		echo '</div>';
 	}
 
@@ -366,39 +366,39 @@ class Dashboard {
 	 * Lite vs Pro chart. Sits in the dashboard sidebar.
 	 */
 	public static function render_comparison() {
-		$pro_price = __( 'From $59 / year', 'canvasly-lite' );
-		if ( class_exists( '\CanvaslyPro\License' ) && method_exists( '\CanvaslyPro\License', 'plans' ) ) {
+		$pro_price = __( 'From $59 / year', 'sidcraft-syntex' );
+		if ( class_exists( '\SidcraftSyntexPro\License' ) && method_exists( '\SidcraftSyntexPro\License', 'plans' ) ) {
 			$prices = array();
-			foreach ( \CanvaslyPro\License::plans() as $plan ) {
+			foreach ( \SidcraftSyntexPro\License::plans() as $plan ) {
 				if ( isset( $plan['price_usd'] ) ) {
 					$prices[] = (int) $plan['price_usd'];
 				}
 			}
 			if ( $prices ) {
 				$pro_price = sprintf(
-					/* translators: %d: lowest Canvasly Pro annual price in US dollars. */
-					__( 'From $%d / year', 'canvasly-lite' ),
+					/* translators: %d: lowest Sidcraft Syntex Pro annual price in US dollars. */
+					__( 'From $%d / year', 'sidcraft-syntex' ),
 					min( $prices )
 				);
 			}
 		}
 		echo '<section class="lb-dash-card lb-dash-compare">';
 		echo '<table class="lb-dash-compare-table">';
-		echo '<caption class="screen-reader-text">' . esc_html__( 'Canvasly Lite versus Canvasly Pro', 'canvasly-lite' ) . '</caption>';
+		echo '<caption class="screen-reader-text">' . esc_html__( 'Sidcraft Syntex versus Sidcraft Syntex Pro', 'sidcraft-syntex' ) . '</caption>';
 		echo '<thead><tr class="lb-dash-compare-banner">';
-		echo '<th scope="col"><strong>' . esc_html__( 'Canvasly', 'canvasly-lite' ) . '</strong>';
-		echo '<span>' . esc_html__( 'Feature Comparison', 'canvasly-lite' ) . '</span>';
-		echo '<em>' . esc_html__( 'Two plugins. One document model.', 'canvasly-lite' ) . '</em></th>';
-		echo '<th scope="col"><strong>' . esc_html__( 'Canvasly Lite', 'canvasly-lite' ) . '</strong>';
-		echo '<span>' . esc_html__( 'Free', 'canvasly-lite' ) . '</span>';
-		echo '<em>' . esc_html__( 'Visual page builder', 'canvasly-lite' ) . '</em></th>';
-		echo '<th scope="col"><strong>' . esc_html__( 'Canvasly Pro', 'canvasly-lite' ) . '</strong>';
+		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Syntex', 'sidcraft-syntex' ) . '</strong>';
+		echo '<span>' . esc_html__( 'Feature Comparison', 'sidcraft-syntex' ) . '</span>';
+		echo '<em>' . esc_html__( 'Two plugins. One document model.', 'sidcraft-syntex' ) . '</em></th>';
+		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Syntex', 'sidcraft-syntex' ) . '</strong>';
+		echo '<span>' . esc_html__( 'Free', 'sidcraft-syntex' ) . '</span>';
+		echo '<em>' . esc_html__( 'Visual page builder', 'sidcraft-syntex' ) . '</em></th>';
+		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Syntex Pro', 'sidcraft-syntex' ) . '</strong>';
 		echo '<span>' . esc_html( $pro_price ) . '</span>';
-		echo '<em>' . esc_html__( 'Theme, shop, and payments', 'canvasly-lite' ) . '</em></th>';
+		echo '<em>' . esc_html__( 'Theme, shop, and payments', 'sidcraft-syntex' ) . '</em></th>';
 		echo '</tr><tr class="lb-dash-compare-cols">';
-		echo '<th scope="col">' . esc_html__( 'Feature', 'canvasly-lite' ) . '</th>';
-		echo '<th scope="col">' . esc_html__( 'Lite', 'canvasly-lite' ) . '</th>';
-		echo '<th scope="col">' . esc_html__( 'Pro', 'canvasly-lite' ) . '</th>';
+		echo '<th scope="col">' . esc_html__( 'Feature', 'sidcraft-syntex' ) . '</th>';
+		echo '<th scope="col">' . esc_html__( 'Lite', 'sidcraft-syntex' ) . '</th>';
+		echo '<th scope="col">' . esc_html__( 'Pro', 'sidcraft-syntex' ) . '</th>';
 		echo '</tr></thead><tbody>';
 		$group = '';
 		foreach ( self::comparison_rows() as $row ) {
@@ -417,43 +417,43 @@ class Dashboard {
 			echo '</tr>';
 		}
 		echo '</tbody><tfoot><tr>';
-		echo '<th scope="row">' . esc_html__( 'Price', 'canvasly-lite' ) . '</th>';
-		echo '<td><strong>' . esc_html__( 'Free', 'canvasly-lite' ) . '</strong><span>' . esc_html__( 'Start building', 'canvasly-lite' ) . '</span></td>';
-		echo '<td><strong>' . esc_html( $pro_price ) . '</strong><span>' . esc_html__( 'Same features on every plan', 'canvasly-lite' ) . '</span></td>';
+		echo '<th scope="row">' . esc_html__( 'Price', 'sidcraft-syntex' ) . '</th>';
+		echo '<td><strong>' . esc_html__( 'Free', 'sidcraft-syntex' ) . '</strong><span>' . esc_html__( 'Start building', 'sidcraft-syntex' ) . '</span></td>';
+		echo '<td><strong>' . esc_html( $pro_price ) . '</strong><span>' . esc_html__( 'Same features on every plan', 'sidcraft-syntex' ) . '</span></td>';
 		echo '</tr></tfoot></table>';
-		echo '<p class="lb-dash-compare-note">' . esc_html__( 'Pro loads only when Lite is active and at least version 0.12.73. WooCommerce elements stay unloaded without WooCommerce. Without a valid Pro key, new Pro elements are dropped on save.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="lb-dash-compare-note">' . esc_html__( 'Pro loads only when Lite is active and at least version 0.12.73. WooCommerce elements stay unloaded without WooCommerce. Without a valid Pro key, new Pro elements are dropped on save.', 'sidcraft-syntex' ) . '</p>';
 		echo '</section>';
 	}
 
 	/**
 	 * Pro annual plans under the comparison chart.
 	 *
-	 * Rendered from Lite so the cards stay visible when Canvasly Pro is not
+	 * Rendered from Lite so the cards stay visible when Sidcraft Syntex Pro is not
 	 * installed or its license is not active. Prices match License::plans().
 	 */
 	public static function render_pro_pricing() {
 		echo '<section class="lb-dash-pricing">';
-		echo '<h2>' . esc_html__( 'Licensing', 'canvasly-lite' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Choose a Canvasly Pro annual plan. Checkout and license-key delivery are handled on the Canvasly license site.', 'canvasly-lite' ) . '</p>';
-		echo '<div class="canvasly-pricing-grid">';
+		echo '<h2>' . esc_html__( 'Licensing', 'sidcraft-syntex' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Choose a Sidcraft Syntex Pro annual plan. Checkout and license-key delivery are handled on the Sidcraft Syntex license site.', 'sidcraft-syntex' ) . '</p>';
+		echo '<div class="sidcraft-syntex-pricing-grid">';
 		foreach ( self::pro_plans() as $code => $plan ) {
 			$sites      = isset( $plan['sites_allowed'] ) ? (int) $plan['sites_allowed'] : 1;
 			$price      = isset( $plan['price_usd'] ) ? (int) $plan['price_usd'] : 0;
 			$name       = isset( $plan['name'] ) ? (string) $plan['name'] : '';
 			$site_label = sprintf(
 				/* translators: %d: number of sites included in the plan. */
-				_n( '%d site included', '%d sites included', $sites, 'canvasly-lite' ),
+				_n( '%d site included', '%d sites included', $sites, 'sidcraft-syntex' ),
 				$sites
 			);
-			echo '<div class="canvasly-pricing-card">';
+			echo '<div class="sidcraft-syntex-pricing-card">';
 			echo '<h3>' . esc_html( $name ) . '</h3>';
-			echo '<p class="canvasly-pricing-price">$' . esc_html( (string) $price ) . ' <span>' . esc_html__( '/ year', 'canvasly-lite' ) . '</span></p>';
-			echo '<p class="canvasly-pricing-meta">' . esc_html( $site_label ) . '</p>';
+			echo '<p class="sidcraft-syntex-pricing-price">$' . esc_html( (string) $price ) . ' <span>' . esc_html__( '/ year', 'sidcraft-syntex' ) . '</span></p>';
+			echo '<p class="sidcraft-syntex-pricing-meta">' . esc_html( $site_label ) . '</p>';
 			echo '<p><a class="button button-primary" href="' . esc_url( self::pro_plan_url( (string) $code ) ) . '" target="_blank" rel="noopener noreferrer">';
 			echo esc_html(
 				sprintf(
 					/* translators: %s: license plan name. */
-					__( 'Purchase %s', 'canvasly-lite' ),
+					__( 'Purchase %s', 'sidcraft-syntex' ),
 					$name
 				)
 			);
@@ -466,8 +466,8 @@ class Dashboard {
 	 * @return array<string,array{name:string,price_usd:int,sites_allowed:int}>
 	 */
 	private static function pro_plans() {
-		if ( class_exists( '\CanvaslyPro\License' ) && method_exists( '\CanvaslyPro\License', 'plans' ) ) {
-			$plans = \CanvaslyPro\License::plans();
+		if ( class_exists( '\SidcraftSyntexPro\License' ) && method_exists( '\SidcraftSyntexPro\License', 'plans' ) ) {
+			$plans = \SidcraftSyntexPro\License::plans();
 			if ( is_array( $plans ) && $plans ) {
 				return $plans;
 			}
@@ -497,14 +497,14 @@ class Dashboard {
 	}
 
 	/**
-	 * Checkout URL on the Canvasly license site, with the plan preselected.
+	 * Checkout URL on the Sidcraft Syntex license site, with the plan preselected.
 	 *
 	 * @param string $code
 	 * @return string
 	 */
 	private static function pro_plan_url( $code ) {
-		if ( class_exists( '\CanvaslyPro\License' ) && method_exists( '\CanvaslyPro\License', 'plan_purchase_url' ) ) {
-			$url = \CanvaslyPro\License::plan_purchase_url( $code );
+		if ( class_exists( '\SidcraftSyntexPro\License' ) && method_exists( '\SidcraftSyntexPro\License', 'plan_purchase_url' ) ) {
+			$url = \SidcraftSyntexPro\License::plan_purchase_url( $code );
 			if ( is_string( $url ) && $url !== '' && strpos( $url, 'plan=' ) !== false ) {
 				return $url;
 			}
@@ -519,10 +519,10 @@ class Dashboard {
 	 */
 	private static function comparison_mark( $state, $note ) {
 		if ( 'no' === $state ) {
-			return '<span class="lb-dash-mark lb-dash-mark-no" aria-label="' . esc_attr( __( 'Not included', 'canvasly-lite' ) ) . '">&#10007;</span>';
+			return '<span class="lb-dash-mark lb-dash-mark-no" aria-label="' . esc_attr( __( 'Not included', 'sidcraft-syntex' ) ) . '">&#10007;</span>';
 		}
 		if ( 'yes' === $state && $note === '' ) {
-			return '<span class="lb-dash-mark lb-dash-mark-yes" aria-label="' . esc_attr( __( 'Included', 'canvasly-lite' ) ) . '">&#10003;</span>';
+			return '<span class="lb-dash-mark lb-dash-mark-yes" aria-label="' . esc_attr( __( 'Included', 'sidcraft-syntex' ) ) . '">&#10003;</span>';
 		}
 		$html = '';
 		if ( 'yes' === $state ) {
@@ -540,220 +540,220 @@ class Dashboard {
 	private static function comparison_rows() {
 		return array(
 			array(
-				'group'     => __( 'Builder', 'canvasly-lite' ),
-				'name'      => __( 'Visual editor', 'canvasly-lite' ),
-				'detail'    => __( 'Drag-and-drop canvas, nested containers, CSS Grid, desktop, tablet, and mobile.', 'canvasly-lite' ),
+				'group'     => __( 'Builder', 'sidcraft-syntex' ),
+				'name'      => __( 'Visual editor', 'sidcraft-syntex' ),
+				'detail'    => __( 'Drag-and-drop canvas, nested containers, CSS Grid, desktop, tablet, and mobile.', 'sidcraft-syntex' ),
 				'lite'      => 'yes',
 				'lite_note' => '',
 				'pro'       => 'yes',
 				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Builder', 'canvasly-lite' ),
-				'name'      => __( 'Core elements', 'canvasly-lite' ),
-				'detail'    => __( 'Heading, text, image, button, gallery, video, tabs, form, price table, collection loop, and the rest of the Lite library.', 'canvasly-lite' ),
+				'group'     => __( 'Builder', 'sidcraft-syntex' ),
+				'name'      => __( 'Core elements', 'sidcraft-syntex' ),
+				'detail'    => __( 'Heading, text, image, button, gallery, video, tabs, form, price table, collection loop, and the rest of the Lite library.', 'sidcraft-syntex' ),
 				'lite'      => 'yes',
 				'lite_note' => '',
 				'pro'       => 'yes',
 				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Builder', 'canvasly-lite' ),
-				'name'      => __( 'Design system', 'canvasly-lite' ),
-				'detail'    => __( 'Global colors, typography, variables, classes, components, and site-kit import and export.', 'canvasly-lite' ),
+				'group'     => __( 'Builder', 'sidcraft-syntex' ),
+				'name'      => __( 'Design system', 'sidcraft-syntex' ),
+				'detail'    => __( 'Global colors, typography, variables, classes, components, and site-kit import and export.', 'sidcraft-syntex' ),
 				'lite'      => 'yes',
 				'lite_note' => '',
 				'pro'       => 'yes',
-				'pro_note'  => __( 'Kit also carries Pro theme templates', 'canvasly-lite' ),
+				'pro_note'  => __( 'Kit also carries Pro theme templates', 'sidcraft-syntex' ),
 			),
 			array(
-				'group'     => __( 'Builder', 'canvasly-lite' ),
-				'name'      => __( 'Style and custom CSS', 'canvasly-lite' ),
-				'detail'    => __( 'Typography, spacing, borders, shadows, visibility, ARIA, and CSS on the element or the page.', 'canvasly-lite' ),
-				'lite'      => 'yes',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Builder', 'canvasly-lite' ),
-				'name'      => __( 'Entrance and exit motion', 'canvasly-lite' ),
-				'detail'    => __( 'CSS presets, custom keyframes, and viewport, load, hover, click, and scroll triggers.', 'canvasly-lite' ),
+				'group'     => __( 'Builder', 'sidcraft-syntex' ),
+				'name'      => __( 'Style and custom CSS', 'sidcraft-syntex' ),
+				'detail'    => __( 'Typography, spacing, borders, shadows, visibility, ARIA, and CSS on the element or the page.', 'sidcraft-syntex' ),
 				'lite'      => 'yes',
 				'lite_note' => '',
 				'pro'       => 'yes',
 				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Builder', 'canvasly-lite' ),
-				'name'      => __( 'Sticky, scroll, and page transitions', 'canvasly-lite' ),
-				'detail'    => __( 'Stick to top or bottom, scroll opacity, slide, and scale, scroll snap, and page transitions.', 'canvasly-lite' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Content', 'canvasly-lite' ),
-				'name'      => __( 'Saved templates', 'canvasly-lite' ),
-				'detail'    => __( 'Shortcode, Gutenberg block, template widget, or sidebar widget.', 'canvasly-lite' ),
-				'lite'      => 'note',
-				'lite_note' => __( 'Page templates', 'canvasly-lite' ),
-				'pro'       => 'note',
-				'pro_note'  => __( 'Also header, footer, popup, loop item, section', 'canvasly-lite' ),
-			),
-			array(
-				'group'     => __( 'Content', 'canvasly-lite' ),
-				'name'      => __( 'Collection loop', 'canvasly-lite' ),
-				'detail'    => __( 'Query posts or terms, with numbered, previous-next, or load-more pagination.', 'canvasly-lite' ),
+				'group'     => __( 'Builder', 'sidcraft-syntex' ),
+				'name'      => __( 'Entrance and exit motion', 'sidcraft-syntex' ),
+				'detail'    => __( 'CSS presets, custom keyframes, and viewport, load, hover, click, and scroll triggers.', 'sidcraft-syntex' ),
 				'lite'      => 'yes',
 				'lite_note' => '',
 				'pro'       => 'yes',
-				'pro_note'  => __( 'Loop-item templates and a taxonomy filter', 'canvasly-lite' ),
+				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Content', 'canvasly-lite' ),
-				'name'      => __( 'Dynamic tags', 'canvasly-lite' ),
-				'detail'    => __( 'Values that resolve in the editor and on the front end.', 'canvasly-lite' ),
+				'group'     => __( 'Builder', 'sidcraft-syntex' ),
+				'name'      => __( 'Sticky, scroll, and page transitions', 'sidcraft-syntex' ),
+				'detail'    => __( 'Stick to top or bottom, scroll opacity, slide, and scale, scroll snap, and page transitions.', 'sidcraft-syntex' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Content', 'sidcraft-syntex' ),
+				'name'      => __( 'Saved templates', 'sidcraft-syntex' ),
+				'detail'    => __( 'Shortcode, Gutenberg block, template widget, or sidebar widget.', 'sidcraft-syntex' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'Post, author, site, user, archive, term', 'canvasly-lite' ),
+				'lite_note' => __( 'Page templates', 'sidcraft-syntex' ),
 				'pro'       => 'note',
-				'pro_note'  => __( 'Plus request, custom fields, ACF, product price and SKU', 'canvasly-lite' ),
+				'pro_note'  => __( 'Also header, footer, popup, loop item, section', 'sidcraft-syntex' ),
 			),
 			array(
-				'group'     => __( 'Content', 'canvasly-lite' ),
-				'name'      => __( 'Forms', 'canvasly-lite' ),
-				'detail'    => __( 'Lite keeps the form element. Pro extends fields and what happens after submit.', 'canvasly-lite' ),
+				'group'     => __( 'Content', 'sidcraft-syntex' ),
+				'name'      => __( 'Collection loop', 'sidcraft-syntex' ),
+				'detail'    => __( 'Query posts or terms, with numbered, previous-next, or load-more pagination.', 'sidcraft-syntex' ),
+				'lite'      => 'yes',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => __( 'Loop-item templates and a taxonomy filter', 'sidcraft-syntex' ),
+			),
+			array(
+				'group'     => __( 'Content', 'sidcraft-syntex' ),
+				'name'      => __( 'Dynamic tags', 'sidcraft-syntex' ),
+				'detail'    => __( 'Values that resolve in the editor and on the front end.', 'sidcraft-syntex' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'One email', 'canvasly-lite' ),
+				'lite_note' => __( 'Post, author, site, user, archive, term', 'sidcraft-syntex' ),
 				'pro'       => 'note',
-				'pro_note'  => __( 'Email, redirect, webhook, submissions log, CSV', 'canvasly-lite' ),
+				'pro_note'  => __( 'Plus request, custom fields, ACF, product price and SKU', 'sidcraft-syntex' ),
 			),
 			array(
-				'group'     => __( 'Content', 'canvasly-lite' ),
-				'name'      => __( 'Extra form fields', 'canvasly-lite' ),
-				'detail'    => __( 'Number, date, radio, acceptance, and file upload.', 'canvasly-lite' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Content', 'canvasly-lite' ),
-				'name'      => __( 'Pro elements', 'canvasly-lite' ),
-				'detail'    => __( 'Call to action, countdown, carousels, hotspot, price list, off-canvas, Lottie, video playlist, and the rest of the Pro set.', 'canvasly-lite' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Theme', 'canvasly-lite' ),
-				'name'      => __( 'Theme Builder', 'canvasly-lite' ),
-				'detail'    => __( 'Header, footer, single, archive, search, 404, and section, with display rules.', 'canvasly-lite' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Theme', 'canvasly-lite' ),
-				'name'      => __( 'Theme elements', 'canvasly-lite' ),
-				'detail'    => __( 'Site identity, the current post, archives, author, comments, breadcrumbs, search, and a sitemap.', 'canvasly-lite' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Theme', 'canvasly-lite' ),
-				'name'      => __( 'Popups', 'canvasly-lite' ),
-				'detail'    => __( 'Load, scroll, click, exit, and inactivity triggers. A link can open one.', 'canvasly-lite' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Theme', 'canvasly-lite' ),
-				'name'      => __( 'Display conditions', 'canvasly-lite' ),
-				'detail'    => __( 'Hide one element by role, login, date, author, taxonomy, or URL parameter.', 'canvasly-lite' ),
+				'group'     => __( 'Content', 'sidcraft-syntex' ),
+				'name'      => __( 'Forms', 'sidcraft-syntex' ),
+				'detail'    => __( 'Lite keeps the form element. Pro extends fields and what happens after submit.', 'sidcraft-syntex' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'Device visibility only', 'canvasly-lite' ),
+				'lite_note' => __( 'One email', 'sidcraft-syntex' ),
+				'pro'       => 'note',
+				'pro_note'  => __( 'Email, redirect, webhook, submissions log, CSV', 'sidcraft-syntex' ),
+			),
+			array(
+				'group'     => __( 'Content', 'sidcraft-syntex' ),
+				'name'      => __( 'Extra form fields', 'sidcraft-syntex' ),
+				'detail'    => __( 'Number, date, radio, acceptance, and file upload.', 'sidcraft-syntex' ),
+				'lite'      => 'no',
+				'lite_note' => '',
 				'pro'       => 'yes',
 				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Theme', 'canvasly-lite' ),
-				'name'      => __( 'Menus', 'canvasly-lite' ),
-				'detail'    => __( 'WordPress menus with dropdowns, and a mega menu from a section template.', 'canvasly-lite' ),
+				'group'     => __( 'Content', 'sidcraft-syntex' ),
+				'name'      => __( 'Pro elements', 'sidcraft-syntex' ),
+				'detail'    => __( 'Call to action, countdown, carousels, hotspot, price list, off-canvas, Lottie, video playlist, and the rest of the Pro set.', 'sidcraft-syntex' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Theme', 'sidcraft-syntex' ),
+				'name'      => __( 'Theme Builder', 'sidcraft-syntex' ),
+				'detail'    => __( 'Header, footer, single, archive, search, 404, and section, with display rules.', 'sidcraft-syntex' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Theme', 'sidcraft-syntex' ),
+				'name'      => __( 'Theme elements', 'sidcraft-syntex' ),
+				'detail'    => __( 'Site identity, the current post, archives, author, comments, breadcrumbs, search, and a sitemap.', 'sidcraft-syntex' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Theme', 'sidcraft-syntex' ),
+				'name'      => __( 'Popups', 'sidcraft-syntex' ),
+				'detail'    => __( 'Load, scroll, click, exit, and inactivity triggers. A link can open one.', 'sidcraft-syntex' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Theme', 'sidcraft-syntex' ),
+				'name'      => __( 'Display conditions', 'sidcraft-syntex' ),
+				'detail'    => __( 'Hide one element by role, login, date, author, taxonomy, or URL parameter.', 'sidcraft-syntex' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'Site navigation element', 'canvasly-lite' ),
-				'pro'       => 'note',
-				'pro_note'  => __( 'Nav Menu and mega menu', 'canvasly-lite' ),
+				'lite_note' => __( 'Device visibility only', 'sidcraft-syntex' ),
+				'pro'       => 'yes',
+				'pro_note'  => '',
 			),
 			array(
-				'group'     => __( 'Theme', 'canvasly-lite' ),
-				'name'      => __( 'Custom code, fonts, and icons', 'canvasly-lite' ),
-				'detail'    => __( 'Site-wide snippets, uploaded font files, and extra icon sets.', 'canvasly-lite' ),
+				'group'     => __( 'Theme', 'sidcraft-syntex' ),
+				'name'      => __( 'Menus', 'sidcraft-syntex' ),
+				'detail'    => __( 'WordPress menus with dropdowns, and a mega menu from a section template.', 'sidcraft-syntex' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'Per-element CSS, Google Fonts, icon manager', 'canvasly-lite' ),
+				'lite_note' => __( 'Site navigation element', 'sidcraft-syntex' ),
 				'pro'       => 'note',
-				'pro_note'  => __( 'Site snippets, uploaded fonts, custom icon sets', 'canvasly-lite' ),
+				'pro_note'  => __( 'Nav Menu and mega menu', 'sidcraft-syntex' ),
 			),
 			array(
-				'group'     => __( 'Shop', 'canvasly-lite' ),
-				'name'      => __( 'WooCommerce templates', 'canvasly-lite' ),
-				'detail'    => __( 'Product and product-archive locations. Unloaded without WooCommerce.', 'canvasly-lite' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'note',
-				'pro_note'  => __( 'When WooCommerce is active', 'canvasly-lite' ),
-			),
-			array(
-				'group'     => __( 'Shop', 'canvasly-lite' ),
-				'name'      => __( 'Product and cart elements', 'canvasly-lite' ),
-				'detail'    => __( 'Product parts, menu cart, and notices. Cart, checkout, and my account print WooCommerce forms.', 'canvasly-lite' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'note',
-				'pro_note'  => __( 'When WooCommerce is active', 'canvasly-lite' ),
-			),
-			array(
-				'group'     => __( 'Shop', 'canvasly-lite' ),
-				'name'      => __( 'Hosted payments', 'canvasly-lite' ),
-				'detail'    => __( 'Stripe, PayPal, Square, Razorpay, Mollie, and Authorize.net. Card data stays on the gateway.', 'canvasly-lite' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Platform', 'canvasly-lite' ),
-				'name'      => __( 'Editor notes', 'canvasly-lite' ),
-				'detail'    => __( 'Notes on a node for people who can edit. Not public comments.', 'canvasly-lite' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Platform', 'canvasly-lite' ),
-				'name'      => __( 'AI connection', 'canvasly-lite' ),
-				'detail'    => __( 'AI connection, MCP host, and the layout-schema API.', 'canvasly-lite' ),
-				'lite'      => 'no',
-				'lite_note' => '',
-				'pro'       => 'yes',
-				'pro_note'  => '',
-			),
-			array(
-				'group'     => __( 'Platform', 'canvasly-lite' ),
-				'name'      => __( 'License', 'canvasly-lite' ),
-				'detail'    => __( 'An inactive key blocks new Pro elements and Pro REST routes.', 'canvasly-lite' ),
+				'group'     => __( 'Theme', 'sidcraft-syntex' ),
+				'name'      => __( 'Custom code, fonts, and icons', 'sidcraft-syntex' ),
+				'detail'    => __( 'Site-wide snippets, uploaded font files, and extra icon sets.', 'sidcraft-syntex' ),
 				'lite'      => 'note',
-				'lite_note' => __( 'No license', 'canvasly-lite' ),
+				'lite_note' => __( 'Per-element CSS, Google Fonts, icon manager', 'sidcraft-syntex' ),
 				'pro'       => 'note',
-				'pro_note'  => __( 'Annual key, same features on every plan', 'canvasly-lite' ),
+				'pro_note'  => __( 'Site snippets, uploaded fonts, custom icon sets', 'sidcraft-syntex' ),
+			),
+			array(
+				'group'     => __( 'Shop', 'sidcraft-syntex' ),
+				'name'      => __( 'WooCommerce templates', 'sidcraft-syntex' ),
+				'detail'    => __( 'Product and product-archive locations. Unloaded without WooCommerce.', 'sidcraft-syntex' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'note',
+				'pro_note'  => __( 'When WooCommerce is active', 'sidcraft-syntex' ),
+			),
+			array(
+				'group'     => __( 'Shop', 'sidcraft-syntex' ),
+				'name'      => __( 'Product and cart elements', 'sidcraft-syntex' ),
+				'detail'    => __( 'Product parts, menu cart, and notices. Cart, checkout, and my account print WooCommerce forms.', 'sidcraft-syntex' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'note',
+				'pro_note'  => __( 'When WooCommerce is active', 'sidcraft-syntex' ),
+			),
+			array(
+				'group'     => __( 'Shop', 'sidcraft-syntex' ),
+				'name'      => __( 'Hosted payments', 'sidcraft-syntex' ),
+				'detail'    => __( 'Stripe, PayPal, Square, Razorpay, Mollie, and Authorize.net. Card data stays on the gateway.', 'sidcraft-syntex' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Platform', 'sidcraft-syntex' ),
+				'name'      => __( 'Editor notes', 'sidcraft-syntex' ),
+				'detail'    => __( 'Notes on a node for people who can edit. Not public comments.', 'sidcraft-syntex' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Platform', 'sidcraft-syntex' ),
+				'name'      => __( 'AI connection', 'sidcraft-syntex' ),
+				'detail'    => __( 'AI connection, MCP host, and the layout-schema API.', 'sidcraft-syntex' ),
+				'lite'      => 'no',
+				'lite_note' => '',
+				'pro'       => 'yes',
+				'pro_note'  => '',
+			),
+			array(
+				'group'     => __( 'Platform', 'sidcraft-syntex' ),
+				'name'      => __( 'License', 'sidcraft-syntex' ),
+				'detail'    => __( 'An inactive key blocks new Pro elements and Pro REST routes.', 'sidcraft-syntex' ),
+				'lite'      => 'note',
+				'lite_note' => __( 'No license', 'sidcraft-syntex' ),
+				'pro'       => 'note',
+				'pro_note'  => __( 'Annual key, same features on every plan', 'sidcraft-syntex' ),
 			),
 		);
 	}
@@ -764,16 +764,16 @@ class Dashboard {
 	 */
 	private static function description( $slug ) {
 		$map = array(
-			'canvasly-lite'                  => __( 'Open the visual builder.', 'canvasly-lite' ),
-			'canvasly-lite-units'            => __( 'Enable units and limit them by role.', 'canvasly-lite' ),
-			'canvasly-lite-roles'            => __( 'Choose which roles can edit and design.', 'canvasly-lite' ),
-			'canvasly-lite-settings'         => __( 'Site options, integrations, performance, and tools.', 'canvasly-lite' ),
-			'canvasly-lite-global'           => __( 'Colors, fonts, and global design tokens.', 'canvasly-lite' ),
-			'canvasly-lite-tools'            => __( 'Regenerate CSS, replace URLs, and import a kit.', 'canvasly-lite' ),
-			'canvasly-lite-system-info'      => __( 'Environment report for support.', 'canvasly-lite' ),
-			'canvasly-lite-template-import'  => __( 'Import saved templates.', 'canvasly-lite' ),
-			self::DOCUMENTS_URL              => __( 'Canvasly documentation.', 'canvasly-lite' ),
-			self::SUPPORT_URL                => __( 'E-Mail support is provided only to Canvasly Pro licensed users.', 'canvasly-lite' ),
+			'sidcraft-syntex'                  => __( 'Open the visual builder.', 'sidcraft-syntex' ),
+			'sidcraft-syntex-units'            => __( 'Enable units and limit them by role.', 'sidcraft-syntex' ),
+			'sidcraft-syntex-roles'            => __( 'Choose which roles can edit and design.', 'sidcraft-syntex' ),
+			'sidcraft-syntex-settings'         => __( 'Site options, integrations, performance, and tools.', 'sidcraft-syntex' ),
+			'sidcraft-syntex-global'           => __( 'Colors, fonts, and global design tokens.', 'sidcraft-syntex' ),
+			'sidcraft-syntex-tools'            => __( 'Regenerate CSS, replace URLs, and import a kit.', 'sidcraft-syntex' ),
+			'sidcraft-syntex-system-info'      => __( 'Environment report for support.', 'sidcraft-syntex' ),
+			'sidcraft-syntex-template-import'  => __( 'Import saved templates.', 'sidcraft-syntex' ),
+			self::DOCUMENTS_URL              => __( 'Sidcraft Syntex documentation.', 'sidcraft-syntex' ),
+			self::SUPPORT_URL                => __( 'E-Mail support is provided only to Sidcraft Syntex Pro licensed users.', 'sidcraft-syntex' ),
 		);
 		return isset( $map[ $slug ] ) ? $map[ $slug ] : '';
 	}

@@ -14,10 +14,10 @@
  *   {{term.id}} {{term.name}} {{term.url}} {{term.count}} {{term.description}} {{term.slug}}
  *   {{loop.index}} {{loop.number}} {{site.name}} {{site.url}}
  *
- * @package CanvaslyLite
+ * @package SidcraftSyntex
  */
 
-namespace CanvaslyLite\XEditor;
+namespace SidcraftSyntex\XEditor;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -103,7 +103,7 @@ class XEditorContext {
 	 * @return string|null
 	 */
 	public static function token( $group, $key, $arg = '' ) {
-		$pre = apply_filters( 'canvasly-lite/xeditor/token', null, $group, $key, $arg, self::current() );
+		$pre = apply_filters( 'sidcraft-syntex/xeditor/token', null, $group, $key, $arg, self::current() );
 		if ( null !== $pre ) {
 			return (string) $pre;
 		}

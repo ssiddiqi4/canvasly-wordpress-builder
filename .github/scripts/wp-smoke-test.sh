@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs WordPress, activates Canvasly, and loads the editor screen as an
+# Installs WordPress, activates Sidcraft Syntex, and loads the editor screen as an
 # admin. Fails on activation errors, PHP fatals/warnings from the plugin, or an
 # editor page that does not render the editor root.
 #
@@ -17,7 +17,7 @@ PORT="${PORT:-8888}"
 URL="http://127.0.0.1:${PORT}"
 ADMIN_USER=admin
 ADMIN_PASS=password
-SLUG=canvasly-lite
+SLUG=sidcraft-syntex
 
 fail() { echo "::error::$*"; exit 1; }
 
@@ -31,7 +31,7 @@ wp config set WP_DEBUG true --raw
 wp config set WP_DEBUG_LOG true --raw
 wp config set WP_DEBUG_DISPLAY false --raw
 wp db create || true
-wp core install --url="$URL" --title="Canvasly CI" --admin_user="$ADMIN_USER" \
+wp core install --url="$URL" --title="Sidcraft Syntex CI" --admin_user="$ADMIN_USER" \
 	--admin_password="$ADMIN_PASS" --admin_email=ci@example.com --skip-email --quiet
 echo "WordPress $(wp core version)"
 
@@ -80,13 +80,13 @@ check_page() {
 
 echo "--- Loading admin screens"
 check_page dashboard "/wp-admin/" 'id="wpadminbar"'
-# lb_iframe=1 asks for the editor itself rather than the iframe shell.
-check_page editor "/wp-admin/admin.php?page=$SLUG&post_type=page&new_page=1&lb_iframe=1" 'id="lb-editor"'
+# sidsyn_iframe=1 asks for the editor itself rather than the iframe shell.
+check_page editor "/wp-admin/admin.php?page=$SLUG&post_type=page&new_page=1&sidsyn_iframe=1" 'id="lb-editor"'
 
 echo "--- Checking PHP log"
 if grep -E "PHP (Fatal|Parse|Warning)" "$LOG" | grep -q "plugins/$SLUG/"; then
 	grep -E "PHP (Fatal|Parse|Warning)" "$LOG" | grep "plugins/$SLUG/" | head -20
-	fail "Canvasly logged PHP errors or warnings"
+	fail "Sidcraft Syntex logged PHP errors or warnings"
 fi
 if [ -s "$LOG" ]; then
 	echo "Other debug.log entries (not failing the build):"

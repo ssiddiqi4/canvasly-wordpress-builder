@@ -1,15 +1,15 @@
 <?php
-namespace CanvaslyLite\Compatibility;
+namespace SidcraftSyntex\Compatibility;
 
-use CanvaslyLite\Document\DocumentManager;
-use CanvaslyLite\Design\Performance;
+use SidcraftSyntex\Document\DocumentManager;
+use SidcraftSyntex\Design\Performance;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Copy Canvasly document meta when a post is duplicated by another plugin.
+ * Copy Sidcraft Syntex document meta when a post is duplicated by another plugin.
  */
 class Duplicate {
 	private static $booted = false;
@@ -68,19 +68,19 @@ class Duplicate {
 	 */
 	public static function exclude_keys( $list ) {
 		$list = is_array( $list ) ? $list : array();
-		foreach ( class_exists( Meta::class ) ? Meta::ephemeral_keys() : array( '_lb_css_cache', '_lb_autosave_data' ) as $key ) {
+		foreach ( class_exists( Meta::class ) ? Meta::ephemeral_keys() : array( '_sidsyn_css_cache', '_sidsyn_autosave_data' ) as $key ) {
 			if ( ! in_array( $key, $list, true ) ) {
 				$list[] = $key;
 			}
 		}
-		if ( ! in_array( '_lb_lock_', $list, true ) ) {
-			$list[] = '_lb_lock_';
+		if ( ! in_array( '_sidsyn_lock_', $list, true ) ) {
+			$list[] = '_sidsyn_lock_';
 		}
 		return $list;
 	}
 
 	/**
-	 * Copy Canvasly meta from one post to another and drop caches/locks.
+	 * Copy Sidcraft Syntex meta from one post to another and drop caches/locks.
 	 *
 	 * @param int $from_id
 	 * @param int $to_id
@@ -114,17 +114,17 @@ class Duplicate {
 		} elseif ( class_exists( DocumentManager::class ) ) {
 			delete_post_meta( $to_id, DocumentManager::CSS_CACHE );
 		} else {
-			delete_post_meta( $to_id, '_lb_css_cache' );
+			delete_post_meta( $to_id, '_sidsyn_css_cache' );
 		}
 
 		/**
-		 * Fires after Canvasly meta has been copied onto a duplicated post.
+		 * Fires after Sidcraft Syntex meta has been copied onto a duplicated post.
 		 *
 		 * @param int $to_id
 		 * @param int $from_id
 		 * @param int $copied Number of meta values written.
 		 */
-		do_action( 'canvasly-lite/document/duplicated', $to_id, $from_id, $copied );
+		do_action( 'sidcraft-syntex/document/duplicated', $to_id, $from_id, $copied );
 		return $copied > 0;
 	}
 
@@ -145,7 +145,7 @@ class Duplicate {
 			return $all;
 		}
 		$out = array();
-		$keys = class_exists( Meta::class ) ? Meta::copyable_keys() : array( '_lb_document_data' );
+		$keys = class_exists( Meta::class ) ? Meta::copyable_keys() : array( '_sidsyn_document_data' );
 		foreach ( $keys as $key ) {
 			$val = get_post_meta( $post_id, $key, true );
 			if ( $val === '' || $val === null || $val === false ) {
@@ -175,14 +175,14 @@ class Duplicate {
 	 */
 	public static function drop_ephemeral( $post_id ) {
 		$post_id = absint( $post_id );
-		foreach ( class_exists( Meta::class ) ? Meta::ephemeral_keys() : array( '_lb_css_cache', '_lb_autosave_data' ) as $key ) {
+		foreach ( class_exists( Meta::class ) ? Meta::ephemeral_keys() : array( '_sidsyn_css_cache', '_sidsyn_autosave_data' ) as $key ) {
 			delete_post_meta( $post_id, $key );
 		}
 		if ( function_exists( 'get_post_custom' ) ) {
 			$custom = get_post_custom( $post_id );
 			if ( is_array( $custom ) ) {
 				foreach ( array_keys( $custom ) as $key ) {
-					if ( strpos( (string) $key, '_lb_lock_' ) === 0 ) {
+					if ( strpos( (string) $key, '_sidsyn_lock_' ) === 0 ) {
 						delete_post_meta( $post_id, $key );
 					}
 				}

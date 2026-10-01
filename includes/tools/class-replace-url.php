@@ -1,8 +1,8 @@
 <?php
-namespace CanvaslyLite\Tools;
+namespace SidcraftSyntex\Tools;
 
-use CanvaslyLite\Compatibility\Meta;
-use CanvaslyLite\Document\DocumentManager;
+use SidcraftSyntex\Compatibility\Meta;
+use SidcraftSyntex\Document\DocumentManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,8 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Tools -> Replace URL: rewrite site URLs inside document JSON and CSS cache.
  */
 class ReplaceUrl {
-	const NOTICE = 'canvasly_lite_replace_url_notice';
-	const REPORT = 'canvasly_lite_replace_url_report';
+	const NOTICE = 'sidcraft_syntex_replace_url_notice';
+	const REPORT = 'sidcraft_syntex_replace_url_report';
 
 	private static $booted = false;
 
@@ -22,10 +22,10 @@ class ReplaceUrl {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'canvasly-lite/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
-			add_action( 'canvasly-lite/tools/screen', array( self::class, 'screen' ), 5 );
-			add_action( 'admin_post_lb_replace_url', array( self::class, 'handle' ) );
+			add_action( 'sidcraft-syntex/tools/screen', array( self::class, 'screen' ), 5 );
+			add_action( 'admin_post_sidsyn_replace_url', array( self::class, 'handle' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
 		}
 	}
@@ -38,7 +38,7 @@ class ReplaceUrl {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'canvasly-lite/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
 		register_rest_route(
 			$ns,
 			'/tools/replace-url',
@@ -69,9 +69,9 @@ class ReplaceUrl {
 
 	public static function handle() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can replace URLs.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can replace URLs.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_replace_url' );
+		check_admin_referer( 'sidsyn_replace_url' );
 		$from = isset( $_POST['from'] ) ? sanitize_text_field( wp_unslash( $_POST['from'] ) ) : '';
 		$to   = isset( $_POST['to'] ) ? sanitize_text_field( wp_unslash( $_POST['to'] ) ) : '';
 		$dry  = ( sanitize_key( wp_unslash( $_POST['mode'] ?? 'run' ) ) !== 'run' );
@@ -92,7 +92,7 @@ class ReplaceUrl {
 							'Dry run: %1$d replacement across %2$d item.',
 							'Dry run: %1$d replacements across %2$d items.',
 							$count,
-							'canvasly-lite'
+							'sidcraft-syntex'
 						),
 						$count,
 						$posts
@@ -107,7 +107,7 @@ class ReplaceUrl {
 							'Replaced %1$d occurrence across %2$d item.',
 							'Replaced %1$d occurrences across %2$d items.',
 							$count,
-							'canvasly-lite'
+							'sidcraft-syntex'
 						),
 						$count,
 						$posts
@@ -120,10 +120,10 @@ class ReplaceUrl {
 	}
 
 	public static function tools_url() {
-		if ( class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) ) {
-			return \CanvaslyLite\Settings\AdminSettings::tools_or_settings_url();
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
+			return \SidcraftSyntex\Settings\AdminSettings::tools_or_settings_url();
 		}
-		return admin_url( 'admin.php?page=canvasly-lite-tools' );
+		return admin_url( 'admin.php?page=sidcraft-syntex-tools' );
 	}
 
 	private static function store_notice( $type, $message ) {
@@ -139,11 +139,11 @@ class ReplaceUrl {
 
 	public static function admin_notice() {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) ) {
-			if ( ! \CanvaslyLite\Settings\AdminSettings::is_ops_screen( $screen ) ) {
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
+			if ( ! \SidcraftSyntex\Settings\AdminSettings::is_ops_screen( $screen ) ) {
 				return;
 			}
-		} elseif ( ! $screen || ( $screen->id ?? '' ) !== 'canvasly-lite_page_canvasly-lite-tools' ) {
+		} elseif ( ! $screen || ( $screen->id ?? '' ) !== 'sidcraft-syntex_page_sidcraft-syntex-tools' ) {
 			return;
 		}
 		$n = get_transient( self::NOTICE . '_' . get_current_user_id() );
@@ -164,22 +164,22 @@ class ReplaceUrl {
 			$report = null;
 		}
 
-		echo '<hr><h2>' . esc_html__( 'Replace URL', 'canvasly-lite' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( "Rewrite a site URL inside Canvasly documents and compiled CSS. Use this after moving from staging to production. The change cannot be undone \u{2014} run a dry run first.", 'canvasly-lite' ) . '</p>';
+		echo '<hr><h2>' . esc_html__( 'Replace URL', 'sidcraft-syntex' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( "Rewrite a site URL inside Sidcraft Syntex documents and compiled CSS. Use this after moving from staging to production. The change cannot be undone \u{2014} run a dry run first.", 'sidcraft-syntex' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		wp_nonce_field( 'lb_replace_url' );
-		echo '<input type="hidden" name="action" value="lb_replace_url">';
+		wp_nonce_field( 'sidsyn_replace_url' );
+		echo '<input type="hidden" name="action" value="sidsyn_replace_url">';
 		echo '<table class="form-table"><tbody>';
-		echo '<tr><th><label for="lb-replace-from">' . esc_html__( 'Old URL', 'canvasly-lite' ) . '</label></th><td>';
+		echo '<tr><th><label for="lb-replace-from">' . esc_html__( 'Old URL', 'sidcraft-syntex' ) . '</label></th><td>';
 		echo '<input class="regular-text code" id="lb-replace-from" name="from" type="url" required placeholder="https://staging.example.com">';
 		echo '</td></tr>';
-		echo '<tr><th><label for="lb-replace-to">' . esc_html__( 'New URL', 'canvasly-lite' ) . '</label></th><td>';
+		echo '<tr><th><label for="lb-replace-to">' . esc_html__( 'New URL', 'sidcraft-syntex' ) . '</label></th><td>';
 		echo '<input class="regular-text code" id="lb-replace-to" name="to" type="url" required placeholder="https://www.example.com">';
-		echo '<p class="description">' . esc_html__( 'Enter the full URL including the protocol. JSON-escaped and percent-encoded copies of the same URL are updated too.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Enter the full URL including the protocol. JSON-escaped and percent-encoded copies of the same URL are updated too.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr></tbody></table>';
 		echo '<p>';
-		echo '<button class="button" type="submit" name="mode" value="preview">' . esc_html__( 'Dry run', 'canvasly-lite' ) . '</button> ';
-		echo '<button class="button button-primary" type="submit" name="mode" value="run">' . esc_html__( 'Replace URL', 'canvasly-lite' ) . '</button>';
+		echo '<button class="button" type="submit" name="mode" value="preview">' . esc_html__( 'Dry run', 'sidcraft-syntex' ) . '</button> ';
+		echo '<button class="button button-primary" type="submit" name="mode" value="run">' . esc_html__( 'Replace URL', 'sidcraft-syntex' ) . '</button>';
 		echo '</p>';
 		echo '</form>';
 
@@ -193,12 +193,12 @@ class ReplaceUrl {
 	 */
 	public static function render_report( array $report ) {
 		$dry = ! empty( $report['dry_run'] );
-		echo '<h3>' . esc_html( $dry ? __( 'Dry-run report', 'canvasly-lite' ) : __( 'Replace URL report', 'canvasly-lite' ) ) . '</h3>';
+		echo '<h3>' . esc_html( $dry ? __( 'Dry-run report', 'sidcraft-syntex' ) : __( 'Replace URL report', 'sidcraft-syntex' ) ) . '</h3>';
 		echo '<p>';
 		echo esc_html(
 			sprintf(
 				/* translators: 1: posts, 2: replacements, 3: css caches */
-				__( 'Items: %1$d. Replacements: %2$d. CSS caches: %3$d.', 'canvasly-lite' ),
+				__( 'Items: %1$d. Replacements: %2$d. CSS caches: %3$d.', 'sidcraft-syntex' ),
 				(int) ( $report['posts'] ?? 0 ),
 				(int) ( $report['replacements'] ?? 0 ),
 				(int) ( $report['css'] ?? 0 )
@@ -236,7 +236,7 @@ class ReplaceUrl {
 		 * @param string $from
 		 * @param string $to
 		 */
-		$filtered = apply_filters( 'canvasly-lite/replace_url/pairs', $pairs, $from, $to );
+		$filtered = apply_filters( 'sidcraft-syntex/replace_url/pairs', $pairs, $from, $to );
 		if ( is_array( $filtered ) && $filtered ) {
 			$pairs = $filtered;
 		}
@@ -279,7 +279,7 @@ class ReplaceUrl {
 				update_post_meta( $id, $key, $new );
 			}
 			$report['replacements'] += $count;
-			$is_css = ( $key === '_lb_css_cache' || ( class_exists( DocumentManager::class ) && $key === DocumentManager::CSS_CACHE ) );
+			$is_css = ( $key === '_sidsyn_css_cache' || ( class_exists( DocumentManager::class ) && $key === DocumentManager::CSS_CACHE ) );
 			if ( $is_css ) {
 				$report['css']++;
 			}
@@ -301,7 +301,7 @@ class ReplaceUrl {
 		 * @param array $report
 		 * @param array $args
 		 */
-		$filtered_report = apply_filters( 'canvasly-lite/replace_url/report', $report, $args );
+		$filtered_report = apply_filters( 'sidcraft-syntex/replace_url/report', $report, $args );
 		return is_array( $filtered_report ) ? $filtered_report : $report;
 	}
 
@@ -316,21 +316,21 @@ class ReplaceUrl {
 		if ( $from === '' || $to === '' ) {
 			return new \WP_Error(
 				'empty',
-				__( 'Both URLs are required.', 'canvasly-lite' ),
+				__( 'Both URLs are required.', 'sidcraft-syntex' ),
 				array( 'status' => 400 )
 			);
 		}
 		if ( $from === $to ) {
 			return new \WP_Error(
 				'same',
-				__( 'The two URLs are the same.', 'canvasly-lite' ),
+				__( 'The two URLs are the same.', 'sidcraft-syntex' ),
 				array( 'status' => 400 )
 			);
 		}
 		if ( ! self::looks_like_url( $from ) || ! self::looks_like_url( $to ) ) {
 			return new \WP_Error(
 				'invalid',
-				__( 'Enter a full URL including the protocol (https://).', 'canvasly-lite' ),
+				__( 'Enter a full URL including the protocol (https://).', 'sidcraft-syntex' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -405,7 +405,7 @@ class ReplaceUrl {
 	 * @return array<int,array{post_id:int,meta_key:string,meta_value:mixed}>
 	 */
 	public static function rows() {
-		$keys = class_exists( Meta::class ) ? Meta::replaceable_keys() : array( '_lb_document_data', '_lb_template_data', '_lb_component_data', '_lb_css_cache' );
+		$keys = class_exists( Meta::class ) ? Meta::replaceable_keys() : array( '_sidsyn_document_data', '_sidsyn_template_data', '_sidsyn_component_data', '_sidsyn_css_cache' );
 		$keys = array_values( array_filter( array_map( 'strval', $keys ) ) );
 		if ( ! $keys ) {
 			return array();
@@ -414,8 +414,8 @@ class ReplaceUrl {
 		global $wpdb;
 		if ( isset( $wpdb ) && is_object( $wpdb ) && ! empty( $wpdb->postmeta ) && method_exists( $wpdb, 'get_results' ) && method_exists( $wpdb, 'prepare' ) ) {
 			$placeholders = implode( ',', array_fill( 0, count( $keys ), '%s' ) );
-			$cache_key    = 'canvasly_lite_replace_url_rows_' . md5( implode( ',', $keys ) );
-			$found        = function_exists( 'wp_cache_get' ) ? wp_cache_get( $cache_key, 'canvasly-lite' ) : false;
+			$cache_key    = 'sidcraft_syntex_replace_url_rows_' . md5( implode( ',', $keys ) );
+			$found        = function_exists( 'wp_cache_get' ) ? wp_cache_get( $cache_key, 'sidcraft-syntex' ) : false;
 			if ( false === $found ) {
 				// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Bulk postmeta lookup; IN() uses generated %s placeholders passed to $wpdb->prepare().
 				$found = $wpdb->get_results(
@@ -426,7 +426,7 @@ class ReplaceUrl {
 				);
 				// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 				if ( function_exists( 'wp_cache_set' ) ) {
-					wp_cache_set( $cache_key, $found, 'canvasly-lite', 60 );
+					wp_cache_set( $cache_key, $found, 'sidcraft-syntex', 60 );
 				}
 			}
 			$out          = array();

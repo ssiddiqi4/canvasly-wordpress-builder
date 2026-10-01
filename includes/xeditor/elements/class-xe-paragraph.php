@@ -2,10 +2,10 @@
 /**
  * XEditor Paragraph.
  *
- * @package CanvaslyLite
+ * @package SidcraftSyntex
  */
 
-namespace CanvaslyLite\XEditor\Elements;
+namespace SidcraftSyntex\XEditor\Elements;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,7 +19,7 @@ class XeParagraph extends XEditorElement {
 	}
 
 	public function title() {
-		return __( 'Paragraph', 'canvasly-lite' );
+		return __( 'Paragraph', 'sidcraft-syntex' );
 	}
 
 	public function icon() {
@@ -32,15 +32,15 @@ class XeParagraph extends XEditorElement {
 
 	public function defaults() {
 		return array(
-			'text' => __( 'Type your text here. XEditor elements print one clean element with your utility classes.', 'canvasly-lite' ),
+			'text' => __( 'Type your text here. XEditor elements print one clean element with your utility classes.', 'sidcraft-syntex' ),
 			'tag'  => 'p',
 		);
 	}
 
 	protected function own_controls() {
-		$sec = __( 'Paragraph', 'canvasly-lite' );
+		$sec = __( 'Paragraph', 'sidcraft-syntex' );
 		return array(
-			'text' => $this->ctrl( 'textarea', __( 'Text', 'canvasly-lite' ), 'content', $sec, array( 'dynamic' => true, 'description' => __( 'Line breaks are kept. Basic inline HTML (strong, em, a, br, span, code) is allowed.', 'canvasly-lite' ) ) ),
+			'text' => $this->ctrl( 'textarea', __( 'Text', 'sidcraft-syntex' ), 'content', $sec, array( 'dynamic' => true, 'description' => __( 'Line breaks are kept. Basic inline HTML (strong, em, a, br, span, code) is allowed.', 'sidcraft-syntex' ) ) ),
 			'tag'  => $this->tag_control( $sec ),
 		) + $this->typography_controls();
 	}

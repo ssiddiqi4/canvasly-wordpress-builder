@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Templates;
+namespace SidcraftSyntex\Templates;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -36,7 +36,7 @@ class ThemeChrome {
 
 	public static function register_route() {
 		register_rest_route(
-			'canvasly-lite/v1',
+			'sidcraft-syntex/v1',
 			'/theme-chrome',
 			array(
 				'methods'             => 'GET',
@@ -50,7 +50,7 @@ class ThemeChrome {
 	 * @return bool
 	 */
 	public static function can_read() {
-		if ( class_exists( '\\CanvaslyLite\\Settings\\Roles' ) && ! \CanvaslyLite\Settings\Roles::can_edit() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\Roles' ) && ! \SidcraftSyntex\Settings\Roles::can_edit() ) {
 			return false;
 		}
 		return current_user_can( 'edit_posts' ) || current_user_can( 'edit_pages' );
@@ -143,7 +143,7 @@ class ThemeChrome {
 	public static function has( $part ) {
 		$part  = $part === 'footer' ? 'footer' : 'header';
 		$found = self::classic_file( $part ) || ( self::is_block_theme() && self::block_part( $part ) );
-		$found = apply_filters( 'canvasly-lite/theme/has_part', $found, $part );
+		$found = apply_filters( 'sidcraft-syntex/theme/has_part', $found, $part );
 		return (bool) $found;
 	}
 
@@ -154,7 +154,7 @@ class ThemeChrome {
 	 */
 	public static function provides() {
 		$on = self::has( 'header' ) && self::has( 'footer' );
-		return (bool) apply_filters( 'canvasly-lite/theme/provides_chrome', $on );
+		return (bool) apply_filters( 'sidcraft-syntex/theme/provides_chrome', $on );
 	}
 
 	/**
@@ -270,7 +270,7 @@ class ThemeChrome {
 			return $html;
 		}
 		$extra = self::builder_css( $html );
-		$extra = (string) apply_filters( 'canvasly-lite/theme/builder_css', $extra, $html );
+		$extra = (string) apply_filters( 'sidcraft-syntex/theme/builder_css', $extra, $html );
 		$extra = trim( $extra );
 		if ( '' === $extra ) {
 			return $html;
@@ -502,7 +502,7 @@ class ThemeChrome {
 	 * @return string
 	 */
 	private static function elementor_frontend_links( $html ) {
-		if ( false !== strpos( $html, 'canvasly-lite-builder-frontend-' ) ) {
+		if ( false !== strpos( $html, 'sidcraft-syntex-builder-frontend-' ) ) {
 			return '';
 		}
 		$files = array();
@@ -532,7 +532,7 @@ class ThemeChrome {
 				continue;
 			}
 			$seen[ $file[1] ] = true;
-			$handle           = 'canvasly-lite-builder-frontend-' . sanitize_key( str_replace( array( '/', '.' ), '-', $file[1] ) );
+			$handle           = 'sidcraft-syntex-builder-frontend-' . sanitize_key( str_replace( array( '/', '.' ), '-', $file[1] ) );
 			if ( ! isset( $printer->registered[ $handle ] ) ) {
 				$printer->add( $handle, plugins_url( $file[1], $file[0] ), array(), null );
 			}
@@ -745,7 +745,7 @@ class ThemeChrome {
 			return false;
 		}
 		$text = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( $html ) ) );
-		return \CanvaslyLite\Utils\Text::length( $text ) > 12;
+		return \SidcraftSyntex\Utils\Text::length( $text ) > 12;
 	}
 
 	/**
@@ -905,7 +905,7 @@ class ThemeChrome {
 		// working without weakening verification for any external host.
 		if ( self::same_site( $url ) ) {
 			$args['sslverify'] = false;
-			$url                = add_query_arg( array( 'canvasly_chrome' => '1', '_' => (string) time() ), $url );
+			$url                = add_query_arg( array( 'sidcraft_syntex_chrome' => '1', '_' => (string) time() ), $url );
 		}
 		$cookies = self::auth_cookies( $url );
 		if ( $cookies ) {
@@ -914,7 +914,7 @@ class ThemeChrome {
 		$response = wp_remote_get( $url, $args );
 		if ( function_exists( 'is_wp_error' ) && is_wp_error( $response ) ) {
 			if ( function_exists( 'error_log' ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Canvasly Lite: theme-chrome fetch of ' . $url . ' failed: ' . $response->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'Sidcraft Syntex: theme-chrome fetch of ' . $url . ' failed: ' . $response->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 			return '';
 		}
@@ -1004,7 +1004,7 @@ class ThemeChrome {
 		}
 		$out = self::safe_html( $assets . $dom->saveHTML( $node ) );
 		if ( strlen( $out ) > self::MAX_HTML ) {
-			$out = \CanvaslyLite\Utils\Text::cut_bytes( $out, 0, self::MAX_HTML );
+			$out = \SidcraftSyntex\Utils\Text::cut_bytes( $out, 0, self::MAX_HTML );
 		}
 		return trim( $out );
 	}
@@ -1073,7 +1073,7 @@ class ThemeChrome {
 			// sites and can otherwise out-rank the genuine footer just by
 			// appearing later in the document. Score by visible content
 			// instead of position so the real, fullest landmark wins.
-			$len = \CanvaslyLite\Utils\Text::length( trim( preg_replace( '/\s+/', ' ', (string) $el->textContent ) ) );
+			$len = \SidcraftSyntex\Utils\Text::length( trim( preg_replace( '/\s+/', ' ', (string) $el->textContent ) ) );
 			if ( $len > $loose_best_len ) {
 				$loose_best     = $el;
 				$loose_best_len = $len;
@@ -1152,7 +1152,7 @@ class ThemeChrome {
 		$html = self::drop_stray_closers( $html );
 		$html = self::isolate( $html );
 		if ( strlen( $html ) > self::MAX_HTML ) {
-			$html = \CanvaslyLite\Utils\Text::cut_bytes( $html, 0, self::MAX_HTML );
+			$html = \SidcraftSyntex\Utils\Text::cut_bytes( $html, 0, self::MAX_HTML );
 		}
 		return trim( $html );
 	}

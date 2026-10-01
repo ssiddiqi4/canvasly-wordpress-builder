@@ -803,7 +803,7 @@ function installDesignSystem() {
         const blob = new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }),
           a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `canvasly-lite-${app.D.postId || "document"}.json`;
+        a.download = `sidcraft-syntex-${app.D.postId || "document"}.json`;
         a.click();
         URL.revokeObjectURL(a.href);
       } catch (e) {
@@ -858,7 +858,7 @@ function installDesignSystem() {
           app.selected = null;
           app.render();
         } catch (x) {
-          alert(app.t("Invalid Canvasly document."));
+          alert(app.t("Invalid Sidcraft Syntex document."));
         }
       };
       rd.readAsText(f);
@@ -1115,7 +1115,7 @@ function installDesignSystem() {
             d = await r.json();
           const a = document.createElement("a");
           a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-          a.download = "canvasly-lite-design-system.json";
+          a.download = "sidcraft-syntex-design-system.json";
           a.click();
         });
         app.root
@@ -1175,7 +1175,7 @@ function installDesignSystem() {
                 d = await r.json();
               const a = document.createElement("a");
               a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-              a.download = `canvasly-lite-template-${b.dataset.tplExport}.json`;
+              a.download = `sidcraft-syntex-template-${b.dataset.tplExport}.json`;
               a.click();
             }),
         );
@@ -1393,7 +1393,7 @@ function installDesignSystem() {
     app.lb101EnsureIcons().then(() => {
       const families = ["all", "solid", "regular", "brands"];
       const body = `<div class="lb-icon-library-toolbar"><input class="lb-modal-search" id="lb101-icon-search" placeholder="${app.t("Search icons\u2026")}"><select id="lb101-icon-family"><option value="all">All</option><option value="solid">Solid</option><option value="regular">Regular</option><option value="brands">Brands</option></select></div><div class="lb-icon-library-count" id="lb101-icon-count"></div><div class="lb-icon-grid lb-icon-grid-large" id="lb101-icon-grid">${app.lb101Icons.map((i) => `<button type="button" class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" data-family="${app.esc(i.family || "custom")}" title="${app.esc(i.title)}">${app.lb101IconSvg(i.id)}<small>${app.esc(i.title)}</small></button>`).join("")}</div>`;
-      app.showModal(app.t("Canvasly Icon Library"), body, () => {
+      app.showModal(app.t("Sidcraft Syntex Icon Library"), body, () => {
         const filter = () => {
           const q = (app.$("#lb101-icon-search")?.value || "").toLowerCase();
           const fam = app.$("#lb101-icon-family")?.value || "all";

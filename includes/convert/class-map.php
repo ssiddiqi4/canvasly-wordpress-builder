@@ -1,15 +1,15 @@
 <?php
-namespace CanvaslyLite\Convert;
+namespace SidcraftSyntex\Convert;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Mapping table: stored third-party builder JSON -> Canvasly types/settings.
+ * Mapping table: stored third-party builder JSON -> Sidcraft Syntex types/settings.
  *
- * Add-ons extend this via `canvasly-lite/convert/widgets` and
- * `canvasly-lite/convert/common_settings`. Reads stored post meta only;
+ * Add-ons extend this via `sidcraft-syntex/convert/widgets` and
+ * `sidcraft-syntex/convert/common_settings`. Reads stored post meta only;
  * no third-party builder code is loaded.
  */
 class Map {
@@ -18,7 +18,7 @@ class Map {
 	const LAYOUT_CONTAINER = 'container';
 
 	/**
-	 * Responsive suffixes on stored control keys -> Canvasly breakpoint names.
+	 * Responsive suffixes on stored control keys -> Sidcraft Syntex breakpoint names.
 	 *
 	 * @return array<string,string>
 	 */
@@ -32,7 +32,7 @@ class Map {
 			'_laptop'        => 'laptop',
 			'_widescreen'    => 'widescreen',
 		);
-		$filtered = apply_filters( 'canvasly-lite/convert/breakpoints', $map );
+		$filtered = apply_filters( 'sidcraft-syntex/convert/breakpoints', $map );
 		return is_array( $filtered ) ? $filtered : $map;
 	}
 
@@ -46,7 +46,7 @@ class Map {
 	}
 
 	/**
-	 * Page-template values stored on the source post -> Canvasly templates.
+	 * Page-template values stored on the source post -> Sidcraft Syntex templates.
 	 *
 	 * @return array<string,string>
 	 */
@@ -62,7 +62,7 @@ class Map {
 	}
 
 	/**
-	 * Source library template types -> Canvasly saved-template types.
+	 * Source library template types -> Sidcraft Syntex saved-template types.
 	 *
 	 * @return array<string,string>
 	 */
@@ -85,7 +85,7 @@ class Map {
 	/**
 	 * Shared advanced/style keys applied to every converted node.
 	 *
-	 * Dest values are a Canvasly setting key, or `[key, transformer]`.
+	 * Dest values are a Sidcraft Syntex setting key, or `[key, transformer]`.
 	 *
 	 * @return array<string,string|array>
 	 */
@@ -119,12 +119,12 @@ class Map {
 			'overflow'       => 'overflow',
 			'opacity'        => array( 'opacity', 'slider' ),
 		);
-		$filtered = apply_filters( 'canvasly-lite/convert/common_settings', $map );
+		$filtered = apply_filters( 'sidcraft-syntex/convert/common_settings', $map );
 		return is_array( $filtered ) ? $filtered : $map;
 	}
 
 	/**
-	 * Widget-type table: source `widgetType` -> Canvasly type + setting map.
+	 * Widget-type table: source `widgetType` -> Sidcraft Syntex type + setting map.
 	 *
 	 * @return array<string,array{type:string,settings?:array}>
 	 */
@@ -651,7 +651,7 @@ class Map {
 			}
 		}
 
-		$filtered = apply_filters( 'canvasly-lite/convert/widgets', $map );
+		$filtered = apply_filters( 'sidcraft-syntex/convert/widgets', $map );
 		return is_array( $filtered ) ? $filtered : $map;
 	}
 

@@ -126,7 +126,7 @@ function installCodeControl() {
         }
         return inst;
       } catch (e) {
-        console.error("[Canvasly] code editor failed:", e);
+        console.error("[Sidcraft Syntex] code editor failed:", e);
       }
     }
     if (!ta.__lbFallback) {

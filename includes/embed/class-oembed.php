@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Embed;
+namespace SidcraftSyntex\Embed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This class is the fallback for unrecognised URLs and the generic Embed widget.
  */
 class OEmbed {
-	const TRANSIENT_PREFIX = 'lb_oe_';
+	const TRANSIENT_PREFIX = 'sidsyn_oe_';
 	const TTL_DEFAULT      = 604800;
 	const TTL_MISS         = 3600;
 
@@ -24,7 +24,7 @@ class OEmbed {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'canvasly-lite/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class OEmbed {
 		 *
 		 * @param string[] $hosts
 		 */
-		$filtered = apply_filters( 'canvasly-lite/oembed/providers', $hosts );
+		$filtered = apply_filters( 'sidcraft-syntex/oembed/providers', $hosts );
 		return is_array( $filtered ) ? array_values( array_filter( array_map( 'strval', $filtered ) ) ) : $hosts;
 	}
 
@@ -134,7 +134,7 @@ class OEmbed {
 		 * @param string $url
 		 * @param string $host
 		 */
-		return (bool) apply_filters( 'canvasly-lite/oembed/allowed', $ok, (string) $url, $host );
+		return (bool) apply_filters( 'sidcraft-syntex/oembed/allowed', $ok, (string) $url, $host );
 	}
 
 	/**
@@ -213,13 +213,13 @@ class OEmbed {
 
 	public static function ttl() {
 		$default = defined( 'WEEK_IN_SECONDS' ) ? WEEK_IN_SECONDS : self::TTL_DEFAULT;
-		$ttl     = (int) apply_filters( 'canvasly-lite/oembed/ttl', $default );
+		$ttl     = (int) apply_filters( 'sidcraft-syntex/oembed/ttl', $default );
 		return $ttl > 0 ? $ttl : $default;
 	}
 
 	public static function miss_ttl() {
 		$default = defined( 'HOUR_IN_SECONDS' ) ? HOUR_IN_SECONDS : self::TTL_MISS;
-		$ttl     = (int) apply_filters( 'canvasly-lite/oembed/miss_ttl', $default );
+		$ttl     = (int) apply_filters( 'sidcraft-syntex/oembed/miss_ttl', $default );
 		return $ttl > 0 ? $ttl : $default;
 	}
 
@@ -268,7 +268,7 @@ class OEmbed {
 		 * @param array  $allowed
 		 * @param string $html
 		 */
-		$allowed = apply_filters( 'canvasly-lite/oembed/kses', $allowed, $html );
+		$allowed = apply_filters( 'sidcraft-syntex/oembed/kses', $allowed, $html );
 		if ( function_exists( 'wp_kses' ) ) {
 			return wp_kses( $html, is_array( $allowed ) ? $allowed : array() );
 		}
@@ -279,7 +279,7 @@ class OEmbed {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'canvasly-lite/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
 		register_rest_route(
 			$ns,
 			'/oembed',

@@ -2,10 +2,10 @@
 /**
  * XEditor Heading.
  *
- * @package CanvaslyLite
+ * @package SidcraftSyntex
  */
 
-namespace CanvaslyLite\XEditor\Elements;
+namespace SidcraftSyntex\XEditor\Elements;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,7 +19,7 @@ class XeHeading extends XEditorElement {
 	}
 
 	public function title() {
-		return __( 'Heading', 'canvasly-lite' ) . ' (XEditor)';
+		return __( 'Heading', 'sidcraft-syntex' ) . ' (XEditor)';
 	}
 
 	public function icon() {
@@ -32,18 +32,18 @@ class XeHeading extends XEditorElement {
 
 	public function defaults() {
 		return array(
-			'text' => __( 'Add your heading', 'canvasly-lite' ),
+			'text' => __( 'Add your heading', 'sidcraft-syntex' ),
 			'tag'  => 'h2',
 			'link' => '',
 		);
 	}
 
 	protected function own_controls() {
-		$sec = __( 'Heading', 'canvasly-lite' );
+		$sec = __( 'Heading', 'sidcraft-syntex' );
 		return array(
-			'text' => $this->ctrl( 'textarea', __( 'Title', 'canvasly-lite' ), 'content', $sec, array( 'dynamic' => true, 'description' => __( 'Tokens such as {{post.title}} work inside an XEditor Loop.', 'canvasly-lite' ) ) ),
+			'text' => $this->ctrl( 'textarea', __( 'Title', 'sidcraft-syntex' ), 'content', $sec, array( 'dynamic' => true, 'description' => __( 'Tokens such as {{post.title}} work inside an XEditor Loop.', 'sidcraft-syntex' ) ) ),
 			'tag'  => $this->tag_control( $sec ),
-			'link' => $this->ctrl( 'url', __( 'Link', 'canvasly-lite' ), 'content', $sec, array( 'dynamic' => true, 'placeholder' => 'https:// or {{post.url}}' ) ),
+			'link' => $this->ctrl( 'url', __( 'Link', 'sidcraft-syntex' ), 'content', $sec, array( 'dynamic' => true, 'placeholder' => 'https:// or {{post.url}}' ) ),
 		) + $this->typography_controls();
 	}
 

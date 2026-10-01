@@ -1,12 +1,12 @@
 {
   "apiVersion": 3,
-  "name": "canvasly-lite/template",
-  "title": "Canvasly Lite Template",
-  "category": "canvasly-lite",
+  "name": "sidcraft-syntex/template",
+  "title": "Sidcraft Syntex Template",
+  "category": "sidcraft-syntex",
   "icon": "layout",
-  "description": "Insert a saved Canvasly Lite template.",
-  "keywords": [ "template", "saved", "section", "library", "canvasly-lite" ],
-  "textdomain": "canvasly-lite",
+  "description": "Insert a saved Sidcraft Syntex template.",
+  "keywords": [ "template", "saved", "section", "library", "sidcraft-syntex" ],
+  "textdomain": "sidcraft-syntex",
   "attributes": {
     "id": {
       "type": "number",
@@ -19,6 +19,6 @@
     "anchor": true,
     "className": true
   },
-  "editorScript": "canvasly-lite-template-block",
-  "editorStyle": "canvasly-lite-template-block-editor"
+  "editorScript": "sidcraft-syntex-template-block",
+  "editorStyle": "sidcraft-syntex-template-block-editor"
 }

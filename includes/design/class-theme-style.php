@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Design;
+namespace SidcraftSyntex\Design;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * defaults compiled into the global stylesheet and inherited by the editor canvas.
  */
 class ThemeStyle {
-	const KEY = 'canvasly_lite_theme_style';
+	const KEY = 'sidcraft_syntex_theme_style';
 	const ROOT = '.lb-page, .lb-frame-root';
 
 	const TYPO_PROPS = array( 'font_family', 'font_size', 'font_weight', 'font_style', 'text_transform', 'text_decoration', 'line_height', 'letter_spacing' );
@@ -137,18 +137,18 @@ class ThemeStyle {
 		$saved = get_option( self::KEY, array() );
 		$out   = self::sanitize_map( is_array( $saved ) ? $saved : array() );
 		/** Filter the Theme Style map used by CSS and the editor. @param array $out */
-		$filtered = apply_filters( 'canvasly-lite/theme_style', $out );
+		$filtered = apply_filters( 'sidcraft-syntex/theme_style', $out );
 		return is_array( $filtered ) ? self::sanitize_map( $filtered ) : $out;
 	}
 
 	public static function save( $data ) {
-		if ( ! current_user_can( 'canvasly_lite_design' ) ) {
+		if ( ! current_user_can( 'sidcraft_syntex_design' ) ) {
 			return false;
 		}
 		$clean = self::sanitize_map( is_array( $data ) ? $data : array() );
 		update_option( self::KEY, $clean, false );
-		if ( class_exists( '\\CanvaslyLite\\Settings\\GlobalSettings' ) ) {
-			\CanvaslyLite\Settings\GlobalSettings::invalidate_css_cache();
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\GlobalSettings' ) ) {
+			\SidcraftSyntex\Settings\GlobalSettings::invalidate_css_cache();
 		}
 		return $clean;
 	}
@@ -197,10 +197,10 @@ class ThemeStyle {
 
 	public static function css( $data = null ) {
 		$d    = is_array( $data ) ? self::sanitize_map( $data ) : self::all();
-		if ( class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) && \CanvaslyLite\Settings\AdminSettings::disable_default_colors() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) && \SidcraftSyntex\Settings\AdminSettings::disable_default_colors() ) {
 			$d = self::strip_keys( $d, self::COLOR_KEYS );
 		}
-		if ( class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) && \CanvaslyLite\Settings\AdminSettings::disable_default_fonts() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) && \SidcraftSyntex\Settings\AdminSettings::disable_default_fonts() ) {
 			$d = self::strip_keys( $d, array( 'font_family' ) );
 		}
 		$out  = '';
@@ -338,7 +338,7 @@ class ThemeStyle {
 			$css = '/*lb-theme-style*/' . $css . '/*lb-theme-style-end*/';
 		}
 		/** Filter compiled Theme Style CSS. @param string $css @param array $d */
-		$filtered = apply_filters( 'canvasly-lite/theme_style/css', $css, $d );
+		$filtered = apply_filters( 'sidcraft-syntex/theme_style/css', $css, $d );
 		return is_string( $filtered ) ? $filtered : $css;
 	}
 

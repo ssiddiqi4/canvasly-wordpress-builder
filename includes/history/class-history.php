@@ -1,3 +1,3 @@
 <?php
-namespace CanvaslyLite\History;
+namespace SidcraftSyntex\History;
 class History { public static function init(){} }

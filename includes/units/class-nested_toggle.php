@@ -1,9 +1,9 @@
 <?php
-namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
 /** Nested Toggle: Nested Accordion where every panel can be opened independently. */
 class NestedToggle extends NestedAccordion {
  public function type(){return 'nested_toggle';}
- public function title(){return __('Nested Toggle', 'canvasly-lite');}
+ public function title(){return __('Nested Toggle', 'sidcraft-syntex');}
  public function icon(){return "\u{229E}";}
  public function category(){return 'basic';}
  public function keywords(){return ['toggle','nested','collapse','expand','panel','slot'];}

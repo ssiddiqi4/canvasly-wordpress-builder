@@ -1,7 +1,7 @@
 <?php
-namespace CanvaslyLite\Templates;
+namespace SidcraftSyntex\Templates;
 
-use CanvaslyLite\Design\Kit;
+use SidcraftSyntex\Design\Kit;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class TemplateIO {
 	const SCHEMA = '1.0';
-	const TYPE   = 'canvasly-lite-template';
+	const TYPE   = 'sidcraft-syntex-template';
 	const MAX_MEDIA = 80;
 
 	/**
@@ -44,7 +44,7 @@ class TemplateIO {
 		$payload = array(
 			'schema'      => self::SCHEMA,
 			'type'        => self::TYPE,
-			'generator'   => defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '0',
+			'generator'   => defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0',
 			'exported_at' => function_exists( 'current_time' ) ? current_time( 'c' ) : gmdate( 'c' ),
 			'site'        => array(
 				'title' => function_exists( 'get_option' ) ? (string) get_option( 'blogname', '' ) : '',
@@ -59,7 +59,7 @@ class TemplateIO {
 		 * @param array $payload
 		 * @param int[] $ids
 		 */
-		$filtered = apply_filters( 'canvasly-lite/templates/export_payload', $payload, $ids );
+		$filtered = apply_filters( 'sidcraft-syntex/templates/export_payload', $payload, $ids );
 		return is_array( $filtered ) ? $filtered : $payload;
 	}
 
@@ -91,7 +91,7 @@ class TemplateIO {
 		}
 
 		if ( ! $has_files || ! class_exists( Kit::class ) ) {
-			self::stream_json( $payload, 'canvasly-lite-template-' . $slug . '.json' );
+			self::stream_json( $payload, 'sidcraft-syntex-template-' . $slug . '.json' );
 			return;
 		}
 
@@ -118,17 +118,17 @@ class TemplateIO {
 		$entries[] = array( 'name' => 'media.json', 'data' => wp_json_encode( $index ) );
 		$dir       = self::temp_dir( 'lb-tpl-ex' );
 		if ( is_wp_error( $dir ) ) {
-			self::stream_json( $payload, 'canvasly-lite-template-' . $slug . '.json' );
+			self::stream_json( $payload, 'sidcraft-syntex-template-' . $slug . '.json' );
 			return;
 		}
 		$path    = $dir . '/templates.zip';
 		$written = Kit::zip_write( $path, $entries );
 		if ( is_wp_error( $written ) || ! file_exists( $path ) ) {
 			self::rmdir_tree( $dir );
-			self::stream_json( $payload, 'canvasly-lite-template-' . $slug . '.json' );
+			self::stream_json( $payload, 'sidcraft-syntex-template-' . $slug . '.json' );
 			return;
 		}
-		$filename = 'canvasly-lite-template-' . $slug . '.zip';
+		$filename = 'sidcraft-syntex-template-' . $slug . '.zip';
 		if ( function_exists( 'nocache_headers' ) ) {
 			nocache_headers();
 		}
@@ -141,7 +141,7 @@ class TemplateIO {
 			}
 		}
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Binary ZIP download of a locally generated template.
-		echo \CanvaslyLite\Utils\Filesystem::get_contents( $path );
+		echo \SidcraftSyntex\Utils\Filesystem::get_contents( $path );
 		self::rmdir_tree( $dir );
 	}
 
@@ -149,7 +149,7 @@ class TemplateIO {
 		return array(
 			'schema'      => self::SCHEMA,
 			'type'        => self::TYPE,
-			'generator'   => $payload['generator'] ?? ( defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '0' ),
+			'generator'   => $payload['generator'] ?? ( defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0' ),
 			'exported_at' => $payload['exported_at'] ?? '',
 			'counts'      => array(
 				'templates' => count( (array) ( $payload['templates'] ?? array() ) ),
@@ -166,18 +166,18 @@ class TemplateIO {
 	 */
 	public static function import( $path ) {
 		if ( ! is_string( $path ) || ! is_readable( $path ) ) {
-			return new \WP_Error( 'invalid', __( 'The template file could not be read.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'The template file could not be read.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		$ext = strtolower( pathinfo( $path, PATHINFO_EXTENSION ) );
 		if ( $ext === 'json' ) {
 			$d = json_decode( (string) file_get_contents( $path ), true );
 			if ( ! is_array( $d ) ) {
-				return new \WP_Error( 'invalid', __( 'The template JSON is not valid.', 'canvasly-lite' ), array( 'status' => 400 ) );
+				return new \WP_Error( 'invalid', __( 'The template JSON is not valid.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 			}
 			return self::import_payload( $d );
 		}
 		if ( ! class_exists( Kit::class ) ) {
-			return new \WP_Error( 'invalid', __( 'ZIP import requires the kit importer.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'ZIP import requires the kit importer.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		$files = Kit::zip_read( $path );
 		if ( is_wp_error( $files ) ) {
@@ -205,7 +205,7 @@ class TemplateIO {
 			}
 		}
 		if ( ! is_array( $payload ) ) {
-			return new \WP_Error( 'invalid', __( 'The ZIP did not contain a Canvasly template file.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'The ZIP did not contain a Sidcraft Syntex template file.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		$media = isset( $payload['media'] ) && is_array( $payload['media'] ) ? $payload['media'] : array();
 		if ( isset( $files['media.json'] ) ) {
@@ -226,7 +226,7 @@ class TemplateIO {
 	 */
 	public static function import_payload( $payload, $media = array(), $media_dir = null ) {
 		if ( ! current_user_can( 'edit_pages' ) ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot import templates.', 'canvasly-lite' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot import templates.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
 		}
 		$payload = self::normalize_incoming( $payload );
 		if ( is_wp_error( $payload ) ) {
@@ -275,7 +275,7 @@ class TemplateIO {
 			'ids'       => $created,
 		);
 		/** Fires after templates are imported. @param array $result @param array $payload */
-		do_action( 'canvasly-lite/templates/after_import', $result, $payload );
+		do_action( 'sidcraft-syntex/templates/after_import', $result, $payload );
 		return $result;
 	}
 
@@ -287,7 +287,7 @@ class TemplateIO {
 	 */
 	public static function normalize_incoming( $d ) {
 		if ( ! is_array( $d ) ) {
-			return new \WP_Error( 'invalid', __( 'The template JSON is not valid.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'The template JSON is not valid.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		if ( isset( $d['templates'] ) && is_array( $d['templates'] ) ) {
 			return $d;
@@ -315,14 +315,14 @@ class TemplateIO {
 				'type'      => self::TYPE,
 				'templates' => array(
 					array(
-						'title'    => sanitize_text_field( $d['title'] ?? __( 'Imported Template', 'canvasly-lite' ) ),
+						'title'    => sanitize_text_field( $d['title'] ?? __( 'Imported Template', 'sidcraft-syntex' ) ),
 						'type'     => $d['type'] ?? 'page',
 						'document' => $d,
 					),
 				),
 			);
 		}
-		return new \WP_Error( 'invalid', __( 'This file is not a Canvasly template.', 'canvasly-lite' ), array( 'status' => 400 ) );
+		return new \WP_Error( 'invalid', __( 'This file is not a Sidcraft Syntex template.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 	}
 
 	/**
@@ -472,15 +472,15 @@ class TemplateIO {
 	public static function save_data_url_image( $data_url, $parent = 0 ) {
 		$data_url = (string) $data_url;
 		if ( ! preg_match( '#^data:image/(png|jpe?g|webp);base64,(.+)$#s', $data_url, $m ) ) {
-			return new \WP_Error( 'invalid', __( 'The thumbnail image is not a valid PNG or JPEG.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'The thumbnail image is not a valid PNG or JPEG.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		$ext  = strtolower( $m[1] ) === 'jpeg' ? 'jpg' : strtolower( $m[1] );
 		$bin  = base64_decode( $m[2], true );
 		if ( $bin === false || strlen( $bin ) < 32 ) {
-			return new \WP_Error( 'invalid', __( 'The thumbnail image could not be decoded.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'The thumbnail image could not be decoded.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		if ( strlen( $bin ) > 2 * 1024 * 1024 ) {
-			return new \WP_Error( 'invalid', __( 'The thumbnail is too large.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'The thumbnail is too large.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		$filename = 'lb-template-thumb-' . absint( $parent ) . '-' . gmdate( 'YmdHis' ) . '.' . $ext;
 		if ( function_exists( 'wp_upload_bits' ) ) {
@@ -491,7 +491,7 @@ class TemplateIO {
 			$file = $upload['file'];
 			$url  = $upload['url'];
 		} else {
-			return new \WP_Error( 'upload', __( 'Could not store the thumbnail.', 'canvasly-lite' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'upload', __( 'Could not store the thumbnail.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
 		}
 		$mime = $ext === 'png' ? 'image/png' : ( $ext === 'webp' ? 'image/webp' : 'image/jpeg' );
 		$id   = wp_insert_attachment(
@@ -505,7 +505,7 @@ class TemplateIO {
 			absint( $parent )
 		);
 		if ( is_wp_error( $id ) || ! $id ) {
-			return $id ? $id : new \WP_Error( 'upload', __( 'Could not store the thumbnail.', 'canvasly-lite' ), array( 'status' => 500 ) );
+			return $id ? $id : new \WP_Error( 'upload', __( 'Could not store the thumbnail.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
 		}
 		if ( function_exists( 'wp_generate_attachment_metadata' ) && function_exists( 'wp_update_attachment_metadata' ) ) {
 			if ( ! function_exists( 'wp_read_image_metadata' ) ) {
@@ -569,17 +569,17 @@ class TemplateIO {
 			wp_mkdir_p( $dir );
 		}
 		if ( ! is_dir( $dir ) ) {
-			return new \WP_Error( 'temp_dir', __( 'Could not create a temporary folder.', 'canvasly-lite' ) );
+			return new \WP_Error( 'temp_dir', __( 'Could not create a temporary folder.', 'sidcraft-syntex' ) );
 		}
 		return $dir;
 	}
 
 	private static function rmdir_tree( $dir ) {
-		\CanvaslyLite\Utils\Filesystem::rmdir_tree( $dir );
+		\SidcraftSyntex\Utils\Filesystem::rmdir_tree( $dir );
 	}
 
 	private static function safe_filename( $name ) {
 		$name = preg_replace( '/[^a-zA-Z0-9._-]/', '-', (string) $name );
-		return $name !== '' ? $name : 'canvasly-lite-template.json';
+		return $name !== '' ? $name : 'sidcraft-syntex-template.json';
 	}
 }

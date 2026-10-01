@@ -1,8 +1,8 @@
 <?php
-namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
 /** Counter: an animated number that counts from a start value to an end value when it scrolls into view. */
 class Counter extends Unit {
- public function type(){return 'counter';} public function title(){return __('Counter', 'canvasly-lite');} public function icon(){return '123';} public function category(){return 'basic';}
+ public function type(){return 'counter';} public function title(){return __('Counter', 'sidcraft-syntex');} public function icon(){return '123';} public function category(){return 'basic';}
  public function keywords(){return ['counter','number','statistic','count up','animation'];}
  public function scripts($s=[]){return $this->frontend_scripts();}
  public function defaults(){return ['start'=>0,'number'=>100,'prefix'=>'','suffix'=>'+','duration'=>2000,'thousand_separator'=>true,'separator_char'=>',','title'=>'Happy Clients','title_tag'=>'div','title_position'=>'after','align'=>'center','number_color'=>'','title_color'=>'','number_size'=>'','title_gap'=>''];}

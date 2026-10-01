@@ -1,7 +1,7 @@
-/* Canvasly Lite frontend behaviours - carousel, tabs, collapse panels, alerts, counters, progress bars, video overlays, lightbox, background video and scroll interactions. */
+/* Sidcraft Syntex frontend behaviours - carousel, tabs, collapse panels, alerts, counters, progress bars, video overlays, lightbox, background video and scroll interactions. */
 (function(){
  'use strict';
- var I18N=(window.CanvaslyLiteFrontend&&window.CanvaslyLiteFrontend.i18n)||{};function t(key){var s=Object.prototype.hasOwnProperty.call(I18N,key)?String(I18N[key]):String(key);if(arguments.length>1){for(var i=1;i<arguments.length;i++)s=s.replace('%s',String(arguments[i]));}return s;}
+ var I18N=(window.SidcraftSyntexFrontend&&window.SidcraftSyntexFrontend.i18n)||{};function t(key){var s=Object.prototype.hasOwnProperty.call(I18N,key)?String(I18N[key]):String(key);if(arguments.length>1){for(var i=1;i<arguments.length;i++)s=s.replace('%s',String(arguments[i]));}return s;}
  var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
  /* ---- Image carousel ---- */
@@ -77,7 +77,7 @@
  function progress(fill){if(fill.dataset.lbReady)return;fill.dataset.lbReady='1';var v=parseFloat(fill.dataset.lbProgress||0);if(reduceMotion){fill.style.width=v+'%';return}fill.style.width='0%';requestAnimationFrame(function(){requestAnimationFrame(function(){fill.style.width=v+'%'})})}
 
  /* ---- Lightbox (images + video) ---- */
- var KIT=(window.CanvaslyLiteFrontend&&window.CanvaslyLiteFrontend.lightbox)||{};
+ var KIT=(window.SidcraftSyntexFrontend&&window.SidcraftSyntexFrontend.lightbox)||{};
  function kitCaption(a){
   var src=KIT.caption_source||'caption';
   if(src==='none')return '';
@@ -366,7 +366,7 @@
   var items=wrap?wrap.querySelector('.lb-loop-items'):null;
   var page=parseInt(btn.getAttribute('data-page')||'1',10)+1;
   var max=parseInt(btn.getAttribute('data-max')||'1',10);
-  var rest=btn.getAttribute('data-rest')||(window.CanvaslyLiteFrontend&&window.CanvaslyLiteFrontend.loopRest)||'';
+  var rest=btn.getAttribute('data-rest')||(window.SidcraftSyntexFrontend&&window.SidcraftSyntexFrontend.loopRest)||'';
   var docId=btn.getAttribute('data-document')||'';
   var node=btn.getAttribute('data-node')||'';
   if(!items||!rest||!docId||!node||page>max)return;
@@ -457,8 +457,8 @@
   if(document.readyState!=='loading')runOne(document,type,fn);
  }
  function drainQueue(){
-  var q=(window.CanvaslyLiteFrontend&&window.CanvaslyLiteFrontend._handlersQueue)||[];
-  if(window.CanvaslyLiteFrontend)window.CanvaslyLiteFrontend._handlersQueue=[];
+  var q=(window.SidcraftSyntexFrontend&&window.SidcraftSyntexFrontend._handlersQueue)||[];
+  if(window.SidcraftSyntexFrontend)window.SidcraftSyntexFrontend._handlersQueue=[];
   q.forEach(function(item){if(item)registerHandler(item.type,item.fn)});
  }
  function runHandlers(scope){
@@ -622,12 +622,12 @@
   document.addEventListener('click',function(e){var more=e.target.closest('[data-lb-loop-more]');if(more){e.preventDefault();loopMore(more);return}var a=e.target.closest('.lb-gallery[data-lightbox="1"] a,[data-lb-lightbox="1"]');if(!a||!a.href)return;e.preventDefault();imageLightbox(a)});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.lb-lightbox').forEach(function(x){x.remove()})});
  });
- window.CanvaslyLiteFrontend=Object.assign(window.CanvaslyLiteFrontend||{},{init:init,registerHandler:registerHandler});
+ window.SidcraftSyntexFrontend=Object.assign(window.SidcraftSyntexFrontend||{},{init:init,registerHandler:registerHandler});
 })();
 
 /* Form submissions */
 (function(){
- var I18N=(window.CanvaslyLiteFrontend&&window.CanvaslyLiteFrontend.i18n)||{};
+ var I18N=(window.SidcraftSyntexFrontend&&window.SidcraftSyntexFrontend.i18n)||{};
  function t(key){return Object.prototype.hasOwnProperty.call(I18N,key)?String(I18N[key]):String(key)}
  function recaptchaToken(f,done){
   var box=f.querySelector('[data-lb-recaptcha]');
@@ -638,7 +638,7 @@
   if(existing&&existing.value){done(existing.value);return}
   if(!window.grecaptcha){done('');return}
   if(type==='v3'&&key&&grecaptcha.execute){
-   var run=function(){grecaptcha.execute(key,{action:'canvasly_lite_form'}).then(function(token){done(token||'')}).catch(function(){done('')})};
+   var run=function(){grecaptcha.execute(key,{action:'sidcraft_syntex_form'}).then(function(token){done(token||'')}).catch(function(){done('')})};
    if(grecaptcha.ready)grecaptcha.ready(run);else run();
    return;
   }
@@ -664,8 +664,8 @@
    var fd=new FormData(f);
    fd.delete('website');
    if(token)fd.set('g-recaptcha-response',token);
-   fetch((window.CanvaslyLiteFrontend&&CanvaslyLiteFrontend.formEndpoint)||window.canvaslyLiteFormEndpoint||window.location.href,{method:'POST',body:fd,headers:{'X-Canvasly-Lite-Form':'1'}})
-.then(function(r){return r.json().catch(function(){return {}}).then(function(j){return r.ok?j:Promise.reject(j)})}).then(function(d){if(d&&d.success&&typeof d.redirect==='string'&&/^https?:\/\//i.test(d.redirect)){window.location.assign(d.redirect);return}if(msg)msg.textContent=(d&&d.message)||t('Thank you.');if(d&&d.success)f.reset();if(window.grecaptcha&&grecaptcha.reset){try{grecaptcha.reset()}catch(err){}}if(window.CanvaslyTurnstile)CanvaslyTurnstile.reset()}).catch(function(err){if(msg)msg.textContent=(err&&typeof err.message==='string'&&err.message)||t('Unable to send the form right now.');if(window.CanvaslyTurnstile)CanvaslyTurnstile.reset()});
+   fetch((window.SidcraftSyntexFrontend&&SidcraftSyntexFrontend.formEndpoint)||window.sidcraftSyntexFormEndpoint||window.location.href,{method:'POST',body:fd,headers:{'X-Sidcraft Syntex-Lite-Form':'1'}})
+.then(function(r){return r.json().catch(function(){return {}}).then(function(j){return r.ok?j:Promise.reject(j)})}).then(function(d){if(d&&d.success&&typeof d.redirect==='string'&&/^https?:\/\//i.test(d.redirect)){window.location.assign(d.redirect);return}if(msg)msg.textContent=(d&&d.message)||t('Thank you.');if(d&&d.success)f.reset();if(window.grecaptcha&&grecaptcha.reset){try{grecaptcha.reset()}catch(err){}}if(window.SidcraftSyntexTurnstile)SidcraftSyntexTurnstile.reset()}).catch(function(err){if(msg)msg.textContent=(err&&typeof err.message==='string'&&err.message)||t('Unable to send the form right now.');if(window.SidcraftSyntexTurnstile)SidcraftSyntexTurnstile.reset()});
   });
  });
  function bootRecaptcha(){
@@ -674,8 +674,8 @@
   var n=0,timer=setInterval(function(){n++;if(window.grecaptcha&&grecaptcha.render){clearInterval(timer);renderRecaptcha(document)}if(n>40)clearInterval(timer)},250);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootRecaptcha);else bootRecaptcha();
- if(window.CanvaslyLiteFrontend){
-  var prev=window.CanvaslyLiteFrontend.init;
-  window.CanvaslyLiteFrontend.init=function(root){if(typeof prev==='function')prev(root);renderRecaptcha(root||document)};
+ if(window.SidcraftSyntexFrontend){
+  var prev=window.SidcraftSyntexFrontend.init;
+  window.SidcraftSyntexFrontend.init=function(root){if(typeof prev==='function')prev(root);renderRecaptcha(root||document)};
  }
 })();

@@ -1,11 +1,11 @@
 <?php
-namespace CanvaslyLite\Units;
+namespace SidcraftSyntex\Units;
 
-use CanvaslyLite\Document\DocumentManager;
-use CanvaslyLite\Document\Documents;
-use CanvaslyLite\Query\Query;
-use CanvaslyLite\Rendering\FrontendRenderer;
-use CanvaslyLite\Utils\Style;
+use SidcraftSyntex\Document\DocumentManager;
+use SidcraftSyntex\Document\Documents;
+use SidcraftSyntex\Query\Query;
+use SidcraftSyntex\Rendering\FrontendRenderer;
+use SidcraftSyntex\Utils\Style;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -33,7 +33,7 @@ class CollectionLoop extends Unit {
 		return true;
 	}
 	public function title() {
-		return __( 'Collection Loop', 'canvasly-lite' );
+		return __( 'Collection Loop', 'sidcraft-syntex' );
 	}
 	public function icon() {
 		return "\u{21BB}";
@@ -97,10 +97,10 @@ class CollectionLoop extends Unit {
 			'equal_height'     => false,
 			'pagination'       => 'none',
 			'page_limit'       => 0,
-			'load_more_text'   => __( 'Load more', 'canvasly-lite' ),
-			'prev_text'        => __( 'Previous', 'canvasly-lite' ),
-			'next_text'        => __( 'Next', 'canvasly-lite' ),
-			'empty_message'    => __( 'No items found.', 'canvasly-lite' ),
+			'load_more_text'   => __( 'Load more', 'sidcraft-syntex' ),
+			'prev_text'        => __( 'Previous', 'sidcraft-syntex' ),
+			'next_text'        => __( 'Next', 'sidcraft-syntex' ),
+			'empty_message'    => __( 'No items found.', 'sidcraft-syntex' ),
 			'item_background'  => '',
 			'item_padding'     => array(
 				'top'    => '0',
@@ -123,122 +123,122 @@ class CollectionLoop extends Unit {
 	}
 
 	public function controls() {
-		$query = __( 'Query', 'canvasly-lite' );
-		$item  = __( 'Item Template', 'canvasly-lite' );
-		$lay   = __( 'Layout', 'canvasly-lite' );
-		$pag   = __( 'Pagination', 'canvasly-lite' );
-		$items = __( 'Items', 'canvasly-lite' );
+		$query = __( 'Query', 'sidcraft-syntex' );
+		$item  = __( 'Item Template', 'sidcraft-syntex' );
+		$lay   = __( 'Layout', 'sidcraft-syntex' );
+		$pag   = __( 'Pagination', 'sidcraft-syntex' );
+		$items = __( 'Items', 'sidcraft-syntex' );
 		$w     = '{{WRAPPER}}';
 		$grid  = $w . ' .lb-loop-items';
 		$card  = $w . ' .lb-loop-item';
 		$nav   = $w . ' .lb-loop-pagination';
 
 		return array(
-			'query_type'      => $this->ctrl( 'select', __( 'Query Type', 'canvasly-lite' ), 'content', $query, array(
+			'query_type'      => $this->ctrl( 'select', __( 'Query Type', 'sidcraft-syntex' ), 'content', $query, array(
 				'options' => array(
-					'posts' => __( 'Posts / CPT', 'canvasly-lite' ),
-					'terms' => __( 'Terms', 'canvasly-lite' ),
+					'posts' => __( 'Posts / CPT', 'sidcraft-syntex' ),
+					'terms' => __( 'Terms', 'sidcraft-syntex' ),
 				),
 			) ),
-			'source'          => $this->ctrl( 'select', __( 'Source', 'canvasly-lite' ), 'content', $query, array(
+			'source'          => $this->ctrl( 'select', __( 'Source', 'sidcraft-syntex' ), 'content', $query, array(
 				'options'   => array(
-					'custom'  => __( 'Custom query', 'canvasly-lite' ),
-					'current' => __( 'Current query', 'canvasly-lite' ),
-					'related' => __( 'Related', 'canvasly-lite' ),
-					'manual'  => __( 'Manual selection', 'canvasly-lite' ),
+					'custom'  => __( 'Custom query', 'sidcraft-syntex' ),
+					'current' => __( 'Current query', 'sidcraft-syntex' ),
+					'related' => __( 'Related', 'sidcraft-syntex' ),
+					'manual'  => __( 'Manual selection', 'sidcraft-syntex' ),
 				),
 				'condition' => array( 'query_type' => 'posts' ),
 			) ),
-			'post_type'       => $this->ctrl( 'select', __( 'Post Type', 'canvasly-lite' ), 'content', $query, array(
+			'post_type'       => $this->ctrl( 'select', __( 'Post Type', 'sidcraft-syntex' ), 'content', $query, array(
 				'options'   => self::post_type_options(),
 				'condition' => array( 'query_type' => 'posts', 'source' => array( 'custom', 'related', 'manual' ) ),
 			) ),
-			'posts_per_page'  => $this->ctrl( 'number', __( 'Items Per Page', 'canvasly-lite' ), 'content', $query, array(
+			'posts_per_page'  => $this->ctrl( 'number', __( 'Items Per Page', 'sidcraft-syntex' ), 'content', $query, array(
 				'range' => array( 'min' => 1, 'max' => 100, 'step' => 1 ),
 			) ),
-			'orderby'         => $this->ctrl( 'select', __( 'Order By', 'canvasly-lite' ), 'content', $query, array(
+			'orderby'         => $this->ctrl( 'select', __( 'Order By', 'sidcraft-syntex' ), 'content', $query, array(
 				'options'   => array(
-					'date'           => __( 'Date', 'canvasly-lite' ),
-					'title'          => __( 'Title', 'canvasly-lite' ),
-					'menu_order'     => __( 'Menu order', 'canvasly-lite' ),
-					'modified'       => __( 'Last modified', 'canvasly-lite' ),
-					'comment_count'  => __( 'Comment count', 'canvasly-lite' ),
-					'rand'           => __( 'Random', 'canvasly-lite' ),
-					'ID'             => __( 'ID', 'canvasly-lite' ),
+					'date'           => __( 'Date', 'sidcraft-syntex' ),
+					'title'          => __( 'Title', 'sidcraft-syntex' ),
+					'menu_order'     => __( 'Menu order', 'sidcraft-syntex' ),
+					'modified'       => __( 'Last modified', 'sidcraft-syntex' ),
+					'comment_count'  => __( 'Comment count', 'sidcraft-syntex' ),
+					'rand'           => __( 'Random', 'sidcraft-syntex' ),
+					'ID'             => __( 'ID', 'sidcraft-syntex' ),
 					// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- WP_Query orderby option labels, not a meta query.
-					'meta_value'     => __( 'Meta value', 'canvasly-lite' ),
-					'meta_value_num' => __( 'Meta value (numeric)', 'canvasly-lite' ),
+					'meta_value'     => __( 'Meta value', 'sidcraft-syntex' ),
+					'meta_value_num' => __( 'Meta value (numeric)', 'sidcraft-syntex' ),
 					// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				),
 				'condition' => array( 'query_type' => 'posts', 'source!' => 'manual' ),
 			) ),
-			'order'           => $this->ctrl( 'select', __( 'Order', 'canvasly-lite' ), 'content', $query, array(
+			'order'           => $this->ctrl( 'select', __( 'Order', 'sidcraft-syntex' ), 'content', $query, array(
 				'options'   => array(
-					'DESC' => __( 'Descending', 'canvasly-lite' ),
-					'ASC'  => __( 'Ascending', 'canvasly-lite' ),
+					'DESC' => __( 'Descending', 'sidcraft-syntex' ),
+					'ASC'  => __( 'Ascending', 'sidcraft-syntex' ),
 				),
 				'condition' => array( 'source!' => 'manual' ),
 			) ),
-			'offset'          => $this->ctrl( 'number', __( 'Offset', 'canvasly-lite' ), 'content', $query, array(
+			'offset'          => $this->ctrl( 'number', __( 'Offset', 'sidcraft-syntex' ), 'content', $query, array(
 				'range'     => array( 'min' => 0, 'max' => 200, 'step' => 1 ),
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'ignore_sticky'   => $this->ctrl( 'switch', __( 'Ignore Sticky Posts', 'canvasly-lite' ), 'content', $query, array(
+			'ignore_sticky'   => $this->ctrl( 'switch', __( 'Ignore Sticky Posts', 'sidcraft-syntex' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'exclude_current' => $this->ctrl( 'switch', __( 'Exclude Current Post', 'canvasly-lite' ), 'content', $query, array(
+			'exclude_current' => $this->ctrl( 'switch', __( 'Exclude Current Post', 'sidcraft-syntex' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'taxonomy'        => $this->ctrl( 'select', __( 'Taxonomy', 'canvasly-lite' ), 'content', $query, array(
+			'taxonomy'        => $this->ctrl( 'select', __( 'Taxonomy', 'sidcraft-syntex' ), 'content', $query, array(
 				'options' => self::taxonomy_options(),
 			) ),
-			'terms'           => $this->ctrl( 'text', __( 'Terms', 'canvasly-lite' ), 'content', $query, array(
-				'placeholder' => __( 'IDs or slugs, comma separated', 'canvasly-lite' ),
+			'terms'           => $this->ctrl( 'text', __( 'Terms', 'sidcraft-syntex' ), 'content', $query, array(
+				'placeholder' => __( 'IDs or slugs, comma separated', 'sidcraft-syntex' ),
 				'condition'   => array( 'query_type' => 'posts', 'source' => array( 'custom', 'related' ) ),
-				'description' => __( 'Filter posts by these terms. Related uses the current post terms in this taxonomy.', 'canvasly-lite' ),
+				'description' => __( 'Filter posts by these terms. Related uses the current post terms in this taxonomy.', 'sidcraft-syntex' ),
 			) ),
-			'terms_operator'  => $this->ctrl( 'select', __( 'Terms Operator', 'canvasly-lite' ), 'content', $query, array(
+			'terms_operator'  => $this->ctrl( 'select', __( 'Terms Operator', 'sidcraft-syntex' ), 'content', $query, array(
 				'options'   => array(
-					'IN'     => __( 'In', 'canvasly-lite' ),
-					'NOT IN' => __( 'Not in', 'canvasly-lite' ),
-					'AND'    => __( 'And', 'canvasly-lite' ),
+					'IN'     => __( 'In', 'sidcraft-syntex' ),
+					'NOT IN' => __( 'Not in', 'sidcraft-syntex' ),
+					'AND'    => __( 'And', 'sidcraft-syntex' ),
 				),
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'author'          => $this->ctrl( 'text', __( 'Author', 'canvasly-lite' ), 'content', $query, array(
-				'placeholder' => __( "User ID or \u{201C}current\u{201D}", 'canvasly-lite' ),
+			'author'          => $this->ctrl( 'text', __( 'Author', 'sidcraft-syntex' ), 'content', $query, array(
+				'placeholder' => __( "User ID or \u{201C}current\u{201D}", 'sidcraft-syntex' ),
 				'condition'   => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'date'            => $this->ctrl( 'select', __( 'Date', 'canvasly-lite' ), 'content', $query, array(
+			'date'            => $this->ctrl( 'select', __( 'Date', 'sidcraft-syntex' ), 'content', $query, array(
 				'options'   => array(
-					''      => __( 'Any time', 'canvasly-lite' ),
-					'today' => __( 'Today', 'canvasly-lite' ),
-					'week'  => __( 'This week', 'canvasly-lite' ),
-					'month' => __( 'This month', 'canvasly-lite' ),
-					'year'  => __( 'This year', 'canvasly-lite' ),
+					''      => __( 'Any time', 'sidcraft-syntex' ),
+					'today' => __( 'Today', 'sidcraft-syntex' ),
+					'week'  => __( 'This week', 'sidcraft-syntex' ),
+					'month' => __( 'This month', 'sidcraft-syntex' ),
+					'year'  => __( 'This year', 'sidcraft-syntex' ),
 				),
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'search'          => $this->ctrl( 'text', __( 'Search', 'canvasly-lite' ), 'content', $query, array(
+			'search'          => $this->ctrl( 'text', __( 'Search', 'sidcraft-syntex' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 				'dynamic'   => true,
 			) ),
-			'include'         => $this->ctrl( 'text', __( 'Include IDs', 'canvasly-lite' ), 'content', $query, array(
+			'include'         => $this->ctrl( 'text', __( 'Include IDs', 'sidcraft-syntex' ), 'content', $query, array(
 				'placeholder' => '12, 34, 56',
 			) ),
 			// phpcs:disable WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude, WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Control names for Collection Loop settings, not a WP_Query.
-			'exclude'         => $this->ctrl( 'text', __( 'Exclude IDs', 'canvasly-lite' ), 'content', $query, array(
+			'exclude'         => $this->ctrl( 'text', __( 'Exclude IDs', 'sidcraft-syntex' ), 'content', $query, array(
 				'placeholder' => '12, 34',
 				'condition'   => array( 'source!' => 'manual' ),
 			) ),
-			'meta_key'        => $this->ctrl( 'text', __( 'Meta Key', 'canvasly-lite' ), 'content', $query, array(
+			'meta_key'        => $this->ctrl( 'text', __( 'Meta Key', 'sidcraft-syntex' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom' ),
 			) ),
-			'meta_value'      => $this->ctrl( 'text', __( 'Meta Value', 'canvasly-lite' ), 'content', $query, array(
+			'meta_value'      => $this->ctrl( 'text', __( 'Meta Value', 'sidcraft-syntex' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom', 'meta_key!' => '' ),
 			) ),
 			// phpcs:enable WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude, WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-			'meta_compare'    => $this->ctrl( 'select', __( 'Meta Compare', 'canvasly-lite' ), 'content', $query, array(
+			'meta_compare'    => $this->ctrl( 'select', __( 'Meta Compare', 'sidcraft-syntex' ), 'content', $query, array(
 				'options'   => array(
 					'='           => '=',
 					'!='          => '!=',
@@ -255,179 +255,179 @@ class CollectionLoop extends Unit {
 				),
 				'condition' => array( 'query_type' => 'posts', 'source' => 'custom', 'meta_key!' => '' ),
 			) ),
-			'hide_empty'      => $this->ctrl( 'switch', __( 'Hide Empty Terms', 'canvasly-lite' ), 'content', $query, array(
+			'hide_empty'      => $this->ctrl( 'switch', __( 'Hide Empty Terms', 'sidcraft-syntex' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'terms' ),
 			) ),
-			'parent'          => $this->ctrl( 'number', __( 'Parent Term', 'canvasly-lite' ), 'content', $query, array(
+			'parent'          => $this->ctrl( 'number', __( 'Parent Term', 'sidcraft-syntex' ), 'content', $query, array(
 				'condition' => array( 'query_type' => 'terms' ),
-				'description' => __( 'Only direct children of this term ID. Leave empty for all.', 'canvasly-lite' ),
+				'description' => __( 'Only direct children of this term ID. Leave empty for all.', 'sidcraft-syntex' ),
 			) ),
-			'terms_orderby'   => $this->ctrl( 'select', __( 'Terms Order By', 'canvasly-lite' ), 'content', $query, array(
+			'terms_orderby'   => $this->ctrl( 'select', __( 'Terms Order By', 'sidcraft-syntex' ), 'content', $query, array(
 				'options'   => array(
-					'name'    => __( 'Name', 'canvasly-lite' ),
-					'slug'    => __( 'Slug', 'canvasly-lite' ),
-					'count'   => __( 'Count', 'canvasly-lite' ),
-					'term_id' => __( 'ID', 'canvasly-lite' ),
+					'name'    => __( 'Name', 'sidcraft-syntex' ),
+					'slug'    => __( 'Slug', 'sidcraft-syntex' ),
+					'count'   => __( 'Count', 'sidcraft-syntex' ),
+					'term_id' => __( 'ID', 'sidcraft-syntex' ),
 				),
 				'condition' => array( 'query_type' => 'terms' ),
 			) ),
-			'item_source'     => $this->ctrl( 'select', __( 'Item Template', 'canvasly-lite' ), 'content', $item, array(
+			'item_source'     => $this->ctrl( 'select', __( 'Item Template', 'sidcraft-syntex' ), 'content', $item, array(
 				'options' => array(
-					'inline'   => __( 'Inline children', 'canvasly-lite' ),
-					'template' => __( 'Saved template', 'canvasly-lite' ),
+					'inline'   => __( 'Inline children', 'sidcraft-syntex' ),
+					'template' => __( 'Saved template', 'sidcraft-syntex' ),
 				),
-				'description' => __( 'Inline: drop heading, image and other widgets into the loop. Bind dynamic tags to post or term fields.', 'canvasly-lite' ),
+				'description' => __( 'Inline: drop heading, image and other widgets into the loop. Bind dynamic tags to post or term fields.', 'sidcraft-syntex' ),
 			) ),
-			'template_id'     => $this->ctrl( 'select', __( 'Saved Template', 'canvasly-lite' ), 'content', $item, array(
+			'template_id'     => $this->ctrl( 'select', __( 'Saved Template', 'sidcraft-syntex' ), 'content', $item, array(
 				'options'   => self::template_options(),
 				'condition' => array( 'item_source' => 'template' ),
 			) ),
-			'layout'          => $this->ctrl( 'choose', __( 'Layout', 'canvasly-lite' ), 'content', $lay, array(
+			'layout'          => $this->ctrl( 'choose', __( 'Layout', 'sidcraft-syntex' ), 'content', $lay, array(
 				'options' => array(
-					'grid'     => __( 'Grid', 'canvasly-lite' ),
-					'list'     => __( 'List', 'canvasly-lite' ),
-					'carousel' => __( 'Carousel', 'canvasly-lite' ),
+					'grid'     => __( 'Grid', 'sidcraft-syntex' ),
+					'list'     => __( 'List', 'sidcraft-syntex' ),
+					'carousel' => __( 'Carousel', 'sidcraft-syntex' ),
 				),
 			) ),
-			'carousel_show'   => $this->ctrl( 'slider', __( 'Slides to Show', 'canvasly-lite' ), 'content', $lay, array(
+			'carousel_show'   => $this->ctrl( 'slider', __( 'Slides to Show', 'sidcraft-syntex' ), 'content', $lay, array(
 				'responsive'  => true,
 				'units'       => array(),
 				'range'       => array( 'min' => 1, 'max' => 8, 'step' => 1 ),
 				'condition'   => array( 'layout' => 'carousel' ),
-				'description' => __( 'Loop items slide inside this widget. Arrows do not open the saved template or reload the page.', 'canvasly-lite' ),
+				'description' => __( 'Loop items slide inside this widget. Arrows do not open the saved template or reload the page.', 'sidcraft-syntex' ),
 			) ),
-			'carousel_scroll' => $this->ctrl( 'slider', __( 'Slides to Scroll', 'canvasly-lite' ), 'content', $lay, array(
+			'carousel_scroll' => $this->ctrl( 'slider', __( 'Slides to Scroll', 'sidcraft-syntex' ), 'content', $lay, array(
 				'units'     => array(),
 				'range'     => array( 'min' => 1, 'max' => 8, 'step' => 1 ),
 				'condition' => array( 'layout' => 'carousel' ),
 			) ),
-			'carousel_nav'    => $this->ctrl( 'select', __( 'Navigation', 'canvasly-lite' ), 'content', $lay, array(
+			'carousel_nav'    => $this->ctrl( 'select', __( 'Navigation', 'sidcraft-syntex' ), 'content', $lay, array(
 				'options'   => array(
-					'arrows' => __( 'Arrows', 'canvasly-lite' ),
-					'dots'   => __( 'Dots', 'canvasly-lite' ),
-					'both'   => __( 'Arrows and dots', 'canvasly-lite' ),
-					'none'   => __( 'None', 'canvasly-lite' ),
+					'arrows' => __( 'Arrows', 'sidcraft-syntex' ),
+					'dots'   => __( 'Dots', 'sidcraft-syntex' ),
+					'both'   => __( 'Arrows and dots', 'sidcraft-syntex' ),
+					'none'   => __( 'None', 'sidcraft-syntex' ),
 				),
 				'condition' => array( 'layout' => 'carousel' ),
 			) ),
-			'carousel_loop'   => $this->ctrl( 'switch', __( 'Infinite Loop', 'canvasly-lite' ), 'content', $lay, array(
+			'carousel_loop'   => $this->ctrl( 'switch', __( 'Infinite Loop', 'sidcraft-syntex' ), 'content', $lay, array(
 				'condition' => array( 'layout' => 'carousel' ),
 			) ),
-			'carousel_autoplay' => $this->ctrl( 'switch', __( 'Autoplay', 'canvasly-lite' ), 'content', $lay, array(
+			'carousel_autoplay' => $this->ctrl( 'switch', __( 'Autoplay', 'sidcraft-syntex' ), 'content', $lay, array(
 				'condition' => array( 'layout' => 'carousel' ),
 			) ),
-			'carousel_pause'  => $this->ctrl( 'switch', __( 'Pause on Hover', 'canvasly-lite' ), 'content', $lay, array(
+			'carousel_pause'  => $this->ctrl( 'switch', __( 'Pause on Hover', 'sidcraft-syntex' ), 'content', $lay, array(
 				'condition' => array( 'layout' => 'carousel', 'carousel_autoplay' => true ),
 			) ),
-			'carousel_interval' => $this->ctrl( 'number', __( 'Autoplay Speed', 'canvasly-lite' ), 'content', $lay, array(
+			'carousel_interval' => $this->ctrl( 'number', __( 'Autoplay Speed', 'sidcraft-syntex' ), 'content', $lay, array(
 				'range'     => array( 'min' => 500, 'max' => 15000, 'step' => 100 ),
 				'condition' => array( 'layout' => 'carousel', 'carousel_autoplay' => true ),
 			) ),
-			'carousel_speed'  => $this->ctrl( 'number', __( 'Transition Speed', 'canvasly-lite' ), 'content', $lay, array(
+			'carousel_speed'  => $this->ctrl( 'number', __( 'Transition Speed', 'sidcraft-syntex' ), 'content', $lay, array(
 				'range'     => array( 'min' => 0, 'max' => 3000, 'step' => 50 ),
 				'condition' => array( 'layout' => 'carousel' ),
 			) ),
-			'static_enable'   => $this->ctrl( 'switch', __( 'Static Item Position', 'canvasly-lite' ), 'content', __( 'Static Item', 'canvasly-lite' ), array(
-				'description' => __( 'Insert a saved template into the loop at a fixed position. The post that was in that cell moves to the next cell.', 'canvasly-lite' ),
+			'static_enable'   => $this->ctrl( 'switch', __( 'Static Item Position', 'sidcraft-syntex' ), 'content', __( 'Static Item', 'sidcraft-syntex' ), array(
+				'description' => __( 'Insert a saved template into the loop at a fixed position. The post that was in that cell moves to the next cell.', 'sidcraft-syntex' ),
 			) ),
-			'static_template_id' => $this->ctrl( 'select', __( 'Static Template', 'canvasly-lite' ), 'content', __( 'Static Item', 'canvasly-lite' ), array(
+			'static_template_id' => $this->ctrl( 'select', __( 'Static Template', 'sidcraft-syntex' ), 'content', __( 'Static Item', 'sidcraft-syntex' ), array(
 				'options'   => self::template_options(),
 				'condition' => array( 'static_enable' => true ),
 			) ),
-			'static_position' => $this->ctrl( 'number', __( 'Position', 'canvasly-lite' ), 'content', __( 'Static Item', 'canvasly-lite' ), array(
+			'static_position' => $this->ctrl( 'number', __( 'Position', 'sidcraft-syntex' ), 'content', __( 'Static Item', 'sidcraft-syntex' ), array(
 				'range'       => array( 'min' => 1, 'max' => 50, 'step' => 1 ),
 				'condition'   => array( 'static_enable' => true ),
-				'description' => __( '1 is the first cell. Position 2 places the static item second and shifts that post forward.', 'canvasly-lite' ),
+				'description' => __( '1 is the first cell. Position 2 places the static item second and shifts that post forward.', 'sidcraft-syntex' ),
 			) ),
-			'static_column_span' => $this->ctrl( 'slider', __( 'Column Span', 'canvasly-lite' ), 'content', __( 'Static Item', 'canvasly-lite' ), array(
+			'static_column_span' => $this->ctrl( 'slider', __( 'Column Span', 'sidcraft-syntex' ), 'content', __( 'Static Item', 'sidcraft-syntex' ), array(
 				'units'     => array(),
 				'range'     => array( 'min' => 1, 'max' => 8, 'step' => 1 ),
 				'condition' => array( 'static_enable' => true, 'layout' => 'grid' ),
 			) ),
-			'static_repeat'   => $this->ctrl( 'select', __( 'Repeat', 'canvasly-lite' ), 'content', __( 'Static Item', 'canvasly-lite' ), array(
+			'static_repeat'   => $this->ctrl( 'select', __( 'Repeat', 'sidcraft-syntex' ), 'content', __( 'Static Item', 'sidcraft-syntex' ), array(
 				'options'   => array(
-					'once'   => __( 'Once', 'canvasly-lite' ),
-					'repeat' => __( 'Repeat at this position', 'canvasly-lite' ),
+					'once'   => __( 'Once', 'sidcraft-syntex' ),
+					'repeat' => __( 'Repeat at this position', 'sidcraft-syntex' ),
 				),
 				'condition' => array( 'static_enable' => true ),
 			) ),
-			'columns'         => $this->ctrl( 'slider', __( 'Columns', 'canvasly-lite' ), 'content', $lay, array(
+			'columns'         => $this->ctrl( 'slider', __( 'Columns', 'sidcraft-syntex' ), 'content', $lay, array(
 				'responsive' => true,
 				'units'      => array(),
 				'range'      => array( 'min' => 1, 'max' => 8, 'step' => 1 ),
 				'condition'  => array( 'layout' => 'grid' ),
 				'selectors'  => array( $grid => '--lb-loop-cols: {{SIZE}};' ),
 			) ),
-			'column_gap'      => $this->ctrl( 'slider', __( 'Column Gap', 'canvasly-lite' ), 'style', $lay, array(
+			'column_gap'      => $this->ctrl( 'slider', __( 'Column Gap', 'sidcraft-syntex' ), 'style', $lay, array(
 				'responsive' => true,
 				'units'      => array( 'px', 'em', 'rem', '%' ),
 				'range'      => array( 'min' => 0, 'max' => 80 ),
 				'selectors'  => array( $grid => 'column-gap: {{SIZE}}{{UNIT}};' ),
 			) ),
-			'row_gap'         => $this->ctrl( 'slider', __( 'Row Gap', 'canvasly-lite' ), 'style', $lay, array(
+			'row_gap'         => $this->ctrl( 'slider', __( 'Row Gap', 'sidcraft-syntex' ), 'style', $lay, array(
 				'responsive' => true,
 				'units'      => array( 'px', 'em', 'rem' ),
 				'range'      => array( 'min' => 0, 'max' => 80 ),
 				'selectors'  => array( $grid => 'row-gap: {{SIZE}}{{UNIT}};' ),
 			) ),
-			'equal_height'    => $this->ctrl( 'switch', __( 'Equal Height', 'canvasly-lite' ), 'style', $lay, array(
+			'equal_height'    => $this->ctrl( 'switch', __( 'Equal Height', 'sidcraft-syntex' ), 'style', $lay, array(
 				'condition' => array( 'layout' => 'grid' ),
 			) ),
-			'pagination'      => $this->ctrl( 'select', __( 'Pagination', 'canvasly-lite' ), 'content', $pag, array(
+			'pagination'      => $this->ctrl( 'select', __( 'Pagination', 'sidcraft-syntex' ), 'content', $pag, array(
 				'options' => array(
-					'none'      => __( 'None', 'canvasly-lite' ),
-					'numbers'   => __( 'Numbers', 'canvasly-lite' ),
-					'prev_next' => __( 'Previous / Next', 'canvasly-lite' ),
-					'load_more' => __( 'Load more', 'canvasly-lite' ),
+					'none'      => __( 'None', 'sidcraft-syntex' ),
+					'numbers'   => __( 'Numbers', 'sidcraft-syntex' ),
+					'prev_next' => __( 'Previous / Next', 'sidcraft-syntex' ),
+					'load_more' => __( 'Load more', 'sidcraft-syntex' ),
 				),
 			) ),
-			'page_limit'      => $this->ctrl( 'number', __( 'Page Limit', 'canvasly-lite' ), 'content', $pag, array(
+			'page_limit'      => $this->ctrl( 'number', __( 'Page Limit', 'sidcraft-syntex' ), 'content', $pag, array(
 				'range'       => array( 'min' => 0, 'max' => 50, 'step' => 1 ),
 				'condition'   => array( 'pagination' => array( 'numbers', 'prev_next', 'load_more' ) ),
-				'description' => __( '0 = no limit.', 'canvasly-lite' ),
+				'description' => __( '0 = no limit.', 'sidcraft-syntex' ),
 			) ),
-			'load_more_text'  => $this->ctrl( 'text', __( 'Load More Text', 'canvasly-lite' ), 'content', $pag, array(
+			'load_more_text'  => $this->ctrl( 'text', __( 'Load More Text', 'sidcraft-syntex' ), 'content', $pag, array(
 				'condition' => array( 'pagination' => 'load_more' ),
 			) ),
-			'prev_text'       => $this->ctrl( 'text', __( 'Previous Label', 'canvasly-lite' ), 'content', $pag, array(
+			'prev_text'       => $this->ctrl( 'text', __( 'Previous Label', 'sidcraft-syntex' ), 'content', $pag, array(
 				'condition' => array( 'pagination' => array( 'numbers', 'prev_next' ) ),
 			) ),
-			'next_text'       => $this->ctrl( 'text', __( 'Next Label', 'canvasly-lite' ), 'content', $pag, array(
+			'next_text'       => $this->ctrl( 'text', __( 'Next Label', 'sidcraft-syntex' ), 'content', $pag, array(
 				'condition' => array( 'pagination' => array( 'numbers', 'prev_next' ) ),
 			) ),
-			'empty_message'   => $this->ctrl( 'textarea', __( 'Nothing Found Message', 'canvasly-lite' ), 'content', $pag, array() ),
-			'item_background' => $this->ctrl( 'color', __( 'Item Background', 'canvasly-lite' ), 'style', $items, array(
+			'empty_message'   => $this->ctrl( 'textarea', __( 'Nothing Found Message', 'sidcraft-syntex' ), 'content', $pag, array() ),
+			'item_background' => $this->ctrl( 'color', __( 'Item Background', 'sidcraft-syntex' ), 'style', $items, array(
 				'selectors' => array( $card => 'background-color: {{VALUE}};' ),
 			) ),
-			'item_padding'    => $this->ctrl( 'dimensions', __( 'Item Padding', 'canvasly-lite' ), 'style', $items, array(
+			'item_padding'    => $this->ctrl( 'dimensions', __( 'Item Padding', 'sidcraft-syntex' ), 'style', $items, array(
 				'selectors' => array( $card => 'padding: {{VALUE}};' ),
 			) ),
-			'item_radius'     => $this->ctrl( 'dimensions', __( 'Item Radius', 'canvasly-lite' ), 'style', $items, array(
+			'item_radius'     => $this->ctrl( 'dimensions', __( 'Item Radius', 'sidcraft-syntex' ), 'style', $items, array(
 				'selectors' => array( $card => 'border-radius: {{VALUE}};' ),
 			) ),
-			'pag_color'       => $this->ctrl( 'color', __( 'Color', 'canvasly-lite' ), 'style', $pag, array(
+			'pag_color'       => $this->ctrl( 'color', __( 'Color', 'sidcraft-syntex' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' a,' . $nav . ' span,' . $nav . ' button' => 'color: {{VALUE}};' ),
 			) ),
-			'pag_active_color'=> $this->ctrl( 'color', __( 'Active Color', 'canvasly-lite' ), 'style', $pag, array(
+			'pag_active_color'=> $this->ctrl( 'color', __( 'Active Color', 'sidcraft-syntex' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' .is-current' => 'color: {{VALUE}};' ),
 			) ),
-			'pag_background'  => $this->ctrl( 'color', __( 'Background', 'canvasly-lite' ), 'style', $pag, array(
+			'pag_background'  => $this->ctrl( 'color', __( 'Background', 'sidcraft-syntex' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' a,' . $nav . ' span,' . $nav . ' button' => 'background-color: {{VALUE}};' ),
 			) ),
-			'pag_hover_color' => $this->ctrl( 'color', __( 'Hover Color', 'canvasly-lite' ), 'style', $pag, array(
+			'pag_hover_color' => $this->ctrl( 'color', __( 'Hover Color', 'sidcraft-syntex' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' a:hover,' . $nav . ' a:focus-visible,' . $nav . ' button:hover,' . $nav . ' button:focus-visible' => 'color: {{VALUE}};' ),
 			) ),
-			'pag_hover_background' => $this->ctrl( 'color', __( 'Hover Background', 'canvasly-lite' ), 'style', $pag, array(
+			'pag_hover_background' => $this->ctrl( 'color', __( 'Hover Background', 'sidcraft-syntex' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' a:hover,' . $nav . ' a:focus-visible,' . $nav . ' button:hover,' . $nav . ' button:focus-visible' => 'background-color: {{VALUE}}; background-image: none;' ),
 			) ),
-			'pag_hover_border' => $this->ctrl( 'color', __( 'Hover Border', 'canvasly-lite' ), 'style', $pag, array(
+			'pag_hover_border' => $this->ctrl( 'color', __( 'Hover Border', 'sidcraft-syntex' ), 'style', $pag, array(
 				'selectors' => array( $nav . ' a:hover,' . $nav . ' a:focus-visible,' . $nav . ' button:hover,' . $nav . ' button:focus-visible' => 'border-color: {{VALUE}};' ),
 			) ),
 		);
 	}
 
 	public function render( $s, $children = '' ) {
-		return '<div class="' . $this->cls( $s ) . ' lb-loop-placeholder">' . esc_html__( 'Collection Loop', 'canvasly-lite' ) . '</div>';
+		return '<div class="' . $this->cls( $s ) . ' lb-loop-placeholder">' . esc_html__( 'Collection Loop', 'sidcraft-syntex' ) . '</div>';
 	}
 
 	/**
@@ -476,7 +476,7 @@ class CollectionLoop extends Unit {
 				$msg = trim( (string) ( $s['empty_message'] ?? '' ) );
 				$body = $msg !== ''
 					? '<div class="lb-loop-empty">' . wp_kses_post( $msg ) . '</div>'
-					: '<div class="lb-loop-empty">' . esc_html__( 'No items found.', 'canvasly-lite' ) . '</div>';
+					: '<div class="lb-loop-empty">' . esc_html__( 'No items found.', 'sidcraft-syntex' ) . '</div>';
 			} else {
 				$body = '<div class="lb-loop-items">' . $items . '</div>';
 			}
@@ -548,11 +548,11 @@ class CollectionLoop extends Unit {
 	/** @return array|null */
 	public static function template_document( $id ) {
 		$id = absint( $id );
-		if ( ! $id || ! function_exists( 'get_post_type' ) || get_post_type( $id ) !== 'lb_template' ) {
+		if ( ! $id || ! function_exists( 'get_post_type' ) || get_post_type( $id ) !== 'sidsyn_template' ) {
 			return null;
 		}
-		$raw = get_post_meta( $id, '_lb_template_data', true );
-		$doc = class_exists( '\\CanvaslyLite\\Utils\\JsonCache' ) ? \CanvaslyLite\Utils\JsonCache::decode( $raw, null ) : ( is_string( $raw ) ? json_decode( $raw, true ) : $raw );
+		$raw = get_post_meta( $id, '_sidsyn_template_data', true );
+		$doc = class_exists( '\\SidcraftSyntex\\Utils\\JsonCache' ) ? \SidcraftSyntex\Utils\JsonCache::decode( $raw, null ) : ( is_string( $raw ) ? json_decode( $raw, true ) : $raw );
 		if ( ! is_array( $doc ) ) {
 			return null;
 		}
@@ -566,7 +566,7 @@ class CollectionLoop extends Unit {
 	 * Saved template this loop repeats.
 	 *
 	 * Inline loops return 0. `item_source` `template` returns `template_id`.
-	 * `canvasly-lite/loop/template_id` can point the same slot at a loop-item
+	 * `sidcraft-syntex/loop/template_id` can point the same slot at a loop-item
 	 * template without a second renderer.
 	 *
 	 * @param array $settings
@@ -578,7 +578,7 @@ class CollectionLoop extends Unit {
 			$id = absint( $settings['template_id'] ?? 0 );
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'canvasly-lite/loop/template_id', $id, $settings );
+			$filtered = apply_filters( 'sidcraft-syntex/loop/template_id', $id, $settings );
 			if ( is_numeric( $filtered ) ) {
 				$id = absint( $filtered );
 			}
@@ -590,8 +590,8 @@ class CollectionLoop extends Unit {
 		$template_id = self::embedded_template_id( $s );
 		if ( $template_id ) {
 			$doc = null;
-			if ( class_exists( '\\CanvaslyLite\\Templates\\TemplateEmbed' ) ) {
-				$doc = \CanvaslyLite\Templates\TemplateEmbed::document( $template_id );
+			if ( class_exists( '\\SidcraftSyntex\\Templates\\TemplateEmbed' ) ) {
+				$doc = \SidcraftSyntex\Templates\TemplateEmbed::document( $template_id );
 			}
 			if ( ! is_array( $doc ) ) {
 				$doc = self::template_document( $template_id );
@@ -604,21 +604,21 @@ class CollectionLoop extends Unit {
 	private function render_item( array $s, array $template, $item, $kind, $node_id, $page, $index ) {
 		if ( function_exists( 'do_action' ) ) {
 			/** Fires before one loop item renders. Pro pushes the loop post here. @param mixed $item Post or term. @param string $kind posts|terms */
-			do_action( 'canvasly-lite/loop/before_item', $item, $kind );
+			do_action( 'sidcraft-syntex/loop/before_item', $item, $kind );
 		}
 		try {
 			return $this->render_item_markup( $s, $template, $item, $kind, $node_id, $page, $index );
 		} finally {
 			if ( function_exists( 'do_action' ) ) {
 				/** Fires after one loop item renders. @param mixed $item @param string $kind */
-				do_action( 'canvasly-lite/loop/after_item', $item, $kind );
+				do_action( 'sidcraft-syntex/loop/after_item', $item, $kind );
 			}
 		}
 	}
 
 	private function render_item_markup( array $s, array $template, $item, $kind, $node_id, $page, $index ) {
 		if ( ! $template ) {
-			return '<article class="lb-loop-item"><div class="lb-embed-placeholder">' . esc_html__( 'Add an item template', 'canvasly-lite' ) . '</div></article>';
+			return '<article class="lb-loop-item"><div class="lb-embed-placeholder">' . esc_html__( 'Add an item template', 'sidcraft-syntex' ) . '</div></article>';
 		}
 		$suffix = $node_id . '-p' . absint( $page ) . 'i' . absint( $index );
 		$html   = '';
@@ -723,8 +723,8 @@ class CollectionLoop extends Unit {
 	private function render_static_item( array $s, $span ) {
 		$id    = absint( $s['static_template_id'] ?? 0 );
 		$doc   = null;
-		if ( $id && class_exists( '\\CanvaslyLite\\Templates\\TemplateEmbed' ) ) {
-			$doc = \CanvaslyLite\Templates\TemplateEmbed::document( $id );
+		if ( $id && class_exists( '\\SidcraftSyntex\\Templates\\TemplateEmbed' ) ) {
+			$doc = \SidcraftSyntex\Templates\TemplateEmbed::document( $id );
 		}
 		if ( ! is_array( $doc ) ) {
 			$doc = self::template_document( $id );
@@ -790,8 +790,8 @@ class CollectionLoop extends Unit {
 		$scroll = max( 1, min( $show, absint( $this->scalar( $s['carousel_scroll'] ?? 1, 1 ) ) ?: 1 ) );
 		$buttons = '';
 		if ( in_array( $nav, array( 'arrows', 'both' ), true ) ) {
-			$buttons = '<button type="button" class="lb-loop-arrow lb-loop-prev" data-lb-loop-dir="-1" aria-label="' . esc_attr__( 'Previous slide', 'canvasly-lite' ) . '">&lsaquo;</button>'
-				. '<button type="button" class="lb-loop-arrow lb-loop-next" data-lb-loop-dir="1" aria-label="' . esc_attr__( 'Next slide', 'canvasly-lite' ) . '">&rsaquo;</button>';
+			$buttons = '<button type="button" class="lb-loop-arrow lb-loop-prev" data-lb-loop-dir="-1" aria-label="' . esc_attr__( 'Previous slide', 'sidcraft-syntex' ) . '">&lsaquo;</button>'
+				. '<button type="button" class="lb-loop-arrow lb-loop-next" data-lb-loop-dir="1" aria-label="' . esc_attr__( 'Next slide', 'sidcraft-syntex' ) . '">&rsaquo;</button>';
 		}
 		$dots = '';
 		if ( in_array( $nav, array( 'dots', 'both' ), true ) ) {
@@ -799,7 +799,7 @@ class CollectionLoop extends Unit {
 			$pages = max( 1, (int) ceil( max( 0, (int) $count - $show ) / $scroll ) + 1 );
 			$dots  = '<div class="lb-loop-dots">';
 			for ( $i = 0; $i < $pages; $i++ ) {
-				$dots .= '<button type="button" class="lb-loop-dot' . ( 0 === $i ? ' is-active' : '' ) . '" data-lb-loop-page="' . esc_attr( (string) $i ) . '" aria-label="' . esc_attr( sprintf( /* translators: %d: slide number */ __( 'Go to slide %d', 'canvasly-lite' ), $i + 1 ) ) . '"></button>';
+				$dots .= '<button type="button" class="lb-loop-dot' . ( 0 === $i ? ' is-active' : '' ) . '" data-lb-loop-page="' . esc_attr( (string) $i ) . '" aria-label="' . esc_attr( sprintf( /* translators: %d: slide number */ __( 'Go to slide %d', 'sidcraft-syntex' ), $i + 1 ) ) . '"></button>';
 			}
 			$dots .= '</div>';
 		}
@@ -822,21 +822,21 @@ class CollectionLoop extends Unit {
 			}
 			$label = trim( (string) ( $s['load_more_text'] ?? '' ) );
 			if ( $label === '' ) {
-				$label = __( 'Load more', 'canvasly-lite' );
+				$label = __( 'Load more', 'sidcraft-syntex' );
 			}
-			$rest = function_exists( 'rest_url' ) ? rest_url( 'canvasly-lite/v1/loop' ) : '';
+			$rest = function_exists( 'rest_url' ) ? rest_url( 'sidcraft-syntex/v1/loop' ) : '';
 			return '<div class="lb-loop-pagination lb-loop-pagination-more"><button type="button" class="lb-loop-more" data-lb-loop-more="1" data-document="' . esc_attr( (string) $document_id ) . '" data-node="' . esc_attr( $node_id ) . '" data-page="' . esc_attr( (string) $page ) . '" data-max="' . esc_attr( (string) $max ) . '" data-rest="' . esc_url( $rest ) . '">' . esc_html( $label ) . '</button></div>';
 		}
 		$key  = Query::page_key( $node_id );
 		$prev = trim( (string) ( $s['prev_text'] ?? '' ) );
 		$next = trim( (string) ( $s['next_text'] ?? '' ) );
 		if ( $prev === '' ) {
-			$prev = __( 'Previous', 'canvasly-lite' );
+			$prev = __( 'Previous', 'sidcraft-syntex' );
 		}
 		if ( $next === '' ) {
-			$next = __( 'Next', 'canvasly-lite' );
+			$next = __( 'Next', 'sidcraft-syntex' );
 		}
-		$out = '<nav class="lb-loop-pagination lb-loop-pagination-' . esc_attr( $type ) . '" aria-label="' . esc_attr__( 'Collection pagination', 'canvasly-lite' ) . '">';
+		$out = '<nav class="lb-loop-pagination lb-loop-pagination-' . esc_attr( $type ) . '" aria-label="' . esc_attr__( 'Collection pagination', 'sidcraft-syntex' ) . '">';
 		if ( $page > 1 ) {
 			$out .= '<a class="lb-loop-page lb-loop-prev" href="' . esc_url( $this->page_url( $key, $page - 1 ) ) . '">' . esc_html( $prev ) . '</a>';
 		} else {
@@ -872,14 +872,14 @@ class CollectionLoop extends Unit {
 
 	private static function post_type_options() {
 		$opts = array(
-			'post' => __( 'Posts', 'canvasly-lite' ),
-			'page' => __( 'Pages', 'canvasly-lite' ),
-			'any'  => __( 'Any public type', 'canvasly-lite' ),
+			'post' => __( 'Posts', 'sidcraft-syntex' ),
+			'page' => __( 'Pages', 'sidcraft-syntex' ),
+			'any'  => __( 'Any public type', 'sidcraft-syntex' ),
 		);
 		if ( ! function_exists( 'get_post_types' ) ) {
 			return $opts;
 		}
-		$excluded = class_exists( Documents::class ) ? Documents::excluded() : array( 'attachment', 'lb_template', 'lb_component' );
+		$excluded = class_exists( Documents::class ) ? Documents::excluded() : array( 'attachment', 'sidsyn_template', 'sidsyn_component' );
 		foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $type ) {
 			if ( ! $type || in_array( $type->name, $excluded, true ) ) {
 				continue;
@@ -897,8 +897,8 @@ class CollectionLoop extends Unit {
 
 	private static function taxonomy_options() {
 		$opts = array(
-			'category' => __( 'Categories', 'canvasly-lite' ),
-			'post_tag' => __( 'Tags', 'canvasly-lite' ),
+			'category' => __( 'Categories', 'sidcraft-syntex' ),
+			'post_tag' => __( 'Tags', 'sidcraft-syntex' ),
 		);
 		if ( ! function_exists( 'get_taxonomies' ) ) {
 			return $opts;
@@ -919,16 +919,16 @@ class CollectionLoop extends Unit {
 	}
 
 	private static function template_options() {
-		if ( class_exists( '\\CanvaslyLite\\Templates\\SavedTemplates' ) && method_exists( '\\CanvaslyLite\\Templates\\SavedTemplates', 'select_options' ) ) {
-			return \CanvaslyLite\Templates\SavedTemplates::select_options();
+		if ( class_exists( '\\SidcraftSyntex\\Templates\\SavedTemplates' ) && method_exists( '\\SidcraftSyntex\\Templates\\SavedTemplates', 'select_options' ) ) {
+			return \SidcraftSyntex\Templates\SavedTemplates::select_options();
 		}
-		$opts = array( '0' => __( 'Select a template', 'canvasly-lite' ) );
+		$opts = array( '0' => __( 'Select a template', 'sidcraft-syntex' ) );
 		if ( ! function_exists( 'get_posts' ) ) {
 			return $opts;
 		}
 		$posts = get_posts(
 			array(
-				'post_type'              => 'lb_template',
+				'post_type'              => 'sidsyn_template',
 				'post_status'            => 'publish',
 				'posts_per_page'         => 100,
 				'orderby'                => 'title',
@@ -940,11 +940,11 @@ class CollectionLoop extends Unit {
 			)
 		);
 		foreach ( $posts as $p ) {
-			$type = function_exists( 'get_post_meta' ) ? (string) get_post_meta( $p->ID, '_lb_template_type', true ) : '';
+			$type = function_exists( 'get_post_meta' ) ? (string) get_post_meta( $p->ID, '_sidsyn_template_type', true ) : '';
 			$label = $p->post_title !== '' ? $p->post_title : ( '#' . $p->ID );
 			if ( $type !== '' ) {
-				if ( class_exists( '\\CanvaslyLite\\Templates\\SavedTemplates' ) ) {
-					$type = \CanvaslyLite\Templates\SavedTemplates::type_label( $type );
+				if ( class_exists( '\\SidcraftSyntex\\Templates\\SavedTemplates' ) ) {
+					$type = \SidcraftSyntex\Templates\SavedTemplates::type_label( $type );
 				}
 				$label .= ' (' . $type . ')';
 			}

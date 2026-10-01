@@ -1,12 +1,12 @@
 <?php
-namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
 /**
  * Accordion: a list of collapsible panels where only one panel is open at a time.
  * Items are a repeater of title/content (schema 2.2). Legacy "Title|Content" lines
  * are migrated on load. Toggle reuses this markup but allows several panels open.
  */
 class Accordion extends Unit {
- public function type(){return 'accordion';} public function title(){return __('Accordion', 'canvasly-lite');} public function icon(){return "\u{2261}";} public function category(){return 'basic';}
+ public function type(){return 'accordion';} public function title(){return __('Accordion', 'sidcraft-syntex');} public function icon(){return "\u{2261}";} public function category(){return 'basic';}
  public function keywords(){return ['accordion','collapse','faq','panel','toggle'];}
  public function scripts($s=[]){return $this->frontend_scripts();}
  protected function single_open(){return true;}
@@ -20,34 +20,34 @@ class Accordion extends Unit {
   'title_color'=>'','active_color'=>'','title_background'=>'','content_color'=>'','content_background'=>'','icon_color'=>'','icon_active_color'=>'','border_color'=>'#d8dde3','border_width'=>1,'title_padding'=>'','content_padding'=>'','icon_space'=>10,'space_between'=>0,
  ];}
  public function controls(){
-  $acc=__('Accordion', 'canvasly-lite'); $title=__('Title', 'canvasly-lite'); $content=__('Content', 'canvasly-lite'); $icon=__('Icon', 'canvasly-lite'); $border=__('Border', 'canvasly-lite');
+  $acc=__('Accordion', 'sidcraft-syntex'); $title=__('Title', 'sidcraft-syntex'); $content=__('Content', 'sidcraft-syntex'); $icon=__('Icon', 'sidcraft-syntex'); $border=__('Border', 'sidcraft-syntex');
   return [
-   'items'=>$this->ctrl('repeater',__('Items', 'canvasly-lite'),'content',$acc,[
+   'items'=>$this->ctrl('repeater',__('Items', 'sidcraft-syntex'),'content',$acc,[
     'title_field'=>'{{title}}','prevent_empty'=>true,
     'fields'=>[
-     'title'=>$this->field('text',__('Title', 'canvasly-lite'),['dynamic'=>true]),
-     'content'=>$this->field('wysiwyg',__('Content', 'canvasly-lite'),['dynamic'=>true]),
+     'title'=>$this->field('text',__('Title', 'sidcraft-syntex'),['dynamic'=>true]),
+     'content'=>$this->field('wysiwyg',__('Content', 'sidcraft-syntex'),['dynamic'=>true]),
     ],
    ]),
-   'title_tag'=>$this->ctrl('select',__('Title HTML Tag', 'canvasly-lite'),'content',$acc,['options'=>self::opt_title_tags()]),
-   'icon'=>$this->ctrl('icon',__('Icon', 'canvasly-lite'),'content',$acc),
-   'active_icon'=>$this->ctrl('icon',__('Active Icon', 'canvasly-lite'),'content',$acc),
-   'icon_position'=>$this->ctrl('select',__('Icon Position', 'canvasly-lite'),'content',$acc,['options'=>['left'=>__('Left', 'canvasly-lite'),'right'=>__('Right', 'canvasly-lite')]]),
-   'first_open'=>$this->ctrl('switch',__('First Item Opened', 'canvasly-lite'),'content',$acc),
-   'faq_schema'=>$this->ctrl('switch',__('FAQ Schema', 'canvasly-lite'),'content',$acc),
-   'title_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$title),
-   'active_color'=>$this->ctrl('color',__('Active Color', 'canvasly-lite'),'style',$title),
-   'title_background'=>$this->ctrl('color',__('Background', 'canvasly-lite'),'style',$title),
-   'title_padding'=>$this->ctrl('text',__('Padding', 'canvasly-lite'),'style',$title),
-   'content_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$content),
-   'content_background'=>$this->ctrl('color',__('Background', 'canvasly-lite'),'style',$content),
-   'content_padding'=>$this->ctrl('text',__('Padding', 'canvasly-lite'),'style',$content),
-   'icon_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$icon),
-   'icon_active_color'=>$this->ctrl('color',__('Active Color', 'canvasly-lite'),'style',$icon),
-   'icon_space'=>$this->ctrl('number',__('Spacing', 'canvasly-lite'),'style',$icon),
-   'border_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$border),
-   'border_width'=>$this->ctrl('number',__('Width', 'canvasly-lite'),'style',$border),
-   'space_between'=>$this->ctrl('number',__('Space Between', 'canvasly-lite'),'style',$border),
+   'title_tag'=>$this->ctrl('select',__('Title HTML Tag', 'sidcraft-syntex'),'content',$acc,['options'=>self::opt_title_tags()]),
+   'icon'=>$this->ctrl('icon',__('Icon', 'sidcraft-syntex'),'content',$acc),
+   'active_icon'=>$this->ctrl('icon',__('Active Icon', 'sidcraft-syntex'),'content',$acc),
+   'icon_position'=>$this->ctrl('select',__('Icon Position', 'sidcraft-syntex'),'content',$acc,['options'=>['left'=>__('Left', 'sidcraft-syntex'),'right'=>__('Right', 'sidcraft-syntex')]]),
+   'first_open'=>$this->ctrl('switch',__('First Item Opened', 'sidcraft-syntex'),'content',$acc),
+   'faq_schema'=>$this->ctrl('switch',__('FAQ Schema', 'sidcraft-syntex'),'content',$acc),
+   'title_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$title),
+   'active_color'=>$this->ctrl('color',__('Active Color', 'sidcraft-syntex'),'style',$title),
+   'title_background'=>$this->ctrl('color',__('Background', 'sidcraft-syntex'),'style',$title),
+   'title_padding'=>$this->ctrl('text',__('Padding', 'sidcraft-syntex'),'style',$title),
+   'content_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$content),
+   'content_background'=>$this->ctrl('color',__('Background', 'sidcraft-syntex'),'style',$content),
+   'content_padding'=>$this->ctrl('text',__('Padding', 'sidcraft-syntex'),'style',$content),
+   'icon_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$icon),
+   'icon_active_color'=>$this->ctrl('color',__('Active Color', 'sidcraft-syntex'),'style',$icon),
+   'icon_space'=>$this->ctrl('number',__('Spacing', 'sidcraft-syntex'),'style',$icon),
+   'border_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$border),
+   'border_width'=>$this->ctrl('number',__('Width', 'sidcraft-syntex'),'style',$border),
+   'space_between'=>$this->ctrl('number',__('Space Between', 'sidcraft-syntex'),'style',$border),
   ];
  }
  public function render($s,$children=''){
@@ -68,7 +68,7 @@ class Accordion extends Unit {
    $title=(string)($row['title']??$row[0]??''); $content=(string)($row['content']??$row[1]??'');
    $open=$i===0&&!empty($s['first_open']);
    $tid=$uid.'-t'.$i; $cid=$uid.'-c'.$i;
-   $icon='<span class="lb-collapse-icon" aria-hidden="true"><span class="lb-collapse-icon-closed">'.\CanvaslyLite\Utils\Icons::svg($s['icon']??'chevron-down').'</span><span class="lb-collapse-icon-opened">'.\CanvaslyLite\Utils\Icons::svg($s['active_icon']??'chevron-up').'</span></span>';
+   $icon='<span class="lb-collapse-icon" aria-hidden="true"><span class="lb-collapse-icon-closed">'.\SidcraftSyntex\Utils\Icons::svg($s['icon']??'chevron-down').'</span><span class="lb-collapse-icon-opened">'.\SidcraftSyntex\Utils\Icons::svg($s['active_icon']??'chevron-up').'</span></span>';
    $out.='<div class="lb-collapse-item'.($open?' is-open':'').'">';
    $out.='<'.$tag.' class="lb-collapse-title" id="'.esc_attr($tid).'" role="button" tabindex="0" aria-expanded="'.($open?'true':'false').'" aria-controls="'.esc_attr($cid).'">'.($pos==='left'?$icon:'').'<span class="lb-collapse-heading">'.wp_kses_post($title).'</span>'.($pos==='right'?$icon:'').'</'.$tag.'>';
    $out.='<div class="lb-collapse-content" id="'.esc_attr($cid).'" role="region" aria-labelledby="'.esc_attr($tid).'"'.($open?'':' hidden').'>'.wpautop(wp_kses_post($content)).'</div>';

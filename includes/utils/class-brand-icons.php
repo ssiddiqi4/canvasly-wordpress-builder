@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Utils;
+namespace SidcraftSyntex\Utils;
 if(!defined('ABSPATH')) exit;
 /**
  * Badge glyphs for the social widget: white marks on a brand-colored tile,
@@ -9,7 +9,7 @@ class BrandIcons {
  private static $marks=null;
  private static function marks(){
   if(self::$marks!==null)return self::$marks;
-  $file=CANVASLY_LITE_PATH.'assets/data/social-brand-icons.json';
+  $file=SIDCRAFT_SYNTEX_PATH.'assets/data/social-brand-icons.json';
   $data=class_exists(JsonCache::class)?JsonCache::read($file):null;
   if(!is_array($data)&&is_readable($file)){ $raw=file_get_contents($file); $data=json_decode($raw,true); }
   return self::$marks=is_array($data)?$data:[];
