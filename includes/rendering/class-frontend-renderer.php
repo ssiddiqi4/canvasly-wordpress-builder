@@ -40,7 +40,7 @@ class FrontendRenderer {
    if($id&&$nodes)self::enqueue_google_fonts($nodes);
   }
   /** Fires on wp_enqueue_scripts after core frontend assets are registered. Add-ons register their handles here; unit-declared assets enqueue after. */
-  do_action('sidcraft-page-builder/frontend/enqueue');
+  do_action('sidcraft_page_builder_frontend_enqueue');
   if($nodes&&class_exists('\\SidcraftPageBuilder\\Rendering\\FrontendAssets'))\SidcraftPageBuilder\Rendering\FrontendAssets::enqueue($nodes,$id);
   if($nodes&&class_exists('\\SidcraftPageBuilder\\Units\\MenuAnchor'))\SidcraftPageBuilder\Units\MenuAnchor::enqueue();
  }
@@ -115,7 +115,7 @@ class FrontendRenderer {
   if($width===''&&class_exists('\\SidcraftPageBuilder\\Settings\\KitSettings'))$width=\SidcraftPageBuilder\Settings\KitSettings::content_width();
   if($template==='default'&&$width!=='')$style=' style="--lb-page-width:'.esc_attr($width).'"';
   /** Fires before a Sidcraft Page Builder document is rendered on the frontend. @param int $id @param array $doc */
-  do_action('sidcraft-page-builder/frontend/before_render',$id,$doc);
+  do_action('sidcraft_page_builder_frontend_before_render',$id,$doc);
   if(class_exists('\\SidcraftPageBuilder\\Design\\Optimize'))\SidcraftPageBuilder\Design\Optimize::begin(array_merge($header,$root,$footer));
   $html='';
   if($header)$html.='<header class="lb-site-header">'.self::nodes($header,$id).'</header>';
@@ -123,7 +123,7 @@ class FrontendRenderer {
   if($footer)$html.='<footer class="lb-site-footer">'.self::nodes($footer,$id).'</footer>';
   if(class_exists('\\SidcraftPageBuilder\\Design\\Optimize'))$html=\SidcraftPageBuilder\Design\Optimize::tune_images($html);
   /** Fires after a Sidcraft Page Builder document has been rendered. @param int $id @param array $doc @param string $html */
-  do_action('sidcraft-page-builder/frontend/after_render',$id,$doc,$html);
+  do_action('sidcraft_page_builder_frontend_after_render',$id,$doc,$html);
   return $html;
  }
  /**
@@ -202,7 +202,7 @@ class FrontendRenderer {
    $inner=preg_replace('/<\/form>/',$meta.'</form>',$inner,1);
   }
   /** Filter the inner HTML an unit renders. @param string $inner @param Unit $el @param array $s Resolved settings @param array $n Node */
-  $inner=apply_filters('sidcraft-page-builder/unit/render_html',$inner,$el,$s,$n);
+  $inner=apply_filters('sidcraft_page_builder_unit_render_html',$inner,$el,$s,$n);
   $inner=is_string($inner)?$inner:'';
   if(class_exists('\\SidcraftPageBuilder\\Units\\Unit')){
    $jump=\SidcraftPageBuilder\Units\Unit::jump_target(is_array($s)?($s['css_id']??''):'');
@@ -277,7 +277,7 @@ class FrontendRenderer {
  public static function should_render($n,$post_id=0){
   if(!is_array($n))return false;
   if(!function_exists('apply_filters'))return true;
-  $render=apply_filters('sidcraft-page-builder/unit/should_render',true,$n,absint($post_id));
+  $render=apply_filters('sidcraft_page_builder_unit_should_render',true,$n,absint($post_id));
   return false!==$render;
  }
  private static function needs_frontend_script($nodes,$post_id=0){
@@ -324,7 +324,7 @@ class FrontendRenderer {
    $s=DevMode::resolve_settings($s,$ctx,DevMode::enabled());
   }
   /** Filter resolved unit settings before render (translations, add-ons). @param array $s @param array $n @param int $post_id @param object|null $el */
-  $filtered=apply_filters('sidcraft-page-builder/unit/settings',$s,is_array($n)?$n:[],$post_id,$el);
+  $filtered=apply_filters('sidcraft_page_builder_unit_settings',$s,is_array($n)?$n:[],$post_id,$el);
   return is_array($filtered)?$filtered:$s;
  }
 }

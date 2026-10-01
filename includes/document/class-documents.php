@@ -118,7 +118,7 @@ class Documents {
 		 *
 		 * @param string[] $types
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/documents/post_types', $types );
+		$filtered = apply_filters( 'sidcraft_page_builder_documents_post_types', $types );
 		self::$enabled_raw = $option;
 		return self::$enabled = self::normalize( is_array( $filtered ) ? $filtered : $types );
 	}
@@ -227,7 +227,7 @@ class Documents {
 		 *
 		 * @param array<string,string> $out slug => label
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/documents/available_post_types', $out );
+		$filtered = apply_filters( 'sidcraft_page_builder_documents_available_post_types', $out );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 

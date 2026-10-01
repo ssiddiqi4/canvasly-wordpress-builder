@@ -16,7 +16,7 @@ class Cache {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'sidcraft-page-builder/document/after_save', array( self::class, 'purge' ), 40, 1 );
+		add_action( 'sidcraft_page_builder_document_after_save', array( self::class, 'purge' ), 40, 1 );
 	}
 
 	/**
@@ -84,7 +84,7 @@ class Cache {
 		 *
 		 * @param int $post_id
 		 */
-		do_action( 'sidcraft-page-builder/cache/purge', $post_id );
+		do_action( 'sidcraft_page_builder_cache_purge', $post_id );
 		return true;
 	}
 
@@ -110,7 +110,7 @@ class Cache {
 		/**
 		 * Fires after a site-wide cache purge request.
 		 */
-		do_action( 'sidcraft-page-builder/cache/purge_all' );
+		do_action( 'sidcraft_page_builder_cache_purge_all' );
 	}
 
 	/**

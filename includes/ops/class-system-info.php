@@ -16,11 +16,11 @@ class SystemInfo {
 	const PAGE = 'sidcraft-page-builder-system-info';
 
 	public static function init() {
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_menu', array( self::class, 'menu' ), 22 );
 			add_action( 'admin_post_sidsyn_system_info_download', array( self::class, 'handle_download' ) );
-			add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'tools_screen' ), 24 );
+			add_action( 'sidcraft_page_builder_tools_screen', array( self::class, 'tools_screen' ), 24 );
 		}
 	}
 
@@ -57,7 +57,7 @@ class SystemInfo {
 		 *
 		 * @param array $sections
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/system_info', $sections );
+		$filtered = apply_filters( 'sidcraft_page_builder_system_info', $sections );
 		return is_array( $filtered ) ? $filtered : $sections;
 	}
 

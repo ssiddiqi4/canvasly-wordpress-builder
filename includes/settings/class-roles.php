@@ -24,7 +24,7 @@ class Roles {
 
 	public static function init() {
 		self::maybe_sync();
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_menu', array( self::class, 'menu' ), 11 );
 			add_action( 'admin_init', array( self::class, 'maybe_save' ) );
@@ -104,7 +104,7 @@ class Roles {
 		 * @param string   $best
 		 * @param string[] $roles
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/roles/current_access', $best, $roles );
+		$filtered = apply_filters( 'sidcraft_page_builder_roles_current_access', $best, $roles );
 		return self::sanitize_access( $filtered );
 	}
 
@@ -147,7 +147,7 @@ class Roles {
 		 *
 		 * @param array<string,string> $out
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/roles/access', $out );
+		$filtered = apply_filters( 'sidcraft_page_builder_roles_access', $out );
 		return is_array( $filtered ) ? array_map( array( self::class, 'sanitize_access' ), $filtered ) : $out;
 	}
 
@@ -189,7 +189,7 @@ class Roles {
 		 *
 		 * @param array<string,string> $clean
 		 */
-		do_action( 'sidcraft-page-builder/roles/after_save', $clean );
+		do_action( 'sidcraft_page_builder_roles_after_save', $clean );
 		return $clean;
 	}
 

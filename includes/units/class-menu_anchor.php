@@ -267,7 +267,7 @@ class MenuAnchor extends Unit {
 	}
 
 	/**
-	 * Append anchor links supplied by `sidcraft-page-builder/menu_anchor/links`.
+	 * Append anchor links supplied by `sidcraft_page_builder_menu_anchor_links`.
 	 *
 	 * Each item is `[ 'id' => 'contact-us', 'label' => 'Contact' ]`.
 	 *
@@ -276,7 +276,7 @@ class MenuAnchor extends Unit {
 	 * @return string
 	 */
 	public static function filter_nav_items( $items, $args ) {
-		$links = apply_filters( 'sidcraft-page-builder/menu_anchor/links', array(), $args );
+		$links = apply_filters( 'sidcraft_page_builder_menu_anchor_links', array(), $args );
 		if ( ! is_array( $links ) || ! $links ) {
 			return $items;
 		}
@@ -355,7 +355,7 @@ class MenuAnchor extends Unit {
 	 */
 	public static function enqueue_discovered() {
 		self::register_assets();
-		$links = apply_filters( 'sidcraft-page-builder/menu_anchor/links', array(), null );
+		$links = apply_filters( 'sidcraft_page_builder_menu_anchor_links', array(), null );
 		if ( is_array( $links ) && $links ) {
 			self::enqueue();
 			return;

@@ -129,7 +129,7 @@ class SavedTemplates {
 		 *
 		 * @param array<string,string> $types
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/templates/types', $types );
+		$filtered = apply_filters( 'sidcraft_page_builder_templates_types', $types );
 		return is_array( $filtered ) ? $filtered : $types;
 	}
 

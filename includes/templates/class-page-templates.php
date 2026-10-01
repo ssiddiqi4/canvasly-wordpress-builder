@@ -57,7 +57,7 @@ class PageTemplates {
 		 * @param int    $post_id
 		 * @param array  $doc
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/document/template', $tpl, $post_id, $doc );
+		$filtered = apply_filters( 'sidcraft_page_builder_document_template', $tpl, $post_id, $doc );
 		return self::normalize( is_string( $filtered ) ? $filtered : $tpl );
 	}
 
@@ -82,7 +82,7 @@ class PageTemplates {
 		 * @param string $template default|full_width|canvas
 		 * @param int    $post_id
 		 */
-		$file = apply_filters( 'sidcraft-page-builder/document/template_file', $file, $template, $post_id );
+		$file = apply_filters( 'sidcraft_page_builder_document_template_file', $file, $template, $post_id );
 		if ( is_string( $file ) && $file !== '' && is_readable( $file ) ) {
 			return $file;
 		}

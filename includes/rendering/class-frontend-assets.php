@@ -33,7 +33,7 @@ class FrontendAssets {
 		$seen    = array();
 		$post_id = absint( $post_id );
 		$nodes   = is_array( $nodes ) ? $nodes : array();
-		$respect = function_exists( 'has_filter' ) && has_filter( 'sidcraft-page-builder/unit/should_render' );
+		$respect = function_exists( 'has_filter' ) && has_filter( 'sidcraft_page_builder_unit_should_render' );
 		if ( $respect ) {
 			$nodes = self::omit_hidden( $nodes, $post_id );
 		}
@@ -48,7 +48,7 @@ class FrontendAssets {
 			'scripts' => array_keys( $scripts ),
 			'styles'  => array_keys( $styles ),
 		);
-		$filtered = apply_filters( 'sidcraft-page-builder/frontend/assets', $out, $nodes );
+		$filtered = apply_filters( 'sidcraft_page_builder_frontend_assets', $out, $nodes );
 		if ( ! is_array( $filtered ) ) {
 			return $out;
 		}
@@ -135,7 +135,7 @@ class FrontendAssets {
 
 	/**
 	 * Template id a node embeds, including a loop-item template chosen by
-	 * `sidcraft-page-builder/loop/template_id`.
+	 * `sidcraft_page_builder_loop_template_id`.
 	 *
 	 * @param string $type
 	 * @param array  $settings

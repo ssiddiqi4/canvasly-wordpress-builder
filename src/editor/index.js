@@ -24,7 +24,7 @@ import { installKitExport } from "./kit-export.js";
 import { installGroups } from "./groups.js";
 import { installCodeControl } from "./code-control.js";
 import { installShortcuts } from "./shortcuts.js";
-import { installClipboard } from "./clipboard.js";
+import { installClipboard } from "./copy-paste.js";
 import { installPreferences } from "./preferences.js";
 import { installInlineToolbar } from "./inline-toolbar.js";
 import { installDynamicTags } from "./dynamic-tags.js";

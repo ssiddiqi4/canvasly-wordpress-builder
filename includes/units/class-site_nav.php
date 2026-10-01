@@ -442,7 +442,7 @@ class SiteNav extends Unit {
 	 * @return string
 	 */
 	public static function render_menu( $args = array() ) {
-		$args = apply_filters( 'sidcraft-page-builder/site_nav/args', is_array( $args ) ? $args : array() );
+		$args = apply_filters( 'sidcraft_page_builder_site_nav_args', is_array( $args ) ? $args : array() );
 		$args = self::args( is_array( $args ) ? $args : array() );
 
 		$list = '';

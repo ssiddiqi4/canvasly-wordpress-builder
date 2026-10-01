@@ -53,10 +53,10 @@ class Fonts {
 		}
 		self::$booted = true;
 		add_filter( 'wp_resource_hints', array( self::class, 'resource_hints' ), 10, 2 );
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'sidcraft-page-builder/document/after_save', array( self::class, 'on_after_save' ), 30, 2 );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_document_after_save', array( self::class, 'on_after_save' ), 30, 2 );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
-			add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'screen' ), 6 );
+			add_action( 'sidcraft_page_builder_tools_screen', array( self::class, 'screen' ), 6 );
 			add_action( 'admin_post_sidsyn_fonts_settings', array( self::class, 'handle_settings' ) );
 			add_action( 'admin_post_sidsyn_fonts_download', array( self::class, 'handle_download' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
@@ -204,7 +204,7 @@ class Fonts {
 		 *
 		 * @param string $display auto|block|swap|fallback|optional
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/fonts/display', $display );
+		$filtered = apply_filters( 'sidcraft_page_builder_fonts_display', $display );
 		return self::sanitize_display( is_string( $filtered ) ? $filtered : $display );
 	}
 
@@ -228,7 +228,7 @@ class Fonts {
 		 *
 		 * @param bool $local
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/fonts/local', $local );
+		$filtered = apply_filters( 'sidcraft_page_builder_fonts_local', $local );
 		return ! empty( $filtered );
 	}
 
@@ -422,7 +422,7 @@ class Fonts {
 		 * @param array $out   family => {weights,italic}
 		 * @param array $nodes
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/fonts/usage', $out, $nodes );
+		$filtered = apply_filters( 'sidcraft_page_builder_fonts_usage', $out, $nodes );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 
@@ -905,7 +905,7 @@ class Fonts {
 			 * @param string $url
 			 * @param array  $delta
 			 */
-			$filtered = apply_filters( 'sidcraft-page-builder/fonts/url', $url, $delta );
+			$filtered = apply_filters( 'sidcraft_page_builder_fonts_url', $url, $delta );
 			$url      = is_string( $filtered ) && $filtered !== '' ? $filtered : $url;
 			self::$flush_n++;
 			$handle  = self::HANDLE . ( self::$flush_n === 1 ? '' : '-' . self::$flush_n );
@@ -1210,7 +1210,7 @@ class Fonts {
 				'Accept' => $binary ? '*/*' : 'text/css,*/*;q=0.1',
 			),
 		);
-		$pre = apply_filters( 'sidcraft-page-builder/fonts/remote_get', null, $url, $args );
+		$pre = apply_filters( 'sidcraft_page_builder_fonts_remote_get', null, $url, $args );
 		if ( is_array( $pre ) ) {
 			$code = (int) ( $pre['response']['code'] ?? ( $pre['code'] ?? 0 ) );
 			$body = (string) ( $pre['body'] ?? '' );

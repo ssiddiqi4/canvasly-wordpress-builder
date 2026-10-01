@@ -59,7 +59,7 @@ class TemplateIO {
 		 * @param array $payload
 		 * @param int[] $ids
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/templates/export_payload', $payload, $ids );
+		$filtered = apply_filters( 'sidcraft_page_builder_templates_export_payload', $payload, $ids );
 		return is_array( $filtered ) ? $filtered : $payload;
 	}
 
@@ -275,7 +275,7 @@ class TemplateIO {
 			'ids'       => $created,
 		);
 		/** Fires after templates are imported. @param array $result @param array $payload */
-		do_action( 'sidcraft-page-builder/templates/after_import', $result, $payload );
+		do_action( 'sidcraft_page_builder_templates_after_import', $result, $payload );
 		return $result;
 	}
 

@@ -37,7 +37,7 @@ class Resolver {
 			$ctx['post'] = get_post( (int) $ctx['post_id'] );
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'sidcraft-page-builder/dynamic_tags/context', $ctx );
+			$filtered = apply_filters( 'sidcraft_page_builder_dynamic_tags_context', $ctx );
 			if ( is_array( $filtered ) ) {
 				$ctx = $filtered;
 			}
@@ -123,7 +123,7 @@ class Resolver {
 		}
 		$raw = $tag->render( $binding, $context );
 		if ( function_exists( 'apply_filters' ) ) {
-			$raw = apply_filters( 'sidcraft-page-builder/dynamic_tags/value', $raw, $tag_name, $binding, $context );
+			$raw = apply_filters( 'sidcraft_page_builder_dynamic_tags_value', $raw, $tag_name, $binding, $context );
 		}
 		$extracted = self::extract( $raw, $control_type );
 		$value = $extracted['value'];

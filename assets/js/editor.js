@@ -20520,7 +20520,7 @@
     }
   }
 
-  // src/editor/clipboard.js
+  // src/editor/copy-paste.js
   var CLIPBOARD_STORAGE = "sidcraft-page-builder.clipboard";
   var CLIPBOARD_SCHEMA = "2.6";
   var BP_NAMES = ["mobile", "mobile_extra", "tablet", "tablet_extra", "laptop", "desktop", "widescreen"];

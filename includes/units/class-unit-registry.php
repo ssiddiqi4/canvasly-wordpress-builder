@@ -4,7 +4,7 @@ namespace SidcraftPageBuilder\Units; if(!defined('ABSPATH')) exit;
  * Unit registry.
  *
  * Core units are registered by Plugin::register_units() on `init`; afterwards `boot()` fires
- * `sidcraft-page-builder/units/register` with the registry so add-ons can call register()/unregister().
+ * `sidcraft_page_builder_units_register` with the registry so add-ons can call register()/unregister().
  * register() accepts an Unit instance or a fully-qualified class name extending Unit.
  *
  * Core widgets may be registered lazily (file + class) so frontend and wp-admin screens that
@@ -75,8 +75,8 @@ class UnitRegistry {
  public function boot(){
   if($this->booted) return $this;
   $this->booted=true;
-  do_action('sidcraft-page-builder/units/register',$this);
-  do_action('sidcraft-page-builder/elements/register',$this);
+  do_action('sidcraft_page_builder_units_register',$this);
+  do_action('sidcraft_page_builder_elements_register',$this);
   return $this;
  }
  private function realize($type){

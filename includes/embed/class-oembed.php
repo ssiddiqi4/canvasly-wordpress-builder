@@ -24,7 +24,7 @@ class OEmbed {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class OEmbed {
 		 *
 		 * @param string[] $hosts
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/oembed/providers', $hosts );
+		$filtered = apply_filters( 'sidcraft_page_builder_oembed_providers', $hosts );
 		return is_array( $filtered ) ? array_values( array_filter( array_map( 'strval', $filtered ) ) ) : $hosts;
 	}
 
@@ -134,7 +134,7 @@ class OEmbed {
 		 * @param string $url
 		 * @param string $host
 		 */
-		return (bool) apply_filters( 'sidcraft-page-builder/oembed/allowed', $ok, (string) $url, $host );
+		return (bool) apply_filters( 'sidcraft_page_builder_oembed_allowed', $ok, (string) $url, $host );
 	}
 
 	/**
@@ -213,13 +213,13 @@ class OEmbed {
 
 	public static function ttl() {
 		$default = defined( 'WEEK_IN_SECONDS' ) ? WEEK_IN_SECONDS : self::TTL_DEFAULT;
-		$ttl     = (int) apply_filters( 'sidcraft-page-builder/oembed/ttl', $default );
+		$ttl     = (int) apply_filters( 'sidcraft_page_builder_oembed_ttl', $default );
 		return $ttl > 0 ? $ttl : $default;
 	}
 
 	public static function miss_ttl() {
 		$default = defined( 'HOUR_IN_SECONDS' ) ? HOUR_IN_SECONDS : self::TTL_MISS;
-		$ttl     = (int) apply_filters( 'sidcraft-page-builder/oembed/miss_ttl', $default );
+		$ttl     = (int) apply_filters( 'sidcraft_page_builder_oembed_miss_ttl', $default );
 		return $ttl > 0 ? $ttl : $default;
 	}
 
@@ -268,7 +268,7 @@ class OEmbed {
 		 * @param array  $allowed
 		 * @param string $html
 		 */
-		$allowed = apply_filters( 'sidcraft-page-builder/oembed/kses', $allowed, $html );
+		$allowed = apply_filters( 'sidcraft_page_builder_oembed_kses', $allowed, $html );
 		if ( function_exists( 'wp_kses' ) ) {
 			return wp_kses( $html, is_array( $allowed ) ? $allowed : array() );
 		}

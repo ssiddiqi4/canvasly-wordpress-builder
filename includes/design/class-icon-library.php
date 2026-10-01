@@ -18,14 +18,14 @@ class IconLibrary {
  ];}
  public static function all(){return array_merge(self::builtins(),array_values((array)get_option(self::KEY,[])),self::registered());}
  /**
-  * Icons added on `sidcraft-page-builder/icons/register`. Fired each call so a set
+  * Icons added on `sidcraft_page_builder_icons_register`. Fired each call so a set
   * registered during the request is visible to the editor and to Icons::svg().
   *
   * @return array<int,array>
   */
  public static function registered(){
   $sets=new IconSets();
-  do_action('sidcraft-page-builder/icons/register',$sets);
+  do_action('sidcraft_page_builder_icons_register',$sets);
   $icons=$sets->all();
   return is_array($icons)?$icons:[];
  }

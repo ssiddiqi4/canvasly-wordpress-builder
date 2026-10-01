@@ -17,7 +17,7 @@ if(!defined('ABSPATH')) exit;
  *                SidcraftPageBuilderData.controlTypes[type].editor so the JS renderer can read options.
  *
  * Fire order: Plugin::register_units() boots this registry on `init`, which fires
- * `sidcraft-page-builder/controls/register` before `sidcraft-page-builder/units/register`.
+ * `sidcraft_page_builder_controls_register` before `sidcraft_page_builder_units_register`.
  */
 class Controls {
  const BUILTIN=['text','textarea','wysiwyg','url','number','slider','color','switch','select','choose','icon','media','gallery','spacing','dimensions','box_shadow','gradient','repeater','url_map','number_map','typography','border','background','text_shadow','css_filter','transform','transition','gaps','code','font'];
@@ -32,7 +32,7 @@ class Controls {
  public function boot(){
   if($this->booted) return $this;
   $this->booted=true;
-  do_action('sidcraft-page-builder/controls/register',$this);
+  do_action('sidcraft_page_builder_controls_register',$this);
   return $this;
  }
  public function register($type,$sanitizer=null,$css_handler=null,array $args=[]){

@@ -66,7 +66,7 @@ abstract class Unit {
   */
  public function controls(){return [];}
  public function render($settings,$children=''){return $children;}
- /** Extra CSS for this unit. `$id` is the node id (selector is `#lb-node-{$id}`). Add-ons may also use the `sidcraft-page-builder/unit/style_css` filter. */
+ /** Extra CSS for this unit. `$id` is the node id (selector is `#lb-node-{$id}`). Add-ons may also use the `sidcraft_page_builder_unit_style_css` filter. */
  public function style_css($id,$settings){return '';}
  /**
   * WP script handles this unit needs on the frontend. Empty means no extra JS.
@@ -84,21 +84,21 @@ abstract class Unit {
   * @return string[]
   */
  public function styles($settings=[]){return [];}
- /** Normalized unique script handles after `sidcraft-page-builder/unit/scripts` and background-layer detection. */
+ /** Normalized unique script handles after `sidcraft_page_builder_unit_scripts` and background-layer detection. */
  public function get_scripts($settings=[]){
   $s=is_array($settings)?$settings:[];
   $handles=$this->scripts($s);
   if(!is_array($handles))$handles=[];
   if(self::settings_need_frontend($s))$handles[]='sidcraft-page-builder-frontend';
-  $handles=apply_filters('sidcraft-page-builder/unit/scripts',$handles,$this,$s);
+  $handles=apply_filters('sidcraft_page_builder_unit_scripts',$handles,$this,$s);
   return self::normalize_handles(is_array($handles)?$handles:[]);
  }
- /** Normalized unique style handles after `sidcraft-page-builder/unit/styles`. */
+ /** Normalized unique style handles after `sidcraft_page_builder_unit_styles`. */
  public function get_styles($settings=[]){
   $s=is_array($settings)?$settings:[];
   $handles=$this->styles($s);
   if(!is_array($handles))$handles=[];
-  $handles=apply_filters('sidcraft-page-builder/unit/styles',$handles,$this,$s);
+  $handles=apply_filters('sidcraft_page_builder_unit_styles',$handles,$this,$s);
   return self::normalize_handles(is_array($handles)?$handles:[]);
  }
  /** True when advanced background video/slideshow on any unit needs the core frontend bundle. */
@@ -121,11 +121,11 @@ abstract class Unit {
  }
  /** Core frontend bundle handle, for subclasses that always need JS. */
  protected function frontend_scripts(){return ['sidcraft-page-builder-frontend'];}
- /** Defaults after the `sidcraft-page-builder/unit/defaults` filter. Schema `default`s are merged under `defaults()`. Use this instead of defaults() when reading. */
+ /** Defaults after the `sidcraft_page_builder_unit_defaults` filter. Schema `default`s are merged under `defaults()`. Use this instead of defaults() when reading. */
  public function get_defaults(){
   $schema=[];
   foreach($this->controls() as $k=>$def){ if(is_array($def)&&array_key_exists('default',$def))$schema[$k]=$def['default']; }
-  $d=apply_filters('sidcraft-page-builder/unit/defaults',array_merge($schema,(array)$this->defaults()),$this);
+  $d=apply_filters('sidcraft_page_builder_unit_defaults',array_merge($schema,(array)$this->defaults()),$this);
   return is_array($d)?$d:[];
  }
  /** True when the unit declares at least one control as a schema array (opts the panel into the schema renderer). */
@@ -141,10 +141,10 @@ abstract class Unit {
  }
  /**
   * Full normalized control schema: unit controls + shared controls, filtered through
-  * `sidcraft-page-builder/unit/controls`, every value normalized to a definition array (see controls()).
+  * `sidcraft_page_builder_unit_controls`, every value normalized to a definition array (see controls()).
   */
  public function all_controls(){
-  $c=apply_filters('sidcraft-page-builder/unit/controls',$this->base_controls(),$this);
+  $c=apply_filters('sidcraft_page_builder_unit_controls',$this->base_controls(),$this);
   if(!is_array($c))return [];
   $out=[];
   foreach($c as $k=>$def){

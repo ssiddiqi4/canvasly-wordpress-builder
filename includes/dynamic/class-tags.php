@@ -14,7 +14,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Tag', false ) ) {
 /**
  * Dynamic tag registry.
  *
- * Fire `sidcraft-page-builder/dynamic_tags/register` with this instance after built-ins are loaded.
+ * Fire `sidcraft_page_builder_dynamic_tags_register` with this instance after built-ins are loaded.
  * Add-ons call `$tags->register( array|Tag )` / `$tags->unregister( $name )`.
  */
 class Tags {
@@ -48,7 +48,7 @@ class Tags {
 			Builtin::register( $this );
 		}
 		if ( function_exists( 'do_action' ) ) {
-			do_action( 'sidcraft-page-builder/dynamic_tags/register', $this );
+			do_action( 'sidcraft_page_builder_dynamic_tags_register', $this );
 		}
 		return $this;
 	}
@@ -155,7 +155,7 @@ class Tags {
 			'advanced'=> function_exists( '__' ) ? __( 'Advanced', 'sidcraft-page-builder' ) : 'Advanced',
 		);
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'sidcraft-page-builder/dynamic_tags/groups', $groups );
+			$filtered = apply_filters( 'sidcraft_page_builder_dynamic_tags_groups', $groups );
 			if ( is_array( $filtered ) ) {
 				$groups = $filtered;
 			}

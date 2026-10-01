@@ -50,8 +50,8 @@ class AdminSettings {
 	}
 
 	public static function init() {
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'sidcraft-page-builder/frontend/enqueue', array( self::class, 'register_frontend' ) );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_frontend_enqueue', array( self::class, 'register_frontend' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_menu', array( self::class, 'menu' ), 12 );
 			add_action( 'admin_init', array( self::class, 'maybe_save' ) );
@@ -285,7 +285,7 @@ class AdminSettings {
 		 *
 		 * @param array $d
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/settings', $d );
+		$filtered = apply_filters( 'sidcraft_page_builder_settings', $d );
 		return is_array( $filtered ) ? self::sanitize( $filtered, $d, false ) : $d;
 	}
 
@@ -407,7 +407,7 @@ class AdminSettings {
 		 * @param array $out
 		 * @param array $raw
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/settings/sanitize', $out, $raw );
+		$filtered = apply_filters( 'sidcraft_page_builder_settings_sanitize', $out, $raw );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 
@@ -500,7 +500,7 @@ class AdminSettings {
 		 * @param array $saved
 		 * @param array $raw
 		 */
-		do_action( 'sidcraft-page-builder/settings/after_save', $saved, is_array( $raw ) ? $raw : array() );
+		do_action( 'sidcraft_page_builder_settings_after_save', $saved, is_array( $raw ) ? $raw : array() );
 		return $saved;
 	}
 
@@ -524,9 +524,9 @@ class AdminSettings {
 			 *
 			 * @param string[] $fields
 			 */
-			$fields = (array) apply_filters( 'sidcraft-page-builder/settings/integration_fields', array() );
+			$fields = (array) apply_filters( 'sidcraft_page_builder_settings_integration_fields', array() );
 			/** Save extra integration fields (Cloudflare Turnstile, add-ons). @param array $post Sanitized values of the registered fields only. */
-			do_action( 'sidcraft-page-builder/settings/save_integrations', self::posted_fields( $fields ) );
+			do_action( 'sidcraft_page_builder_settings_save_integrations', self::posted_fields( $fields ) );
 		}
 		if ( is_wp_error( $save ) ) {
 			add_settings_error( 'sidcraft_page_builder_settings', 'forbidden', $save->get_error_message(), 'error' );
@@ -794,7 +794,7 @@ class AdminSettings {
 		 * @param array          $params Request parameters.
 		 * @param mixed          $req
 		 */
-		$extra = function_exists( 'apply_filters' ) ? apply_filters( 'sidcraft-page-builder/form/verify', true, $params, $req ) : true;
+		$extra = function_exists( 'apply_filters' ) ? apply_filters( 'sidcraft_page_builder_form_verify', true, $params, $req ) : true;
 		if ( is_wp_error( $extra ) ) {
 			return $extra;
 		}
@@ -825,7 +825,7 @@ class AdminSettings {
 		if ( $token === '' ) {
 			return false;
 		}
-		$pre = apply_filters( 'sidcraft-page-builder/recaptcha/verify', null, $token, $secret );
+		$pre = apply_filters( 'sidcraft_page_builder_recaptcha_verify', null, $token, $secret );
 		if ( $pre !== null ) {
 			return (bool) $pre;
 		}
@@ -947,7 +947,7 @@ class AdminSettings {
 		 *
 		 * @param array $d Global settings.
 		 */
-		do_action( 'sidcraft-page-builder/settings/integrations', $d );
+		do_action( 'sidcraft_page_builder_settings_integrations', $d );
 	}
 
 	/**

@@ -49,7 +49,7 @@ class Seo {
 		 * @param int    $id
 		 * @param string $content Original post_content.
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/seo/content', $html, $id, (string) $content );
+		$filtered = apply_filters( 'sidcraft_page_builder_seo_content', $html, $id, (string) $content );
 		return is_string( $filtered ) ? $filtered : $html;
 	}
 
@@ -159,7 +159,7 @@ class Seo {
 		 * @param string[] $urls
 		 * @param int      $post_id
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/seo/images', array_values( array_unique( $urls ) ), $post_id );
+		$filtered = apply_filters( 'sidcraft_page_builder_seo_images', array_values( array_unique( $urls ) ), $post_id );
 		return is_array( $filtered ) ? array_values( array_filter( array_map( 'strval', $filtered ) ) ) : array_values( array_unique( $urls ) );
 	}
 

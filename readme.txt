@@ -4,7 +4,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.14.0
+Stable tag: 0.14.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -296,6 +296,12 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 0.14.1 =
+* Changed: Every PHP action and filter now starts with the plugin prefix, for example `sidcraft_page_builder_unit_render_html` instead of `sidcraft-page-builder/unit/render_html`. Add-ons must use the new names; Sidcraft Builder Pro 0.11.3 does.
+* Fixed: Template import and export work again, and imported templates keep their text intact.
+* Fixed: A container's background, height and width no longer spill into the containers inside it, and container backgrounds follow rounded corners.
+* Changed: The editor's copy and paste source file is renamed so it is not mistaken for the WordPress core clipboard library.
+
 = 0.14.0 =
 * Changed: Renamed to Sidcraft Page Builder (slug and text domain sidcraft-page-builder) after the WordPress.org plugin review.
 * Removed: Custom CSS fields on pages and units, and the Global Classes manager. Use XEditor classes instead. Custom CSS saved by earlier versions is no longer printed.
@@ -335,6 +341,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 The complete history is in `changelog.txt` inside the plugin folder.
 
 == Upgrade Notice ==
+
+= 0.14.1 =
+Hook names changed to the sidcraft_page_builder_ prefix. Update Sidcraft Builder Pro to 0.11.3 at the same time.
 
 = 0.14.0 =
 The plugin is now called Sidcraft Page Builder. Custom CSS fields and Global Classes are removed; move any custom CSS into XEditor classes before updating.

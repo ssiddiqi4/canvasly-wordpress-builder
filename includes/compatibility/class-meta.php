@@ -35,7 +35,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/portability/json_keys', $keys );
+		$filtered = apply_filters( 'sidcraft_page_builder_portability_json_keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 
@@ -56,7 +56,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/replace_url/keys', $keys );
+		$filtered = apply_filters( 'sidcraft_page_builder_replace_url_keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 
@@ -87,7 +87,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/portability/ephemeral_keys', $keys );
+		$filtered = apply_filters( 'sidcraft_page_builder_portability_ephemeral_keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 
@@ -123,7 +123,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/duplicate/meta_keys', $keys );
+		$filtered = apply_filters( 'sidcraft_page_builder_duplicate_meta_keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 

@@ -13,9 +13,9 @@ class Tool {
 	const REPORT = 'sidcraft_page_builder_convert_report';
 
 	public static function init() {
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
-			add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'screen' ) );
+			add_action( 'sidcraft_page_builder_tools_screen', array( self::class, 'screen' ) );
 			add_action( 'admin_post_sidsyn_convert', array( self::class, 'handle' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
 		}

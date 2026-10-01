@@ -55,7 +55,7 @@ class AdminBar {
 		 *
 		 * @param array $node
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/admin_bar/node', $node );
+		$filtered = apply_filters( 'sidcraft_page_builder_admin_bar_node', $node );
 		if ( ! is_array( $filtered ) || empty( $filtered['id'] ) ) {
 			return;
 		}
@@ -122,7 +122,7 @@ class AdminBar {
 		 * @param array $ctx
 		 * @param object $post
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/admin_bar/context', $ctx, $post );
+		$filtered = apply_filters( 'sidcraft_page_builder_admin_bar_context', $ctx, $post );
 		if ( ! is_array( $filtered ) || empty( $filtered['id'] ) || empty( $filtered['url'] ) ) {
 			return null;
 		}
@@ -160,7 +160,7 @@ class AdminBar {
 		 * @param bool   $ok
 		 * @param string $post_type
 		 */
-		return (bool) apply_filters( 'sidcraft-page-builder/admin_bar/supports', $ok, $post_type );
+		return (bool) apply_filters( 'sidcraft_page_builder_admin_bar_supports', $ok, $post_type );
 	}
 
 	/**
@@ -178,7 +178,7 @@ class AdminBar {
 		 * @param string $url
 		 * @param int    $post_id
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/admin_bar/editor_url', $url, $post_id );
+		$filtered = apply_filters( 'sidcraft_page_builder_admin_bar_editor_url', $url, $post_id );
 		return is_string( $filtered ) ? $filtered : $url;
 	}
 

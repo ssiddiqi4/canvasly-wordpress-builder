@@ -22,9 +22,9 @@ class ReplaceUrl {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
-			add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'screen' ), 5 );
+			add_action( 'sidcraft_page_builder_tools_screen', array( self::class, 'screen' ), 5 );
 			add_action( 'admin_post_sidsyn_replace_url', array( self::class, 'handle' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
 		}
@@ -236,7 +236,7 @@ class ReplaceUrl {
 		 * @param string $from
 		 * @param string $to
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/replace_url/pairs', $pairs, $from, $to );
+		$filtered = apply_filters( 'sidcraft_page_builder_replace_url_pairs', $pairs, $from, $to );
 		if ( is_array( $filtered ) && $filtered ) {
 			$pairs = $filtered;
 		}
@@ -301,7 +301,7 @@ class ReplaceUrl {
 		 * @param array $report
 		 * @param array $args
 		 */
-		$filtered_report = apply_filters( 'sidcraft-page-builder/replace_url/report', $report, $args );
+		$filtered_report = apply_filters( 'sidcraft_page_builder_replace_url_report', $report, $args );
 		return is_array( $filtered_report ) ? $filtered_report : $report;
 	}
 

@@ -6,7 +6,7 @@ class DesignSystem {
  public static function export(){
   $out=['schema'=>self::SCHEMA,'exported_at'=>current_time('c'),'variables'=>Variables::all(),'theme_style'=>class_exists(ThemeStyle::class)?ThemeStyle::all():[],'kit_settings'=>class_exists('\\SidcraftPageBuilder\\Settings\\KitSettings')?\SidcraftPageBuilder\Settings\KitSettings::all():[],'classes'=>GlobalClasses::all(),'components'=>Components::all(),'global_settings'=>class_exists('\\SidcraftPageBuilder\\Settings\\GlobalSettings')?\SidcraftPageBuilder\Settings\GlobalSettings::get():[],'atomic'=>Atomic::types(),'templates'=>class_exists(Kit::class)?Kit::templates():[]];
   /** Filter the design-system / kit JSON payload. @param array $out */
-  $filtered=apply_filters('sidcraft-page-builder/design_system/export',$out);
+  $filtered=apply_filters('sidcraft_page_builder_design_system_export',$out);
   return is_array($filtered)?$filtered:$out;
  }
  public static function import($d,$mode='merge'){
