@@ -154,7 +154,8 @@ class TemplateEmbed {
 			return '';
 		}
 		$css = Style::nodes_css( $doc['root'] );
-		return is_string( $css ) ? $css : '';
+		$css = ( is_string( $css ) ? $css : '' ) . \SidcraftPageBuilder\Design\CustomCssHooks::page( $doc['settings']['custom_css'] ?? '' );
+		return $css;
 	}
 
 	/**

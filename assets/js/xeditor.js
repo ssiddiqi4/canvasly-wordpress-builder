@@ -33,9 +33,9 @@
 		static isGuarded(type) {
 			return XEditorAccess.guarded().indexOf(String(type || '')) !== -1;
 		}
-		/** Mirrors SidcraftPageBuilderPro.isActive(); Pro defines the real one. */
+		/** Mirrors SidcraftBuilderPro.isActive(); Pro defines the real one. */
 		static isProActive() {
-			const pro = W.SidcraftPageBuilderPro;
+			const pro = W.SidcraftBuilderPro;
 			if (pro && typeof pro.isActive === 'function') {
 				try {
 					return !!pro.isActive();
@@ -64,11 +64,11 @@
 		}
 		static notice() {
 			const a = DATA().access || {};
-			XEditorUI.toast(a.message || t('XEditor Loop is a Sidcraft Page Builder Pro feature.'), a.upgrade || '');
+			XEditorUI.toast(a.message || t('XEditor Loop is a Sidcraft Builder Pro feature.'), a.upgrade || '');
 		}
 		static lockedHTML(title) {
 			const a = DATA().access || {};
-			return `<div class="xe-locked" data-xe-locked="1"><strong>&#128274; ${esc(title || t('XEditor Loop'))}</strong><span>${esc(a.message || t('Sidcraft Page Builder Pro license required.'))}</span></div>`;
+			return `<div class="xe-locked" data-xe-locked="1"><strong>&#128274; ${esc(title || t('XEditor Loop'))}</strong><span>${esc(a.message || t('Sidcraft Builder Pro license required.'))}</span></div>`;
 		}
 	}
 
@@ -843,7 +843,7 @@
 		panel(html, node, tab) {
 			if (!node) return html;
 			if (XEditorAccess.usesLoop(node) && !XEditorAccess.isProActive()) {
-				return XEditorAccess.lockedHTML(t('XEditor Loop')) + `<p class="xe-panel-note">${esc(t('Settings are read-only until Sidcraft Page Builder Pro is active. The loop stays saved in this page.'))}</p>`;
+				return XEditorAccess.lockedHTML(t('XEditor Loop')) + `<p class="xe-panel-note">${esc(t('Settings are read-only until Sidcraft Builder Pro is active. The loop stays saved in this page.'))}</p>`;
 			}
 			if (!isXe(node.type) && tab === 'content') return html;
 			const stack = this.stack((node.settings || {}).xe_classes);
@@ -1128,10 +1128,10 @@
 	 * Boot
 	 * ================================================================== */
 	W.XEditor = { version: DATA().version || '1.0.0', engine: XEditorEngine, access: XEditorAccess, ClassesManager: XEditorClassesManager, get classes() { return XEditorEngine.manager; } };
-	W.SidcraftPageBuilderPro = W.SidcraftPageBuilderPro || {};
-	if (typeof W.SidcraftPageBuilderPro.isActive !== 'function') {
-		// Lite fallback. Sidcraft Page Builder Pro replaces this with its license-backed check.
-		W.SidcraftPageBuilderPro.isActive = () => {
+	W.SidcraftBuilderPro = W.SidcraftBuilderPro || {};
+	if (typeof W.SidcraftBuilderPro.isActive !== 'function') {
+		// Lite fallback. Sidcraft Builder Pro replaces this with its license-backed check.
+		W.SidcraftBuilderPro.isActive = () => {
 			const lic = W.SidcraftPageBuilderData && W.SidcraftPageBuilderData.proLicense;
 			return !!(lic && lic.active);
 		};

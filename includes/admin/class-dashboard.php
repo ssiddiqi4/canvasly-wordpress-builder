@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Sidcraft Page Builder admin menu hub.
  *
- * One screen under Sidcraft Page Builder lists every other item in that menu. Sidcraft Page Builder Pro
+ * One screen under Sidcraft Page Builder lists every other item in that menu. Sidcraft Builder Pro
  * uses this same screen and adds its own menu items through the submenu and
  * the sidcraft-page-builder/dashboard/items filter.
  */
@@ -144,7 +144,7 @@ class Dashboard {
 			);
 		}
 		/**
-		 * Filter dashboard cards. Sidcraft Page Builder Pro appends its own admin screens here.
+		 * Filter dashboard cards. Sidcraft Builder Pro appends its own admin screens here.
 		 *
 		 * @param array $items
 		 */
@@ -199,12 +199,12 @@ class Dashboard {
 			}
 		}
 		$tabs = array( self::PAGE => __( 'Dashboard', 'sidcraft-page-builder' ) );
-		foreach ( array( 'sidcraft-page-builder-settings', 'sidcraft-page-builder-global', 'sidcraft-page-builder-tools', 'sidcraft-page-builder-pro-theme', 'sidcraft-page-builder-pro-licensing' ) as $slug ) {
+		foreach ( array( 'sidcraft-page-builder-settings', 'sidcraft-page-builder-global', 'sidcraft-page-builder-tools', 'sidcraft-builder-pro-theme', 'sidcraft-builder-pro-licensing' ) as $slug ) {
 			if ( isset( $by[ $slug ] ) ) {
 				$tabs[ $slug ] = $by[ $slug ]['title'];
 			}
 		}
-		$quick_slugs = array( 'sidcraft-page-builder-units', 'sidcraft-page-builder-roles', 'sidcraft-page-builder-global', 'sidcraft-page-builder-settings', 'sidcraft-page-builder-pro-licensing' );
+		$quick_slugs = array( 'sidcraft-page-builder-units', 'sidcraft-page-builder-roles', 'sidcraft-page-builder-global', 'sidcraft-page-builder-settings', 'sidcraft-builder-pro-licensing' );
 		$quick       = array();
 		foreach ( $quick_slugs as $slug ) {
 			if ( isset( $by[ $slug ] ) ) {
@@ -244,7 +244,7 @@ class Dashboard {
 			'sidcraft-page-builder-settings'    => 'dashicons-admin-generic',
 			self::DOCUMENTS_URL         => 'dashicons-media-document',
 			self::SUPPORT_URL           => 'dashicons-sos',
-			'sidcraft-page-builder-pro-licensing'    => 'dashicons-admin-network',
+			'sidcraft-builder-pro-licensing'    => 'dashicons-admin-network',
 			'sidcraft-page-builder-tools'       => 'dashicons-admin-tools',
 			'sidcraft-page-builder-system-info' => 'dashicons-info',
 		);
@@ -358,7 +358,7 @@ class Dashboard {
 		echo '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'sidcraft-page-builder' ) . '</span>';
 		echo '<span>' . esc_html__( 'Open', 'sidcraft-page-builder' ) . '</span>';
 		echo '</a>';
-		echo '<p class="description">' . esc_html__( 'E-Mail support is provided only to Sidcraft Page Builder Pro licensed users.', 'sidcraft-page-builder' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'E-Mail support is provided only to Sidcraft Builder Pro licensed users.', 'sidcraft-page-builder' ) . '</p>';
 		echo '</div>';
 	}
 
@@ -367,16 +367,16 @@ class Dashboard {
 	 */
 	public static function render_comparison() {
 		$pro_price = __( 'From $59 / year', 'sidcraft-page-builder' );
-		if ( class_exists( '\SidcraftPageBuilderPro\License' ) && method_exists( '\SidcraftPageBuilderPro\License', 'plans' ) ) {
+		if ( class_exists( '\SidcraftBuilderPro\License' ) && method_exists( '\SidcraftBuilderPro\License', 'plans' ) ) {
 			$prices = array();
-			foreach ( \SidcraftPageBuilderPro\License::plans() as $plan ) {
+			foreach ( \SidcraftBuilderPro\License::plans() as $plan ) {
 				if ( isset( $plan['price_usd'] ) ) {
 					$prices[] = (int) $plan['price_usd'];
 				}
 			}
 			if ( $prices ) {
 				$pro_price = sprintf(
-					/* translators: %d: lowest Sidcraft Page Builder Pro annual price in US dollars. */
+					/* translators: %d: lowest Sidcraft Builder Pro annual price in US dollars. */
 					__( 'From $%d / year', 'sidcraft-page-builder' ),
 					min( $prices )
 				);
@@ -384,7 +384,7 @@ class Dashboard {
 		}
 		echo '<section class="lb-dash-card lb-dash-compare">';
 		echo '<table class="lb-dash-compare-table">';
-		echo '<caption class="screen-reader-text">' . esc_html__( 'Sidcraft Page Builder versus Sidcraft Page Builder Pro', 'sidcraft-page-builder' ) . '</caption>';
+		echo '<caption class="screen-reader-text">' . esc_html__( 'Sidcraft Page Builder versus Sidcraft Builder Pro', 'sidcraft-page-builder' ) . '</caption>';
 		echo '<thead><tr class="lb-dash-compare-banner">';
 		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Page Builder', 'sidcraft-page-builder' ) . '</strong>';
 		echo '<span>' . esc_html__( 'Feature Comparison', 'sidcraft-page-builder' ) . '</span>';
@@ -392,7 +392,7 @@ class Dashboard {
 		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Page Builder', 'sidcraft-page-builder' ) . '</strong>';
 		echo '<span>' . esc_html__( 'Free', 'sidcraft-page-builder' ) . '</span>';
 		echo '<em>' . esc_html__( 'Visual page builder', 'sidcraft-page-builder' ) . '</em></th>';
-		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Page Builder Pro', 'sidcraft-page-builder' ) . '</strong>';
+		echo '<th scope="col"><strong>' . esc_html__( 'Sidcraft Builder Pro', 'sidcraft-page-builder' ) . '</strong>';
 		echo '<span>' . esc_html( $pro_price ) . '</span>';
 		echo '<em>' . esc_html__( 'Theme, shop, and payments', 'sidcraft-page-builder' ) . '</em></th>';
 		echo '</tr><tr class="lb-dash-compare-cols">';
@@ -428,13 +428,13 @@ class Dashboard {
 	/**
 	 * Pro annual plans under the comparison chart.
 	 *
-	 * Rendered from Lite so the cards stay visible when Sidcraft Page Builder Pro is not
+	 * Rendered from Lite so the cards stay visible when Sidcraft Builder Pro is not
 	 * installed or its license is not active. Prices match License::plans().
 	 */
 	public static function render_pro_pricing() {
 		echo '<section class="lb-dash-pricing">';
 		echo '<h2>' . esc_html__( 'Licensing', 'sidcraft-page-builder' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Choose a Sidcraft Page Builder Pro annual plan. Checkout and license-key delivery are handled on the Sidcraft Page Builder license site.', 'sidcraft-page-builder' ) . '</p>';
+		echo '<p>' . esc_html__( 'Choose a Sidcraft Builder Pro annual plan. Checkout and license-key delivery are handled on the Sidcraft Page Builder license site.', 'sidcraft-page-builder' ) . '</p>';
 		echo '<div class="sidcraft-page-builder-pricing-grid">';
 		foreach ( self::pro_plans() as $code => $plan ) {
 			$sites      = isset( $plan['sites_allowed'] ) ? (int) $plan['sites_allowed'] : 1;
@@ -466,8 +466,8 @@ class Dashboard {
 	 * @return array<string,array{name:string,price_usd:int,sites_allowed:int}>
 	 */
 	private static function pro_plans() {
-		if ( class_exists( '\SidcraftPageBuilderPro\License' ) && method_exists( '\SidcraftPageBuilderPro\License', 'plans' ) ) {
-			$plans = \SidcraftPageBuilderPro\License::plans();
+		if ( class_exists( '\SidcraftBuilderPro\License' ) && method_exists( '\SidcraftBuilderPro\License', 'plans' ) ) {
+			$plans = \SidcraftBuilderPro\License::plans();
 			if ( is_array( $plans ) && $plans ) {
 				return $plans;
 			}
@@ -503,8 +503,8 @@ class Dashboard {
 	 * @return string
 	 */
 	private static function pro_plan_url( $code ) {
-		if ( class_exists( '\SidcraftPageBuilderPro\License' ) && method_exists( '\SidcraftPageBuilderPro\License', 'plan_purchase_url' ) ) {
-			$url = \SidcraftPageBuilderPro\License::plan_purchase_url( $code );
+		if ( class_exists( '\SidcraftBuilderPro\License' ) && method_exists( '\SidcraftBuilderPro\License', 'plan_purchase_url' ) ) {
+			$url = \SidcraftBuilderPro\License::plan_purchase_url( $code );
 			if ( is_string( $url ) && $url !== '' && strpos( $url, 'plan=' ) !== false ) {
 				return $url;
 			}
@@ -773,7 +773,7 @@ class Dashboard {
 			'sidcraft-page-builder-system-info'      => __( 'Environment report for support.', 'sidcraft-page-builder' ),
 			'sidcraft-page-builder-template-import'  => __( 'Import saved templates.', 'sidcraft-page-builder' ),
 			self::DOCUMENTS_URL              => __( 'Sidcraft Page Builder documentation.', 'sidcraft-page-builder' ),
-			self::SUPPORT_URL                => __( 'E-Mail support is provided only to Sidcraft Page Builder Pro licensed users.', 'sidcraft-page-builder' ),
+			self::SUPPORT_URL                => __( 'E-Mail support is provided only to Sidcraft Builder Pro licensed users.', 'sidcraft-page-builder' ),
 		);
 		return isset( $map[ $slug ] ) ? $map[ $slug ] : '';
 	}

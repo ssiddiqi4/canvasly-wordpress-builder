@@ -37,7 +37,7 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 * Atomic elements: Div Block, Flexbox, Grid, Heading, Paragraph, Image and Button.
 * Classes & Variables Manager: global `--xe-var-*` tokens and reusable `.xe-class-*` utility classes with Normal, Hover, Focus and Active states and breakpoints.
 * Class stacking on every unit (XEditor and classic).
-* XEditor Loop data model with dynamic tokens such as `{{post.title}}` and `{{post.url}}` (rendering comes with Sidcraft Page Builder Pro).
+* XEditor Loop data model with dynamic tokens such as `{{post.title}}` and `{{post.url}}` (rendering comes with Sidcraft Builder Pro).
 
 = 50+ free units =
 
@@ -77,9 +77,9 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 * Import pages and templates built with Elementor (when Elementor is active) into new Sidcraft Page Builder documents.
 * REST routes, WP-CLI commands and hooks for developers.
 
-= Sidcraft Page Builder Pro =
+= Sidcraft Builder Pro =
 
-[Sidcraft Page Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) is a separate add-on that adds Theme Builder, popups, display conditions, dynamic tags, Loop Grid and Loop Carousel, 70+ extra units, WooCommerce builder units, hosted payments (Stripe, PayPal, Square, Authorize.Net, Razorpay, Mollie) with Payment Forms, form actions and submissions, custom fonts and icons, custom code, editor notes and an AI assistant with an MCP server. Pro's Login & Register and Payment Form units also include the "Require Cloudflare Turnstile" option.
+[Sidcraft Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) is a separate add-on that adds Theme Builder, popups, display conditions, dynamic tags, Loop Grid and Loop Carousel, 70+ extra units, WooCommerce builder units, hosted payments (Stripe, PayPal, Square, Authorize.Net, Razorpay, Mollie) with Payment Forms, form actions and submissions, custom fonts and icons, custom code, editor notes and an AI assistant with an MCP server. Pro's Login & Register and Payment Form units also include the "Require Cloudflare Turnstile" option.
 
 The full unit list and user guide are at [canvasly.pro](https://canvasly.pro/blocks.html). For third-party services used by optional features, see "External services" below.
 
@@ -153,7 +153,7 @@ The editor script (assets/js/editor.js) is built from the files in src/editor/ w
 * WordPress 6.9 or greater, tested up to 7.1
 * PHP 8.1 or greater
 
-Shop units appear only while WooCommerce is active. [Sidcraft Page Builder Pro](https://canvasly.pro/installation.html) will not start if Sidcraft Page Builder is missing, switched off, or older than 0.12.73.
+Shop units appear only while WooCommerce is active. [Sidcraft Builder Pro](https://canvasly.pro/installation.html) will not start if Sidcraft Page Builder is missing, switched off, or older than 0.12.73.
 
 = Installation =
 
@@ -168,21 +168,21 @@ Shop units appear only while WooCommerce is active. [Sidcraft Page Builder Pro](
 2. Paste the site key and secret key from your Cloudflare dashboard, or paste an API token and Account ID and click **Create Turnstile widget for this site**.
 3. In the editor, select a Form and set **Spam protection** to **Require Cloudflare Turnstile**, or select a Login unit and turn on **Require Cloudflare Turnstile**.
 
-Step-by-step install for Sidcraft Page Builder and Sidcraft Page Builder Pro, including the license screen, is in the [installation guide](https://canvasly.pro/installation.html). Settings for post types, CSS, fonts, maps, and performance are in the [settings guide](https://canvasly.pro/settings.html).
+Step-by-step install for Sidcraft Page Builder and Sidcraft Builder Pro, including the license screen, is in the [installation guide](https://canvasly.pro/installation.html). Settings for post types, CSS, fonts, maps, and performance are in the [settings guide](https://canvasly.pro/settings.html).
 
 == Frequently Asked Questions ==
 
 = How do I install Sidcraft Page Builder? =
 
-From the WordPress dashboard go to Plugins → Add New → Upload Plugin, upload the Sidcraft Page Builder zip, then Activate. You can also copy the plugin folder into `wp-content/plugins/`. The [installation guide](https://canvasly.pro/installation.html) covers Sidcraft Page Builder Pro as well.
+From the WordPress dashboard go to Plugins → Add New → Upload Plugin, upload the Sidcraft Page Builder zip, then Activate. You can also copy the plugin folder into `wp-content/plugins/`. The [installation guide](https://canvasly.pro/installation.html) covers Sidcraft Builder Pro as well.
 
 = Is Sidcraft Page Builder free? =
 
-Yes. Sidcraft Page Builder is free and GPL licensed, with no limit on pages or sites. [Sidcraft Page Builder Pro](https://canvasly.pro/price.html) is an optional paid add-on.
+Yes. Sidcraft Page Builder is free and GPL licensed, with no limit on pages or sites. [Sidcraft Builder Pro](https://canvasly.pro/price.html) is an optional paid add-on.
 
 = What does Sidcraft Page Builder require? =
 
-WordPress 6.9 or later and PHP 7.4 or later. The plugin is tested up to WordPress 7.1. Sidcraft Page Builder Pro needs Sidcraft Page Builder 0.12.73 or newer; the Turnstile options in Pro's Login & Register and Payment Form units need Sidcraft Page Builder 0.13.2 or newer.
+WordPress 6.9 or later and PHP 7.4 or later. The plugin is tested up to WordPress 7.1. Sidcraft Builder Pro needs Sidcraft Page Builder 0.12.73 or newer; the Turnstile options in Pro's Login & Register and Payment Form units need Sidcraft Page Builder 0.13.2 or newer.
 
 = How do I edit a page? =
 
@@ -194,7 +194,7 @@ Open the page and choose **Edit with Sidcraft Page Builder**, or use the admin-b
 
 = How do I add Cloudflare Turnstile to a form or login? =
 
-Add your Turnstile keys under Sidcraft Page Builder → Settings → Integrations. Then select the Form unit and set Content → Spam protection to **Require Cloudflare Turnstile**, or select the Login unit and turn on **Security → Require Cloudflare Turnstile**. With Sidcraft Page Builder Pro, the Login & Register and Payment Form units have the same switch under Security.
+Add your Turnstile keys under Sidcraft Page Builder → Settings → Integrations. Then select the Form unit and set Content → Spam protection to **Require Cloudflare Turnstile**, or select the Login unit and turn on **Security → Require Cloudflare Turnstile**. With Sidcraft Builder Pro, the Login & Register and Payment Form units have the same switch under Security.
 
 = Why is the Submit or Log In button greyed out? =
 
@@ -234,7 +234,7 @@ Right-click a Container or Grid and choose Save as Template. Place it later with
 
 = Why is a unit missing from the library? =
 
-Units Manager can disable a type or hide it from your role. Nested Tabs, Accordion, and Toggle, Collection Loop, and Grid container can also be switched off under Settings → Features. Shop units are absent unless WooCommerce is active. Pro units are absent unless [Sidcraft Page Builder Pro](https://canvasly.pro/price.html) has started.
+Units Manager can disable a type or hide it from your role. Nested Tabs, Accordion, and Toggle, Collection Loop, and Grid container can also be switched off under Settings → Features. Shop units are absent unless WooCommerce is active. Pro units are absent unless [Sidcraft Builder Pro](https://canvasly.pro/price.html) has started.
 
 = I saved a page but visitors still see the old version. Why? =
 
@@ -256,9 +256,9 @@ Yes. Sidcraft Page Builder works with WPML and Polylang and is translation ready
 
 Use Sidcraft Page Builder → Settings → Tools → Replace URL. Run Dry run first. The replacement cannot be undone from that screen.
 
-= What is the difference between Sidcraft Page Builder and Sidcraft Page Builder Pro? =
+= What is the difference between Sidcraft Page Builder and Sidcraft Builder Pro? =
 
-Sidcraft Page Builder is the free page builder: the visual editor, the free unit library, the design system, forms with Turnstile, entrance and exit motion, page templates, the collection loop, and basic dynamic tags. [Sidcraft Page Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) adds Theme Builder, popups, Loop Grid, 70+ extra units, shop units, hosted payments, extra form actions, editor notes, and the AI connection. Every Pro plan includes the same features.
+Sidcraft Page Builder is the free page builder: the visual editor, the free unit library, the design system, forms with Turnstile, entrance and exit motion, page templates, the collection loop, and basic dynamic tags. [Sidcraft Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) adds Theme Builder, popups, Loop Grid, 70+ extra units, shop units, hosted payments, extra form actions, editor notes, and the AI connection. Every Pro plan includes the same features.
 
 = The editor looks broken. What should I try? =
 
@@ -292,7 +292,7 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 3. **CSS Grid** - Place children in rows and columns, span cells, and resize by dragging an edge.
 4. **Design system** - Global colors, typography, classes, variables, and components.
 5. **Templates** - Save a section and embed it with a shortcode, a block, a unit, or a sidebar widget.
-6. **Sidcraft Page Builder Pro** - Theme Builder, popups, shop units, and the annual plans.
+6. **Sidcraft Builder Pro** - Theme Builder, popups, shop units, and the annual plans.
 
 == Changelog ==
 
@@ -302,6 +302,7 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * Security: The theme header and footer capture no longer forwards visitor cookies. Inline CSS is printed through WordPress's style functions, and rendered pages, template blocks and template shortcodes are escaped with wp_kses before output.
 * Security: Settings screens now read and sanitize only their own form fields instead of handing the whole request to add-ons.
 * Changed: `wp sidcraft-page-builder export` always writes the kit ZIP to wp-content/uploads/sidcraft-page-builder/kits/; the optional argument is now just a file name.
+* Developers: Works with the Sidcraft Builder Pro add-on (renamed from Sidcraft Pro). New `custom_css/*` filters let an add-on provide custom CSS (off unless an add-on enables it), and the `kses/trusted_scripts` filter keeps registered inline scripts. JSON data scripts in rendered pages are kept.
 * Docs: The readme now lists every external service, what it receives and when, and where the editor source and build tools are.
 
 = 0.13.3 =
@@ -310,7 +311,7 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 = 0.13.2 =
 * New: "Require Cloudflare Turnstile" on the Login unit (Security section). The Log In button stays disabled until the visitor completes the Turnstile check, and the login is rejected without a valid token.
 * New: Submit gate for every Turnstile-protected form. The Form unit (Spam protection → Require Cloudflare Turnstile), the Login unit, and the WordPress login and comment forms keep their Submit / Log In button disabled until the check passes, lock it again when the token expires, errors, or is used, and block Enter-key submits while locked.
-* New: Turnstile verification for Sidcraft Page Builder login, register and lost-password forms that post to wp-login.php, used by the Login unit and by Sidcraft Page Builder Pro's Login & Register unit.
+* New: Turnstile verification for Sidcraft Page Builder login, register and lost-password forms that post to wp-login.php, used by the Login unit and by Sidcraft Builder Pro's Login & Register unit.
 * New: Turnstile widgets inside hidden tabs render when the tab opens.
 * Changed: If Settings → Integrations → WordPress forms → Login form is on, the Login unit now shows the Turnstile check automatically so its logins are not rejected.
 * Docs: readme rewritten with the full feature list, Turnstile setup steps and new FAQ entries.
@@ -323,7 +324,7 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * New: XEditor Atomic Elements — Div Block, Flexbox, Grid, Heading, Paragraph, Image and Button. Each prints ONE HTML element on the live page (no wrapper divs); aria-label, role and custom attributes go on that element.
 * New: XEditor Classes & Variables Manager. Variables are global tokens printed as `--xe-var-*` custom properties (colors, fonts, sizes, spacing, per-breakpoint values). Classes are reusable utility presets printed as `.xe-class-*`, with Normal/Hover/Focus/Active states and per-breakpoint values; use `$name` in any value to reference a variable. Class priority is set by the order in the manager.
 * New: Class stacking on every unit (XEditor and classic): add, create or remove classes from the Classes bar at the top of the settings panel. Element "Local Style" values use zero-specificity selectors, so a stacked class always wins.
-* New: XEditor Loop data model (Loop > Loop Layout > Loop Item) with dynamic tokens such as {{post.title}}, {{post.url}}, {{post.featured_image}}, {{term.name}} and {{loop.number}}. Rendering and editor preview come from Sidcraft Page Builder Pro; without a Pro license loops are locked in the editor, not rendered, and kept in the page data.
+* New: XEditor Loop data model (Loop > Loop Layout > Loop Item) with dynamic tokens such as {{post.title}}, {{post.url}}, {{post.featured_image}}, {{term.name}} and {{loop.number}}. Rendering and editor preview come from Sidcraft Builder Pro; without a Pro license loops are locked in the editor, not rendered, and kept in the page data.
 * New: Cloudflare Turnstile. Sidcraft Page Builder → Settings → Integrations: site key, secret key, optional Cloudflare API token (Verify, or Create a Turnstile widget with your Account ID), Cloudflare test keys, default look, and optional protection for all Sidcraft Page Builder forms, the WordPress login form and comments. New "Cloudflare Turnstile" unit protects the form in the same container; the Form unit has a new "Spam protection" option. Tokens are verified server-side (Siteverify) and reset after each submission.
 * Fixed: ARIA Label had no effect on most units because it was printed on a generic wrapper <div>. It is now placed on the unit's link, button, field, form or image; containers and multi-link units get role="group" so the name is announced.
 * Fixed: Form errors now show the server's message (for example a failed security check) instead of a generic error.

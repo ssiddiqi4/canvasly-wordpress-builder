@@ -163,7 +163,7 @@ class Plugin { private static $instance; public static function instance(){ if(!
   foreach(array('tag','tags','resolver','builtin') as $f){ $file=$tags_dir.'class-'.$f.'.php'; if(is_readable($file)) require_once $file; }
   if(class_exists('\SidcraftPageBuilder\Dynamic\Tags',false)&&class_exists('\SidcraftPageBuilder\Dynamic\Tag',false))\SidcraftPageBuilder\Dynamic\Tags::ready();
   if(method_exists($r,'boot'))$r->boot();
-  if(function_exists('sidcraft_page_builder_pro_register_units')) sidcraft_page_builder_pro_register_units();
+  if(function_exists('sidcraft_builder_pro_register_units')) sidcraft_builder_pro_register_units();
   $anchor_file=SIDCRAFT_PAGE_BUILDER_PATH.'includes/units/class-menu_anchor.php';
   if(is_readable($anchor_file)) require_once $anchor_file;
   if(class_exists('\SidcraftPageBuilder\Units\MenuAnchor',false)&&method_exists('\SidcraftPageBuilder\Units\MenuAnchor','boot')) \SidcraftPageBuilder\Units\MenuAnchor::boot();

@@ -4,7 +4,7 @@
  *
  * Responsibilities:
  *   - registers the Atomic Elements (Div Block, Flexbox, Grid, Heading, Paragraph,
- *     Image, Button) and the Loop data model (engine supplied by Sidcraft Page Builder Pro);
+ *     Image, Button) and the Loop data model (engine supplied by Sidcraft Builder Pro);
  *   - registers the `xe_classes` control type (class stacking on every unit);
  *   - exposes REST routes for the Classes & Variables Manager;
  *   - enqueues the editor module (assets/js/xeditor.js) and localizes its data;
