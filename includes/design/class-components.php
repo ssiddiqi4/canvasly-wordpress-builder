@@ -158,7 +158,7 @@ class Components {
 		}
 		$version = (int) get_post_meta( $id, '_sidsyn_component_version', true ) + 1;
 		update_post_meta( $id, '_sidsyn_component_key', $key );
-		update_post_meta( $id, '_sidsyn_component_data', wp_json_encode( $document ) );
+		update_post_meta( $id, '_sidsyn_component_data', wp_slash( wp_json_encode( $document ) ) );
 		update_post_meta( $id, '_sidsyn_component_exposed', self::normalize_exposed( $exposed ) );
 		update_post_meta( $id, '_sidsyn_component_version', $version );
 		return $id;

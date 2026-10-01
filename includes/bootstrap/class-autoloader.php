@@ -16,6 +16,8 @@ class Autoloader {
    strtolower( preg_replace( '/(?<!^)[A-Z]/', '-$0', $name ) ),
    strtolower( preg_replace( '/(?<!^)[A-Z]/', '_$0', $name ) ),
    strtolower( $name ),
+   // Acronyms stay together: TemplateIO -> template-io.
+   strtolower( preg_replace( '/(?<=[a-z0-9])[A-Z]|(?<=[A-Z])[A-Z](?=[a-z])/', '-$0', $name ) ),
   );
   foreach ( array_unique( $slugs ) as $slug ) {
    $file = $base . 'class-' . $slug . '.php';

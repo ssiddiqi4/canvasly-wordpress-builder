@@ -2050,7 +2050,7 @@ class Converter {
 		if ( is_wp_error( $id ) ) {
 			return $id;
 		}
-		update_post_meta( $id, '_sidsyn_template_data', wp_json_encode( $doc ) );
+		update_post_meta( $id, '_sidsyn_template_data', wp_slash( wp_json_encode( $doc ) ) );
 		update_post_meta( $id, '_sidsyn_template_type', $type );
 		update_post_meta( $id, '_sidsyn_template_key', $key );
 		if ( class_exists( DocumentManager::class ) ) {
