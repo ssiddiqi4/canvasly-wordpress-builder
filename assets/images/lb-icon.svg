@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Sidcraft Page Builder">
   <rect width="64" height="64" rx="17" fill="#ffffff"/>
   <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="16.25" fill="none" stroke="#d5d8de" stroke-width="1.5"/>
-  <path fill="none" stroke="#17191d" stroke-width="9" stroke-linecap="butt" d="M42.2 17.8A17.8 17.8 0 1 0 42.2 46.2"/>
+  <path fill="none" stroke="#17191d" stroke-width="8.5" stroke-linecap="butt" stroke-linejoin="round" d="M43.5 20.5C40.5 16 35.5 14.5 31 14.5C24.5 14.5 20 18 20 23.5C20 29.5 26 31 32 32.5C38.5 34 44.5 35.5 44.5 41.5C44.5 46.5 39.5 49.5 32.5 49.5C27 49.5 22.5 47.5 19.5 43"/>
 </svg>
