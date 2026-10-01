@@ -46,7 +46,7 @@ class Shortcode extends Unit {
   $css=trim((string)($assets['css']??'')."\n".(string)($forms['css']??''));
   if($css!==''){
    $css=wp_strip_all_tags($css);
-   if($css!=='')$tags.='<style>'.$css.'</style>';
+   $tags.=\SidcraftSyntex\Utils\InlineStyle::tag('sidcraft-syntex-shortcode-'.substr(md5($css),0,12),$css);
   }
   return '<div class="lb-shortcode">'.$tags.$html.'</div>';
  }

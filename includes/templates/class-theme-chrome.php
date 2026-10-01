@@ -1,6 +1,8 @@
 <?php
 namespace SidcraftSyntex\Templates;
 
+use SidcraftSyntex\Utils\InlineStyle;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -294,8 +296,8 @@ class ThemeChrome {
 			$tags .= self::elementor_css_tag( $kit, $html );
 		}
 		$tags .= self::elementor_frontend_links( $html );
-		if ( false === strpos( $html, 'data-lb-builder-css="logo"' ) && preg_match( '/<img\b/i', $html ) ) {
-			$tags .= '<style data-lb-builder-css="logo">' . self::logo_baseline_css() . '</style>';
+		if ( false === strpos( $html, InlineStyle::element_id( 'sidcraft-syntex-builder-css-logo' ) ) && preg_match( '/<img\b/i', $html ) ) {
+			$tags .= InlineStyle::tag( 'sidcraft-syntex-builder-css-logo', self::logo_baseline_css() );
 		}
 		return $tags;
 	}
@@ -430,14 +432,14 @@ class ThemeChrome {
 	 */
 	private static function elementor_css_tag( $id, $html ) {
 		$id = absint( $id );
-		if ( ! $id || false !== strpos( $html, 'data-lb-builder-css="' . $id . '"' ) ) {
+		if ( ! $id || false !== strpos( $html, InlineStyle::element_id( 'sidcraft-syntex-builder-css-' . $id ) ) ) {
 			return '';
 		}
 		$css = self::elementor_document_css( $id );
 		if ( '' === trim( $css ) ) {
 			return '';
 		}
-		return '<style data-lb-builder-css="' . $id . '">' . $css . '</style>';
+		return InlineStyle::tag( 'sidcraft-syntex-builder-css-' . $id, $css );
 	}
 
 	/**
