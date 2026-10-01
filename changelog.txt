@@ -5,6 +5,7 @@
 * Security: The theme header and footer capture no longer forwards visitor cookies. Inline CSS is printed through WordPress's style functions, and rendered pages, template blocks and template shortcodes are escaped with wp_kses before output.
 * Security: Settings screens now read and sanitize only their own form fields instead of handing the whole request to add-ons.
 * Changed: `wp sidcraft-page-builder export` always writes the kit ZIP to wp-content/uploads/sidcraft-page-builder/kits/; the optional argument is now just a file name.
+* Developers: Works with the Sidcraft Builder Pro add-on (renamed from Sidcraft Pro). New `custom_css/*` filters let an add-on provide custom CSS (off unless an add-on enables it), and the `kses/trusted_scripts` filter keeps registered inline scripts. JSON data scripts in rendered pages are kept.
 * Docs: The readme now lists every external service, what it receives and when, and where the editor source and build tools are.
 
 = 0.13.3 =
@@ -13,7 +14,7 @@
 = 0.13.2 =
 * New: "Require Cloudflare Turnstile" on the Login unit (Security section). The Log In button stays disabled until the visitor completes the Turnstile check, and the login is rejected without a valid token.
 * New: Submit gate for every Turnstile-protected form. The Form unit (Spam protection → Require Cloudflare Turnstile), the Login unit, and the WordPress login and comment forms keep their Submit / Log In button disabled until the check passes, lock it again when the token expires, errors, or is used, and block Enter-key submits while locked.
-* New: Turnstile verification for Sidcraft Page Builder login, register and lost-password forms that post to wp-login.php, used by the Login unit and by Sidcraft Page Builder Pro's Login & Register unit.
+* New: Turnstile verification for Sidcraft Page Builder login, register and lost-password forms that post to wp-login.php, used by the Login unit and by Sidcraft Builder Pro's Login & Register unit.
 * New: Turnstile widgets inside hidden tabs render when the tab opens.
 * Changed: If Settings → Integrations → WordPress forms → Login form is on, the Login unit now shows the Turnstile check automatically so its logins are not rejected.
 * Docs: readme rewritten with the full feature list, Turnstile setup steps and new FAQ entries.
@@ -26,7 +27,7 @@
 * New: XEditor Atomic Elements — Div Block, Flexbox, Grid, Heading, Paragraph, Image and Button. Each prints ONE HTML element on the live page (no wrapper divs); aria-label, role and custom attributes go on that element.
 * New: XEditor Classes & Variables Manager. Variables are global tokens printed as `--xe-var-*` custom properties (colors, fonts, sizes, spacing, per-breakpoint values). Classes are reusable utility presets printed as `.xe-class-*`, with Normal/Hover/Focus/Active states and per-breakpoint values; use `$name` in any value to reference a variable. Class priority is set by the order in the manager.
 * New: Class stacking on every unit (XEditor and classic): add, create or remove classes from the Classes bar at the top of the settings panel. Element "Local Style" values use zero-specificity selectors, so a stacked class always wins.
-* New: XEditor Loop data model (Loop > Loop Layout > Loop Item) with dynamic tokens such as {{post.title}}, {{post.url}}, {{post.featured_image}}, {{term.name}} and {{loop.number}}. Rendering and editor preview come from Sidcraft Page Builder Pro; without a Pro license loops are locked in the editor, not rendered, and kept in the page data.
+* New: XEditor Loop data model (Loop > Loop Layout > Loop Item) with dynamic tokens such as {{post.title}}, {{post.url}}, {{post.featured_image}}, {{term.name}} and {{loop.number}}. Rendering and editor preview come from Sidcraft Builder Pro; without a Pro license loops are locked in the editor, not rendered, and kept in the page data.
 * New: Cloudflare Turnstile. Sidcraft Page Builder → Settings → Integrations: site key, secret key, optional Cloudflare API token (Verify, or Create a Turnstile widget with your Account ID), Cloudflare test keys, default look, and optional protection for all Sidcraft Page Builder forms, the WordPress login form and comments. New "Cloudflare Turnstile" unit protects the form in the same container; the Form unit has a new "Spam protection" option. Tokens are verified server-side (Siteverify) and reset after each submission.
 * Fixed: ARIA Label had no effect on most units because it was printed on a generic wrapper <div>. It is now placed on the unit's link, button, field, form or image; containers and multi-link units get role="group" so the name is announced.
 * Fixed: Form errors now show the server's message (for example a failed security check) instead of a generic error.
@@ -126,7 +127,7 @@
 * Styles and scripts load through WordPress enqueue APIs, and only on the screens that use them.
 
 = 0.12.76 =
-* The Sidcraft Page Builder dashboard shows the Sidcraft Page Builder Pro annual price table when Pro is active.
+* The Sidcraft Page Builder dashboard shows the Sidcraft Builder Pro annual price table when Pro is active.
 
 = 0.12.74 =
 * Menu Anchor shows its target on the canvas and scrolls the page to that ID. A sticky header can clear the target with the `--lb-anchor-scroll-offset` custom property.

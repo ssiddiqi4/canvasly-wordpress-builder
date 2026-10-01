@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Units Manager (Roadmap 7.2).
  *
  * Globally disable types, restrict them per WordPress role, and show usage
- * counts from saved documents. Sidcraft Page Builder Pro widgets registered on
+ * counts from saved documents. Sidcraft Builder Pro widgets registered on
  * `sidcraft-page-builder/units/register` appear in the same list. Disabled types
  * stay registered so existing nodes still render and sanitize.
  */
@@ -256,12 +256,12 @@ class UnitsManager {
 	}
 
 	/**
-	 * Sidcraft Page Builder Pro is active, so its widgets can be toggled from this screen.
+	 * Sidcraft Builder Pro is active, so its widgets can be toggled from this screen.
 	 *
 	 * @return bool
 	 */
 	public static function pro_active() {
-		return defined( 'SIDCRAFT_PAGE_BUILDER_PRO_VERSION' ) || class_exists( '\\SidcraftPageBuilderPro\\Plugin', false );
+		return defined( 'SIDCRAFT_BUILDER_PRO_VERSION' ) || class_exists( '\\SidcraftBuilderPro\\Plugin', false );
 	}
 
 	/**
@@ -283,7 +283,7 @@ class UnitsManager {
 		}
 		if ( $slug === '' ) {
 			$class = ltrim( $class, '\\' );
-			$slug  = ( strpos( $class, 'SidcraftPageBuilderPro\\' ) === 0 ) ? 'pro' : 'lite';
+			$slug  = ( strpos( $class, 'SidcraftBuilderPro\\' ) === 0 ) ? 'pro' : 'lite';
 		}
 		/**
 		 * Filter the package slug shown in Units Manager.
@@ -303,7 +303,7 @@ class UnitsManager {
 	public static function source_label( $slug ) {
 		$slug = sanitize_key( (string) $slug );
 		if ( $slug === 'pro' ) {
-			return __( 'Sidcraft Page Builder Pro', 'sidcraft-page-builder' );
+			return __( 'Sidcraft Builder Pro', 'sidcraft-page-builder' );
 		}
 		if ( $slug === 'lite' ) {
 			return __( 'Sidcraft Page Builder', 'sidcraft-page-builder' );
@@ -639,7 +639,7 @@ class UnitsManager {
 		settings_errors( 'sidcraft_page_builder_units' );
 		echo '<p class="description">' . esc_html__( 'Turn an unit on or off for the whole site. Off hides it from the editor panel. Restrict it per role to hide it only for that role. Existing instances on saved pages keep rendering.', 'sidcraft-page-builder' ) . '</p>';
 		if ( $has_pro ) {
-			echo '<p class="description">' . esc_html__( 'Sidcraft Page Builder Pro is active. Its widgets are in this same list and use the same on/off switch.', 'sidcraft-page-builder' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'Sidcraft Builder Pro is active. Its widgets are in this same list and use the same on/off switch.', 'sidcraft-page-builder' ) . '</p>';
 		}
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE ) ) . '">';
 		wp_nonce_field( self::NONCE );
@@ -651,7 +651,7 @@ class UnitsManager {
 		echo '<option value="all">' . esc_html__( 'All units', 'sidcraft-page-builder' ) . '</option>';
 		echo '<option value="lite">' . esc_html__( 'Sidcraft Page Builder', 'sidcraft-page-builder' ) . '</option>';
 		if ( $has_pro ) {
-			echo '<option value="pro">' . esc_html__( 'Sidcraft Page Builder Pro', 'sidcraft-page-builder' ) . '</option>';
+			echo '<option value="pro">' . esc_html__( 'Sidcraft Builder Pro', 'sidcraft-page-builder' ) . '</option>';
 		}
 		echo '<option value="unused">' . esc_html__( 'Unused', 'sidcraft-page-builder' ) . '</option>';
 		echo '<option value="disabled">' . esc_html__( 'Turned off', 'sidcraft-page-builder' ) . '</option>';

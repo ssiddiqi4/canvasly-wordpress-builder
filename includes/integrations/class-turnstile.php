@@ -193,7 +193,7 @@ class Turnstile {
 		echo '<tr><th>' . esc_html__( 'WordPress forms', 'sidcraft-page-builder' ) . '</th><td>';
 		echo '<label><input type="checkbox" name="turnstile_protect_login" value="1"' . checked( ! empty( $d['protect_login'] ), true, false ) . '> ' . esc_html__( 'Login form', 'sidcraft-page-builder' ) . '</label><br>';
 		echo '<label><input type="checkbox" name="turnstile_protect_comments" value="1"' . checked( ! empty( $d['protect_comments'] ), true, false ) . '> ' . esc_html__( 'Comment form (visitors)', 'sidcraft-page-builder' ) . '</label>';
-		echo '<p class="description">' . esc_html__( 'Per unit: Form (Spam protection → Require Cloudflare Turnstile), Login, and in Sidcraft Page Builder Pro the Login & Register and Payment Form units (Security → Require Cloudflare Turnstile). Protected forms keep their submit, log in or pay buttons disabled until the visitor completes the check.', 'sidcraft-page-builder' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Per unit: Form (Spam protection → Require Cloudflare Turnstile), Login, and in Sidcraft Builder Pro the Login & Register and Payment Form units (Security → Require Cloudflare Turnstile). Protected forms keep their submit, log in or pay buttons disabled until the visitor completes the check.', 'sidcraft-page-builder' ) . '</p>';
 		echo '</td></tr>';
 		echo '</tbody></table>';
 	}

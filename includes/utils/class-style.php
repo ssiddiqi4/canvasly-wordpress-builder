@@ -227,6 +227,9 @@ class Style {
 			$css .= self::grid_css( $sel, $s );
 		}
 		$css .= self::state_css( $sel, (array) ( $n['styles'] ?? [] ) );
+		if ( ! empty( $s['custom_css'] ) ) {
+			$css .= \SidcraftPageBuilder\Design\CustomCssHooks::node( $s['custom_css'], $sel );
+		}
 		$active = Breakpoints::enabled();
 		foreach ( Breakpoints::names() as $bp ) {
 			if ( ! empty( $s[ 'hide_' . $bp ] ) && isset( $active[ $bp ] ) ) {

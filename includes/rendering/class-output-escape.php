@@ -82,12 +82,79 @@ class OutputEscape {
 		if ( self::$depth < 1 || '' === $html ) {
 			return $html;
 		}
+		return self::store( $html );
+	}
+
+	/**
+	 * @param string $html
+	 * @return string Placeholder that html() swaps back after wp_kses().
+	 */
+	private static function store( $html ) {
 		if ( null === self::$token ) {
 			self::$token = function_exists( 'wp_generate_password' ) ? wp_generate_password( 16, false ) : md5( uniqid( '', true ) );
 		}
 		$key               = count( self::$raw );
-		self::$raw[ $key ] = $html;
+		self::$raw[ $key ] = (string) $html;
 		return '<!--sidsyn-raw:' . self::$token . ':' . $key . '-->';
+	}
+
+	/**
+	 * Keep inline scripts that an add-on registered verbatim. Only a plain
+	 * script tag whose whole body equals a registered string is kept.
+	 *
+	 * @param string $html
+	 * @return string
+	 */
+	private static function keep_trusted_scripts( $html ) {
+		if ( false === stripos( $html, '<script' ) || ! function_exists( 'apply_filters' ) ) {
+			return $html;
+		}
+		$html = self::keep_json_scripts( $html );
+		/**
+		 * Exact inline script bodies that may appear in rendered documents.
+		 *
+		 * @param string[] $scripts
+		 */
+		$scripts = (array) apply_filters( 'sidcraft-page-builder/kses/trusted_scripts', array() );
+		foreach ( $scripts as $js ) {
+			if ( ! is_string( $js ) || '' === $js || false !== stripos( $js, '</script' ) ) {
+				continue;
+			}
+			$tag = '<script>' . $js . '</script>';
+			if ( false !== strpos( $html, $tag ) ) {
+				$html = str_replace( $tag, self::store( $tag ), $html );
+			}
+		}
+		return $html;
+	}
+
+	/**
+	 * Keep JSON data blocks (type application/json or application/ld+json), which
+	 * browsers never execute. The tag is rebuilt with only type, id, class and
+	 * data-* attributes; the body cannot contain a closing script tag.
+	 *
+	 * @param string $html
+	 * @return string
+	 */
+	private static function keep_json_scripts( $html ) {
+		return (string) preg_replace_callback(
+			'#<script\b([^>]*)>(.*?)</script\s*>#is',
+			function ( $m ) {
+				$attrs = function_exists( 'wp_kses_hair' ) ? wp_kses_hair( $m[1], array() ) : array();
+				$type  = strtolower( trim( (string) ( $attrs['type']['value'] ?? '' ) ) );
+				if ( ! in_array( $type, array( 'application/json', 'application/ld+json' ), true ) ) {
+					return $m[0];
+				}
+				$tag = '<script type="' . $type . '"';
+				foreach ( $attrs as $name => $attr ) {
+					if ( in_array( $name, array( 'id', 'class' ), true ) || 0 === strpos( $name, 'data-' ) ) {
+						$tag .= ' ' . $name . '="' . esc_attr( (string) $attr['value'] ) . '"';
+					}
+				}
+				return self::store( $tag . '>' . $m[2] . '</script>' );
+			},
+			$html
+		);
 	}
 
 	/**
@@ -101,6 +168,7 @@ class OutputEscape {
 		if ( '' === $html || ! function_exists( 'wp_kses' ) ) {
 			return $html;
 		}
+		$html = self::keep_trusted_scripts( $html );
 		add_filter( 'safe_style_css', array( self::class, 'style_properties' ) );
 		add_filter( 'safecss_filter_attr_allow_css', array( self::class, 'allow_css' ), 10, 2 );
 		try {
@@ -141,6 +209,8 @@ class OutputEscape {
 				'aria-orientation', 'aria-valuemin', 'aria-valuemax', 'aria-valuenow', 'aria-valuetext',
 				'aria-roledescription', 'aria-level', 'aria-posinset', 'aria-setsize', 'aria-required',
 				'aria-invalid', 'aria-owns', 'aria-autocomplete', 'aria-multiselectable', 'aria-details',
+				'aria-sort', 'aria-colcount', 'aria-colindex', 'aria-colspan', 'aria-rowcount', 'aria-rowindex', 'aria-rowspan',
+				'aria-keyshortcuts', 'aria-errormessage', 'aria-placeholder', 'aria-readonly', 'aria-flowto', 'aria-relevant',
 			),
 			true
 		);

@@ -34,7 +34,7 @@ launcher.
 ```
 Start with the [Sidcraft Page Builder documentation](https://canvasly.pro/overview.html).
 Unlock theme parts, shop units, popups, form logging, hosted payments, and AI
-connectivity with **[Sidcraft Page Builder Pro](https://canvasly.pro/price.html)**.
+connectivity with **[Sidcraft Builder Pro](https://canvasly.pro/price.html)**.
 ```
 
 # `### Create professional websites` 
@@ -63,7 +63,7 @@ Tabs, Form, Price Table, and Collection Loop.
 ```
 
 ```
-- **[Sidcraft Page Builder Pro](https://canvasly.pro/price.html#lite-vs-pro)**: Theme
+- **[Sidcraft Builder Pro](https://canvasly.pro/price.html#lite-vs-pro)**: Theme
 Builder, theme units, popups, extra form fields, shop units when WooCommerce is
 active, hosted payments, editor notes, and an AI connection with MCP.
 ```
@@ -100,7 +100,7 @@ interaction script loads only when a document uses it.
 ```
 - **Dynamic tags**: Post, author, site, user, archive, and term values, with
 before, after, and fallback text. Previews resolve in the editor and on the
-front end. [Sidcraft Page Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) adds
+front end. [Sidcraft Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) adds
 request values, custom fields, ACF, and product price and SKU.
 ```
 
@@ -312,10 +312,10 @@ Sidcraft Page Builder prints CSS for the units a page uses, and it can write tha
 
 - `**Scripts**: A unitâs scripts and styles load only when that unit is on the page.` 
 
-# `### Sidcraft Page Builder Pro` 
+# `### Sidcraft Builder Pro` 
 
 
-[Sidcraft Page Builder Pro](https://canvasly.pro/price.html) is a second plugin. It loads
+[Sidcraft Builder Pro](https://canvasly.pro/price.html) is a second plugin. It loads
 only while Sidcraft Page Builder is active and at least version 0.12.73. Every annual plan
 unlocks the same features. The plans differ by site count: [$59 for 1 site, $79
 for 5, $129 for 25, and $199 for 100](https://canvasly.pro/price.html#plans).
@@ -559,8 +559,8 @@ default) and a per-user switch to turn AI access off.
 ```
 
 ```
-- **WP-CLI**: `wp sidcraft-page-builder-pro theme list`, `wp sidcraft-page-builder-pro theme clear-cache`,
-and `wp sidcraft-page-builder-pro submissions export`.
+- **WP-CLI**: `wp sidcraft-builder-pro theme list`, `wp sidcraft-builder-pro theme clear-cache`,
+and `wp sidcraft-builder-pro submissions export`.
 ```
 
 ```
@@ -628,7 +628,7 @@ requested.
 ```
 
 ```
-- **Sidcraft Page Builder Pro AI providers** are called only when an administrator presses
+- **Sidcraft Builder Pro AI providers** are called only when an administrator presses
 Test connection on [AI Connection](https://canvasly.pro/ai-connectivity.html).
 Supported hosts are OpenAI, Anthropic, Gemini, Azure OpenAI, Perplexity, Cursor,
 Groq, Mistral, and DeepSeek. MCP traffic stays on your WordPress site and is not
@@ -638,7 +638,7 @@ forwarded to those providers.
 # `= Related =` 
 
 ```
-**[Sidcraft Page Builder Pro](https://canvasly.pro/price.html)**: Theme Builder, popups, shop
+**[Sidcraft Builder Pro](https://canvasly.pro/price.html)**: Theme Builder, popups, shop
 units, hosted payments, submissions, and AI connectivity (MCP). It does not
 replace Sidcraft Page Builder.
 ```
@@ -682,7 +682,7 @@ missing, switched off, or older than 0.12.73.
 `4. Drag units from the left library onto the canvas, then save. Publish or update the page in WordPress.` 
 
 ```
-Step-by-step install for Sidcraft Page Builder and Sidcraft Page Builder Pro, including the license
+Step-by-step install for Sidcraft Page Builder and Sidcraft Builder Pro, including the license
 screen, is in the [installation guide](https://canvasly.pro/installation.html).
 Settings for post types, CSS, fonts, maps, and performance are in the [settings
 guide](https://canvasly.pro/settings.html).
@@ -703,14 +703,14 @@ content/plugins/`. The [installation
 ```
 
 ```
-guide](https://canvasly.pro/installation.html) covers Sidcraft Page Builder Pro as well.
+guide](https://canvasly.pro/installation.html) covers Sidcraft Builder Pro as well.
 ```
 
 # `= What does Sidcraft Page Builder require? =` 
 
 ```
 WordPress 6.9 or later and PHP 7.4 or later. The plugin is tested up to
-WordPress 7.1. Sidcraft Page Builder Pro also needs Sidcraft Page Builder 0.12.73 or newer.
+WordPress 7.1. Sidcraft Builder Pro also needs Sidcraft Page Builder 0.12.73 or newer.
 ```
 
 - `= How do I edit a page? =` 
@@ -788,12 +788,12 @@ Use Sidcraft Page Builder â Settings â Tools â Replace URL. Run Dry run first
 replacement cannot be undone from that screen.
 ```
 
-- `= What is the difference between Sidcraft Page Builder and Sidcraft Page Builder Pro? =` 
+- `= What is the difference between Sidcraft Page Builder and Sidcraft Builder Pro? =` 
 
 ```
 Sidcraft Page Builder is the free page builder: the visual editor, the free unit library, the
 design system, entrance and exit motion, page templates, the collection loop,
-and basic dynamic tags. [Sidcraft Page Builder Pro](https://canvasly.pro/price.html#lite-vs-
+and basic dynamic tags. [Sidcraft Builder Pro](https://canvasly.pro/price.html#lite-vs-
 pro) adds Theme Builder, popups, shop units, hosted payments, extra form
 actions, editor notes, and the AI connection. Every Pro plan includes the same
 features.
@@ -877,7 +877,7 @@ unit, or a sidebar widget.
 ```
 
 ```
-6. **Sidcraft Page Builder Pro** - Theme Builder, popups, shop units, and the annual plans.
+6. **Sidcraft Builder Pro** - Theme Builder, popups, shop units, and the annual plans.
 ```
 
 ```
@@ -1213,7 +1213,7 @@ screens that use them.
 # `= 0.12.76 =` 
 
 ```
-* The Sidcraft Page Builder dashboard shows the Sidcraft Page Builder Pro annual price table when Pro is
+* The Sidcraft Page Builder dashboard shows the Sidcraft Builder Pro annual price table when Pro is
 active.
 ```
 

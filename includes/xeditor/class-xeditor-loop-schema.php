@@ -7,8 +7,8 @@
  *       xe_loop_item XEditorLoopItem    the template of ONE item; its children use dynamic tokens
  *
  * The control schema lives in Lite so documents keep every loop setting even when
- * Sidcraft Page Builder Pro is inactive (the document sanitizer only keeps declared keys). These
- * Lite classes render nothing; Sidcraft Page Builder Pro subclasses them and adds the query engine
+ * Sidcraft Builder Pro is inactive (the document sanitizer only keeps declared keys). These
+ * Lite classes render nothing; Sidcraft Builder Pro subclasses them and adds the query engine
  * (`render_collection()`), and XEditorAccess blocks rendering without a Pro license.
  *
  * @package SidcraftPageBuilder
@@ -153,7 +153,7 @@ class XEditorLoopUnit extends XEditorElement {
 	}
 
 	/**
-	 * True when Sidcraft Page Builder Pro supplies the loop engine.
+	 * True when Sidcraft Builder Pro supplies the loop engine.
 	 *
 	 * @return bool
 	 */

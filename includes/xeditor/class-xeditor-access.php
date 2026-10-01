@@ -2,7 +2,7 @@
 /**
  * XEditor access controller (server side of the Pro guard).
  *
- * Loop Architecture elements are Sidcraft Page Builder Pro features. This guard is the single
+ * Loop Architecture elements are Sidcraft Builder Pro features. This guard is the single
  * place that answers "may this node render / be edited?":
  *
  *   - Frontend: `sidcraft-page-builder/unit/should_render` returns false for guarded nodes
@@ -13,7 +13,7 @@
  *   - Data:     Lite registers lightweight placeholder units for the guarded types
  *     so saving a page while Pro is off never strips a user's loops.
  *
- * Pro reports its state through `SidcraftPageBuilderPro\License::is_active()`; add-ons or
+ * Pro reports its state through `SidcraftBuilderPro\License::is_active()`; add-ons or
  * tests can override with the `sidcraft-page-builder/xeditor/pro_active` filter.
  *
  * @package SidcraftPageBuilder
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class XEditorAccess {
-	/** Node types that require Sidcraft Page Builder Pro. */
+	/** Node types that require Sidcraft Builder Pro. */
 	const GUARDED = array( 'xe_loop', 'xe_loop_layout', 'xe_loop_item' );
 
 	/** @var bool|null */
@@ -37,15 +37,15 @@ class XEditorAccess {
 	}
 
 	/**
-	 * Mirrors `SidcraftPageBuilderPro.isActive()` in the editor.
+	 * Mirrors `SidcraftBuilderPro.isActive()` in the editor.
 	 *
 	 * @return bool
 	 */
 	public static function pro_active() {
 		if ( null === self::$memo ) {
 			$active = false;
-			if ( class_exists( '\\SidcraftPageBuilderPro\\License' ) && method_exists( '\\SidcraftPageBuilderPro\\License', 'is_active' ) ) {
-				$active = (bool) \SidcraftPageBuilderPro\License::is_active();
+			if ( class_exists( '\\SidcraftBuilderPro\\License' ) && method_exists( '\\SidcraftBuilderPro\\License', 'is_active' ) ) {
+				$active = (bool) \SidcraftBuilderPro\License::is_active();
 			}
 			self::$memo = (bool) apply_filters( 'sidcraft-page-builder/xeditor/pro_active', $active );
 		}
@@ -118,8 +118,8 @@ class XEditorAccess {
 		return array(
 			'proActive' => self::pro_active(),
 			'guarded'   => self::guarded_types(),
-			'message'   => __( 'XEditor Loop is a Sidcraft Page Builder Pro feature. Activate a Pro license to insert, edit or render it.', 'sidcraft-page-builder' ),
-			'upgrade'   => function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=sidcraft-page-builder-pro-licensing' ) : '',
+			'message'   => __( 'XEditor Loop is a Sidcraft Builder Pro feature. Activate a Pro license to insert, edit or render it.', 'sidcraft-page-builder' ),
+			'upgrade'   => function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=sidcraft-builder-pro-licensing' ) : '',
 		);
 	}
 }

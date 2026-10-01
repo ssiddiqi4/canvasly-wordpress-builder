@@ -477,7 +477,7 @@ function installPanel() {
           .map((e) =>
             (() => {
               const locked = app.proUnitLocked(e);
-              const hint = locked ? app.t("Sidcraft Page Builder Pro license required") : app.t("Double-click to add");
+              const hint = locked ? app.t("Sidcraft Builder Pro license required") : app.t("Double-click to add");
               return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "\u25A1")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\u2605" : "\u2606"}</b></button>`;
             })(),
           )
