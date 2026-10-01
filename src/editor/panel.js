@@ -644,32 +644,11 @@ function installPanel() {
       URL.revokeObjectURL(a.href);
     });
   };
-  app.openClassManager = function openClassManager() {
-    const items = app.D.classes || {};
+  app.openClassManager = function () {
     app.showModal(
       app.t("Global Classes"),
-      `<div class="lb-form-row"><input id="lb-class-name" placeholder="${app.t("Class name")}"><input id="lb-class-css" placeholder="${app.t("CSS declarations")}"><button class="lb-btn primary" id="lb-class-add">${app.t("Add")}</button></div><div class="lb-library-list">${Object.entries(
-        items,
-      )
-        .map(([n, c]) => `<div class="lb-library-row"><strong>.${app.esc(n)}</strong><code>${app.esc(c)}</code></div>`)
-        .join("")}</div>`,
+      `<p class="lb-muted">${app.t("Global classes with custom CSS are no longer available. Style units with their own controls, or use XEditor classes.")}</p>`,
     );
-    app.$("#lb-class-add")?.addEventListener("click", async () => {
-      const name = app.$("#lb-class-name").value,
-        css = app.$("#lb-class-css").value;
-      if (!name) return;
-      const r = await fetch(`${app.D.api}/classes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
-        body: JSON.stringify({ name, css }),
-      });
-      if (r.ok) {
-        app.D.classes = app.D.classes || {};
-        app.D.classes[name.toLowerCase().replace(/[^a-z0-9_-]+/g, "-")] = css;
-        app.closeModal();
-        app.render();
-      }
-    });
   };
   app.openRevisions = async function openRevisions() {
     try {
@@ -720,14 +699,13 @@ function installPanel() {
       .join("");
     app.showModal(
       app.t("Page Settings"),
-      `<label class="lb-control"><span>${app.t("Page template")}</span><select id="lb-page-template">${opts}</select></label><p class="lb-muted">${app.t("Default uses the theme layout. Full Width keeps the header and footer. Canvas inherits the theme header and footer when the theme has them, and is a blank document otherwise.")}</p>${app.themeChromeScopeHTML()}${app.pageStatusHTML()}<label class="lb-control"><span>${app.t("Page title")}</span><input id="lb-page-title" value="${app.esc(s.title || "")}"></label><label class="lb-control"><span>${app.t("Body class")}</span><input id="lb-body-class" value="${app.esc(s.body_class || "")}"></label><label class="lb-control"><span>${app.t("Content width")}</span><input id="lb-page-width" value="${app.esc(s.page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "1180px")}"></label><label class="lb-control lb-code-editor"><span>${app.t("Page custom CSS")}</span><textarea id="lb-page-css" class="lb-code-textarea" data-lb-code="css" rows="8">${app.esc(s.custom_css || "")}</textarea></label><button type="button" class="lb-btn primary" id="lb-page-save">${app.t("Save")}</button>`,
+      `<label class="lb-control"><span>${app.t("Page template")}</span><select id="lb-page-template">${opts}</select></label><p class="lb-muted">${app.t("Default uses the theme layout. Full Width keeps the header and footer. Canvas inherits the theme header and footer when the theme has them, and is a blank document otherwise.")}</p>${app.themeChromeScopeHTML()}${app.pageStatusHTML()}<label class="lb-control"><span>${app.t("Page title")}</span><input id="lb-page-title" value="${app.esc(s.title || "")}"></label><label class="lb-control"><span>${app.t("Body class")}</span><input id="lb-body-class" value="${app.esc(s.body_class || "")}"></label><label class="lb-control"><span>${app.t("Content width")}</span><input id="lb-page-width" value="${app.esc(s.page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "1180px")}"></label><button type="button" class="lb-btn primary" id="lb-page-save">${app.t("Save")}</button>`,
     );
     const readSettings = () => {
       const next = Object.assign({}, app.state.settings || {}, {
         title: app.$("#lb-page-title")?.value || "",
         body_class: app.$("#lb-body-class")?.value || "",
         page_width: app.$("#lb-page-width")?.value || "",
-        custom_css: app.$("#lb-page-css")?.value || "",
         template: app.$("#lb-page-template")?.value || "default",
       });
       if (!["default", "full_width", "canvas"].includes(next.template)) next.template = "default";

@@ -153,9 +153,6 @@ class TemplateEmbed {
 			return '';
 		}
 		$css = Style::nodes_css( $doc['root'] );
-		if ( ! empty( $doc['settings']['custom_css'] ) && class_exists( DocumentManager::class ) && method_exists( DocumentManager::class, 'sanitize_page_css' ) ) {
-			$css .= DocumentManager::sanitize_page_css( $doc['settings']['custom_css'] );
-		}
 		return is_string( $css ) ? $css : '';
 	}
 

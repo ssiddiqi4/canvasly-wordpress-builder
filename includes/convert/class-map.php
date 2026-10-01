@@ -114,7 +114,6 @@ class Map {
 			'animation'      => 'interaction',
 			'_animation_delay' => array( 'interaction_delay', 'seconds' ),
 			'animation_duration' => array( 'interaction_duration', 'seconds' ),
-			'custom_css'     => 'custom_css',
 			'html_tag'       => 'html_tag',
 			'overflow'       => 'overflow',
 			'opacity'        => array( 'opacity', 'slider' ),

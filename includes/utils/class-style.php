@@ -227,9 +227,6 @@ class Style {
 			$css .= self::grid_css( $sel, $s );
 		}
 		$css .= self::state_css( $sel, (array) ( $n['styles'] ?? [] ) );
-		if ( ! empty( $s['custom_css'] ) ) {
-			$css .= self::scope_custom_css( $s['custom_css'], $sel );
-		}
 		$active = Breakpoints::enabled();
 		foreach ( Breakpoints::names() as $bp ) {
 			if ( ! empty( $s[ 'hide_' . $bp ] ) && isset( $active[ $bp ] ) ) {
@@ -776,16 +773,5 @@ class Style {
 			}
 		}
 		return $out;
-	}
-
-	private static function scope_custom_css( $css, $sel ) {$css   = preg_replace( '/<[^>]*>|expression\s*\(|javascript\s*:/i', '', wp_strip_all_tags( (string) $css ) );$css   = preg_replace( '/\bbody\b|\bhtml\b|:root/i', '.lb-scope', $css );$css   = str_replace( '{', '{', $css );$rules = '';
-		foreach ( explode( '}', trim( $css, '}' ) ) as$rule ) {
-			$p = explode( '{',$rule, 2 );
-			if ( count( $p ) !== 2 ) {
-				continue;
-			}
-			$rules .=$sel . ' ' . trim( $p[0] ) . '{' . trim($p[1] ) . '}';
-		}
-		return $rules;
 	}
 }

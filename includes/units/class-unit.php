@@ -437,7 +437,6 @@ abstract class Unit {
    'xe_classes'=>$hidden('xe_classes',['default'=>[]]),
    'role'=>$adv('text',__('Role', 'sidcraft-syntex'),__('Attributes', 'sidcraft-syntex')),
    'html_attributes'=>$adv('textarea',__('Custom Attributes', 'sidcraft-syntex'),__('Attributes', 'sidcraft-syntex'),['placeholder'=>"title=Example\ndata-key=value",'description'=>__('One attribute per line, as name=value. Only aria-*, data-*, title, rel and download are kept.', 'sidcraft-syntex')]),
-   'custom_css'=>$adv('code',__('Custom CSS', 'sidcraft-syntex'),__('Custom CSS', 'sidcraft-syntex'),['language'=>'css','rows'=>10,'description'=>__('Rules are scoped to this unit. Use "selector" to target the wrapper.', 'sidcraft-syntex')]),
    // Typography on Style. A unit that declares the same key keeps its own tab, section and selectors.
    'color'=>$sty('color',__('Text Color', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['selectors'=>['{{WRAPPER}}'=>'color: {{VALUE}};']]),
    'font_family'=>$sty('font',__('Font Family', 'sidcraft-syntex'),__('Typography', 'sidcraft-syntex'),['selectors'=>['{{WRAPPER}}'=>'font-family: {{VALUE}};']]),

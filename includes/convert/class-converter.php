@@ -1661,9 +1661,6 @@ class Converter {
 		if ( $tpl !== '' && isset( $map[ $tpl ] ) ) {
 			$out['template'] = $map[ $tpl ];
 		}
-		if ( ! empty( $page['custom_css'] ) ) {
-			$out['custom_css'] = (string) $page['custom_css'];
-		}
 		return $out;
 	}
 

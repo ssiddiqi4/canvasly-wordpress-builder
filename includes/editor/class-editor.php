@@ -70,7 +70,7 @@ class Editor {
    'googleFonts'=>self::google_fonts(),
    'fontDisplay'=>class_exists('\\SidcraftSyntex\\Design\\Fonts')?\SidcraftSyntex\Design\Fonts::display():'swap',
    'googleFontsLocal'=>class_exists('\\SidcraftSyntex\\Design\\Fonts')?\SidcraftSyntex\Design\Fonts::is_local():false,
-   'classes'=>GlobalClasses::all(),
+   'classes'=>[],
    'variables'=>Variables::all(),
    'themeStyle'=>class_exists(ThemeStyle::class)?ThemeStyle::all():[],
    'kitSettings'=>class_exists('\\SidcraftSyntex\\Settings\\KitSettings')?\SidcraftSyntex\Settings\KitSettings::all():[],

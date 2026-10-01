@@ -2540,7 +2540,6 @@
       "variable_ref",
       "css_id",
       "css_class",
-      "custom_css",
       "z_index",
       "position",
       "top",
@@ -3879,29 +3878,11 @@
         URL.revokeObjectURL(a.href);
       });
     };
-    app.openClassManager = function openClassManager() {
-      const items = app.D.classes || {};
+    app.openClassManager = function() {
       app.showModal(
         app.t("Global Classes"),
-        `<div class="lb-form-row"><input id="lb-class-name" placeholder="${app.t("Class name")}"><input id="lb-class-css" placeholder="${app.t("CSS declarations")}"><button class="lb-btn primary" id="lb-class-add">${app.t("Add")}</button></div><div class="lb-library-list">${Object.entries(
-          items
-        ).map(([n, c]) => `<div class="lb-library-row"><strong>.${app.esc(n)}</strong><code>${app.esc(c)}</code></div>`).join("")}</div>`
+        `<p class="lb-muted">${app.t("Global classes with custom CSS are no longer available. Style units with their own controls, or use XEditor classes.")}</p>`
       );
-      app.$("#lb-class-add")?.addEventListener("click", async () => {
-        const name = app.$("#lb-class-name").value, css = app.$("#lb-class-css").value;
-        if (!name) return;
-        const r = await fetch(`${app.D.api}/classes`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
-          body: JSON.stringify({ name, css })
-        });
-        if (r.ok) {
-          app.D.classes = app.D.classes || {};
-          app.D.classes[name.toLowerCase().replace(/[^a-z0-9_-]+/g, "-")] = css;
-          app.closeModal();
-          app.render();
-        }
-      });
     };
     app.openRevisions = async function openRevisions() {
       try {
@@ -3936,14 +3917,13 @@
       ].map(([v, l]) => `<option value="${v}" ${tpl === v ? "selected" : ""}>${l}</option>`).join("");
       app.showModal(
         app.t("Page Settings"),
-        `<label class="lb-control"><span>${app.t("Page template")}</span><select id="lb-page-template">${opts}</select></label><p class="lb-muted">${app.t("Default uses the theme layout. Full Width keeps the header and footer. Canvas inherits the theme header and footer when the theme has them, and is a blank document otherwise.")}</p>${app.themeChromeScopeHTML()}${app.pageStatusHTML()}<label class="lb-control"><span>${app.t("Page title")}</span><input id="lb-page-title" value="${app.esc(s.title || "")}"></label><label class="lb-control"><span>${app.t("Body class")}</span><input id="lb-body-class" value="${app.esc(s.body_class || "")}"></label><label class="lb-control"><span>${app.t("Content width")}</span><input id="lb-page-width" value="${app.esc(s.page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "1180px")}"></label><label class="lb-control lb-code-editor"><span>${app.t("Page custom CSS")}</span><textarea id="lb-page-css" class="lb-code-textarea" data-lb-code="css" rows="8">${app.esc(s.custom_css || "")}</textarea></label><button type="button" class="lb-btn primary" id="lb-page-save">${app.t("Save")}</button>`
+        `<label class="lb-control"><span>${app.t("Page template")}</span><select id="lb-page-template">${opts}</select></label><p class="lb-muted">${app.t("Default uses the theme layout. Full Width keeps the header and footer. Canvas inherits the theme header and footer when the theme has them, and is a blank document otherwise.")}</p>${app.themeChromeScopeHTML()}${app.pageStatusHTML()}<label class="lb-control"><span>${app.t("Page title")}</span><input id="lb-page-title" value="${app.esc(s.title || "")}"></label><label class="lb-control"><span>${app.t("Body class")}</span><input id="lb-body-class" value="${app.esc(s.body_class || "")}"></label><label class="lb-control"><span>${app.t("Content width")}</span><input id="lb-page-width" value="${app.esc(s.page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "1180px")}"></label><button type="button" class="lb-btn primary" id="lb-page-save">${app.t("Save")}</button>`
       );
       const readSettings = () => {
         const next = Object.assign({}, app.state.settings || {}, {
           title: app.$("#lb-page-title")?.value || "",
           body_class: app.$("#lb-body-class")?.value || "",
           page_width: app.$("#lb-page-width")?.value || "",
-          custom_css: app.$("#lb-page-css")?.value || "",
           template: app.$("#lb-page-template")?.value || "default"
         });
         if (!["default", "full_width", "canvas"].includes(next.template)) next.template = "default";
@@ -5897,13 +5877,8 @@
         ]) + app.lb09Field("z_index", app.t("Z-index"), "number", s.z_index ?? 0) + app.lb09Select("overflow", app.t("Overflow"), s.overflow || "", ["", "visible", "hidden", "auto", "scroll"]),
         false
       ) + app.lb09Section(app.t("Responsive"), app.hideOnHTML(s), false) + app.lb09Section(
-        app.t("Custom CSS"),
-        app.lb09Field("css_id", app.t("CSS ID"), "text", s.css_id) + app.lb09Field("css_class", app.t("CSS Classes"), "text", s.css_class) + app.lb09Field("global_class", app.t("Global Classes"), "text", s.global_class) + app.control(
-          "custom_css",
-          { type: "code", language: "css", rows: 8 },
-          s.custom_css || "",
-          app.t("Custom CSS")
-        ) + `<label class="lb-control"><span>Attributes</span><textarea data-setting="html_attributes" rows="4" placeholder="title=Example">${app.esc(s.html_attributes || "")}</textarea></label>`,
+        app.t("Attributes"),
+        app.lb09Field("css_id", app.t("CSS ID"), "text", s.css_id) + app.lb09Field("css_class", app.t("CSS Classes"), "text", s.css_class) + `<label class="lb-control"><span>Attributes</span><textarea data-setting="html_attributes" rows="4" placeholder="title=Example">${app.esc(s.html_attributes || "")}</textarea></label>`,
         false
       );
     };
@@ -7575,98 +7550,16 @@
       } catch (e) {
       }
     };
-    app.lb110ClassChecklist = function lb110ClassChecklist(selectedNames) {
-      const names = app.lb110ClassNames();
-      return names.length ? names.map(
-        (n) => `<label class="lb-ds-check"><input type="checkbox" data-lb-class-check="${app.esc(n)}" ${selectedNames.includes(n) ? "checked" : ""}> <strong>.${app.esc(n)}</strong><small>${app.esc(typeof app.lb110ClassData()[n] === "string" ? app.lb110ClassData()[n] : app.lb110ClassData()[n]?.description || "")}</small></label>`
-      ).join("") : '<p class="lb-muted">No global classes yet. Create one above.</p>';
-    };
-    app.lb110ClassEditor = function lb110ClassEditor(name = "") {
-      const d = app.lb110ClassData()[name];
-      const x = typeof d === "string" ? { base: d } : d || {};
-      const parents = app.lb110ClassNames().filter((n) => n !== name);
-      return `<div class="lb-ds-editor"><label class="lb-control"><span>Class Name</span><input id="lb-ds-name" value="${app.esc(name)}" ${name ? "readonly" : ""} placeholder="card"></label><label class="lb-control"><span>Description</span><input id="lb-ds-description" value="${app.esc(x.description || "")}" placeholder="Reusable card style"></label><div class="lb-ds-state-grid"><label><span>Base declarations</span><textarea id="lb-ds-base" class="lb-code-textarea" data-lb-code="css" rows="4">${app.esc(x.base || "")}</textarea></label><label><span>Hover declarations</span><textarea id="lb-ds-hover" class="lb-code-textarea" data-lb-code="css" rows="4">${app.esc(x.hover || "")}</textarea></label><label><span>Focus declarations</span><textarea id="lb-ds-focus" class="lb-code-textarea" data-lb-code="css" rows="4">${app.esc(x.focus || "")}</textarea></label><label><span>Active declarations</span><textarea id="lb-ds-active" class="lb-code-textarea" data-lb-code="css" rows="4">${app.esc(x.active || "")}</textarea></label><label><span>Focus-visible declarations</span><textarea id="lb-ds-focus-visible" class="lb-code-textarea" data-lb-code="css" rows="4">${app.esc(x.focus_visible || "")}</textarea></label></div><div><strong>Inherit from</strong><div class="lb-ds-parent-list">${parents.map((n) => `<label><input type="checkbox" data-lb-parent="${app.esc(n)}" ${(x.extends || []).includes(n) ? "checked" : ""}> .${app.esc(n)}</label>`).join("") || '<span class="lb-muted">No other classes.</span>'}</div></div><div class="lb-ds-actions"><button class="lb-btn primary" id="lb-ds-class-save">Save Class</button><button class="lb-btn" id="lb-ds-class-cancel">Cancel</button></div></div>`;
-    };
-    app.lb110SaveClass = async function lb110SaveClass(name) {
-      const payload = {
-        name,
-        description: app.root.querySelector("#lb-ds-description")?.value || "",
-        css: {
-          base: app.root.querySelector("#lb-ds-base")?.value || "",
-          hover: app.root.querySelector("#lb-ds-hover")?.value || "",
-          focus: app.root.querySelector("#lb-ds-focus")?.value || "",
-          active: app.root.querySelector("#lb-ds-active")?.value || "",
-          focus_visible: app.root.querySelector("#lb-ds-focus-visible")?.value || "",
-          extends: [...app.root.querySelectorAll("[data-lb-parent]:checked")].map((x) => x.dataset.lbParent)
-        }
-      };
-      const r = await fetch(`${app.D.api}/classes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce },
-        body: JSON.stringify(payload)
-      });
-      if (!r.ok) {
-        alert(app.t("Could not save global class."));
-        return;
-      }
-      await app.lb110RefreshDesignData(true);
-      app.openClassManager110();
-    };
-    app.openClassManager110 = function openClassManager110() {
-      const items = app.lb110ClassData();
-      const usage = {};
-      const walk = (nodes) => (nodes || []).forEach((n) => {
-        String(n.settings?.global_class || "").split(/[\s,]+/).filter(Boolean).forEach((c) => usage[c] = (usage[c] || 0) + 1);
-        walk(n.children);
-      });
-      walk(app.state.root);
-      const body = `<div class="lb-ds-toolbar"><button class="lb-btn primary" id="lb-ds-new-class">New Class</button><input class="lb-modal-search" id="lb-ds-class-search" placeholder="Search classes…"></div><div class="lb-library-list" id="lb-ds-class-list">${Object.entries(items).map(
-        ([n, d]) => `<div class="lb-library-row lb-ds-class-row" data-class-row="${app.esc(n)}"><div><strong>.${app.esc(n)}</strong><small class="lb-ds-meta">${usage[n] || 0} unit(s) · ${app.esc(typeof d === "string" ? "" : d.description || "")}</small></div><span>${typeof d === "string" ? app.esc(d) : (d.extends || []).map((x) => "." + app.esc(x)).join(", ")}</span><button class="lb-btn" data-lb-class-edit="${app.esc(n)}">Edit</button><button class="lb-btn danger" data-lb-class-delete="${app.esc(n)}">${app.t("Delete")}</button></div>`
-      ).join("") || '<p class="lb-muted">No global classes yet.</p>'}</div>`;
-      app.showModal(app.t("Global Classes 2.0"), body, () => {
-        app.$("#lb-ds-new-class")?.addEventListener("click", () => {
-          app.closeModal();
-          const b = app.modalHTML("New Global Class", app.lb110ClassEditor());
-          app.root.insertAdjacentHTML("beforeend", b);
-          app.bindModal();
-          app.$("#lb-ds-class-save")?.addEventListener("click", () => app.lb110SaveClass(app.$("#lb-ds-name")?.value || ""));
-          app.$("#lb-ds-class-cancel")?.addEventListener("click", app.closeModal);
-        });
-        app.$("#lb-ds-class-search")?.addEventListener("input", (e) => {
-          app.$$("#lb-ds-class-list .lb-ds-class-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
-        });
-        app.$$("[data-lb-class-edit]").forEach(
-          (b) => b.onclick = () => {
-            const name = b.dataset.lbClassEdit;
-            app.closeModal();
-            const m = app.modalHTML("Edit Global Class", app.lb110ClassEditor(name));
-            app.root.insertAdjacentHTML("beforeend", m);
-            app.bindModal();
-            app.$("#lb-ds-class-save")?.addEventListener("click", () => app.lb110SaveClass(name));
-            app.$("#lb-ds-class-cancel")?.addEventListener("click", app.closeModal);
-          }
-        );
-        app.$$("[data-lb-class-delete]").forEach(
-          (b) => b.onclick = async () => {
-            if (!confirm(
-              "Delete this global class? Existing units will keep the class name but the style will no longer apply."
-            ))
-              return;
-            await fetch(`${app.D.api}/classes/${encodeURIComponent(b.dataset.lbClassDelete)}`, {
-              method: "DELETE",
-              headers: { "X-WP-Nonce": app.D.nonce }
-            });
-            await app.lb110RefreshDesignData(true);
-            openClassManager110();
-          }
-        );
-      });
+    app.openClassManager110 = function() {
+      app.showModal(
+        app.t("Global Classes"),
+        `<p class="lb-muted">${app.t("Global classes with custom CSS are no longer available. Style units with their own controls, or use XEditor classes.")}</p>`
+      );
     };
     app.lb110ClassControl = function lb110ClassControl(n) {
-      const selectedNames = String(n.settings?.global_class || "").split(/[\s,]+/).filter(Boolean);
       return app.lb09Section(
-        app.t("Global Classes & CSS"),
-        `<p class="lb-muted">CSS-first styling: classes provide reusable declarations; instance settings remain available as local overrides.</p><div class="lb-ds-class-assign">${app.lb110ClassChecklist(selectedNames)}</div><button class="lb-btn" id="lb-ds-manage-classes">Manage Global Classes</button><label class="lb-control"><span>Variable Reference</span><input id="lb-ds-variable-ref" placeholder="{{var:colors.primary}}" value="${app.esc(n.settings?.variable_ref || "")}"></label><p class="lb-muted">Use token references such as <code>{{var:colors.primary}}</code> in supported style fields.</p>`,
+        app.t("Variable Reference"),
+        `<label class="lb-control"><span>Variable Reference</span><input id="lb-ds-variable-ref" placeholder="{{var:colors.primary}}" value="${app.esc(n.settings?.variable_ref || "")}"></label><p class="lb-muted">Use token references such as <code>{{var:colors.primary}}</code> in supported style fields.</p>`,
         false
       );
     };
@@ -19650,22 +19543,9 @@
       const host = document.querySelector(".lb-modal-backdrop");
       if (host) app.bindCodeEditors(host);
     };
-    const oldSaveClass = app.lb110SaveClass;
-    if (typeof oldSaveClass === "function") {
-      app.lb110SaveClass = function lb110SaveClassCode(name) {
-        app.lbCodeFlush(document);
-        return oldSaveClass(name);
-      };
-    }
     const oldPage = app.openPageSettings;
     app.openPageSettings = function openPageSettingsCode() {
       oldPage();
-      const ta = app.$("#lb-page-css");
-      if (ta) {
-        ta.classList.add("lb-code-textarea");
-        ta.setAttribute("data-lb-code", "css");
-        app.lbMountCodeEditor(ta, "css", { height: 220 });
-      }
       app.$("#lb-page-save")?.addEventListener("click", () => app.lbCodeFlush(document), true);
     };
     const oldSave = app.save;
@@ -23513,12 +23393,6 @@
       if (!parts.length) return "";
       return "#lb-node-" + String(node.id).replace(/[^a-zA-Z0-9_-]/g, "") + "{" + parts.join("") + "}";
     }
-    function customCss(node) {
-      const css = String((node.settings || {}).custom_css || "").replace(/<\/style/gi, "").trim();
-      if (!css) return "";
-      const sel2 = "#lb-node-" + String(node.id).replace(/[^a-zA-Z0-9_-]/g, "");
-      return css.replace(/\bselector\b/g, sel2);
-    }
     function nodeCss(node) {
       if (!node || !node.id) return "";
       const controls = (app.meta(node.type) || {}).controls || {};
@@ -23535,7 +23409,6 @@
         css += rules(def, settings[key], wrapper);
       });
       css += declarations(node, selectorKeys);
-      css += customCss(node);
       return css;
     }
     function walk(nodes, out) {
