@@ -76,7 +76,7 @@ class Accordion extends Unit {
    $faq[]=['@type'=>'Question','name'=>wp_strip_all_tags($title),'acceptedAnswer'=>['@type'=>'Answer','text'=>wp_strip_all_tags($content)]];
   }
   $out.='</div>';
-  if(!empty($s['faq_schema'])&&$faq)$out.='<script type="application/ld+json">'.wp_json_encode(['@context'=>'https://schema.org','@type'=>'FAQPage','mainEntity'=>$faq]).'</script>';
+  if(!empty($s['faq_schema'])&&$faq)$out.=\SidcraftSyntex\Rendering\OutputEscape::raw(wp_get_inline_script_tag(wp_json_encode(['@context'=>'https://schema.org','@type'=>'FAQPage','mainEntity'=>$faq]),['type'=>'application/ld+json']));
   return $out;
  }
 }

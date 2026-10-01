@@ -40,7 +40,7 @@ class InlineStyle {
 	public static function tag( $handle, $css ) {
 		$handle = sanitize_key( $handle );
 		// Inside a <style> element only "</style" can end the block early.
-		$css = trim( str_ireplace( '</style', '', (string) $css ) );
+		$css = trim( wp_strip_all_tags( str_ireplace( '</style', '', (string) $css ) ) );
 		if ( '' === $handle || '' === $css || ! class_exists( '\\WP_Styles' ) ) {
 			return '';
 		}

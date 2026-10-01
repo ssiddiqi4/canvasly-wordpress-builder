@@ -445,7 +445,7 @@ class CssPrint {
 			}
 		}
 		if ( function_exists( 'wp_add_inline_style' ) && ! self::$inlined_global ) {
-			wp_add_inline_style( 'sidcraft-syntex-frontend', $css );
+			wp_add_inline_style( 'sidcraft-syntex-frontend', wp_strip_all_tags( $css ) );
 			self::$inlined_global = true;
 		}
 		self::$enqueued_global = true;
@@ -485,7 +485,7 @@ class CssPrint {
 			}
 		}
 		if ( function_exists( 'wp_add_inline_style' ) ) {
-			wp_add_inline_style( 'sidcraft-syntex-frontend', $css );
+			wp_add_inline_style( 'sidcraft-syntex-frontend', wp_strip_all_tags( $css ) );
 		}
 		self::$enqueued_posts[ $id ] = true;
 	}

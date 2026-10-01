@@ -83,6 +83,25 @@ check_page dashboard "/wp-admin/" 'id="wpadminbar"'
 # sidsyn_iframe=1 asks for the editor itself rather than the iframe shell.
 check_page editor "/wp-admin/admin.php?page=$SLUG&post_type=page&new_page=1&sidsyn_iframe=1" 'id="lb-editor"'
 
+echo "--- Rendering a builder page"
+PAGE_ID=$(wp post create --post_type=page --post_status=publish --post_title="Smoke render" --porcelain)
+SMOKE_PAGE_ID="$PAGE_ID" wp eval '
+wp_set_current_user( 1 );
+$doc = array( "root" => array(
+	array( "id" => "t1", "type" => "text", "settings" => array( "text" => "<p>smoke-text-ok</p><script>bad()</script>" ), "children" => array() ),
+	array( "id" => "a1", "type" => "accordion", "settings" => array( "faq_schema" => true ), "children" => array() ),
+	array( "id" => "g1", "type" => "grid", "settings" => array( "grid_template_columns" => "1fr\" onmouseover=\"bad()" ), "children" => array() ),
+) );
+$r = \SidcraftSyntex\Document\DocumentManager::save( (int) getenv( "SMOKE_PAGE_ID" ), $doc );
+if ( is_wp_error( $r ) ) { fwrite( STDERR, $r->get_error_message() ); exit( 1 ); }
+' || fail "Could not save a builder document"
+check_page frontend "/?page_id=$PAGE_ID" 'smoke-text-ok'
+grep -q 'application/ld+json' /tmp/smoke-frontend.html || fail "Accordion FAQ schema was stripped from the page"
+if grep -qE '<script>bad|onmouseover|sidsyn-raw' /tmp/smoke-frontend.html; then
+	grep -oE '.{0,80}(<script>bad|onmouseover|sidsyn-raw).{0,40}' /tmp/smoke-frontend.html | head -5
+	fail "Unescaped builder output reached the page"
+fi
+
 echo "--- Checking PHP log"
 if grep -E "PHP (Fatal|Parse|Warning)" "$LOG" | grep -q "plugins/$SLUG/"; then
 	grep -E "PHP (Fatal|Parse|Warning)" "$LOG" | grep "plugins/$SLUG/" | head -20

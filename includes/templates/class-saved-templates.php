@@ -3,6 +3,7 @@ namespace SidcraftSyntex\Templates;
 
 use SidcraftSyntex\Document\DocumentManager;
 use SidcraftSyntex\Rendering\FrontendRenderer;
+use SidcraftSyntex\Rendering\OutputEscape;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -897,10 +898,14 @@ class SavedTemplates {
 			} elseif ( class_exists( DocumentManager::class ) ) {
 				$css = DocumentManager::compiled_css( $id );
 				if ( $css && function_exists( 'wp_add_inline_style' ) ) {
-					wp_add_inline_style( 'sidcraft-syntex-frontend', $css );
+					wp_add_inline_style( 'sidcraft-syntex-frontend', wp_strip_all_tags( $css ) );
 				}
 			}
-			$html = FrontendRenderer::render_document( $doc, $id );
+			$html = OutputEscape::render(
+				function () use ( $doc, $id ) {
+					return FrontendRenderer::render_document( $doc, $id );
+				}
+			);
 		}
 		unset( $stack[ $id ] );
 		return is_string( $html ) ? $html : '';

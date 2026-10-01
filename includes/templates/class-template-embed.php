@@ -3,6 +3,7 @@ namespace SidcraftSyntex\Templates;
 
 use SidcraftSyntex\Document\DocumentManager;
 use SidcraftSyntex\Rendering\FrontendRenderer;
+use SidcraftSyntex\Rendering\OutputEscape;
 use SidcraftSyntex\Utils\Style;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -167,6 +168,19 @@ class TemplateEmbed {
 	 * @return string
 	 */
 	public static function render( $id, $args = array() ) {
+		return OutputEscape::render(
+			function () use ( $id, $args ) {
+				return self::render_html( $id, $args );
+			}
+		);
+	}
+
+	/**
+	 * @param int   $id
+	 * @param array $args
+	 * @return string
+	 */
+	private static function render_html( $id, $args = array() ) {
 		$id   = absint( $id );
 		$args = is_array( $args ) ? $args : array();
 		if ( ! $id || ! self::can_render( $id ) ) {
@@ -197,7 +211,7 @@ class TemplateEmbed {
 			}
 			$css = self::scope_css( self::document_css( $id ), '#' . $wrap_id );
 			if ( $css !== '' && function_exists( 'wp_add_inline_style' ) ) {
-				wp_add_inline_style( 'sidcraft-syntex-frontend', $css );
+				wp_add_inline_style( 'sidcraft-syntex-frontend', wp_strip_all_tags( $css ) );
 			}
 			$class = 'lb-template-embed';
 			$extra = trim( (string) ( $args['class'] ?? '' ) );

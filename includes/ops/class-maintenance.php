@@ -253,7 +253,11 @@ class Maintenance {
 						$html = '';
 					} else {
 						try {
-							$html = FrontendRenderer::render_nodes( $doc['root'], $id, array(), 'maint' );
+							$html = \SidcraftSyntex\Rendering\OutputEscape::render(
+								function () use ( $doc, $id ) {
+									return FrontendRenderer::render_nodes( $doc['root'], $id, array(), 'maint' );
+								}
+							);
 						} finally {
 							if ( method_exists( TemplateEmbed::class, 'end' ) ) {
 								TemplateEmbed::end( $id );

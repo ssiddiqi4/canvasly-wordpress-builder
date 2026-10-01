@@ -28,6 +28,6 @@ class WordPressWidget extends Unit {
    if(($s['title']??'')!=='')echo '<h3 class="lb-wp-widget-title">'.esc_html($s['title']).'</h3>';
    dynamic_sidebar(sanitize_key($s['sidebar']));
   } else echo '<div class="lb-embed-placeholder">'.esc_html__('Choose a WordPress widget', 'sidcraft-syntex').'</div>';
-  return '<div class="'.$this->cls($s).' lb-wordpress-widget">'.ob_get_clean().'</div>';
+  return '<div class="'.$this->cls($s).' lb-wordpress-widget">'.\SidcraftSyntex\Rendering\OutputEscape::raw(ob_get_clean()).'</div>';
  }
 }
