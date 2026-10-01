@@ -1,0 +1,10 @@
+.git
+.github
+.gitignore
+.distignore
+node_modules
+src
+package.json
+package-lock.json
+build.mjs
+eslint.config.mjs

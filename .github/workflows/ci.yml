@@ -33,6 +33,21 @@ jobs:
           done < <(find . -name '*.php' -not -path './.git/*' -print0)
           exit $status
 
+  editor-bundle:
+    name: Editor bundle matches source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Lint src/editor
+        run: npm run lint
+      - name: Check assets/js/editor.js was rebuilt from src/editor
+        run: npm run check
+
   wordpress-smoke:
     name: WordPress smoke test
     runs-on: ubuntu-latest

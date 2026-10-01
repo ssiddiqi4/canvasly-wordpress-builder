@@ -1,0 +1,15 @@
+{
+  "name": "canvasly-lite",
+  "private": true,
+  "description": "Build tooling for the Canvasly Lite editor bundle (assets/js/editor.js).",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node build.mjs --check",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "eslint": "9.39.5",
+    "globals": "17.13.0"
+  }
+}

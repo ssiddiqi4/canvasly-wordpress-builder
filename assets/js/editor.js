@@ -1,7 +1,6 @@
 /* Canvasly Lite editor bundle. Source: src/editor/. Rebuild with `npm run build`. */
 (() => {
-  // Plain permalinks: REST base is "index.php?rest_route=/ns/v1", so code that appends
-  // "?param=" produces a second "?" and a 404. Normalize those URLs before fetch() runs.
+  // src/editor/rest-url-fix.js
   (function lbRestUrlFix() {
     const orig = window.fetch;
     if (typeof orig !== "function" || orig.__lbRestFix) return;
@@ -19,6 +18,7 @@
     wrapped.__lbRestFix = true;
     window.fetch = wrapped;
   })();
+
   // src/editor/app.js
   var app = {};
 
@@ -552,7 +552,7 @@
     back.className = "lb-editor-lightbox";
     back.setAttribute("role", "dialog");
     back.setAttribute("aria-modal", "true");
-    back.innerHTML = `<button type="button" class="lb-editor-lightbox-close" aria-label="${app.esc(app.t("Close"))}">\xD7</button><img src="${app.esc(src)}" alt="">${caption ? `<p class="lb-editor-lightbox-caption">${app.esc(caption)}</p>` : ""}`;
+    back.innerHTML = `<button type="button" class="lb-editor-lightbox-close" aria-label="${app.esc(app.t("Close"))}">×</button><img src="${app.esc(src)}" alt="">${caption ? `<p class="lb-editor-lightbox-caption">${app.esc(caption)}</p>` : ""}`;
     back.addEventListener("click", (e) => {
       if (e.target === back || e.target.closest(".lb-editor-lightbox-close")) closeEditorLightbox();
     });
@@ -1711,7 +1711,7 @@
       const publishing = !!target && target !== app.postStatus() && (target === "publish" || target === "private");
       if (!auto && btn) {
         btn.disabled = true;
-        btn.textContent = publishing ? app.t("Publishing\u2026") : app.t("Saving\u2026");
+        btn.textContent = publishing ? app.t("Publishing…") : app.t("Saving…");
       }
       try {
         const persist = (nodes) => (nodes || []).forEach((n) => {
@@ -1830,7 +1830,7 @@
 					<button type="button" class="lb-btn" data-revision-restore="${r.id}">${app.t("Restore")}</button>
 				</div>`;
       }).join("") : `<p class="lb-muted">${app.t("No revisions yet.")}</p>`;
-      el.innerHTML = `<div class="lb-history-head"><strong>${app.t("History")}</strong><button type="button" data-history-close aria-label="${app.t("Close history")}">\xD7</button></div>
+      el.innerHTML = `<div class="lb-history-head"><strong>${app.t("History")}</strong><button type="button" data-history-close aria-label="${app.t("Close history")}">×</button></div>
 			<div class="lb-history-tabs">
 				<button type="button" data-history-tab="actions" class="${tab === "actions" ? "active" : ""}">${app.t("Actions")}</button>
 				<button type="button" data-history-tab="revisions" class="${tab === "revisions" ? "active" : ""}">${app.t("Revisions")}</button>
@@ -1957,7 +1957,7 @@
       bar.className = "lb-autosave-banner";
       bar.setAttribute("role", "status");
       const when = time ? " (" + app.esc(time.slice(11, 16) || time) + ")" : "";
-      bar.innerHTML = "<span>" + app.esc(app.t("A newer autosave of this page is available.")) + when + '</span><button type="button" class="lb-btn" data-lb-autosave="restore">' + app.esc(app.t("Restore")) + '</button><button type="button" class="lb-btn" data-lb-autosave="dismiss" aria-label="' + app.esc(app.t("Dismiss")) + '">\u00D7</button>';
+      bar.innerHTML = "<span>" + app.esc(app.t("A newer autosave of this page is available.")) + when + '</span><button type="button" class="lb-btn" data-lb-autosave="restore">' + app.esc(app.t("Restore")) + '</button><button type="button" class="lb-btn" data-lb-autosave="dismiss" aria-label="' + app.esc(app.t("Dismiss")) + '">×</button>';
       const close = () => {
         bar.remove();
         try {
@@ -1980,7 +1980,9 @@
       const top = shell.querySelector(".lb-top");
       if (top && top.parentNode) top.insertAdjacentElement("afterend", bar);
       else shell.insertBefore(bar, shell.firstChild);
-      setTimeout(() => { if (bar.isConnected) bar.classList.add("is-quiet"); }, 12e3);
+      setTimeout(() => {
+        if (bar.isConnected) bar.classList.add("is-quiet");
+      }, 12e3);
     };
     app.recoverAutosave = async function recoverAutosave() {
       const id = parseInt(app.D.postId || 0, 10);
@@ -2448,20 +2450,20 @@
       if (n.type === "button") return `<button type="button" class="lb-button lb-editor-button" style="${st}" data-inline="text" data-link-url="${app.esc(s.url || "")}" data-link-target="${app.esc(s.target || "_self")}">${s.text || "Button"}</button>`;
       if (n.type === "divider") return `<hr class="lb-divider" style="border-top:${Math.max(1, Number(s.thickness || 1))}px ${app.esc(s.style || "solid")} ${app.esc(s.color || "#ddd")}">`;
       if (n.type === "spacer") return `<div class="lb-spacer" style="height:${Math.max(0, Number(s.height || 40))}px"></div>`;
-      if (n.type === "icon") return `<div class="lb-icon-glyph" style="font-size:${Number(s.size || 32)}px;color:${app.esc(s.color || "#222")}">${app.esc(s.icon || "\u2726")}</div>`;
-      if (n.type === "icon_box") return `<div class="lb-icon-box"><div class="lb-icon-box-icon">${app.esc(s.icon || "\u2727")}</div><h3>${app.esc(s.title || "Icon Box")}</h3><div>${s.text || ""}</div></div>`;
+      if (n.type === "icon") return `<div class="lb-icon-glyph" style="font-size:${Number(s.size || 32)}px;color:${app.esc(s.color || "#222")}">${app.esc(s.icon || "✦")}</div>`;
+      if (n.type === "icon_box") return `<div class="lb-icon-box"><div class="lb-icon-box-icon">${app.esc(s.icon || "✧")}</div><h3>${app.esc(s.title || "Icon Box")}</h3><div>${s.text || ""}</div></div>`;
       if (n.type === "rating" || n.type === "star_rating") {
         const max = Math.max(1, Math.min(10, Number(s.max || 5))), r = Math.max(0, Math.min(max, Number(s.rating || 5)));
         const size = Math.max(8, Number(s.size || 24));
         const label = s.label ? `<span class="lb-rating-label" style="margin-left:8px;font-size:.55em;color:inherit">${app.esc(s.label)}</span>` : "";
-        return `<div class="lb-rating" style="color:${app.esc(s.color || "#f4b400")};font-size:${size}px" aria-label="${app.t("Rating %s of %s", r, max)}">${app.esc((s.icon || "\u2605").repeat(Math.floor(r)))}${r % 1 >= 0.5 ? "\xBD" : ""}${app.esc((s.empty_icon || "\u2606").repeat(Math.max(0, max - Math.ceil(r))))}${label}</div>`;
+        return `<div class="lb-rating" style="color:${app.esc(s.color || "#f4b400")};font-size:${size}px" aria-label="${app.t("Rating %s of %s", r, max)}">${app.esc((s.icon || "★").repeat(Math.floor(r)))}${r % 1 >= 0.5 ? "½" : ""}${app.esc((s.empty_icon || "☆").repeat(Math.max(0, max - Math.ceil(r))))}${label}</div>`;
       }
       if (n.type === "audio") {
         if (!s.url) return '<div class="lb-embed-placeholder">' + app.t("Add audio URL") + "</div>";
         if (/\.(mp3|wav|ogg|oga|opus|m4a|aac|flac|wma)(\?|#|$)/i.test(String(s.url))) return `<audio class="lb-audio" controls src="${app.esc(s.url)}"></audio>`;
-        return `<div class="lb-audio-embed"><div class="lb-embed-placeholder">${app.esc(s.url)} \xB7 ${app.t("plays on the live page")}</div></div>`;
+        return `<div class="lb-audio-embed"><div class="lb-embed-placeholder">${app.esc(s.url)} · ${app.t("plays on the live page")}</div></div>`;
       }
-      if (n.type === "embed") return s.url ? `<div class="lb-embed-wrap"><div class="lb-embed"><div class="lb-embed-placeholder">${app.esc(s.url)} \xB7 ${app.t("plays on the live page")}</div></div></div>` : '<div class="lb-embed-placeholder">' + app.t("Paste a URL to embed") + "</div>";
+      if (n.type === "embed") return s.url ? `<div class="lb-embed-wrap"><div class="lb-embed"><div class="lb-embed-placeholder">${app.esc(s.url)} · ${app.t("plays on the live page")}</div></div></div>` : '<div class="lb-embed-placeholder">' + app.t("Paste a URL to embed") + "</div>";
       if (n.type === "soundcloud") return s.url ? `<iframe class="lb-audio" title="${app.t("Audio")}" height="${Number(s.height || 166)}" src="${app.esc(s.url)}"></iframe>` : '<div class="lb-embed-placeholder">' + app.t("Add audio URL") + "</div>";
       if (n.type === "wordpress_widget" || n.type === "sidebar") return `<div class="lb-embed-placeholder">WordPress Widget: ${app.esc(s.sidebar || "select a sidebar")}</div>`;
       if (n.type === "link_in_bio") {
@@ -2520,7 +2522,7 @@
       if (n.type === "alert") return `<div class="lb-alert"><strong>${app.esc(s.title || "Notice")}</strong><div>${app.esc(s.text || "")}</div></div>`;
       if (n.type === "html") {
         const raw = String(s.html || "").trim();
-        if (/^https?:\/\/\S+$/i.test(raw) && raw.indexOf("<") < 0) return `<div class="lb-html lb-html-embed"><div class="lb-embed-placeholder">${app.esc(raw)} \xB7 ${app.t("plays on the live page")}</div></div>`;
+        if (/^https?:\/\/\S+$/i.test(raw) && raw.indexOf("<") < 0) return `<div class="lb-html lb-html-embed"><div class="lb-embed-placeholder">${app.esc(raw)} · ${app.t("plays on the live page")}</div></div>`;
         return `<div class="lb-html">${s.html || ""}</div>`;
       }
       if (n.type === "shortcode") {
@@ -2533,14 +2535,14 @@
       if (n.type === "video") {
         if (!s.url) return '<div class="lb-video-placeholder">Add video URL</div>';
         if (/\.(mp4|webm|ogv|ogg|m4v|mov)(\?|#|$)/i.test(String(s.url))) return `<video class="lb-video" src="${app.esc(s.url)}" controls></video>`;
-        return `<div class="lb-video lb-video-oembed"><div class="lb-video-placeholder">${app.esc(s.url)} \xB7 plays on the live page</div></div>`;
+        return `<div class="lb-video lb-video-oembed"><div class="lb-video-placeholder">${app.esc(s.url)} · plays on the live page</div></div>`;
       }
       return `<div class="lb-embed-placeholder">${app.esc(app.meta(n.type).title || n.type)}</div>`;
     };
     app.nodeHTML = function nodeHTML(n) {
       try {
         const s = n.settings || {}, e = app.meta(n.type), sel2 = app.selected === n.id ? " is-selected" : "", globalNames = String(s.global_class || "").split(/[\s,]+/).map((x) => x.trim()).filter(Boolean).map((x) => "lb-class-" + x.replace(/[^a-zA-Z0-9_-]/g, "")).filter(Boolean), classes = "lb-node lb-node-" + app.esc(n.type) + sel2 + (globalNames.length ? " " + globalNames.join(" ") : "");
-        return `<div class="${classes}" id="lb-node-${app.esc(n.id)}" data-id="${app.esc(n.id)}" data-type="${app.esc(n.type)}" draggable="true" tabindex="0" aria-label="${app.esc(e.title || n.type)}">${app.bodyHTML(n)}<div class="lb-node-toolbar"><span>${app.esc(e.title || n.type)}</span><button type="button" data-act="move-up" title="${app.t("Move up")}">\u2191</button><button type="button" data-act="move-down" title="${app.t("Move down")}">\u2193</button><button type="button" data-act="duplicate" title="${app.t("Duplicate")}">\uFF0B</button><button type="button" data-act="delete" title="${app.t("Delete")}">\xD7</button></div></div>`;
+        return `<div class="${classes}" id="lb-node-${app.esc(n.id)}" data-id="${app.esc(n.id)}" data-type="${app.esc(n.type)}" draggable="true" tabindex="0" aria-label="${app.esc(e.title || n.type)}">${app.bodyHTML(n)}<div class="lb-node-toolbar"><span>${app.esc(e.title || n.type)}</span><button type="button" data-act="move-up" title="${app.t("Move up")}">↑</button><button type="button" data-act="move-down" title="${app.t("Move down")}">↓</button><button type="button" data-act="duplicate" title="${app.t("Duplicate")}">＋</button><button type="button" data-act="delete" title="${app.t("Delete")}">×</button></div></div>`;
       } catch (err) {
         if (window.console) console.error(err);
         const title = (app.meta(n && n.type) || {}).title || n && n.type || "Unit";
@@ -2837,7 +2839,7 @@
   // src/editor/navigator.js
   function installNavigator() {
     app.treeHTML = function treeHTML(nodes, depth = 0) {
-      return nodes.map((n) => `<div class="lb-tree-item"><div class="lb-tree-row ${app.selected === n.id ? "active" : ""}" data-tree-id="${app.esc(n.id)}" style="padding-left:${8 + depth * 15}px"><span class="lb-tree-grip">\u22EE\u22EE</span><span>${app.esc(app.meta(n.type).title || n.type)}</span></div>${n.children?.length ? treeHTML(n.children, depth + 1) : ""}</div>`).join("");
+      return nodes.map((n) => `<div class="lb-tree-item"><div class="lb-tree-row ${app.selected === n.id ? "active" : ""}" data-tree-id="${app.esc(n.id)}" style="padding-left:${8 + depth * 15}px"><span class="lb-tree-grip">⋮⋮</span><span>${app.esc(app.meta(n.type).title || n.type)}</span></div>${n.children?.length ? treeHTML(n.children, depth + 1) : ""}</div>`).join("");
     };
     app.structureHTML = function structureHTML() {
       const showPage = typeof app.pageShowsThemeChrome === "function" && app.pageShowsThemeChrome();
@@ -2847,12 +2849,12 @@
       const showFooter = showPage || site("footer");
       const section = (label, part, nodes) => {
         const active = app.chromeFocus === part && !app.selected ? " active" : "";
-        const text = site(part) ? label + " \xB7 " + app.t("Site-wide") : label;
+        const text = site(part) ? label + " · " + app.t("Site-wide") : label;
         return `<div class="lb-tree-section"><div class="lb-tree-row lb-tree-region${active}" data-lb-region="${part}"><span>${app.esc(text)}</span></div>${app.treeHTML(nodes || [])}</div>`;
       };
       const inherited = (label, part) => {
         const active = app.chromeFocus === part && !app.selected ? " active" : "";
-        return `<div class="lb-tree-section"><div class="lb-tree-row lb-tree-region${active}" data-lb-region="${part}"><span>${app.esc(label + " \xB7 " + app.t("Theme"))}</span></div>${app.treeHTML(app.state[part] || [])}</div>`;
+        return `<div class="lb-tree-section"><div class="lb-tree-row lb-tree-region${active}" data-lb-region="${part}"><span>${app.esc(label + " · " + app.t("Theme"))}</span></div>${app.treeHTML(app.state[part] || [])}</div>`;
       };
       if (!showHeader && !showFooter && !inherit) return app.treeHTML(app.state.root || []);
       let html = "";
@@ -2942,7 +2944,7 @@
             body += html;
           });
         }
-        return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-repeater-index="${i}" data-repeater-id="${app.esc(id)}"><div class="lb-repeater-head"><span class="lb-repeater-handle" title="${app.t("Drag to reorder")}" draggable="true" aria-hidden="true">\u22EE\u22EE</span><button type="button" class="lb-repeater-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(app.lbRepeaterTitle(item, def.title_field, i))}</button><button type="button" class="lb-repeater-dup" title="${app.t("Duplicate")}" aria-label="${app.t("Duplicate")}">\u29C9</button><button type="button" class="lb-repeater-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}"${def.prevent_empty && items.length < 2 ? " disabled" : ""}>\u00D7</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
+        return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-repeater-index="${i}" data-repeater-id="${app.esc(id)}"><div class="lb-repeater-head"><span class="lb-repeater-handle" title="${app.t("Drag to reorder")}" draggable="true" aria-hidden="true">⋮⋮</span><button type="button" class="lb-repeater-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(app.lbRepeaterTitle(item, def.title_field, i))}</button><button type="button" class="lb-repeater-dup" title="${app.t("Duplicate")}" aria-label="${app.t("Duplicate")}">⧉</button><button type="button" class="lb-repeater-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}"${def.prevent_empty && items.length < 2 ? " disabled" : ""}>×</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
       }).join("");
       return `<div class="lb-control lb-repeater" data-repeater-key="${app.esc(k)}" data-prevent-empty="${def.prevent_empty ? "1" : "0"}"><span>${app.esc(label || def.label || k.replace(/_/g, " "))}</span><div class="lb-repeater-items">${rows || '<div class="lb-repeater-empty">No items yet</div>'}</div><button type="button" class="lb-btn lb-repeater-add">+ Add Item</button></div>`;
     };
@@ -3125,7 +3127,7 @@
       h += app.lb091Universal(r.node, app.styleTab);
       if (app.styleTab === "advanced") {
         const warn = app.accessibilityWarnings(r.node);
-        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div>`;
+        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div>`;
       }
       h += `<div class="lb-action-grid"><button class="lb-btn" id="lb-duplicate">${app.t("Duplicate")}</button><button class="lb-btn danger" id="lb-delete">${app.t("Delete")}</button></div>`;
       return h;
@@ -3178,15 +3180,15 @@
       return app.unitGroupOrder(Object.keys(groups)).map((c) => {
         const a = groups[c];
         const label = c === "pro" ? "PRO" : c;
-        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>\u2605 " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => (() => {
+        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>★ " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => (() => {
           const locked = app.proUnitLocked(e);
           const hint = locked ? app.t("Canvasly Pro license required") : app.t("Double-click to add");
-          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "\u25A1")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\u2605" : "\u2606"}</b></button>`;
+          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "□")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></button>`;
         })()).join("")}</div></div>`;
       }).join("");
     };
     app.modalHTML = function modalHTML(title, body) {
-      return `<div class="lb-modal-backdrop"><div class="lb-modal" role="dialog" aria-modal="true"><div class="lb-modal-head"><strong>${app.esc(title)}</strong><button data-close-modal aria-label="${app.t("Close")}">\u00D7</button></div><div class="lb-modal-body">${body}</div></div></div>`;
+      return `<div class="lb-modal-backdrop"><div class="lb-modal" role="dialog" aria-modal="true"><div class="lb-modal-head"><strong>${app.esc(title)}</strong><button data-close-modal aria-label="${app.t("Close")}">×</button></div><div class="lb-modal-body">${body}</div></div></div>`;
     };
     app.showModal = function showModal(title, body, after) {
       app.closeModal();
@@ -3206,7 +3208,7 @@
     };
     app.openIconLibrary = function openIconLibrary() {
       const icons = app.D.icons || [];
-      app.showModal(app.t("Canvasly Icon Manager"), `<input class="lb-modal-search" id="lb-icon-search" placeholder="${app.t("Search icons\u2026")}"><div class="lb-form-row"><input id="lb-icon-id" placeholder="${app.t("ID")}"><input id="lb-icon-title" placeholder="${app.t("Title")}"><input id="lb-icon-category" placeholder="${app.t("Category")}" value="Custom"><textarea id="lb-icon-svg" rows="2" placeholder="<svg viewBox=...>...</svg>"></textarea><button class="lb-btn primary" id="lb-icon-add">${app.t("Add SVG")}</button></div><div class="lb-icon-grid">${icons.map((i) => `<button class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" title="${app.esc(i.title)}"><span>${i.svg}</span><small>${app.esc(i.title)}</small></button>`).join("")}</div>`, () => {
+      app.showModal(app.t("Canvasly Icon Manager"), `<input class="lb-modal-search" id="lb-icon-search" placeholder="${app.t("Search icons…")}"><div class="lb-form-row"><input id="lb-icon-id" placeholder="${app.t("ID")}"><input id="lb-icon-title" placeholder="${app.t("Title")}"><input id="lb-icon-category" placeholder="${app.t("Category")}" value="Custom"><textarea id="lb-icon-svg" rows="2" placeholder="<svg viewBox=...>...</svg>"></textarea><button class="lb-btn primary" id="lb-icon-add">${app.t("Add SVG")}</button></div><div class="lb-icon-grid">${icons.map((i) => `<button class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" title="${app.esc(i.title)}"><span>${i.svg}</span><small>${app.esc(i.title)}</small></button>`).join("")}</div>`, () => {
         app.$("#lb-icon-search")?.addEventListener("input", (e) => {
           app.$$(".lb-icon-choice").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
         });
@@ -3225,9 +3227,9 @@
     app.openTemplateLibrary = async function openTemplateLibrary() {
       try {
         const items = await (await fetch(`${app.D.api}/templates`, { headers: { "X-WP-Nonce": app.D.nonce } })).json();
-        app.showModal(app.t("Template Library"), `<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates\u2026")}"><div class="lb-library-list">${items.length ? items.map((i) => {
+        app.showModal(app.t("Template Library"), `<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates…")}"><div class="lb-library-list">${items.length ? items.map((i) => {
           const count = (i.document?.root || []).length;
-          return `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type || "page")} \u00B7 ${count} root unit(s)</span><button class="lb-btn" data-template-id="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-template-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-template-del="${i.id}">${app.t("Delete")}</button></div>`;
+          return `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type || "page")} · ${count} root unit(s)</span><button class="lb-btn" data-template-id="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-template-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-template-del="${i.id}">${app.t("Delete")}</button></div>`;
         }).join("") : "<p>" + app.t("No templates saved yet.") + "</p>"}</div>`, () => {
           app.$("#lb-template-search")?.addEventListener("input", (e) => {
             app.$$(".lb-library-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
@@ -3305,7 +3307,7 @@
     };
     app.openNavigation = function openNavigation() {
       const items = app.D.navigation || [];
-      app.showModal(app.t("Site Navigation"), `<input class="lb-modal-search" id="lb-nav-search" placeholder="${app.t("Search pages and posts\u2026")}"><div class="lb-library-list">${items.map((i) => `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type)} \u00B7 ${app.esc(i.status)}</span><button class="lb-btn" data-nav-id="${i.id}">${app.t("Open")}</button></div>`).join("")}</div>`, () => app.$("#lb-nav-search")?.addEventListener("input", (e) => {
+      app.showModal(app.t("Site Navigation"), `<input class="lb-modal-search" id="lb-nav-search" placeholder="${app.t("Search pages and posts…")}"><div class="lb-library-list">${items.map((i) => `<div class="lb-library-row"><strong>${app.esc(i.title)}</strong><span>${app.esc(i.type)} · ${app.esc(i.status)}</span><button class="lb-btn" data-nav-id="${i.id}">${app.t("Open")}</button></div>`).join("")}</div>`, () => app.$("#lb-nav-search")?.addEventListener("input", (e) => {
         app.$$(".lb-library-row").forEach((x) => x.hidden = !x.textContent.toLowerCase().includes(e.target.value.toLowerCase()));
       }));
     };
@@ -4205,7 +4207,7 @@
       const button = document.getElementById("lb-create-page");
       if (button) {
         button.disabled = true;
-        button.textContent = app.t("Creating\u2026");
+        button.textContent = app.t("Creating…");
       }
       try {
         const r = await fetch(`${app.D.api}/pages`, { method: "POST", headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D.nonce }, body: JSON.stringify({ title }) });
@@ -4397,8 +4399,8 @@
         ["exit", app.t("Exit to WordPress Dashboard"), app.t("Return to the WordPress dashboard.")]
       ];
       const html = `<div class="lb-main-menu" role="menu" aria-label="${app.t("Canvasly menu")}">
-   <div class="lb-main-menu-head"><strong>Canvasly</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">\u00D7</button></div>
-   ${items.map((it, i) => `<button type="button" class="lb-main-menu-item ${it[0] === "exit" ? "is-exit" : ""}" data-main-menu="${it[0]}" role="menuitem"><span class="lb-menu-mark lb-menu-${it[0]}" aria-hidden="true">${i === 0 ? "\u2699" : i === 1 ? "\u25A4" : i === 2 ? "\u25A2" : i === 3 ? "\u25C9" : i === 4 ? "\u2328" : i === 5 ? "?" : i === 6 ? "\u25CE" : "\u21AA"}</span><span><b>${app.esc(it[1])}</b><small>${app.esc(it[2])}</small></span></button>`).join("")}
+   <div class="lb-main-menu-head"><strong>Canvasly</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">×</button></div>
+   ${items.map((it, i) => `<button type="button" class="lb-main-menu-item ${it[0] === "exit" ? "is-exit" : ""}" data-main-menu="${it[0]}" role="menuitem"><span class="lb-menu-mark lb-menu-${it[0]}" aria-hidden="true">${i === 0 ? "⚙" : i === 1 ? "▤" : i === 2 ? "▢" : i === 3 ? "◉" : i === 4 ? "⌨" : i === 5 ? "?" : i === 6 ? "◎" : "↪"}</span><span><b>${app.esc(it[1])}</b><small>${app.esc(it[2])}</small></span></button>`).join("")}
  </div>`;
       app.root.insertAdjacentHTML("beforeend", html);
       app.root.querySelector("[data-menu-close]").onclick = app.closeMainMenu;
@@ -4420,7 +4422,7 @@
         return;
       }
       if (action === "notes") {
-        app.showMenuDialog(app.t("Notes"), '<label class="lb-control"><span>Page notes</span><textarea id="lb-page-notes" rows="8" placeholder="' + app.t("Add private notes for this page\u2026") + '">' + app.esc(app.state.settings?.notes || "") + '</textarea></label><button type="button" class="lb-btn primary" id="lb-save-notes">' + app.t("Save Notes") + "</button>");
+        app.showMenuDialog(app.t("Notes"), '<label class="lb-control"><span>Page notes</span><textarea id="lb-page-notes" rows="8" placeholder="' + app.t("Add private notes for this page…") + '">' + app.esc(app.state.settings?.notes || "") + '</textarea></label><button type="button" class="lb-btn primary" id="lb-save-notes">' + app.t("Save Notes") + "</button>");
         app.$("#lb-save-notes")?.addEventListener("click", () => {
           app.state.settings = app.state.settings || {};
           app.state.settings.notes = app.$("#lb-page-notes")?.value || "";
@@ -4489,8 +4491,8 @@
       work.querySelector(".lb-panel.right")?.classList.toggle("is-collapsed", app.rightHidden);
       if (typeof app.syncPanelColumns === "function") app.syncPanelColumns(work);
       const lt = work.querySelector('[data-panel-toggle="left"]'), rt = work.querySelector('[data-panel-toggle="right"]');
-      if (lt) lt.textContent = app.leftHidden ? "\u203A" : "\u2039";
-      if (rt) rt.textContent = app.rightHidden ? "\u2039" : "\u203A";
+      if (lt) lt.textContent = app.leftHidden ? "›" : "‹";
+      if (rt) rt.textContent = app.rightHidden ? "‹" : "›";
       const status = document.getElementById("lb-status");
       if (status) status.textContent = app.dirty ? app.t("Unsaved") : app.t("Saved");
       if (app.applyCanvasWidth) app.applyCanvasWidth();
@@ -4504,7 +4506,7 @@
       app.closeContextMenu();
       if (app.lbPaintCanvas()) return;
       const both = app.leftHidden && app.rightHidden;
-      app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">\u21B6</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">\u21B7</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftHidden ? 0 : app.leftWidth}px;--lb-right-width:${app.rightHidden ? 0 : app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "\u203A" : "\u2039"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units\u2026")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">\u00D7</button></div><div class="lb-categories">${app.unitCategories().map((c) => `<button data-cat="${c}" class="${app.category === c ? "active" : ""}">${app.unitCategoryLabel(c)}</button>`).join("")}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Canvasly isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "\u2039" : "\u203A"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
+      app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">↶</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">↷</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftHidden ? 0 : app.leftWidth}px;--lb-right-width:${app.rightHidden ? 0 : app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "›" : "‹"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units…")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">×</button></div><div class="lb-categories">${app.unitCategories().map((c) => `<button data-cat="${c}" class="${app.category === c ? "active" : ""}">${app.unitCategoryLabel(c)}</button>`).join("")}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Canvasly isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "‹" : "›"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
       app.bind();
       const frame = document.getElementById("lb-editor-frame");
       if (frame) {
@@ -5044,7 +5046,7 @@
       const unit = unitless ? "" : units.includes(p.unit) ? p.unit : units[0], size = p.size;
       const smax = unit === "%" ? 100 : max, snum = parseFloat(size), srest = min <= 0 && smax >= 0 ? 0 : min, sval = size === "" || !Number.isFinite(snum) ? srest : Math.max(min, Math.min(smax, snum));
       const unitSel = unitless ? "" : `<select class="lb-slider-unit">${units.map((u) => `<option value="${app.esc(u)}" ${u === unit ? "selected" : ""}>${app.esc(u)}</option>`).join("")}</select>`;
-      return `<div class="lb-control lb-slider${unitless ? " lb-slider-unitless" : ""}" data-slider-key="${app.esc(k)}" data-slider-max="${max}" data-slider-unitless="${unitless ? "1" : "0"}"><span>${app.esc(label)}</span><div class="lb-slider-row"><input class="lb-slider-range" type="range" min="${min}" max="${smax}" step="${step}" value="${app.esc(sval)}" ${unit === "auto" ? "disabled" : ""}><input class="lb-slider-num" type="number" size="5" min="${min}" max="${smax}" step="${step}" value="${app.esc(size)}" placeholder="\u2014" ${unit === "auto" ? "disabled" : ""}>${unitSel}</div></div>`;
+      return `<div class="lb-control lb-slider${unitless ? " lb-slider-unitless" : ""}" data-slider-key="${app.esc(k)}" data-slider-max="${max}" data-slider-unitless="${unitless ? "1" : "0"}"><span>${app.esc(label)}</span><div class="lb-slider-row"><input class="lb-slider-range" type="range" min="${min}" max="${smax}" step="${step}" value="${app.esc(sval)}" ${unit === "auto" ? "disabled" : ""}><input class="lb-slider-num" type="number" size="5" min="${min}" max="${smax}" step="${step}" value="${app.esc(size)}" placeholder="—" ${unit === "auto" ? "disabled" : ""}>${unitSel}</div></div>`;
     };
     app.lb09LayoutSliders = function lb09LayoutSliders(s) {
       return app.lb09Section(app.t("Layout"), app.lbSlider("width", "Width", s.width || "", { units: ["%", "px", "vw", "em"], min: 0, max: 1e3 }) + app.lbSlider("max_width", "Max Width", s.max_width || "", { units: ["px", "%", "vw", "em"], min: 0, max: 2e3 }) + app.lbSlider("height", "Height", s.height || "", { units: ["px", "%", "vh", "em", "auto"], min: 0, max: 2e3 }) + app.lbSlider("min_height", "Min Height", s.min_height || "", { units: ["px", "%", "vh", "em"], min: 0, max: 2e3 }), true);
@@ -5256,7 +5258,7 @@
           const list = Array.isArray(s.collections) ? s.collections : [];
           h += `<div class="lb-control lb31-gal-list"><span>Galleries</span>`;
           list.forEach((g, i) => {
-            h += `<div class="lb31-gal-row" data-gal-index="${i}"><input class="lb31-gal-label" value="${app.esc(g.label || "")}" placeholder="${app.t("Gallery name")}"><button type="button" class="lb-btn lb31-gal-pick" title="${app.t("Choose images")}" aria-label="Choose images">\u{1F5BC}</button><button type="button" class="lb-btn lb31-gal-dup" title="${app.t("Duplicate")}">\u29C9</button><button type="button" class="lb-btn lb31-gal-del" title="${app.t("Remove")}">\xD7</button></div>`;
+            h += `<div class="lb31-gal-row" data-gal-index="${i}"><input class="lb31-gal-label" value="${app.esc(g.label || "")}" placeholder="${app.t("Gallery name")}"><button type="button" class="lb-btn lb31-gal-pick" title="${app.t("Choose images")}" aria-label="Choose images">🖼</button><button type="button" class="lb-btn lb31-gal-dup" title="${app.t("Duplicate")}">⧉</button><button type="button" class="lb-btn lb31-gal-del" title="${app.t("Remove")}">×</button></div>`;
           });
           h += `<button type="button" class="lb-btn lb31-gal-add">+ Add Item</button></div>`;
           h += `<label class="lb-control lb-switch"><input data-setting="show_all" type="checkbox" ${s.show_all !== false ? "checked" : ""}><span>Show All tab</span></label>`;
@@ -5288,7 +5290,7 @@
         h += app.lb09AdvancedTab(n);
       }
       const warn = app.accessibilityWarnings(n);
-      h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
+      h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
       return h;
     };
     app.lb09GridChild = function lb09GridChild(n) {
@@ -5322,7 +5324,7 @@
       }
       if (r.node.type === "grid" && app.styleTab === "content") h += app.lb09Section(app.t("Grid Layout"), app.lb09Field("grid_template_columns", app.t("Column Tracks"), "text", s.grid_template_columns, 'placeholder="repeat(3, 1fr)"') + app.lb09Field("grid_template_rows", app.t("Row Tracks"), "text", s.grid_template_rows, 'placeholder="auto auto"') + app.lb09Field("min_column", app.t("Min Column Size"), "text", s.min_column || "120px") + app.lb09Field("min_row", app.t("Auto Row Size"), "text", s.min_row || "auto") + app.lb09Select("auto_flow", app.t("Auto Flow"), s.auto_flow || "row", ["row", "column", "dense", "row dense", "column dense"]) + app.lb09Responsive("column_gap", app.t("Column Gap"), s.column_gap) + app.lb09Responsive("row_gap", app.t("Row Gap"), s.row_gap) + `<label class="lb-control lb-switch"><input data-setting="show_outline" type="checkbox" ${s.show_outline ? "checked" : ""}><span>Show Grid Outline (editor only)</span></label>`, true);
       const warn = app.accessibilityWarnings(r.node);
-      h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
+      h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
       return h;
     };
     app.lb09StyleFor = function lb09StyleFor(n) {
@@ -5477,7 +5479,7 @@
           if (n.children) walk(n.children);
         });
         walk(app.state.root);
-        app.showModal(app.t("Accessibility Audit"), issues.length ? issues.map((i) => `<div class="lb-library-row"><strong>${app.esc(app.meta(i.type).title || i.type)}</strong><span>${app.esc(i.msg)}</span></div>`).join("") : "<p>\u2713 No obvious issues detected in the current document.</p>");
+        app.showModal(app.t("Accessibility Audit"), issues.length ? issues.map((i) => `<div class="lb-library-row"><strong>${app.esc(app.meta(i.type).title || i.type)}</strong><span>${app.esc(i.msg)}</span></div>`).join("") : "<p>✓ No obvious issues detected in the current document.</p>");
       });
       app.$("#lb-performance")?.addEventListener("click", app.openPerformance);
       app.$("#lb-lock")?.addEventListener("click", async () => {
@@ -5643,7 +5645,7 @@
       });
     };
     app.lb010OpenDesignSystem = function lb010OpenDesignSystem() {
-      Promise.all([fetch(`${app.D.api}/design-system`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json()), fetch(`${app.D.api}/classes`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json())]).then(([d, c]) => app.showModal(app.t("Design System"), `<div class="lb-library-list"><div class="lb-library-row"><strong>${app.t("Variables")}</strong><span>${Object.keys(d.variables?.colors || {}).length} colors \xB7 ${Object.keys(d.variables?.sizes || {}).length} sizes</span></div><div class="lb-library-row"><strong>Global Classes</strong><span>${Object.keys(c || {}).length}</span></div><div class="lb-library-row"><strong>Atomic Units</strong><span>${Object.keys(d.atomic || {}).length}</span></div><button class="lb-btn" id="lb-ds-export">${app.t("Export Design System")}</button><button class="lb-btn" id="lb-ds-import">${app.t("Import Design System")}</button><input id="lb-ds-file" type="file" accept="application/json" hidden></div>`)).then(() => {
+      Promise.all([fetch(`${app.D.api}/design-system`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json()), fetch(`${app.D.api}/classes`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json())]).then(([d, c]) => app.showModal(app.t("Design System"), `<div class="lb-library-list"><div class="lb-library-row"><strong>${app.t("Variables")}</strong><span>${Object.keys(d.variables?.colors || {}).length} colors · ${Object.keys(d.variables?.sizes || {}).length} sizes</span></div><div class="lb-library-row"><strong>Global Classes</strong><span>${Object.keys(c || {}).length}</span></div><div class="lb-library-row"><strong>Atomic Units</strong><span>${Object.keys(d.atomic || {}).length}</span></div><button class="lb-btn" id="lb-ds-export">${app.t("Export Design System")}</button><button class="lb-btn" id="lb-ds-import">${app.t("Import Design System")}</button><input id="lb-ds-file" type="file" accept="application/json" hidden></div>`)).then(() => {
         app.root.querySelector("#lb-ds-export")?.addEventListener("click", async () => {
           const r = await fetch(`${app.D.api}/design-system`, { headers: { "X-WP-Nonce": app.D.nonce } }), d = await r.json();
           const a = document.createElement("a");
@@ -5697,7 +5699,6 @@
       const top = app.$(".lb-top");
       if (top && !app.$("#lb-design-system")) top.insertAdjacentHTML("beforeend", '<button class="lb-btn" id="lb-design-system">Design System</button>');
       app.$("#lb-design-system")?.addEventListener("click", app.lb010OpenDesignSystem);
-      /* XEditor: the legacy "Atomic" modal was replaced by the XEditor menu (assets/js/xeditor.js). */
     };
     app.lb010TemplateBtn = document.getElementById("lb-template-load");
     if (app.lb010TemplateBtn) app.lb010TemplateBtn.onclick = app.lb010OpenTemplateManager;
@@ -5710,7 +5711,7 @@
     };
     app.lb101IconSvg = function lb101IconSvg(id, cls = "") {
       const x = app.lb101Icons.find((i) => i.id === id);
-      if (!x) return '<span class="lb-icon-fallback">\u2605</span>';
+      if (!x) return '<span class="lb-icon-fallback">★</span>';
       if (x.svg) {
         return String(x.svg).replace(/<svg\b/i, '<svg class="lb-fa-icon ' + app.esc(cls) + '" width="1em" height="1em"').replace(/<svg\s+class="[^"]*"/, '<svg class="lb-fa-icon ' + app.esc(cls) + '" width="1em" height="1em"');
       }
@@ -5871,7 +5872,7 @@
     app.lb101OldControl = app.control;
     app.control = function(k, t3, v, label) {
       if (k === "icon" && app.lbCtrlType(t3) === "text") {
-        return `<div class="lb-control lb-icon-control"><span>${app.esc(label || "Icon")}</span><button type="button" class="lb-icon-picker lb-icon-picker-visual" data-icon-picker="1" data-icon-key="${app.esc(k)}" title="Choose icon"><span class="lb-icon-picker-preview">${app.lb101IconSvg(v || "star")}</span><span class="lb-icon-picker-name">${app.esc(app.lb101IconTitle(v || "star"))}</span><span class="lb-icon-picker-arrow">\u2304</span></button></div>`;
+        return `<div class="lb-control lb-icon-control"><span>${app.esc(label || "Icon")}</span><button type="button" class="lb-icon-picker lb-icon-picker-visual" data-icon-picker="1" data-icon-key="${app.esc(k)}" title="Choose icon"><span class="lb-icon-picker-preview">${app.lb101IconSvg(v || "star")}</span><span class="lb-icon-picker-name">${app.esc(app.lb101IconTitle(v || "star"))}</span><span class="lb-icon-picker-arrow">⌄</span></button></div>`;
       }
       return app.lb101OldControl(k, t3, v, label);
     };
@@ -5880,7 +5881,7 @@
       app.lbPendingIconKey = null;
       app.lb101EnsureIcons().then(() => {
         const families = ["all", "solid", "regular", "brands"];
-        const body = `<div class="lb-icon-library-toolbar"><input class="lb-modal-search" id="lb101-icon-search" placeholder="${app.t("Search icons\u2026")}"><select id="lb101-icon-family"><option value="all">All</option><option value="solid">Solid</option><option value="regular">Regular</option><option value="brands">Brands</option></select></div><div class="lb-icon-library-count" id="lb101-icon-count"></div><div class="lb-icon-grid lb-icon-grid-large" id="lb101-icon-grid">${app.lb101Icons.map((i) => `<button type="button" class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" data-family="${app.esc(i.family || "custom")}" title="${app.esc(i.title)}">${app.lb101IconSvg(i.id)}<small>${app.esc(i.title)}</small></button>`).join("")}</div>`;
+        const body = `<div class="lb-icon-library-toolbar"><input class="lb-modal-search" id="lb101-icon-search" placeholder="${app.t("Search icons…")}"><select id="lb101-icon-family"><option value="all">All</option><option value="solid">Solid</option><option value="regular">Regular</option><option value="brands">Brands</option></select></div><div class="lb-icon-library-count" id="lb101-icon-count"></div><div class="lb-icon-grid lb-icon-grid-large" id="lb101-icon-grid">${app.lb101Icons.map((i) => `<button type="button" class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" data-family="${app.esc(i.family || "custom")}" title="${app.esc(i.title)}">${app.lb101IconSvg(i.id)}<small>${app.esc(i.title)}</small></button>`).join("")}</div>`;
         app.showModal(app.t("Canvasly Icon Library"), body, () => {
           const filter = () => {
             const q = (app.$("#lb101-icon-search")?.value || "").toLowerCase();
@@ -5922,9 +5923,9 @@
       return keys.map((c) => {
         const a = groups[c];
         const label = c === "pro" ? "PRO" : c;
-        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>\u2605 " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => {
-          const ico = e.type === "icon" ? app.lb101IconSvg("star", "lb-unit-svg-icon") : app.esc(e.icon || "\u25A1");
-          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}" draggable="true" data-type="${app.esc(e.type)}" title="${app.esc(e.title)}" data-lb-hint="${app.esc(app.t("Double-click to add"))}"><span class="lb-icon" aria-hidden="true">${ico}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\u2605" : "\u2606"}</b></button>`;
+        return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>★ " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => {
+          const ico = e.type === "icon" ? app.lb101IconSvg("star", "lb-unit-svg-icon") : app.esc(e.icon || "□");
+          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}" draggable="true" data-type="${app.esc(e.type)}" title="${app.esc(e.title)}" data-lb-hint="${app.esc(app.t("Double-click to add"))}"><span class="lb-icon" aria-hidden="true">${ico}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></button>`;
         }).join("")}</div></div>`;
       }).join("");
     };
@@ -6184,7 +6185,7 @@
       overlay.innerHTML = `<div class="lb-rte-dialog" role="dialog" aria-modal="true" aria-labelledby="lb-rte-title">
   <div class="lb-rte-head">
    <strong id="lb-rte-title">TinyMCE Text Editor</strong>
-   <button type="button" class="lb-rte-close" aria-label="${app.t("Close")}">\xD7</button>
+   <button type="button" class="lb-rte-close" aria-label="${app.t("Close")}">×</button>
   </div>
   <div class="lb-rte-body">
    <p class="lb-rte-intro">Edit this content in the visual editor. Changes apply to the Canvasly unit when you click <strong>Save Content</strong>.</p>
@@ -6199,7 +6200,7 @@
     <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
     <button type="button" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
     <span class="lb-rte-sep"></span>
-    <button type="button" data-cmd="insertUnorderedList" title="Bulleted list">\u2022 List</button>
+    <button type="button" data-cmd="insertUnorderedList" title="Bulleted list">• List</button>
     <button type="button" data-cmd="insertOrderedList" title="Numbered list">1. List</button>
     <span class="lb-rte-sep"></span>
     <button type="button" data-cmd="justifyLeft" title="Align left">Left</button>
@@ -6403,7 +6404,7 @@
         walk(n.children);
       });
       walk(app.state.root);
-      const body = `<div class="lb-ds-toolbar"><button class="lb-btn primary" id="lb-ds-new-class">New Class</button><input class="lb-modal-search" id="lb-ds-class-search" placeholder="Search classes\u2026"></div><div class="lb-library-list" id="lb-ds-class-list">${Object.entries(items).map(([n, d]) => `<div class="lb-library-row lb-ds-class-row" data-class-row="${app.esc(n)}"><div><strong>.${app.esc(n)}</strong><small class="lb-ds-meta">${usage[n] || 0} unit(s) \xB7 ${app.esc(typeof d === "string" ? "" : d.description || "")}</small></div><span>${typeof d === "string" ? app.esc(d) : (d.extends || []).map((x) => "." + app.esc(x)).join(", ")}</span><button class="lb-btn" data-lb-class-edit="${app.esc(n)}">Edit</button><button class="lb-btn danger" data-lb-class-delete="${app.esc(n)}">${app.t("Delete")}</button></div>`).join("") || '<p class="lb-muted">No global classes yet.</p>'}</div>`;
+      const body = `<div class="lb-ds-toolbar"><button class="lb-btn primary" id="lb-ds-new-class">New Class</button><input class="lb-modal-search" id="lb-ds-class-search" placeholder="Search classes…"></div><div class="lb-library-list" id="lb-ds-class-list">${Object.entries(items).map(([n, d]) => `<div class="lb-library-row lb-ds-class-row" data-class-row="${app.esc(n)}"><div><strong>.${app.esc(n)}</strong><small class="lb-ds-meta">${usage[n] || 0} unit(s) · ${app.esc(typeof d === "string" ? "" : d.description || "")}</small></div><span>${typeof d === "string" ? app.esc(d) : (d.extends || []).map((x) => "." + app.esc(x)).join(", ")}</span><button class="lb-btn" data-lb-class-edit="${app.esc(n)}">Edit</button><button class="lb-btn danger" data-lb-class-delete="${app.esc(n)}">${app.t("Delete")}</button></div>`).join("") || '<p class="lb-muted">No global classes yet.</p>'}</div>`;
       app.showModal(app.t("Global Classes 2.0"), body, () => {
         app.$("#lb-ds-new-class")?.addEventListener("click", () => {
           app.closeModal();
@@ -6502,7 +6503,7 @@
           const name = existing[`${x.path}_${k}`]?.name || `${x.path}_${k}`;
           const label = existing[name]?.label || `${app.meta(x.node.type).title || x.node.type}: ${k.replace(/_/g, " ")}`;
           const type = typeof v === "number" ? "number" : typeof v === "boolean" ? "switch" : String(v).length > 120 ? "textarea" : "text";
-          rows.push(`<label class="lb-ds-exposed-row"><input type="checkbox" data-lb-expose="${app.esc(name)}" data-lb-expose-path="${app.esc(x.path)}" data-lb-expose-setting="${app.esc(k)}" ${existing[name] ? "checked" : ""}><span><strong>${app.esc(label)}</strong><small>${app.esc(x.path)} \xB7 ${app.esc(k)}</small></span></label>`);
+          rows.push(`<label class="lb-ds-exposed-row"><input type="checkbox" data-lb-expose="${app.esc(name)}" data-lb-expose-path="${app.esc(x.path)}" data-lb-expose-setting="${app.esc(k)}" ${existing[name] ? "checked" : ""}><span><strong>${app.esc(label)}</strong><small>${app.esc(x.path)} · ${app.esc(k)}</small></span></label>`);
         });
       }
       return `<div class="lb-ds-exposed-list">${rows.join("") || '<p class="lb-muted">No editable settings found.</p>'}</div>`;
@@ -6567,7 +6568,7 @@
       app.render();
     };
     app.openComponentLibrary110 = function openComponentLibrary110() {
-      fetch(`${app.D.api}/components`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json()).then((items) => app.showModal(app.t("Components 2.0"), `<p class="lb-muted">Edit the source component once and all page instances automatically use the latest definition. Exposed properties allow per-instance overrides.</p><div class="lb-library-list">${items.length ? items.map((i) => `<div class="lb-library-row"><div><strong>${app.esc(i.title)}</strong><small class="lb-ds-meta">v${app.esc(i.version)} \xB7 ${(i.exposed || []).length} exposed properties</small></div><button class="lb-btn" data-comp-insert="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-comp-edit="${i.id}">Properties</button><button class="lb-btn" data-comp-structure="${i.id}">Edit Structure</button><button class="lb-btn" data-comp-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-comp-del="${i.id}">${app.t("Delete")}</button></div>`).join("") : '<p class="lb-muted">No components saved yet.</p>'}</div>`, () => {
+      fetch(`${app.D.api}/components`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json()).then((items) => app.showModal(app.t("Components 2.0"), `<p class="lb-muted">Edit the source component once and all page instances automatically use the latest definition. Exposed properties allow per-instance overrides.</p><div class="lb-library-list">${items.length ? items.map((i) => `<div class="lb-library-row"><div><strong>${app.esc(i.title)}</strong><small class="lb-ds-meta">v${app.esc(i.version)} · ${(i.exposed || []).length} exposed properties</small></div><button class="lb-btn" data-comp-insert="${i.id}">${app.t("Insert")}</button><button class="lb-btn" data-comp-edit="${i.id}">Properties</button><button class="lb-btn" data-comp-structure="${i.id}">Edit Structure</button><button class="lb-btn" data-comp-dup="${i.id}">${app.t("Duplicate")}</button><button class="lb-btn danger" data-comp-del="${i.id}">${app.t("Delete")}</button></div>`).join("") : '<p class="lb-muted">No components saved yet.</p>'}</div>`, () => {
         app.$$("[data-comp-insert]").forEach((b) => b.onclick = () => app.loadComponent(b.dataset.compInsert));
         app.$$("[data-comp-edit]").forEach((b) => b.onclick = () => app.lb110EditComponentDefinition(b.dataset.compEdit));
         app.$$("[data-comp-structure]").forEach((b) => b.onclick = () => app.lb110EnterComponentEdit(b.dataset.compStructure));
@@ -6756,8 +6757,8 @@
     app.lb111ComponentControl = function lb111ComponentControl(n) {
       const comps = Array.isArray(app.D.designSystem?.components) ? app.D.designSystem.components : [], s = n.settings || {}, c = comps.find((x) => Number(x.id) === Number(s.component_id));
       let fields = "";
-      if (c) fields = (c.exposed || []).map((x) => app.lb111TypeControl(x, s.overrides?.[x.name] ?? "")).join("") || '<p class="lb-muted">No exposed properties. Open Manage Components \u2192 Properties.</p>';
-      return app.lb09Section(app.t("Component"), `<label class="lb-control"><span>Component</span><select id="lb-component-select"><option value="0">Select component</option>${comps.map((x) => `<option value="${x.id}" ${Number(x.id) === Number(s.component_id) ? "selected" : ""}>${app.esc(x.title)} \xB7 v${app.esc(x.version || 1)}</option>`).join("")}</select></label>${fields}<button class="lb-btn" id="lb-component-library-open">Manage Components</button>`, true);
+      if (c) fields = (c.exposed || []).map((x) => app.lb111TypeControl(x, s.overrides?.[x.name] ?? "")).join("") || '<p class="lb-muted">No exposed properties. Open Manage Components → Properties.</p>';
+      return app.lb09Section(app.t("Component"), `<label class="lb-control"><span>Component</span><select id="lb-component-select"><option value="0">Select component</option>${comps.map((x) => `<option value="${x.id}" ${Number(x.id) === Number(s.component_id) ? "selected" : ""}>${app.esc(x.title)} · v${app.esc(x.version || 1)}</option>`).join("")}</select></label>${fields}<button class="lb-btn" id="lb-component-library-open">Manage Components</button>`, true);
     };
     app.lb110ComponentControl = app.lb111ComponentControl;
     app.lb111BindComponentControl = function lb111BindComponentControl() {
@@ -6784,7 +6785,7 @@
       for (const x of nodes) Object.entries(x.node.settings || {}).forEach(([k, v]) => {
         if (["css_id", "css_class", "global_class", "custom_css", "component_id", "overrides"].includes(k)) return;
         const name = existing[`${x.path}_${k}`]?.name || `${x.path}_${k}`, old = existing[name] || {}, type = old.type || (typeof v === "number" ? "number" : typeof v === "boolean" ? "switch" : String(v).length > 120 ? "textarea" : "text"), label = old.label || `${app.meta(x.node.type).title || x.node.type}: ${k.replace(/_/g, " ")}`;
-        rows.push(`<div class="lb-ds-exposed-row lb-ds-exposed-editor-row"><input type="checkbox" data-lb-expose="${app.esc(name)}" data-lb-expose-path="${app.esc(x.path)}" data-lb-expose-setting="${app.esc(k)}" ${existing[name] ? "checked" : ""}><div><input class="lb-ds-expose-label" data-lb-expose-label="${app.esc(name)}" value="${app.esc(label)}"><small>${app.esc(x.path)} \xB7 ${app.esc(k)}</small></div><select data-lb-expose-type="${app.esc(name)}"><option value="text" ${type === "text" ? "selected" : ""}>Text</option><option value="textarea" ${type === "textarea" ? "selected" : ""}>Textarea</option><option value="number" ${type === "number" ? "selected" : ""}>Number</option><option value="color" ${type === "color" ? "selected" : ""}>Color</option><option value="switch" ${type === "switch" ? "selected" : ""}>Switch</option></select></div>`);
+        rows.push(`<div class="lb-ds-exposed-row lb-ds-exposed-editor-row"><input type="checkbox" data-lb-expose="${app.esc(name)}" data-lb-expose-path="${app.esc(x.path)}" data-lb-expose-setting="${app.esc(k)}" ${existing[name] ? "checked" : ""}><div><input class="lb-ds-expose-label" data-lb-expose-label="${app.esc(name)}" value="${app.esc(label)}"><small>${app.esc(x.path)} · ${app.esc(k)}</small></div><select data-lb-expose-type="${app.esc(name)}"><option value="text" ${type === "text" ? "selected" : ""}>Text</option><option value="textarea" ${type === "textarea" ? "selected" : ""}>Textarea</option><option value="number" ${type === "number" ? "selected" : ""}>Number</option><option value="color" ${type === "color" ? "selected" : ""}>Color</option><option value="switch" ${type === "switch" ? "selected" : ""}>Switch</option></select></div>`);
       });
       return `<div class="lb-ds-exposed-list">${rows.join("") || '<p class="lb-muted">No editable settings found.</p>'}</div>`;
     };
@@ -6987,7 +6988,7 @@
             let h = `<div class="lb-selection-head"><strong>TinyMCE Text Editor</strong><span class="lb-selection-id">${app.esc(r.node.id)}</span></div>`;
             h += `<div class="lb-settings-tabs">${["content", "style", "advanced"].map((x) => `<button data-style-tab="${x}" class="${app.styleTab === x ? "active" : ""}">${x[0].toUpperCase() + x.slice(1)}</button>`).join("")}</div>`;
             if (app.styleTab === "content") {
-              h += `<div class="lb-section"><div class="lb-section-title"><span>\u25BE</span><strong>Content</strong></div><div class="lb-section-body"><label class="lb-control"><span>Content</span><textarea id="lb-tinymce-inline-content" rows="9" spellcheck="true">${app.esc(content)}</textarea><small class="lb-muted">Edit the content directly, or use Edit with TinyMCE for rich-text formatting.</small></label><button type="button" class="lb-btn primary lb-tinymce-open" id="lb-tinymce-open">Edit with TinyMCE</button></div></div>`;
+              h += `<div class="lb-section"><div class="lb-section-title"><span>▾</span><strong>Content</strong></div><div class="lb-section-body"><label class="lb-control"><span>Content</span><textarea id="lb-tinymce-inline-content" rows="9" spellcheck="true">${app.esc(content)}</textarea><small class="lb-muted">Edit the content directly, or use Edit with TinyMCE for rich-text formatting.</small></label><button type="button" class="lb-btn primary lb-tinymce-open" id="lb-tinymce-open">Edit with TinyMCE</button></div></div>`;
             } else {
               const e = app.meta(r.node.type), groups = { style: [], advanced: [] };
               Object.entries(e.controls || {}).forEach(([k, t3]) => {
@@ -6999,7 +7000,7 @@
               h += app.lb091Universal(r.node, app.styleTab);
               if (app.styleTab === "advanced") {
                 const warn = app.accessibilityWarnings(r.node);
-                h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div>`;
+                h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div>`;
               }
             }
             h += `<div class="lb-action-grid lb-tinymce-actions-secondary"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
@@ -7083,11 +7084,11 @@
         if (!p || p.type !== "grid") return "";
         const g = lb20GridMetrics(p), cs = Math.max(1, Math.min(g.cols, Number(lb20ResponsiveValue(s.grid_column_start) || 1))), rs = Math.max(1, Math.min(g.rows, Number(lb20ResponsiveValue(s.grid_row_start) || 1))), cspan = Math.max(1, Math.min(g.cols - cs + 1, Number(lb20ResponsiveValue(s.grid_column_span) || 1))), rspan = Math.max(1, Math.min(g.rows - rs + 1, Number(lb20ResponsiveValue(s.grid_row_span) || 1)));
         let html = '<div class="lb20-grid-placement">';
-        html += '<div class="lb20-grid-summary"><strong>Placement</strong><span>' + app.esc(`Column ${cs} \xB7 Row ${rs} \xB7 ${cspan} \xD7 ${rspan}`) + "</span></div>";
+        html += '<div class="lb20-grid-summary"><strong>Placement</strong><span>' + app.esc(`Column ${cs} · Row ${rs} · ${cspan} × ${rspan}`) + "</span></div>";
         html += '<div class="lb20-grid-matrix" data-grid-matrix="placement" style="--lb20-cols:' + g.cols + ";--lb20-rows:" + g.rows + '">';
         for (let row = 1; row <= g.rows; row++) for (let col = 1; col <= g.cols; col++) {
           const active = col >= cs && col < cs + cspan && row >= rs && row < rs + rspan;
-          html += `<button type="button" class="lb20-grid-cell ${active ? "is-active" : ""}" data-grid-cell data-row="${row}" data-col="${col}" aria-label="Column ${col}, Row ${row}">${active ? "\u2022" : ""}</button>`;
+          html += `<button type="button" class="lb20-grid-cell ${active ? "is-active" : ""}" data-grid-cell data-row="${row}" data-col="${col}" aria-label="Column ${col}, Row ${row}">${active ? "•" : ""}</button>`;
         }
         html += "</div>";
         html += '<div class="lb20-grid-placement-fields">' + app.lb09Responsive("grid_column_start", app.t("Column Start"), s.grid_column_start ?? 1) + app.lb09Responsive("grid_column_span", app.t("Column Span"), s.grid_column_span ?? 1) + app.lb09Responsive("grid_row_start", app.t("Row Start"), s.grid_row_start ?? 1) + app.lb09Responsive("grid_row_span", app.t("Row Span"), s.grid_row_span ?? 1) + "</div>";
@@ -7097,7 +7098,7 @@
       function lb20GridEditor(n) {
         const s = n.settings || {}, g = lb20GridMetrics(n);
         let h = '<div class="lb20-grid-editor">';
-        h += '<div class="lb20-grid-editor-head"><strong>Visual Grid Editor</strong><span>' + app.esc(`${g.cols} columns \xD7 ${g.rows} rows`) + "</span></div>";
+        h += '<div class="lb20-grid-editor-head"><strong>Visual Grid Editor</strong><span>' + app.esc(`${g.cols} columns × ${g.rows} rows`) + "</span></div>";
         h += '<div class="lb20-track-grid">' + app.lb09Field("grid_template_columns", app.t("Column Tracks"), "text", s.grid_template_columns || "", 'placeholder="repeat(3, 1fr)"') + app.lb09Field("grid_template_rows", app.t("Row Tracks"), "text", s.grid_template_rows || "", 'placeholder="auto auto"') + app.lb09Field("columns", app.t("Column Count"), "number", s.columns || 3, 'min="1" max="12"') + app.lb09Field("rows", app.t("Row Tracks (fallback)"), "text", s.rows || "", 'placeholder="auto auto auto"') + "</div>";
         h += app.lb09Section(app.t("Track Sizing"), app.lb09Field("min_column", app.t("Minimum Column Size"), "text", s.min_column || "120px") + app.lb09Field("min_row", app.t("Minimum Auto Row Size"), "text", s.min_row || "auto") + app.lb09Field("grid_auto_columns", app.t("Implicit Column Size"), "text", s.grid_auto_columns || "auto") + app.lb09Field("grid_auto_rows", app.t("Implicit Row Size"), "text", s.grid_auto_rows || "auto"), true);
         h += app.lb09Section(app.t("Auto Flow & Alignment"), app.lb09Select("auto_flow", app.t("Auto Flow"), s.auto_flow || "row", ["row", "column", "dense", "row dense", "column dense"]) + app.lb09Select("align", app.t("Align Items"), s.align || "stretch", ["stretch", "start", "center", "end"]) + app.lb09Select("justify", app.t("Justify Items"), s.justify || "stretch", ["stretch", "start", "center", "end"]), true);
@@ -7613,10 +7614,6 @@
           h.style.height = Math.round(L.height) + "px";
         });
       }
-      // Edge grab strips straddle the border, so their inner half sits on top of the
-      // unit's content (a child widget, a menu link, an open dropdown). That blocked
-      // :hover there. While the pointer is over such content, let it fall through;
-      // the outer half of the strip and the corner squares still resize.
       function lb123BindHandlePassThrough(fd) {
         if (!fd || fd.__lb123PassThrough) return;
         fd.__lb123PassThrough = true;
@@ -7638,10 +7635,10 @@
                 const stack = typeof fd.elementsFromPoint === "function" ? fd.elementsFromPoint(x, y) : [];
                 under = stack.find((el) => !el.closest("#lb123-handle-layer")) || null;
               }
-              const sel = fd.querySelector(".lb-node.lb123-resize-active");
-              if (under && sel && sel.contains(under) && under !== sel) {
+              const sel2 = fd.querySelector(".lb-node.lb123-resize-active");
+              if (under && sel2 && sel2.contains(under) && under !== sel2) {
                 const child = under.closest(".lb-node");
-                pass = !!(child && child !== sel) || !!under.closest(INTERACTIVE);
+                pass = !!(child && child !== sel2) || !!under.closest(INTERACTIVE);
               }
             }
             if (pass && !h.__lbPass) {
@@ -7762,7 +7759,7 @@
             };
             const label = () => {
               const b = img.getBoundingClientRect(), page = lb123Page(fd);
-              lab.textContent = Math.round(w) + " \xD7 " + Math.round(hgt) + " px  \xB7  " + Math.round(w / maxW * 100) + "%";
+              lab.textContent = Math.round(w) + " × " + Math.round(hgt) + " px  ·  " + Math.round(w / maxW * 100) + "%";
               lab.style.left = b.left + b.width / 2 + page.x + "px";
               lab.style.top = b.top + 8 + page.y + "px";
             };
@@ -7878,7 +7875,7 @@
             };
             const label = () => {
               const b = box.getBoundingClientRect(), page = lb123Page(fd);
-              lab.textContent = Math.round(w) + " \xD7 " + Math.round(hgt) + " px  \xB7  " + Math.round(w / maxW * 100) + "%";
+              lab.textContent = Math.round(w) + " × " + Math.round(hgt) + " px  ·  " + Math.round(w / maxW * 100) + "%";
               lab.style.left = b.left + b.width / 2 + page.x + "px";
               lab.style.top = b.top + 8 + page.y + "px";
             };
@@ -8118,7 +8115,7 @@
           const bits = [];
           if (a.xEdge) bits.push(Math.round(w / a.parentW * 1e3) / 10 + "%");
           if (a.yEdge) bits.push(Math.round(h) + "px");
-          lb123Tip(a.doc, bits.join(" \xD7 ") || "", tx, ty);
+          lb123Tip(a.doc, bits.join(" × ") || "", tx, ty);
         }
       }
       function lb123UnitEnd(e, move, up) {
@@ -8392,9 +8389,9 @@
         <button type="button" class="lb14-preset" data-lb14-split="row:4"><span class="lb14-icon-grid cols4"></span><b>4 Columns</b><small>1 / 1 / 1 / 1</small></button>
         <button type="button" class="lb14-preset" data-lb14-split="column:2"><span class="lb14-icon-grid rows2"></span><b>2 Rows</b><small>50 / 50</small></button>
         <button type="button" class="lb14-preset" data-lb14-split="column:3"><span class="lb14-icon-grid rows3"></span><b>3 Rows</b><small>1 / 1 / 1</small></button>
-        <button type="button" class="lb14-preset" data-lb14-split="grid:2x2"><span class="lb14-icon-grid grid2x2"></span><b>2 \xD7 2</b><small>4 cells</small></button>
-        <button type="button" class="lb14-preset" data-lb14-split="grid:3x2"><span class="lb14-icon-grid grid3x2"></span><b>3 \xD7 2</b><small>6 cells</small></button>
-        <button type="button" class="lb14-preset" data-lb14-split="grid:2x3"><span class="lb14-icon-grid grid2x3"></span><b>2 \xD7 3</b><small>6 cells</small></button>
+        <button type="button" class="lb14-preset" data-lb14-split="grid:2x2"><span class="lb14-icon-grid grid2x2"></span><b>2 × 2</b><small>4 cells</small></button>
+        <button type="button" class="lb14-preset" data-lb14-split="grid:3x2"><span class="lb14-icon-grid grid3x2"></span><b>3 × 2</b><small>6 cells</small></button>
+        <button type="button" class="lb14-preset" data-lb14-split="grid:2x3"><span class="lb14-icon-grid grid2x3"></span><b>2 × 3</b><small>6 cells</small></button>
       </div>
       <div class="lb14-custom-split">
         <label>Custom columns <input type="number" min="1" max="12" value="2" data-lb14-cols></label>
@@ -9106,9 +9103,9 @@
         <button type="button" data-lb17-split="4x1">4 Columns</button>
         <button type="button" data-lb17-split="1x2">2 Rows</button>
         <button type="button" data-lb17-split="1x3">3 Rows</button>
-        <button type="button" data-lb17-split="2x2">2 \xD7 2</button>
-        <button type="button" data-lb17-split="3x2">3 \xD7 2</button>
-        <button type="button" data-lb17-split="2x3">2 \xD7 3</button>
+        <button type="button" data-lb17-split="2x2">2 × 2</button>
+        <button type="button" data-lb17-split="3x2">3 × 2</button>
+        <button type="button" data-lb17-split="2x3">2 × 3</button>
       </div>
     </section>`;
       }
@@ -9396,7 +9393,7 @@
         if (!tab) {
           tab = fd.createElement("div");
           tab.className = "lb21-hover-tab";
-          tab.innerHTML = '<button type="button" class="lb21-plus" title="Add">+</button><button type="button" class="lb21-grip" title="Unit menu" aria-label="Unit menu"><i></i><i></i><i></i><i></i><i></i><i></i></button><button type="button" class="lb21-close" title="' + app.t("Delete") + '">\xD7</button>';
+          tab.innerHTML = '<button type="button" class="lb21-plus" title="Add">+</button><button type="button" class="lb21-grip" title="Unit menu" aria-label="Unit menu"><i></i><i></i><i></i><i></i><i></i><i></i></button><button type="button" class="lb21-close" title="' + app.t("Delete") + '">×</button>';
           fd.body.appendChild(tab);
           tab.querySelector(".lb21-plus").onclick = (e) => {
             e.preventDefault();
@@ -10163,7 +10160,7 @@
             if (n.children) walk(n.children);
           });
           walk(app.state.root);
-          app.showModal(app.t("Accessibility Audit"), issues.length ? issues.map((i) => `<div class="lb-library-row"><strong>${app.esc(app.meta(i.type).title || i.type)}</strong><span>${app.esc(i.msg)}</span></div>`).join("") : "<p>\u2713 No obvious issues detected in the current document.</p>");
+          app.showModal(app.t("Accessibility Audit"), issues.length ? issues.map((i) => `<div class="lb-library-row"><strong>${app.esc(app.meta(i.type).title || i.type)}</strong><span>${app.esc(i.msg)}</span></div>`).join("") : "<p>✓ No obvious issues detected in the current document.</p>");
         }, assets: app.openPerformance, shortcuts: () => app.handleMainMenu("shortcuts") })[a]?.();
       };
       m.querySelectorAll("[data-more]").forEach((b) => b.onclick = () => action(b.dataset.more));
@@ -10187,7 +10184,7 @@
         if (app.applyCanvasWidth) app.applyCanvasWidth();
         return;
       }
-      top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">\u21B6</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">\u21B7</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">\u2637</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">\u22EE</button></div>`;
+      top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">↶</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">↷</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">☷</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">⋮</button></div>`;
       app.$("#lb-main-menu-button").onclick = (e) => {
         e.stopPropagation();
         app.openMainMenu();
@@ -10758,14 +10755,14 @@
           if (c && app.lbCtrlType(c[idKey]) === "media") return "";
         }
         if (type === "repeater") return lb28OldControl(k, t3, v, label);
-        if (type === "icon") return `<div class="lb-control lb-icon-control"><span>${app.esc(l)}</span><button type="button" class="lb-icon-picker lb-icon-picker-visual" data-icon-picker="1" data-icon-key="${app.esc(k)}" title="Choose icon"><span class="lb-icon-picker-preview">${svg(v || "star")}</span><span class="lb-icon-picker-name">${app.esc(typeof app.lb101IconTitle === "function" ? app.lb101IconTitle(v || "star") : v || "star")}</span><span class="lb-icon-picker-arrow">\u2304</span></button></div>`;
+        if (type === "icon") return `<div class="lb-control lb-icon-control"><span>${app.esc(l)}</span><button type="button" class="lb-icon-picker lb-icon-picker-visual" data-icon-picker="1" data-icon-key="${app.esc(k)}" title="Choose icon"><span class="lb-icon-picker-preview">${svg(v || "star")}</span><span class="lb-icon-picker-name">${app.esc(typeof app.lb101IconTitle === "function" ? app.lb101IconTitle(v || "star") : v || "star")}</span><span class="lb-icon-picker-arrow">⌄</span></button></div>`;
         if (type === "media") {
           const def = app.lbCtrlDef(t3), id = parseInt(v, 10) || 0, urlKey = k.replace(/_id$/, "_url"), s = app.selected && app.locate(app.state.root, app.selected)?.node?.settings || {}, url = deepGet(s, urlKey) || attUrl(id, "thumbnail"), lib = Array.isArray(def.media_types) ? def.media_types.join(",") : def.media_types || "image", video = /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i.test(String(url || "")), label2 = lib === "video" ? app.t("Choose video") : String(lib).indexOf("video") >= 0 ? app.t("Choose image or video") : app.t("Choose image");
           return `<div class="lb-control lb32-media"><span>${app.esc(l)}</span><div class="lb32-media-row"><button type="button" class="lb32-media-preview lb-media-open" data-media-key="${app.esc(k)}" data-media-library="${app.esc(lib)}" title="${app.esc(label2)}">${id || url ? video ? `<span>${app.esc(app.t("Video"))}</span>` : `<img src="${app.esc(url)}" alt="" data-lb28-att="${app.esc(id)}" data-lb28-size="thumbnail">` : "<span>" + app.esc(label2) + "</span>"}</button><input data-setting="${app.esc(k)}" type="hidden" value="${app.esc(id || 0)}">${id || url ? `<button type="button" class="lb-btn lb28-media-clear" data-media-key="${app.esc(k)}">${app.t("Remove")}</button>` : ""}</div></div>`;
         }
         if (type === "select" && (k === "widget" || k === "sidebar")) {
           const list = k === "widget" ? app.D.widgets || [] : app.D.sidebars || [];
-          return `<label class="lb-control"><span>${app.esc(l)}</span><select data-setting="${app.esc(k)}"><option value="">\u2014 ${k === "widget" ? "Choose a widget" : "Choose a sidebar"} \u2014</option>${list.map((x) => `<option value="${app.esc(x.id)}" ${String(x.id) === String(v) ? "selected" : ""}>${app.esc(x.name || x.id)}</option>`).join("")}</select></label>`;
+          return `<label class="lb-control"><span>${app.esc(l)}</span><select data-setting="${app.esc(k)}"><option value="">— ${k === "widget" ? "Choose a widget" : "Choose a sidebar"} —</option>${list.map((x) => `<option value="${app.esc(x.id)}" ${String(x.id) === String(v) ? "selected" : ""}>${app.esc(x.name || x.id)}</option>`).join("")}</select></label>`;
         }
         if (type === "select" && k === "menu") {
           const r = app.selected && app.locate(app.state.root, app.selected);
@@ -11009,7 +11006,7 @@
             const src = embedUrl(s), hosted = src === "hosted";
             const overlay = s.show_overlay ? mediaUrl(s.overlay_image_id, s.overlay_image_url, "large") : "";
             const play = (s.show_play_icon || s.lightbox) && (overlay || s.lightbox) ? `<button type="button" class="lb-video-play" aria-label="Play video" tabindex="-1">${svg(s.play_icon || "play")}</button>` : "";
-            const media = overlay ? "" : hosted ? `<video class="lb-video-media" src="${app.esc(s.url)}" preload="metadata"${mediaUrl(s.poster_id, s.poster_url, "large") ? ` poster="${app.esc(mediaUrl(s.poster_id, s.poster_url, "large"))}"` : ""}${s.controls ? " controls" : ""} muted playsinline></video>` : `<div class="lb-video-media lb28-video-embed" style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font:13px/1.4 system-ui">${app.esc(hostLabel(s.url))} video \xB7 plays on the live page</div>`;
+            const media = overlay ? "" : hosted ? `<video class="lb-video-media" src="${app.esc(s.url)}" preload="metadata"${mediaUrl(s.poster_id, s.poster_url, "large") ? ` poster="${app.esc(mediaUrl(s.poster_id, s.poster_url, "large"))}"` : ""}${s.controls ? " controls" : ""} muted playsinline></video>` : `<div class="lb-video-media lb28-video-embed" style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font:13px/1.4 system-ui">${app.esc(hostLabel(s.url))} video · plays on the live page</div>`;
             return `<div class="lb-video lb-video-${hosted ? "hosted" : src ? "embed" : "oembed"}${overlay ? " lb-video-has-overlay" : ""}${s.lightbox ? " lb-video-lightbox" : ""}"${styleAttr({ "--lb-video-ratio": ratio, "--lb-play-color": s.play_icon_color || "", "--lb-play-size": unit(s.play_icon_size) })}><div class="lb-video-frame${overlay || s.lightbox ? " lb-video-overlay" : ""}"${overlay ? ` style="background-image:url(${app.esc(overlay)})"` : ""}>${media}${play}</div></div>`;
           }
           case "counter": {
@@ -11044,7 +11041,7 @@
               if (id && file && !video && media.indexOf("lb28-att-loading") >= 0) media = media.replace(/src="[^"]*"/, `src="${app.esc(file)}"`);
               return `<figure class="lb-carousel-slide${effect === "fade" && i === 0 ? " is-active" : ""}" role="group">${media}${cap ? `<figcaption class="lb-carousel-caption">${app.esc(cap)}</figcaption>` : ""}</figure>`;
             }).join("");
-            const arrows = ["both", "arrows"].includes(nav) ? '<button type="button" class="lb-carousel-prev" tabindex="-1" aria-label="${app.esc(app.t("Previous slide"))}">${dir === "rtl" ? "\u203A" : "\u2039"}</button><button type="button" class="lb-carousel-next" tabindex="-1" aria-label="${app.esc(app.t("Next slide"))}">${dir === "rtl" ? "\u2039" : "\u203A"}</button>' : "";
+            const arrows = ["both", "arrows"].includes(nav) ? '<button type="button" class="lb-carousel-prev" tabindex="-1" aria-label="${app.esc(app.t("Previous slide"))}">${dir === "rtl" ? "›" : "‹"}</button><button type="button" class="lb-carousel-next" tabindex="-1" aria-label="${app.esc(app.t("Next slide"))}">${dir === "rtl" ? "‹" : "›"}</button>' : "";
             const scroll = Math.max(1, Math.min(show, parseInt(s.slides_to_scroll, 10) || 1));
             const pages = Math.max(1, Math.ceil((ready.length - show) / scroll) + 1);
             const on = (v, d) => v === void 0 || v === null || v === "" ? d : !(v === false || v === 0 || v === "0" || v === "false");
@@ -11055,21 +11052,21 @@
           case "soundcloud": {
             if (!s.url) return '<div class="lb-embed-placeholder">Add a SoundCloud track or playlist URL</div>';
             const h = s.visual ? 450 : Math.max(80, parseInt(val(s.height), 10) || 166);
-            return `<div class="lb-soundcloud${s.visual ? " lb-soundcloud-visual" : ""}"><div class="lb-embed-placeholder" style="height:${h}px;display:flex;align-items:center;justify-content:center;background:${app.esc(s.player_color || "#ff5500")}22;border-color:${app.esc(s.player_color || "#ff5500")}">\u266B SoundCloud ${s.visual ? "visual" : "classic"} player \xB7 ${app.esc(s.url)}</div></div>`;
+            return `<div class="lb-soundcloud${s.visual ? " lb-soundcloud-visual" : ""}"><div class="lb-embed-placeholder" style="height:${h}px;display:flex;align-items:center;justify-content:center;background:${app.esc(s.player_color || "#ff5500")}22;border-color:${app.esc(s.player_color || "#ff5500")}">♫ SoundCloud ${s.visual ? "visual" : "classic"} player · ${app.esc(s.url)}</div></div>`;
           }
           case "audio": {
             if (!s.url) return '<div class="lb-embed-placeholder">Add an audio file URL</div>';
             if (/\.(mp3|wav|ogg|oga|opus|m4a|aac|flac|wma)(\?|#|$)/i.test(String(s.url))) return `<audio class="lb-audio" preload="${app.esc(s.preload || "metadata")}"${s.controls !== false ? " controls" : ""} src="${app.esc(s.url)}"></audio>`;
-            return `<div class="lb-audio-embed"><div class="lb-embed-placeholder">\u266B ${app.esc(hostLabel(s.url))} \xB7 ${app.esc(s.url)} \xB7 plays on the live page</div></div>`;
+            return `<div class="lb-audio-embed"><div class="lb-embed-placeholder">♫ ${app.esc(hostLabel(s.url))} · ${app.esc(s.url)} · plays on the live page</div></div>`;
           }
           case "embed": {
             if (!s.url) return '<div class="lb-embed-placeholder">Paste a URL to embed</div>';
             const er = { "16:9": "16 / 9", "21:9": "21 / 9", "4:3": "4 / 3", "1:1": "1 / 1", "9:16": "9 / 16" }[s.aspect_ratio] || "";
-            return `<div class="lb-embed-wrap"><div class="lb-embed${er ? " lb-embed-has-ratio" : ""}"${styleAttr({ "--lb-embed-ratio": er, "max-width": unit(s.max_width) })}><div class="lb-embed-placeholder">${app.esc(hostLabel(s.url))} \xB7 ${app.esc(s.url)} \xB7 plays on the live page</div></div></div>`;
+            return `<div class="lb-embed-wrap"><div class="lb-embed${er ? " lb-embed-has-ratio" : ""}"${styleAttr({ "--lb-embed-ratio": er, "max-width": unit(s.max_width) })}><div class="lb-embed-placeholder">${app.esc(hostLabel(s.url))} · ${app.esc(s.url)} · plays on the live page</div></div></div>`;
           }
           case "html": {
             const raw = String(s.html || "").trim();
-            if (/^https?:\/\/\S+$/i.test(raw) && raw.indexOf("<") < 0) return `<div class="lb-html lb-html-embed"><div class="lb-embed-placeholder">${app.esc(hostLabel(raw))} \xB7 ${app.esc(raw)} \xB7 plays on the live page</div></div>`;
+            if (/^https?:\/\/\S+$/i.test(raw) && raw.indexOf("<") < 0) return `<div class="lb-html lb-html-embed"><div class="lb-embed-placeholder">${app.esc(hostLabel(raw))} · ${app.esc(raw)} · plays on the live page</div></div>`;
             return `<div class="lb-html">${s.html || ""}</div>`;
           }
           case "menu_anchor":
@@ -11079,11 +11076,11 @@
           case "wordpress_widget": {
             const w = (app.D.widgets || []).find((x) => x.id === s.widget);
             const label = w ? w.name : s.sidebar ? "Sidebar: " + s.sidebar : "";
-            return `<div class="lb-wordpress-widget">${s.title ? `<h3 class="lb-wp-widget-title">${app.esc(s.title)}</h3>` : ""}<div class="lb-embed-placeholder">${label ? "WordPress Widget \xB7 " + app.esc(label) : "Choose a WordPress widget"}</div></div>`;
+            return `<div class="lb-wordpress-widget">${s.title ? `<h3 class="lb-wp-widget-title">${app.esc(s.title)}</h3>` : ""}<div class="lb-embed-placeholder">${label ? "WordPress Widget · " + app.esc(label) : "Choose a WordPress widget"}</div></div>`;
           }
           case "sidebar": {
             const sb = (app.D.sidebars || []).find((x) => x.id === s.sidebar);
-            return `<aside class="lb-sidebar"><div class="lb-embed-placeholder">${sb ? "Sidebar \xB7 " + app.esc(sb.name) : "Choose an active sidebar"}</div></aside>`;
+            return `<aside class="lb-sidebar"><div class="lb-embed-placeholder">${sb ? "Sidebar · " + app.esc(sb.name) : "Choose an active sidebar"}</div></aside>`;
           }
           case "price_table": {
             const feats = repeaterItems(s.features, ["text", "icon"]).map((r) => `<li${styleAttr({ color: s.feature_color || "" })}>${r.icon ? `<span class="lb-price-feature-icon"${styleAttr({ color: s.feature_icon_color || "" })}>${svg(r.icon)}</span>` : ""}${app.esc(r.text || "")}</li>`).join("");
@@ -11106,7 +11103,7 @@
               if (type === "textarea") input = `<textarea tabindex="-1" readonly${req}${ph}></textarea>`;
               else if (type === "select") {
                 const opts = String(r.options || "").split(/\r?\n/).map((x) => x.trim()).filter(Boolean).map((o) => `<option>${app.esc(o)}</option>`).join("");
-                input = `<select tabindex="-1"${req}><option>${app.esc(app.t("Select\u2026"))}</option>${opts}</select>`;
+                input = `<select tabindex="-1"${req}><option>${app.esc(app.t("Select…"))}</option>${opts}</select>`;
               } else input = `<input type="${app.esc(type)}" tabindex="-1" readonly${req}${ph}>`;
               return `<div class="lb-form-field"><label>${app.esc(label)}</label>${input}</div>`;
             }).join("");
@@ -11192,9 +11189,9 @@
         const device = app.device || "desktop";
         const previewOpen = layout === "dropdown" || device === "mobile" || device === "mobile_extra";
         const radius = navRadius(s.radius);
-        const vars2 = ["--lb-nav-color:" + (s.color || ""), "--lb-nav-hover:" + (s.hover_color || ""), "--lb-nav-bg:" + (s.background || ""),"--lb-nav-btn-color:" + (s.button_color || ""), "--lb-nav-btn-border:" + (s.button_border_color || ""), "--lb-nav-btn-hover-color:" + (s.button_hover_color || ""), "--lb-nav-btn-hover-bg:" + (s.button_hover_background || ""), "--lb-nav-btn-hover-border:" + (s.button_hover_border || ""),  "--lb-nav-radius:" + radius].filter((bit) => !bit.endsWith(":"));
+        const vars2 = ["--lb-nav-color:" + (s.color || ""), "--lb-nav-hover:" + (s.hover_color || ""), "--lb-nav-bg:" + (s.background || ""), "--lb-nav-btn-color:" + (s.button_color || ""), "--lb-nav-btn-border:" + (s.button_border_color || ""), "--lb-nav-btn-hover-color:" + (s.button_hover_color || ""), "--lb-nav-btn-hover-bg:" + (s.button_hover_background || ""), "--lb-nav-btn-hover-border:" + (s.button_hover_border || ""), "--lb-nav-radius:" + radius].filter((bit) => !bit.endsWith(":"));
         const style2 = vars2.length ? ` style="${vars2.map((bit) => app.esc(bit)).join(";")}"` : "";
-        const inner = `<button type="button" class="lb-site-nav__toggle" aria-expanded="${previewOpen ? "true" : "false"}" aria-controls="lb-site-nav-preview" tabindex="-1"><span class="lb-site-nav__burger" aria-hidden="true"></span><span class="lb-site-nav__toggle-text">${app.esc(toggle)}</span><span class="lb-site-nav__caret" aria-hidden="true">\u25BE</span></button>${list}`;
+        const inner = `<button type="button" class="lb-site-nav__toggle" aria-expanded="${previewOpen ? "true" : "false"}" aria-controls="lb-site-nav-preview" tabindex="-1"><span class="lb-site-nav__burger" aria-hidden="true"></span><span class="lb-site-nav__toggle-text">${app.esc(toggle)}</span><span class="lb-site-nav__caret" aria-hidden="true">▾</span></button>${list}`;
         const body = layout === "dropdown" ? `<div class="lb-site-nav__drop">${inner}</div>` : inner;
         return `<nav class="lb-site-nav lb-site-nav--${layout}${custom}${previewOpen ? " is-open" : ""}" data-breakpoint="${bp}" aria-label="${app.esc(toggle)}"${style2}>${body}</nav>`;
       }
@@ -11207,7 +11204,7 @@
         };
         const known = !v || menus.some((m) => String(m.id) === String(v));
         const missing = v && !known ? `<option value="${app.esc(v)}" selected>${app.esc(app.t("Missing menu"))}</option>` : "";
-        return `<label class="lb-control"><span>${app.esc(label)}</span><select data-setting="${app.esc(k)}"><option value="">${app.esc(app.t("Select a menu"))}</option>${missing}${group("menu", app.t("Menus"))}${group("nav", app.t("Navigation"))}</select></label><p class="lb-control-desc">${app.esc(app.t("Classic menus (Appearance \u2192 Menus) and Navigation (Appearance \u2192 Editor)."))}</p>`;
+        return `<label class="lb-control"><span>${app.esc(label)}</span><select data-setting="${app.esc(k)}"><option value="">${app.esc(app.t("Select a menu"))}</option>${missing}${group("menu", app.t("Menus"))}${group("nav", app.t("Navigation"))}</select></label><p class="lb-control-desc">${app.esc(app.t("Classic menus (Appearance → Menus) and Navigation (Appearance → Editor)."))}</p>`;
       };
       function flipBoxCanvas(n, s) {
         const effect = pick(s.flip_effect, ["flip", "slide", "push", "zoom", "fade"], "flip");
@@ -12261,7 +12258,7 @@
           h += lbParityAdvanced(n);
         }
         const warn = app.accessibilityWarnings(n);
-        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
+        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
         return h;
       }
       const MASK = { circle: "circle(50% at 50% 50%)", ellipse: "ellipse(50% 42% at 50% 50%)", hexagon: "polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)", triangle: "polygon(50% 0%,0% 100%,100% 100%)", diamond: "polygon(50% 0%,100% 50%,50% 100%,0% 50%)", pill: "inset(0 round 999px)" };
@@ -12500,7 +12497,7 @@
           return body ? app.lb09Section(title, body, true) : "";
         }).join("");
         const warn = app.accessibilityWarnings(n);
-        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>\u26A0 ${app.esc(w)}</div>`).join("") : "<div>\u2713 No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
+        h += `<div class="lb-a11y-box"><strong>Accessibility</strong>${warn.length ? warn.map((w) => `<div>⚠ ${app.esc(w)}</div>`).join("") : "<div>✓ No obvious issues detected.</div>"}</div><div class="lb-action-grid"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
         return h;
       }
       const lb02OldSettings = app.settingsHTML;
@@ -12575,7 +12572,7 @@
           const content = String(s.content || "<p>Start writing your content here.</p>");
           let h = `<div class="lb-selection-head"><strong>TinyMCE Text Editor</strong><span class="lb-selection-id">${app.esc(r.node.id)}</span></div>`;
           h += `<div class="lb-settings-tabs">${["content", "style", "advanced"].map((x) => `<button data-style-tab="${x}" class="${app.styleTab === x ? "active" : ""}">${x[0].toUpperCase() + x.slice(1)}</button>`).join("")}</div>`;
-          h += `<div class="lb-section"><div class="lb-section-title"><span>\u25BE</span><strong>Content</strong></div><div class="lb-section-body"><label class="lb-control"><span>Content</span><textarea id="lb-tinymce-inline-content" rows="9" spellcheck="true">${app.esc(content)}</textarea><small class="lb-muted">Edit the content directly, or use Edit with TinyMCE for rich-text formatting.</small></label><button type="button" class="lb-btn primary lb-tinymce-open" id="lb-tinymce-open">Edit with TinyMCE</button></div></div>`;
+          h += `<div class="lb-section"><div class="lb-section-title"><span>▾</span><strong>Content</strong></div><div class="lb-section-body"><label class="lb-control"><span>Content</span><textarea id="lb-tinymce-inline-content" rows="9" spellcheck="true">${app.esc(content)}</textarea><small class="lb-muted">Edit the content directly, or use Edit with TinyMCE for rich-text formatting.</small></label><button type="button" class="lb-btn primary lb-tinymce-open" id="lb-tinymce-open">Edit with TinyMCE</button></div></div>`;
           h += `<div class="lb-action-grid lb-tinymce-actions-secondary"><button type="button" class="lb-btn lb-secondary-action" id="lb-duplicate">${app.t("Duplicate")}</button><button type="button" class="lb-btn lb-danger-action" id="lb-delete">${app.t("Delete")}</button></div>`;
           return h;
         }
@@ -12824,9 +12821,9 @@
         <button type="button" data-lb-split="4x1"><i class="lb-structure-icon cols-4"></i><b>4 Columns</b></button>
         <button type="button" data-lb-split="1x2"><i class="lb-structure-icon rows-2"></i><b>2 Rows</b></button>
         <button type="button" data-lb-split="1x3"><i class="lb-structure-icon rows-3"></i><b>3 Rows</b></button>
-        <button type="button" data-lb-split="2x2"><i class="lb-structure-icon grid-2"></i><b>2 \xD7 2</b></button>
-        <button type="button" data-lb-split="3x2"><i class="lb-structure-icon grid-3"></i><b>3 \xD7 2</b></button>
-        <button type="button" data-lb-split="2x3"><i class="lb-structure-icon grid-2x3"></i><b>2 \xD7 3</b></button>
+        <button type="button" data-lb-split="2x2"><i class="lb-structure-icon grid-2"></i><b>2 × 2</b></button>
+        <button type="button" data-lb-split="3x2"><i class="lb-structure-icon grid-3"></i><b>3 × 2</b></button>
+        <button type="button" data-lb-split="2x3"><i class="lb-structure-icon grid-2x3"></i><b>2 × 3</b></button>
       </div>
       <div class="lb-structure-custom">
         <label>Columns <input type="number" min="1" max="12" value="2" data-lb-split-cols></label>
@@ -13496,7 +13493,7 @@
         } else if (n.children && n.children.length) {
           kids = treeHTML(n.children, depth + 1);
         }
-        return `<div class="lb-tree-item"><div class="lb-tree-row ${app.selected === n.id ? "active" : ""}" data-tree-id="${app.esc(n.id)}" style="padding-left:${8 + depth * 15}px"><span class="lb-tree-grip">\u22EE\u22EE</span><span>${app.esc(app.meta(n.type).title || n.type)}</span></div>${kids}</div>`;
+        return `<div class="lb-tree-item"><div class="lb-tree-row ${app.selected === n.id ? "active" : ""}" data-tree-id="${app.esc(n.id)}" style="padding-left:${8 + depth * 15}px"><span class="lb-tree-grip">⋮⋮</span><span>${app.esc(app.meta(n.type).title || n.type)}</span></div>${kids}</div>`;
       }).join("");
     };
     app.convertToNested = function convertToNested(id) {
@@ -14086,16 +14083,16 @@
         body += `<div class="lb-ss-section"><h4>${app.t("System Typography")}</h4>${system.map((t3) => app.siteTypoRow(t3)).join("")}</div>`;
         body += `<div class="lb-ss-section"><h4>${app.t("Custom Typography")}</h4>${custom.map((t3) => app.siteTypoRow(t3)).join("") || '<p class="lb-muted">' + app.t("No custom typography yet.") + "</p>"}<button type="button" class="lb-btn" id="lb-ss-add-typo">+ ${app.t("Add Typography")}</button></div>`;
       }
-      return `<div class="lb-site-settings"><div class="lb-ss-head"><button type="button" class="lb-btn" id="lb-ss-back" aria-label="${app.t("Back")}">\u2190</button><strong>${app.t("Site Settings")}</strong></div><p class="lb-muted">${blurb}</p><div class="lb-settings-tabs lb-ss-tabs"><button type="button" data-site-tab="colors" class="${tab === "colors" ? "active" : ""}">${app.t("Global Colors")}</button><button type="button" data-site-tab="typography" class="${tab === "typography" ? "active" : ""}">${app.t("Global Typography")}</button><button type="button" data-site-tab="theme" class="${tab === "theme" ? "active" : ""}">${app.t("Theme Style")}</button><button type="button" data-site-tab="site" class="${tab === "site" ? "active" : ""}">${app.t("Layout")}</button><button type="button" data-site-tab="kit" class="${tab === "kit" ? "active" : ""}">${app.t("Kit")}</button></div>${body}</div>`;
+      return `<div class="lb-site-settings"><div class="lb-ss-head"><button type="button" class="lb-btn" id="lb-ss-back" aria-label="${app.t("Back")}">←</button><strong>${app.t("Site Settings")}</strong></div><p class="lb-muted">${blurb}</p><div class="lb-settings-tabs lb-ss-tabs"><button type="button" data-site-tab="colors" class="${tab === "colors" ? "active" : ""}">${app.t("Global Colors")}</button><button type="button" data-site-tab="typography" class="${tab === "typography" ? "active" : ""}">${app.t("Global Typography")}</button><button type="button" data-site-tab="theme" class="${tab === "theme" ? "active" : ""}">${app.t("Theme Style")}</button><button type="button" data-site-tab="site" class="${tab === "site" ? "active" : ""}">${app.t("Layout")}</button><button type="button" data-site-tab="kit" class="${tab === "kit" ? "active" : ""}">${app.t("Kit")}</button></div>${body}</div>`;
     };
     app.siteColorRow = function siteColorRow(c) {
-      return `<div class="lb-ss-row" data-color-id="${app.esc(c.id)}"><input type="color" class="lb-ss-color" value="${app.esc(c.value)}"><input type="text" class="lb-ss-title" value="${app.esc(c.title)}" ${c.system ? "readonly" : ""}><code>${app.esc(c.id)}</code>${c.system ? "" : `<button type="button" class="lb-btn lb-ss-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}">\xD7</button>`}</div>`;
+      return `<div class="lb-ss-row" data-color-id="${app.esc(c.id)}"><input type="color" class="lb-ss-color" value="${app.esc(c.value)}"><input type="text" class="lb-ss-title" value="${app.esc(c.title)}" ${c.system ? "readonly" : ""}><code>${app.esc(c.id)}</code>${c.system ? "" : `<button type="button" class="lb-btn lb-ss-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}">×</button>`}</div>`;
     };
     app.siteTypoRow = function siteTypoRow(t3) {
       const open = app.siteSettingsOpenId === t3.id ? " open" : "";
       const fonts = typeof app.lb104FontOptions === "function" ? app.lb104FontOptions(t3.font_family || "") : `<option value="">${app.t("Default")}</option>`;
       const weights = ["", "300", "400", "500", "600", "700", "800", "900"];
-      return `<details class="lb-ss-typo" data-typo-id="${app.esc(t3.id)}"${open}><summary><span class="lb-ss-typo-preview" style="font-family:${app.esc(t3.font_family || "inherit")};font-weight:${app.esc(t3.font_weight || "600")};font-size:16px">Aa</span><input type="text" class="lb-ss-typo-title" value="${app.esc(t3.title)}" ${t3.system ? "readonly" : ""}>${t3.system ? "" : `<button type="button" class="lb-btn lb-ss-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}">\xD7</button>`}</summary><div class="lb-ss-typo-body"><label class="lb-control"><span>${app.t("Font Family")}</span><select class="lb-ss-typo-font">${fonts}</select></label><label class="lb-control"><span>${app.t("Size")}</span><input class="lb-ss-typo-size" value="${app.esc(t3.font_size || "")}" placeholder="16px"></label><label class="lb-control"><span>${app.t("Weight")}</span><select class="lb-ss-typo-weight">${weights.map((w) => `<option value="${w}" ${String(t3.font_weight || "") === w ? "selected" : ""}>${w || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Line Height")}</span><input class="lb-ss-typo-lh" value="${app.esc(t3.line_height || "")}" placeholder="1.4"></label><label class="lb-control"><span>${app.t("Letter Spacing")}</span><input class="lb-ss-typo-ls" value="${app.esc(t3.letter_spacing || "")}" placeholder="0"></label><label class="lb-control"><span>${app.t("Transform")}</span><select class="lb-ss-typo-tt">${["", "none", "uppercase", "lowercase", "capitalize"].map((o) => `<option value="${o}" ${String(t3.text_transform || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Style")}</span><select class="lb-ss-typo-fs">${["", "normal", "italic", "oblique"].map((o) => `<option value="${o}" ${String(t3.font_style || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Decoration")}</span><select class="lb-ss-typo-td">${["", "none", "underline", "overline", "line-through"].map((o) => `<option value="${o}" ${String(t3.text_decoration || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label></div></details>`;
+      return `<details class="lb-ss-typo" data-typo-id="${app.esc(t3.id)}"${open}><summary><span class="lb-ss-typo-preview" style="font-family:${app.esc(t3.font_family || "inherit")};font-weight:${app.esc(t3.font_weight || "600")};font-size:16px">Aa</span><input type="text" class="lb-ss-typo-title" value="${app.esc(t3.title)}" ${t3.system ? "readonly" : ""}>${t3.system ? "" : `<button type="button" class="lb-btn lb-ss-del" title="${app.t("Remove")}" aria-label="${app.t("Remove")}">×</button>`}</summary><div class="lb-ss-typo-body"><label class="lb-control"><span>${app.t("Font Family")}</span><select class="lb-ss-typo-font">${fonts}</select></label><label class="lb-control"><span>${app.t("Size")}</span><input class="lb-ss-typo-size" value="${app.esc(t3.font_size || "")}" placeholder="16px"></label><label class="lb-control"><span>${app.t("Weight")}</span><select class="lb-ss-typo-weight">${weights.map((w) => `<option value="${w}" ${String(t3.font_weight || "") === w ? "selected" : ""}>${w || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Line Height")}</span><input class="lb-ss-typo-lh" value="${app.esc(t3.line_height || "")}" placeholder="1.4"></label><label class="lb-control"><span>${app.t("Letter Spacing")}</span><input class="lb-ss-typo-ls" value="${app.esc(t3.letter_spacing || "")}" placeholder="0"></label><label class="lb-control"><span>${app.t("Transform")}</span><select class="lb-ss-typo-tt">${["", "none", "uppercase", "lowercase", "capitalize"].map((o) => `<option value="${o}" ${String(t3.text_transform || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Style")}</span><select class="lb-ss-typo-fs">${["", "normal", "italic", "oblique"].map((o) => `<option value="${o}" ${String(t3.font_style || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label><label class="lb-control"><span>${app.t("Decoration")}</span><select class="lb-ss-typo-td">${["", "none", "underline", "overline", "line-through"].map((o) => `<option value="${o}" ${String(t3.text_decoration || "") === o ? "selected" : ""}>${o || app.t("Default")}</option>`).join("")}</select></label></div></details>`;
     };
     app.readSiteSettingsFromPanel = function readSiteSettingsFromPanel() {
       const v = app.D.variables || (app.D.variables = {});
@@ -15190,7 +15187,7 @@
     app.exportKitZip = async function exportKitZip() {
       if (app.kitExportBusy) return;
       app.kitExportBusy = true;
-      app.kitExportStatus(app.t("Exporting kit\u2026"));
+      app.kitExportStatus(app.t("Exporting kit…"));
       try {
         const includeContent = !!app.root.querySelector("#lb-kit-ex-content")?.checked;
         const ids = includeContent ? [...app.root.querySelectorAll("[data-kit-page]:checked")].map((el) => Number(el.dataset.kitPage)).filter(Boolean) : [];
@@ -15223,7 +15220,7 @@
     app.importKitZip = async function importKitZip(file) {
       if (!file || app.kitExportBusy) return;
       app.kitExportBusy = true;
-      app.kitExportStatus(app.t("Importing kit\u2026"));
+      app.kitExportStatus(app.t("Importing kit…"));
       try {
         const fd = new FormData();
         fd.append("file", file);
@@ -15268,25 +15265,25 @@
   // src/editor/groups.js
   function installGroups() {
     const ICONS = {
-      left: "\u2B05",
-      center: "\u2194",
-      right: "\u27A1",
-      justify: "\u2630",
-      flex: "\u25A4",
-      grid: "\u25A6",
-      block: "\u25A0",
-      row: "\u2194",
-      column: "\u2195",
-      "top": "\u2B06",
-      middle: "\u25CF",
-      bottom: "\u2B07",
-      stretch: "\u2922",
-      solid: "\u2014",
+      left: "⬅",
+      center: "↔",
+      right: "➡",
+      justify: "☰",
+      flex: "▤",
+      grid: "▦",
+      block: "■",
+      row: "↔",
+      column: "↕",
+      "top": "⬆",
+      middle: "●",
+      bottom: "⬇",
+      stretch: "⤢",
+      solid: "—",
       dashed: "- -",
-      dotted: "\xB7\xB7\xB7",
-      none: "\u25CB",
-      linear: "\u2571",
-      radial: "\u25CE"
+      dotted: "···",
+      none: "○",
+      linear: "╱",
+      radial: "◎"
     };
     app.lbGroupVal = function lbGroupVal(v) {
       return v && typeof v === "object" && !Array.isArray(v) ? v : {};
@@ -15467,15 +15464,13 @@
     app.lbSvgIcon = function lbSvgIcon(name) {
       return SVG_ICONS[name] || "";
     };
-    /** Device glyph for responsive controls. Clicking it steps the canvas to the next enabled breakpoint. */
     app.lbRespDeviceHTML = function lbRespDeviceHTML() {
       const dev = String(app.device || "desktop");
-      const icon = /mobile/.test(dev) ? "lbi-mobile" : /tablet/.test(dev) ? "lbi-tablet" : "lbi-desktop";
+      const icon2 = /mobile/.test(dev) ? "lbi-mobile" : /tablet/.test(dev) ? "lbi-tablet" : "lbi-desktop";
       const bp = typeof app.breakpoint === "function" ? app.breakpoint(dev) : null;
       const name = bp && bp.label ? app.t(bp.label) || bp.label : dev;
-      return `<button type="button" class="lb-resp-device" data-lb-resp-cycle="1" title="${app.esc(app.t("Responsive") + ": " + name)}" aria-label="${app.esc(app.t("Responsive") + ": " + name)}">${SVG_ICONS[icon]}</button>`;
+      return `<button type="button" class="lb-resp-device" data-lb-resp-cycle="1" title="${app.esc(app.t("Responsive") + ": " + name)}" aria-label="${app.esc(app.t("Responsive") + ": " + name)}">${SVG_ICONS[icon2]}</button>`;
     };
-    /** Current flex direction of the node that owns an Items control (drives icon orientation). */
     app.lbAxisDirection = function lbAxisDirection(def, s) {
       if (!def || !def.axis_key) return "";
       if (!s) {
@@ -15525,7 +15520,7 @@
       const x = app.lbGroupVal(v);
       const linked = !!x.linked;
       const lock = linked ? "is-linked" : "";
-      return `<div class="lb-control lb-dimensions ${lock}" data-dim-key="${app.esc(k)}"><div class="lb-control-head"><span>${app.esc(l)}</span><button type="button" class="lb-link-btn${linked ? " is-active" : ""}" data-link-key="${app.esc(k)}" title="${app.t("Link sides")}" aria-pressed="${linked ? "true" : "false"}">${linked ? "\u{1F517}" : "\u22B6"}</button></div><div class="lb-box-grid lb-box-grid-labeled"><input data-setting="${k}.top" value="${app.esc(x.top ?? "")}" placeholder="${app.t("Top")}"><input data-setting="${k}.right" value="${app.esc(x.right ?? "")}" placeholder="${app.t("Right")}" ${linked ? "disabled" : ""}><input data-setting="${k}.bottom" value="${app.esc(x.bottom ?? "")}" placeholder="${app.t("Bottom")}" ${linked ? "disabled" : ""}><input data-setting="${k}.left" value="${app.esc(x.left ?? "")}" placeholder="${app.t("Left")}" ${linked ? "disabled" : ""}></div></div>`;
+      return `<div class="lb-control lb-dimensions ${lock}" data-dim-key="${app.esc(k)}"><div class="lb-control-head"><span>${app.esc(l)}</span><button type="button" class="lb-link-btn${linked ? " is-active" : ""}" data-link-key="${app.esc(k)}" title="${app.t("Link sides")}" aria-pressed="${linked ? "true" : "false"}">${linked ? "🔗" : "⊶"}</button></div><div class="lb-box-grid lb-box-grid-labeled"><input data-setting="${k}.top" value="${app.esc(x.top ?? "")}" placeholder="${app.t("Top")}"><input data-setting="${k}.right" value="${app.esc(x.right ?? "")}" placeholder="${app.t("Right")}" ${linked ? "disabled" : ""}><input data-setting="${k}.bottom" value="${app.esc(x.bottom ?? "")}" placeholder="${app.t("Bottom")}" ${linked ? "disabled" : ""}><input data-setting="${k}.left" value="${app.esc(x.left ?? "")}" placeholder="${app.t("Left")}" ${linked ? "disabled" : ""}></div></div>`;
     };
     app.shadowControl = function shadowControl(k, v, l, opts) {
       const x = app.lbGroupVal(v);
@@ -15623,25 +15618,22 @@
 			<label class="lb-control"><span>${app.t("Easing")}</span><select data-setting="${k}.easing">${["ease", "ease-in", "ease-out", "ease-in-out", "linear"].map((o) => `<option value="${o}" ${String(o) === String(x.easing || "ease") ? "selected" : ""}>${o}</option>`).join("")}</select></label>
 		</div></div>`;
     };
-    /** Split a stored length ("20px", "1.5em", 20) into [number, unit]. */
     app.lbSplitLength = function lbSplitLength(val) {
       const m = String(val ?? "").trim().match(/^(-?\d*\.?\d+)\s*([a-z%]*)$/i);
       return m ? [m[1], (m[2] || "").toLowerCase()] : ["", ""];
     };
-    /** Gaps value for the canvas device: unwraps a responsive {desktop:{row,column}} map. */
     app.lbGapsValue = function lbGapsValue(v) {
       if (!v || typeof v !== "object" || Array.isArray(v)) return v ?? "";
       if ("row" in v || "column" in v) return v;
       return app.resp(v);
     };
-    /** CSS `gap` shorthand (row column) from a Gaps value, mirroring Groups::compile_gaps(). */
     app.lbCompileGaps = function lbCompileGaps(v) {
       if (v == null || v === "") return "";
       if (typeof v !== "object") v = { row: v, column: v, linked: true };
       const len = (x) => {
-        const t = String(x ?? "").trim();
-        if (t === "") return "";
-        return /^-?\d*\.?\d+$/.test(t) ? t + "px" : t;
+        const t3 = String(x ?? "").trim();
+        if (t3 === "") return "";
+        return /^-?\d*\.?\d+$/.test(t3) ? t3 + "px" : t3;
       };
       const row = len(v.row), col = len(v.linked ? v.row : v.column);
       if (!row && !col) return "";
@@ -15922,7 +15914,7 @@
           else app.render();
           if (repaint && typeof app.refreshRightPanel === "function") app.refreshRightPanel();
         };
-        const len = (num) => num === "" || num == null ? "" : String(num) + (unitSel ? unitSel.value : "px");
+        const len = (num2) => num2 === "" || num2 == null ? "" : String(num2) + (unitSel ? unitSel.value : "px");
         const linked = () => box.classList.contains("is-linked");
         ["column", "row"].forEach((part) => {
           const el = inputs()[part];
@@ -16680,7 +16672,7 @@
         return `<section class="lb-shortcut-group"><h4>${app.esc(title)}</h4>${items.map((d) => {
           const bind = app.shortcutBinding(d);
           const listening = app.shortcutListening === d.id;
-          const kbd = listening ? app.t("Press new keys\u2026") : formatCombo(bind, app.shortcutMac);
+          const kbd = listening ? app.t("Press new keys…") : formatCombo(bind, app.shortcutMac);
           const change = d.rebindable === false ? "" : `<button type="button" class="lb-btn lb-shortcut-rebind" data-shortcut-id="${app.esc(d.id)}">${app.esc(listening ? app.t("Cancel") : app.t("Change"))}</button>`;
           return `<div class="lb-shortcut-row${listening ? " is-listening" : ""}"><span>${app.esc(app.t(d.label))}</span><kbd>${app.esc(kbd)}</kbd>${change}</div>`;
         }).join("")}</section>`;
@@ -16765,7 +16757,7 @@
           kind: "page",
           id: p.id,
           title: p.title || app.t("Untitled Page"),
-          hint: `${p.type || "page"} \xB7 ${p.status || ""}`.trim(),
+          hint: `${p.type || "page"} · ${p.status || ""}`.trim(),
           run: () => openPage(p.id)
         }, p.type);
       });
@@ -16928,7 +16920,7 @@
       app.finderActive = 0;
       const backdrop = document.createElement("div");
       backdrop.className = "lb-finder-backdrop";
-      backdrop.innerHTML = `<div class="lb-finder" role="dialog" aria-modal="true" aria-label="${app.esc(app.t("Finder"))}"><input type="search" class="lb-finder-input" id="lb-finder-input" placeholder="${app.esc(app.t("Search pages, templates, components, classes, settings and actions\u2026"))}" autocomplete="off" spellcheck="false" aria-controls="lb-finder-results"><div class="lb-finder-results" id="lb-finder-results" role="listbox"></div></div>`;
+      backdrop.innerHTML = `<div class="lb-finder" role="dialog" aria-modal="true" aria-label="${app.esc(app.t("Finder"))}"><input type="search" class="lb-finder-input" id="lb-finder-input" placeholder="${app.esc(app.t("Search pages, templates, components, classes, settings and actions…"))}" autocomplete="off" spellcheck="false" aria-controls="lb-finder-results"><div class="lb-finder-results" id="lb-finder-results" role="listbox"></div></div>`;
       backdrop.addEventListener("mousedown", (e) => {
         if (e.target === backdrop) app.closeFinder();
       });
@@ -18135,7 +18127,7 @@
     app.lbDynWrap = function lbDynWrap(k, def, html) {
       const binding = app.lbDynGet(k);
       const on = !!(binding && binding.tag);
-      return `<div class="lb-dyn${on ? " is-on" : ""}" data-dyn-key="${app.esc(k)}"><button type="button" class="lb-dyn-toggle${on ? " is-on" : ""}" title="${app.t("Dynamic Tags")}" aria-pressed="${on ? "true" : "false"}" aria-label="${app.t("Dynamic Tags")}">\u26A1</button><div class="lb-dyn-static"${on ? " hidden" : ""}>${html}</div>${on ? app.lbDynActiveHTML(k, def, binding) : ""}</div>`;
+      return `<div class="lb-dyn${on ? " is-on" : ""}" data-dyn-key="${app.esc(k)}"><button type="button" class="lb-dyn-toggle${on ? " is-on" : ""}" title="${app.t("Dynamic Tags")}" aria-pressed="${on ? "true" : "false"}" aria-label="${app.t("Dynamic Tags")}">⚡</button><div class="lb-dyn-static"${on ? " hidden" : ""}>${html}</div>${on ? app.lbDynActiveHTML(k, def, binding) : ""}</div>`;
     };
     app.lbDynClosePicker = function lbDynClosePicker() {
       document.querySelectorAll(".lb-dyn-popover").forEach((n) => n.remove());
@@ -18357,12 +18349,12 @@
         const arrows = nav === "arrows" || nav === "both" ? `<button type="button" class="lb-loop-arrow lb-loop-prev" tabindex="-1" data-lb-loop-move="${app.esc(n.id)}" data-lb-loop-dir="-1" aria-label="${app.esc(app.t("Previous slide"))}">&lsaquo;</button><button type="button" class="lb-loop-arrow lb-loop-next" tabindex="-1" data-lb-loop-move="${app.esc(n.id)}" data-lb-loop-dir="1" aria-label="${app.esc(app.t("Next slide"))}">&rsaquo;</button>` : "";
         return `<div class="lb-loop lb-loop-carousel${equal}" data-lb-loop-carousel="1" data-show="${show}" data-scroll="1" data-index="0" style="--lb-loop-show:${show}">
 				<div class="lb-loop-viewport"><div class="lb-loop-track">${cells}${ghosts}</div></div>${arrows}
-				<div class="lb-loop-meta">${app.esc(app.t("Loop carousel \u2014 arrows slide items here. They do not open the saved page."))}</div>
+				<div class="lb-loop-meta">${app.esc(app.t("Loop carousel — arrows slide items here. They do not open the saved page."))}</div>
 			</div>`;
       }
       return `<div class="lb-loop lb-loop-${layout}${equal}" style="--lb-loop-cols:${cols};--lb-loop-show:${show}">
 			<div class="lb-loop-items">${cells}</div>
-			<div class="lb-loop-meta">${app.esc(app.t("Collection Loop \u2014 items repeat on the frontend"))}</div>
+			<div class="lb-loop-meta">${app.esc(app.t("Collection Loop — items repeat on the frontend"))}</div>
 		</div>`;
     }
     function applyLoopCarousel(root) {
@@ -18522,7 +18514,7 @@
       }
       return `<div class="lb-template-widget">
 			<div class="lb-template-note">${app.esc(app.t("Using saved template: %s", templateLabel(id)))}</div>
-			<div class="lb-loop-meta">${app.esc(app.t("Template \u2014 rendered on the frontend"))}</div>
+			<div class="lb-loop-meta">${app.esc(app.t("Template — rendered on the frontend"))}</div>
 		</div>`;
     }
     const prevBody = app.bodyHTML;
@@ -18602,7 +18594,7 @@
       effect = p ? p.label : effect;
     }
     const trigger = cat.triggers[item.trigger] || item.trigger || "viewport";
-    return kind + " \xB7 " + effect + " \xB7 " + trigger || "Item " + (index + 1);
+    return kind + " · " + effect + " · " + trigger || "Item " + (index + 1);
   }
   function fxPreviewClasses(item) {
     const kind = item.kind || "entrance";
@@ -18683,7 +18675,7 @@
         }
         body += `<button type="button" class="lb-btn lb-fx-preview-btn" data-fx-preview="${i}">${app.esc(t2("Preview"))}</button>`;
       }
-      return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-fx-id="${app.esc(id)}" data-fx-index="${i}"><div class="lb-repeater-head"><span class="lb-repeater-handle" aria-hidden="true">\u22EE\u22EE</span><button type="button" class="lb-repeater-toggle lb-fx-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(fxTitle(item, i))}</button><button type="button" class="lb-repeater-dup lb-fx-dup" title="${app.esc(t2("Duplicate"))}">\u29C9</button><button type="button" class="lb-repeater-del lb-fx-del" title="${app.esc(t2("Remove"))}">\xD7</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
+      return `<div class="lb-repeater-item${isOpen ? " is-open" : ""}" data-fx-id="${app.esc(id)}" data-fx-index="${i}"><div class="lb-repeater-head"><span class="lb-repeater-handle" aria-hidden="true">⋮⋮</span><button type="button" class="lb-repeater-toggle lb-fx-toggle" aria-expanded="${isOpen ? "true" : "false"}">${app.esc(fxTitle(item, i))}</button><button type="button" class="lb-repeater-dup lb-fx-dup" title="${app.esc(t2("Duplicate"))}">⧉</button><button type="button" class="lb-repeater-del lb-fx-del" title="${app.esc(t2("Remove"))}">×</button></div>${isOpen ? `<div class="lb-repeater-body">${body}</div>` : ""}</div>`;
     }).join("");
     return app.lb09Section(t2("Interactions"), `<div class="lb-fx-panel" data-fx-panel="1"><div class="lb-repeater-items">${rows || `<div class="lb-repeater-empty">${app.esc(t2("No motion effects yet"))}</div>`}</div><button type="button" class="lb-btn lb-fx-add">+ ${app.esc(t2("Add interaction"))}</button><p class="lb-control-desc">${app.esc(t2("Respects the visitor reduced-motion preference. Use Preview to play the effect in the canvas."))}</p></div>`, true);
   }
@@ -18696,7 +18688,7 @@
 		<input type="number" step="1" value="${app.esc(f.y ?? 0)}" data-fx-kf-field="y" title="Y">
 		<input type="number" min="0" max="5" step="0.05" value="${app.esc(f.scale ?? 1)}" data-fx-kf-field="scale" title="${app.esc(t2("Scale"))}">
 		<input type="number" step="1" value="${app.esc(f.rotate ?? 0)}" data-fx-kf-field="rotate" title="${app.esc(t2("Rotate"))}">
-		<button type="button" class="lb-fx-kf-del" title="${app.esc(t2("Remove"))}">\xD7</button>
+		<button type="button" class="lb-fx-kf-del" title="${app.esc(t2("Remove"))}">×</button>
 	</div>`).join("");
     return `<div class="lb-control lb-fx-keyframes"><span>${app.esc(t2("Keyframes"))}</span><div class="lb-fx-kf-head"><span>%</span><span>${app.esc(t2("Opacity"))}</span><span>X</span><span>Y</span><span>${app.esc(t2("Scale"))}</span><span>${app.esc(t2("Rotate"))}</span><span></span></div>${rows}<button type="button" class="lb-btn lb-fx-kf-add" data-fx-index="${index}">+ ${app.esc(t2("Add keyframe"))}</button></div>`;
   }
@@ -19149,7 +19141,7 @@
       return `<article class="lb-template-card" data-tpl-card="${i.id}" data-tpl-type="${app.esc(i.type || "page")}" data-tpl-search="${app.esc((i.title || "") + " " + (i.type || "") + " " + cats)}">
 			<div class="lb-template-thumb">${thumb}</div>
 			<strong>${app.esc(i.title)}</strong>
-			<small>${app.esc(app.templateTypeLabel(i.type))}${cats ? " \xB7 " + app.esc(cats) : ""} \xB7 ${count} ${app.t("root unit(s)")}</small>
+			<small>${app.esc(app.templateTypeLabel(i.type))}${cats ? " · " + app.esc(cats) : ""} · ${count} ${app.t("root unit(s)")}</small>
 			<div class="lb-template-card-actions">
 				<button class="lb-btn" data-template-id="${i.id}">${app.t("Insert")}</button>
 				<button class="lb-btn" data-tpl-export="${i.id}">${app.t("Export")}</button>
@@ -19165,7 +19157,7 @@
         const types = ["", ...Object.keys(app.templateTypes())];
         const typeFilter = types.map((k) => `<button type="button" class="lb-chip ${k === "" ? "active" : ""}" data-tpl-filter="${app.esc(k)}">${app.esc(k ? app.templateTypeLabel(k) : app.t("All"))}</button>`).join("");
         const body = `<div class="lb-template-toolbar">
-				<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates\u2026")}">
+				<input class="lb-modal-search" id="lb-template-search" placeholder="${app.t("Search templates…")}">
 				<div class="lb-template-filters">${typeFilter}</div>
 				<div class="lb-template-toolbar-actions">
 					<button type="button" class="lb-btn" id="lb-tpl-import">${app.t("Import")}</button>
@@ -19631,15 +19623,11 @@
       if (def && def.map && Object.prototype.hasOwnProperty.call(def.map, str)) css = String(def.map[str]);
       return { VALUE: css, RAW: str, SIZE: size, UNIT: unit };
     }
-    // The canvas renders many units with inline style="color:..;background:.." on the inner
-    // element (button link, heading tag, text box). Inline styles beat any :hover rule in a
-    // stylesheet, so Hover colors never showed in the editor. Mark hover/focus declarations
-    // !important here (canvas only; the front end has no inline colors to fight).
     function hoverImportant(rule) {
       return rule.split(";").map(function(d) {
-        const t = d.trim();
-        if (!t || t.indexOf(":") < 1 || /^--/.test(t) || /!important\s*$/i.test(t)) return t;
-        return t + " !important";
+        const t3 = d.trim();
+        if (!t3 || t3.indexOf(":") < 1 || /^--/.test(t3) || /!important\s*$/i.test(t3)) return t3;
+        return t3 + " !important";
       }).filter(Boolean).join(";") + ";";
     }
     function rules(def, raw, wrapper) {
@@ -19792,19 +19780,15 @@
       };
     }
   }
-
-  // Effects sections: "Reset to Default" button in every widget's settings panel.
-  // Wraps app.lb09Section (the single source of <details class="lb-control-section">),
-  // so it covers schema units, legacy units, containers and grids alike.
   function installEffectsReset() {
     if (app.__lbEffectsReset) return;
     app.__lbEffectsReset = true;
     const TITLES = ["Effects", "Motion Effects", "Layout & Effects", "Border & Effects", "Transform"];
     const isEffectsTitle = (title) => {
-      const t = String(title || "").trim();
-      if (!t) return false;
-      if (/effects/i.test(t)) return true;
-      return TITLES.some((x) => t === x || t === app.t(x));
+      const t3 = String(title || "").trim();
+      if (!t3) return false;
+      if (/effects/i.test(t3)) return true;
+      return TITLES.some((x) => t3 === x || t3 === app.t(x));
     };
     const clone = (v) => v === void 0 ? void 0 : JSON.parse(JSON.stringify(v));
     const same = (a, b) => JSON.stringify(a === void 0 ? null : a) === JSON.stringify(b === void 0 ? null : b);
@@ -19906,8 +19890,8 @@
       if (app.lbResetSection(keys)) {
         const root = app.root || document;
         root.querySelectorAll("details.lb-control-section > summary").forEach((s) => {
-          const t = s.firstChild && s.firstChild.nodeType === 3 ? s.firstChild.textContent.trim() : "";
-          if (titleText && t === titleText && s.querySelector(".lb-section-reset-btn")) s.parentElement.open = true;
+          const t3 = s.firstChild && s.firstChild.nodeType === 3 ? s.firstChild.textContent.trim() : "";
+          if (titleText && t3 === titleText && s.querySelector(".lb-section-reset-btn")) s.parentElement.open = true;
         });
       }
       app.lbRefreshResetButtons();
@@ -19932,8 +19916,6 @@
 
   // src/editor/index.js
   installHooks();
-  // Image Carousel: live canvas preview. Mirrors assets/js/frontend.js so the canvas is
-  // WYSIWYG: arrows, dots, autoplay, slide/fade effect, speed, loop and RTL all work here.
   function installImageCarouselPreview() {
     const memory = app.lbCarouselMemory || (app.lbCarouselMemory = {});
     const int = (v, min, max, d) => {
@@ -19965,9 +19947,9 @@
         if (fade) {
           slides.forEach((s, k) => s.classList.toggle("is-active", k === page));
         } else if (track) {
-          const start = Math.min(page * step, Math.max(0, slides.length - show));
+          const start2 = Math.min(page * step, Math.max(0, slides.length - show));
           const w = slides[0].getBoundingClientRect().width + gap();
-          track.style.transform = "translateX(" + (rtl ? start * w : -start * w) + "px)";
+          track.style.transform = "translateX(" + (rtl ? start2 * w : -start2 * w) + "px)";
         }
         dots.forEach((d, k) => d.classList.toggle("is-active", k === page));
         if (prev) prev.disabled = !loop && page === 0;
@@ -19996,18 +19978,30 @@
         if (c.dataset.autoplay !== "1" || pages < 2 || reduce) return;
         timer = win.setInterval(() => {
           if (!c.isConnected) return stop();
-          // In the editor, autoplay always rests while the pointer is over the carousel so it can be edited.
           if (hover || win.document.hidden) return;
           if (!loop && page >= pages - 1) return stop();
           go(page + 1);
         }, int(c.dataset.interval, 500, 6e4, 5e3));
       }
-      c.addEventListener("mouseenter", () => { hover = true; });
-      c.addEventListener("mouseleave", () => { hover = false; });
+      c.addEventListener("mouseenter", () => {
+        hover = true;
+      });
+      c.addEventListener("mouseleave", () => {
+        hover = false;
+      });
       const ctl = {
-        prev: () => { rtl ? go(page + 1) : go(page - 1); if (c.dataset.pauseInteraction === "1") stop(); },
-        next: () => { rtl ? go(page - 1) : go(page + 1); if (c.dataset.pauseInteraction === "1") stop(); },
-        to: (n) => { go(n); if (c.dataset.pauseInteraction === "1") stop(); },
+        prev: () => {
+          rtl ? go(page + 1) : go(page - 1);
+          if (c.dataset.pauseInteraction === "1") stop();
+        },
+        next: () => {
+          rtl ? go(page - 1) : go(page + 1);
+          if (c.dataset.pauseInteraction === "1") stop();
+        },
+        to: (n) => {
+          go(n);
+          if (c.dataset.pauseInteraction === "1") stop();
+        },
         relayout: () => apply(false),
         stop
       };
@@ -20018,18 +20012,24 @@
     function initAll(fd) {
       if (!fd || !fd.body) return;
       fd.querySelectorAll(".lb-node-carousel .lb-carousel[data-lb-carousel]").forEach((c) => {
-        if (!c.__lbCanvasCarousel) c.__lbCanvasCarousel = controller(c) || { relayout() {}, stop() {} };
+        if (!c.__lbCanvasCarousel) c.__lbCanvasCarousel = controller(c) || { relayout() {
+        }, stop() {
+        } };
       });
       const win = fd.defaultView;
       if (!win || win.__lbCarouselBound) return;
       win.__lbCarouselBound = true;
-      // Window-level capture runs before the editor's document-level selection handlers.
       const hit = (e) => {
-        const t = e.target && e.target.closest ? e.target.closest(".lb-carousel-prev,.lb-carousel-next,.lb-carousel-dots button") : null;
-        const c = t && t.closest(".lb-node-carousel .lb-carousel[data-lb-carousel]");
-        return c && c.__lbCanvasCarousel && c.__lbCanvasCarousel.to ? { t, c } : null;
+        const t3 = e.target && e.target.closest ? e.target.closest(".lb-carousel-prev,.lb-carousel-next,.lb-carousel-dots button") : null;
+        const c = t3 && t3.closest(".lb-node-carousel .lb-carousel[data-lb-carousel]");
+        return c && c.__lbCanvasCarousel && c.__lbCanvasCarousel.to ? { t: t3, c } : null;
       };
-      win.addEventListener("mousedown", (e) => { if (hit(e)) { e.preventDefault(); e.stopPropagation(); } }, true);
+      win.addEventListener("mousedown", (e) => {
+        if (hit(e)) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }, true);
       win.addEventListener("click", (e) => {
         const h = hit(e);
         if (!h) return;
@@ -20044,16 +20044,17 @@
       win.addEventListener("resize", () => {
         fd.querySelectorAll(".lb-node-carousel .lb-carousel[data-lb-carousel]").forEach((c) => c.__lbCanvasCarousel && c.__lbCanvasCarousel.relayout());
       });
-      // Re-renders replace nodes without always calling bindFrame; watch for new carousels.
       if (win.MutationObserver) {
         let queued = false;
         new win.MutationObserver(() => {
           if (queued) return;
           queued = true;
-          win.requestAnimationFrame(() => { queued = false; initAll(fd); });
+          win.requestAnimationFrame(() => {
+            queued = false;
+            initAll(fd);
+          });
         }).observe(fd.body, { childList: true, subtree: true });
       }
-      // Images that finish loading change slide width; re-measure the slide offset.
       fd.addEventListener("load", (e) => {
         const c = e.target && e.target.closest && e.target.closest(".lb-node-carousel .lb-carousel[data-lb-carousel]");
         if (c && c.__lbCanvasCarousel) c.__lbCanvasCarousel.relayout();
@@ -20062,14 +20063,16 @@
     const prevBind = app.bindFrame;
     app.bindFrame = function bindFrame() {
       const out = typeof prevBind === "function" ? prevBind.apply(this, arguments) : void 0;
-      try { initAll(app.frameDoc()); } catch (err) { if (window.console) console.error("[Canvasly] carousel preview", err); }
+      try {
+        initAll(app.frameDoc());
+      } catch (err) {
+        if (window.console) console.error("[Canvasly] carousel preview", err);
+      }
       return out;
     };
   }
+
   // src/editor/color-picker.js
-  // Elementor-style colour picker. Replaces the browser / OS colour dialog (the Windows one has the
-  // "Define Custom Colors >>" button) for every <input type="color"> in the editor UI. Accepts and
-  // keeps HEX, HEXA, RGB(A), HSL(A) and CSS named colours, with an opacity slider.
   function installColorPicker() {
     const NATIVE = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
     const PRESETS = ["#000000", "#ffffff", "#6ec1e4", "#54595f", "#7a7a7a", "#61ce70", "#4054b2", "#23a455", "#e74c3c", "#f39c12", "#f1c40f", "#8e44ad", "transparent"];
@@ -20080,7 +20083,6 @@
       const p = Math.pow(10, d || 0);
       return Math.round(n * p) / p;
     };
-    /** Parse any CSS colour the browser understands into {r,g,b,a}; null when invalid. */
     function parse(str) {
       const s = String(str == null ? "" : str).trim();
       if (!s) return null;
@@ -20161,7 +20163,6 @@
       };
       return { r: f(5) * 255, g: f(3) * 255, b: f(1) * 255 };
     }
-    /** Full colour string behind a color input (the native value only holds #rrggbb). */
     function fullValue(input) {
       if (input.__lbFull !== void 0) return input.__lbFull;
       const cand = input.dataset.lbColor != null ? input.dataset.lbColor : input.getAttribute("value");
@@ -20169,7 +20170,6 @@
       if (input.dataset.lbColor === "" || input.dataset.tsEmpty === "1" || input.dataset.kitEmpty === "1") return "";
       return NATIVE.get.call(input);
     }
-    /** Make `input.value` carry the full colour string so existing handlers store rgba()/hsl()/names as typed. */
     function prep(input) {
       if (!input || input.__lbColorPrep || input.type !== "color") return;
       const start = fullValue(input);

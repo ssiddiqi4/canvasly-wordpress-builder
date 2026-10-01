@@ -37,7 +37,7 @@ echo "WordPress $(wp core version)"
 
 # Copy the plugin in the way a release zip would ship it.
 mkdir -p "wp-content/plugins/$SLUG"
-tar -C "$PLUGIN_SRC" --exclude=.git --exclude=.github -cf - . | tar -C "wp-content/plugins/$SLUG" -xf -
+tar -C "$PLUGIN_SRC" --exclude-from="$PLUGIN_SRC/.distignore" -cf - . | tar -C "wp-content/plugins/$SLUG" -xf -
 
 LOG="wp-content/debug.log"
 : > "$LOG"
