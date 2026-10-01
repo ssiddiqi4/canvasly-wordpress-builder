@@ -1,15 +1,15 @@
 <?php
-namespace SidcraftSyntex\Admin;
+namespace SidcraftPageBuilder\Admin;
 
-use SidcraftSyntex\Document\Documents;
-use SidcraftSyntex\Settings\Roles;
+use SidcraftPageBuilder\Document\Documents;
+use SidcraftPageBuilder\Settings\Roles;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Admin-bar "Edit with Sidcraft Syntex" node on the frontend and back end (Roadmap 7.6).
+ * Admin-bar "Edit with Sidcraft Page Builder" node on the frontend and back end (Roadmap 7.6).
  *
  * Boots even on native Gutenberg screens, where the rest of the plugin does not.
  */
@@ -21,8 +21,8 @@ class AdminBar {
 			return;
 		}
 		self::$booted = true;
-		if ( ! class_exists( Roles::class, false ) && defined( 'SIDCRAFT_SYNTEX_PATH' ) ) {
-			$file = SIDCRAFT_SYNTEX_PATH . 'includes/settings/class-roles.php';
+		if ( ! class_exists( Roles::class, false ) && defined( 'SIDCRAFT_PAGE_BUILDER_PATH' ) ) {
+			$file = SIDCRAFT_PAGE_BUILDER_PATH . 'includes/settings/class-roles.php';
 			if ( is_readable( $file ) ) {
 				require_once $file;
 			}
@@ -55,7 +55,7 @@ class AdminBar {
 		 *
 		 * @param array $node
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/admin_bar/node', $node );
+		$filtered = apply_filters( 'sidcraft-page-builder/admin_bar/node', $node );
 		if ( ! is_array( $filtered ) || empty( $filtered['id'] ) ) {
 			return;
 		}
@@ -72,9 +72,9 @@ class AdminBar {
 		if ( ! $ctx ) {
 			return null;
 		}
-		$label = __( 'Edit with Sidcraft Syntex', 'sidcraft-syntex' );
+		$label = __( 'Edit with Sidcraft Page Builder', 'sidcraft-page-builder' );
 		return array(
-			'id'    => 'sidcraft-syntex-edit',
+			'id'    => 'sidcraft-page-builder-edit',
 			'title' => $label,
 			'href'  => $ctx['url'],
 			'meta'  => array(
@@ -122,7 +122,7 @@ class AdminBar {
 		 * @param array $ctx
 		 * @param object $post
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/admin_bar/context', $ctx, $post );
+		$filtered = apply_filters( 'sidcraft-page-builder/admin_bar/context', $ctx, $post );
 		if ( ! is_array( $filtered ) || empty( $filtered['id'] ) || empty( $filtered['url'] ) ) {
 			return null;
 		}
@@ -160,7 +160,7 @@ class AdminBar {
 		 * @param bool   $ok
 		 * @param string $post_type
 		 */
-		return (bool) apply_filters( 'sidcraft-syntex/admin_bar/supports', $ok, $post_type );
+		return (bool) apply_filters( 'sidcraft-page-builder/admin_bar/supports', $ok, $post_type );
 	}
 
 	/**
@@ -170,15 +170,15 @@ class AdminBar {
 	public static function editor_url( $post_id ) {
 		$post_id = absint( $post_id );
 		$url     = function_exists( 'admin_url' )
-			? admin_url( 'admin.php?page=sidcraft-syntex&post_id=' . $post_id )
-			: 'admin.php?page=sidcraft-syntex&post_id=' . $post_id;
+			? admin_url( 'admin.php?page=sidcraft-page-builder&post_id=' . $post_id )
+			: 'admin.php?page=sidcraft-page-builder&post_id=' . $post_id;
 		/**
 		 * Filter the admin-bar editor URL.
 		 *
 		 * @param string $url
 		 * @param int    $post_id
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/admin_bar/editor_url', $url, $post_id );
+		$filtered = apply_filters( 'sidcraft-page-builder/admin_bar/editor_url', $url, $post_id );
 		return is_string( $filtered ) ? $filtered : $url;
 	}
 
@@ -223,12 +223,12 @@ class AdminBar {
 	 */
 	public static function is_builder_screen() {
 		$page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $page === 'sidcraft-syntex' ) {
+		if ( $page === 'sidcraft-page-builder' ) {
 			return true;
 		}
 		if ( function_exists( 'get_current_screen' ) ) {
 			$screen = get_current_screen();
-			if ( is_object( $screen ) && isset( $screen->id ) && $screen->id === 'toplevel_page_sidcraft-syntex' ) {
+			if ( is_object( $screen ) && isset( $screen->id ) && $screen->id === 'toplevel_page_sidcraft-page-builder' ) {
 				return true;
 			}
 		}

@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Design;
+namespace SidcraftPageBuilder\Design;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -145,7 +145,7 @@ class Collaboration {
 	}
 
 	/**
-	 * Heartbeat payload `sidcraft-syntex-lock`: `{post_id, takeover}`.
+	 * Heartbeat payload `sidcraft-page-builder-lock`: `{post_id, takeover}`.
 	 *
 	 * @param array $response
 	 * @param array $data
@@ -154,18 +154,18 @@ class Collaboration {
 	public static function on_heartbeat( $response, $data ) {
 		$response = is_array( $response ) ? $response : array();
 		$data     = is_array( $data ) ? $data : array();
-		if ( empty( $data['sidcraft-syntex-lock'] ) || ! is_array( $data['sidcraft-syntex-lock'] ) ) {
+		if ( empty( $data['sidcraft-page-builder-lock'] ) || ! is_array( $data['sidcraft-page-builder-lock'] ) ) {
 			return $response;
 		}
-		$post_id  = absint( $data['sidcraft-syntex-lock']['post_id'] ?? 0 );
-		$takeover = ! empty( $data['sidcraft-syntex-lock']['takeover'] );
+		$post_id  = absint( $data['sidcraft-page-builder-lock']['post_id'] ?? 0 );
+		$takeover = ! empty( $data['sidcraft-page-builder-lock']['takeover'] );
 		if ( ! $post_id ) {
 			return $response;
 		}
 		if ( function_exists( 'current_user_can' ) && ! current_user_can( 'edit_post', $post_id ) ) {
 			return $response;
 		}
-		$response['sidcraft-syntex-lock'] = self::heartbeat( $post_id, $takeover );
+		$response['sidcraft-page-builder-lock'] = self::heartbeat( $post_id, $takeover );
 		return $response;
 	}
 

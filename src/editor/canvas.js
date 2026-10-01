@@ -235,7 +235,7 @@ function installCanvas() {
       const pid = "lb-tp-" + String(n.id || "x").replace(/[^a-zA-Z0-9_-]/g, "");
       const guide = s.show_path ? "" : ' stroke="none"';
       const speed = Math.max(5, app.lbTextPathSeconds(s.speed));
-      return `<div class="lb-text-path lb-text-path-${kind}" data-lb-speed="${speed}" style="${st};--lb-speed:${speed}s"><svg viewBox="0 0 1000 160" overflow="visible" role="img"><path id="${pid}" class="lb-text-path-guide" d="${d}" fill="none"${guide}></path><text visibility="hidden" style="${st}"><textPath href="#${pid}" startOffset="0">${app.esc(s.text || "Sidcraft Syntex")}</textPath></text></svg></div>`;
+      return `<div class="lb-text-path lb-text-path-${kind}" data-lb-speed="${speed}" style="${st};--lb-speed:${speed}s"><svg viewBox="0 0 1000 160" overflow="visible" role="img"><path id="${pid}" class="lb-text-path-guide" d="${d}" fill="none"${guide}></path><text visibility="hidden" style="${st}"><textPath href="#${pid}" startOffset="0">${app.esc(s.text || "Sidcraft Page Builder")}</textPath></text></svg></div>`;
     }
     if (n.type === "code") return `<pre class="lb-code"><code>${app.esc(s.code || "")}</code></pre>`;
     if (n.type === "price_table")

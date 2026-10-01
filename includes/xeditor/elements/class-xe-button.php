@@ -2,10 +2,10 @@
 /**
  * XEditor Button: <a> when a link is set, otherwise <button type="button">.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\XEditor\Elements;
+namespace SidcraftPageBuilder\XEditor\Elements;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,7 +19,7 @@ class XeButton extends XEditorElement {
 	}
 
 	public function title() {
-		return __( 'Button', 'sidcraft-syntex' ) . ' (XEditor)';
+		return __( 'Button', 'sidcraft-page-builder' ) . ' (XEditor)';
 	}
 
 	public function icon() {
@@ -36,7 +36,7 @@ class XeButton extends XEditorElement {
 
 	public function defaults() {
 		return array(
-			'text'     => __( 'Click here', 'sidcraft-syntex' ),
+			'text'     => __( 'Click here', 'sidcraft-page-builder' ),
 			'link'     => '',
 			'new_tab'  => false,
 			'nofollow' => false,
@@ -44,12 +44,12 @@ class XeButton extends XEditorElement {
 	}
 
 	protected function own_controls() {
-		$sec = __( 'Button', 'sidcraft-syntex' );
+		$sec = __( 'Button', 'sidcraft-page-builder' );
 		return array(
-			'text'     => $this->ctrl( 'text', __( 'Text', 'sidcraft-syntex' ), 'content', $sec, array( 'dynamic' => true ) ),
-			'link'     => $this->ctrl( 'url', __( 'Link', 'sidcraft-syntex' ), 'content', $sec, array( 'dynamic' => true, 'placeholder' => 'https:// or {{post.url}}', 'description' => __( 'Without a link the element prints a <button> for scripts and interactions.', 'sidcraft-syntex' ) ) ),
-			'new_tab'  => $this->ctrl( 'switch', __( 'Open in new tab', 'sidcraft-syntex' ), 'content', $sec ),
-			'nofollow' => $this->ctrl( 'switch', __( 'Add nofollow', 'sidcraft-syntex' ), 'content', $sec ),
+			'text'     => $this->ctrl( 'text', __( 'Text', 'sidcraft-page-builder' ), 'content', $sec, array( 'dynamic' => true ) ),
+			'link'     => $this->ctrl( 'url', __( 'Link', 'sidcraft-page-builder' ), 'content', $sec, array( 'dynamic' => true, 'placeholder' => 'https:// or {{post.url}}', 'description' => __( 'Without a link the element prints a <button> for scripts and interactions.', 'sidcraft-page-builder' ) ) ),
+			'new_tab'  => $this->ctrl( 'switch', __( 'Open in new tab', 'sidcraft-page-builder' ), 'content', $sec ),
+			'nofollow' => $this->ctrl( 'switch', __( 'Add nofollow', 'sidcraft-page-builder' ), 'content', $sec ),
 		) + $this->typography_controls();
 	}
 

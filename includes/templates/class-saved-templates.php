@@ -1,9 +1,9 @@
 <?php
-namespace SidcraftSyntex\Templates;
+namespace SidcraftPageBuilder\Templates;
 
-use SidcraftSyntex\Document\DocumentManager;
-use SidcraftSyntex\Rendering\FrontendRenderer;
-use SidcraftSyntex\Rendering\OutputEscape;
+use SidcraftPageBuilder\Document\DocumentManager;
+use SidcraftPageBuilder\Rendering\FrontendRenderer;
+use SidcraftPageBuilder\Rendering\OutputEscape;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -18,10 +18,10 @@ class SavedTemplates {
 	const META_DATA = '_sidsyn_template_data';
 	const META_TYPE = '_sidsyn_template_type';
 	const META_KEY  = '_sidsyn_template_key';
-	const NOTICE    = 'sidcraft_syntex_template_notice';
+	const NOTICE    = 'sidcraft_page_builder_template_notice';
 
 	public static function init() {
-		add_shortcode( 'sidcraft_syntex_template', array( self::class, 'shortcode' ) );
+		add_shortcode( 'sidcraft_page_builder_template', array( self::class, 'shortcode' ) );
 		if ( function_exists( 'is_admin' ) && ! is_admin() ) {
 			return;
 		}
@@ -47,18 +47,18 @@ class SavedTemplates {
 
 	public static function register() {
 		$labels = array(
-			'name'               => __( 'Saved Templates', 'sidcraft-syntex' ),
-			'singular_name'      => __( 'Template', 'sidcraft-syntex' ),
-			'add_new'            => __( 'Add Template', 'sidcraft-syntex' ),
-			'add_new_item'       => __( 'Add Template', 'sidcraft-syntex' ),
-			'edit_item'          => __( 'Edit Template', 'sidcraft-syntex' ),
-			'new_item'           => __( 'New Template', 'sidcraft-syntex' ),
-			'view_item'          => __( 'View Template', 'sidcraft-syntex' ),
-			'search_items'       => __( 'Search Templates', 'sidcraft-syntex' ),
-			'not_found'          => __( 'No templates found.', 'sidcraft-syntex' ),
-			'not_found_in_trash' => __( 'No templates found in Trash.', 'sidcraft-syntex' ),
-			'all_items'          => __( 'Saved Templates', 'sidcraft-syntex' ),
-			'menu_name'          => __( 'Saved Templates', 'sidcraft-syntex' ),
+			'name'               => __( 'Saved Templates', 'sidcraft-page-builder' ),
+			'singular_name'      => __( 'Template', 'sidcraft-page-builder' ),
+			'add_new'            => __( 'Add Template', 'sidcraft-page-builder' ),
+			'add_new_item'       => __( 'Add Template', 'sidcraft-page-builder' ),
+			'edit_item'          => __( 'Edit Template', 'sidcraft-page-builder' ),
+			'new_item'           => __( 'New Template', 'sidcraft-page-builder' ),
+			'view_item'          => __( 'View Template', 'sidcraft-page-builder' ),
+			'search_items'       => __( 'Search Templates', 'sidcraft-page-builder' ),
+			'not_found'          => __( 'No templates found.', 'sidcraft-page-builder' ),
+			'not_found_in_trash' => __( 'No templates found in Trash.', 'sidcraft-page-builder' ),
+			'all_items'          => __( 'Saved Templates', 'sidcraft-page-builder' ),
+			'menu_name'          => __( 'Saved Templates', 'sidcraft-page-builder' ),
 		);
 		register_post_type(
 			self::POST_TYPE,
@@ -67,7 +67,7 @@ class SavedTemplates {
 				'public'              => false,
 				'publicly_queryable'  => false,
 				'show_ui'             => true,
-				'show_in_menu'        => 'sidcraft-syntex',
+				'show_in_menu'        => 'sidcraft-page-builder',
 				'show_in_rest'        => false,
 				'exclude_from_search' => true,
 				'capability_type'     => 'page',
@@ -80,15 +80,15 @@ class SavedTemplates {
 		);
 
 		$tax_labels = array(
-			'name'          => __( 'Template Categories', 'sidcraft-syntex' ),
-			'singular_name' => __( 'Template Category', 'sidcraft-syntex' ),
-			'search_items'  => __( 'Search Categories', 'sidcraft-syntex' ),
-			'all_items'     => __( 'All Categories', 'sidcraft-syntex' ),
-			'edit_item'     => __( 'Edit Category', 'sidcraft-syntex' ),
-			'update_item'   => __( 'Update Category', 'sidcraft-syntex' ),
-			'add_new_item'  => __( 'Add Category', 'sidcraft-syntex' ),
-			'new_item_name' => __( 'New Category Name', 'sidcraft-syntex' ),
-			'menu_name'     => __( 'Categories', 'sidcraft-syntex' ),
+			'name'          => __( 'Template Categories', 'sidcraft-page-builder' ),
+			'singular_name' => __( 'Template Category', 'sidcraft-page-builder' ),
+			'search_items'  => __( 'Search Categories', 'sidcraft-page-builder' ),
+			'all_items'     => __( 'All Categories', 'sidcraft-page-builder' ),
+			'edit_item'     => __( 'Edit Category', 'sidcraft-page-builder' ),
+			'update_item'   => __( 'Update Category', 'sidcraft-page-builder' ),
+			'add_new_item'  => __( 'Add Category', 'sidcraft-page-builder' ),
+			'new_item_name' => __( 'New Category Name', 'sidcraft-page-builder' ),
+			'menu_name'     => __( 'Categories', 'sidcraft-page-builder' ),
 		);
 		register_taxonomy(
 			self::TAXONOMY,
@@ -114,22 +114,22 @@ class SavedTemplates {
 	 */
 	public static function types() {
 		$types = array(
-			'page'            => __( 'Page', 'sidcraft-syntex' ),
-			'section'         => __( 'Section', 'sidcraft-syntex' ),
-			'container'       => __( 'Container', 'sidcraft-syntex' ),
-			'header'          => __( 'Header', 'sidcraft-syntex' ),
-			'footer'          => __( 'Footer', 'sidcraft-syntex' ),
-			'single'          => __( 'Single', 'sidcraft-syntex' ),
-			'archive'         => __( 'Archive', 'sidcraft-syntex' ),
-			'loop_item'       => __( 'Loop Item', 'sidcraft-syntex' ),
-			'floating_button' => __( 'Floating Button', 'sidcraft-syntex' ),
+			'page'            => __( 'Page', 'sidcraft-page-builder' ),
+			'section'         => __( 'Section', 'sidcraft-page-builder' ),
+			'container'       => __( 'Container', 'sidcraft-page-builder' ),
+			'header'          => __( 'Header', 'sidcraft-page-builder' ),
+			'footer'          => __( 'Footer', 'sidcraft-page-builder' ),
+			'single'          => __( 'Single', 'sidcraft-page-builder' ),
+			'archive'         => __( 'Archive', 'sidcraft-page-builder' ),
+			'loop_item'       => __( 'Loop Item', 'sidcraft-page-builder' ),
+			'floating_button' => __( 'Floating Button', 'sidcraft-page-builder' ),
 		);
 		/**
 		 * Filter the saved-template type map.
 		 *
 		 * @param array<string,string> $types
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/templates/types', $types );
+		$filtered = apply_filters( 'sidcraft-page-builder/templates/types', $types );
 		return is_array( $filtered ) ? $filtered : $types;
 	}
 
@@ -177,11 +177,11 @@ class SavedTemplates {
 	}
 
 	public static function editor_url( $id ) {
-		return admin_url( 'admin.php?page=sidcraft-syntex&post_id=' . absint( $id ) );
+		return admin_url( 'admin.php?page=sidcraft-page-builder&post_id=' . absint( $id ) );
 	}
 
 	public static function shortcode_for( $id ) {
-		return '[sidcraft_syntex_template id="' . absint( $id ) . '"]';
+		return '[sidcraft_page_builder_template id="' . absint( $id ) . '"]';
 	}
 
 	/**
@@ -191,7 +191,7 @@ class SavedTemplates {
 	 * @return array<string,string>
 	 */
 	public static function select_options( $include_empty = true ) {
-		$opts = $include_empty ? array( '0' => __( 'Select a template', 'sidcraft-syntex' ) ) : array();
+		$opts = $include_empty ? array( '0' => __( 'Select a template', 'sidcraft-page-builder' ) ) : array();
 		foreach ( self::query( array( 'per_page' => 200, 'light' => true ) ) as $item ) {
 			$id = absint( $item['id'] ?? 0 );
 			if ( ! $id ) {
@@ -234,7 +234,7 @@ class SavedTemplates {
 	public static function save_document( $id, $doc ) {
 		$id = absint( $id );
 		if ( ! $id || ! self::is_template( $id ) ) {
-			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-syntex' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-page-builder' ), array( 'status' => 404 ) );
 		}
 		$doc = is_array( $doc ) ? $doc : array();
 		if ( class_exists( DocumentManager::class ) ) {
@@ -259,12 +259,12 @@ class SavedTemplates {
 	 */
 	public static function create( $args ) {
 		if ( ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot manage templates.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot manage templates.', 'sidcraft-page-builder' ), array( 'status' => 403 ) );
 		}
 		$args  = is_array( $args ) ? $args : array();
 		$title = sanitize_text_field( $args['title'] ?? '' );
 		if ( $title === '' ) {
-			$title = __( 'Template', 'sidcraft-syntex' );
+			$title = __( 'Template', 'sidcraft-page-builder' );
 		}
 		$type = self::normalize_type( $args['type'] ?? 'page' );
 		$key  = sanitize_key( $args['key'] ?? '' );
@@ -281,7 +281,7 @@ class SavedTemplates {
 			true
 		);
 		if ( is_wp_error( $id ) || ! $id ) {
-			return $id ? $id : new \WP_Error( 'create_failed', __( 'Could not create the template.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
+			return $id ? $id : new \WP_Error( 'create_failed', __( 'Could not create the template.', 'sidcraft-page-builder' ), array( 'status' => 500 ) );
 		}
 		$id  = absint( $id );
 		$doc = is_array( $args['document'] ?? null ) ? $args['document'] : ( class_exists( DocumentManager::class ) ? DocumentManager::empty() : array( 'version' => '1.0', 'root' => array() ) );
@@ -301,7 +301,7 @@ class SavedTemplates {
 	public static function create_blank( $title = '' ) {
 		return self::create(
 			array(
-				'title' => $title !== '' ? $title : __( 'Untitled Template', 'sidcraft-syntex' ),
+				'title' => $title !== '' ? $title : __( 'Untitled Template', 'sidcraft-page-builder' ),
 				'type'  => 'page',
 			)
 		);
@@ -315,21 +315,21 @@ class SavedTemplates {
 		$id = absint( $id );
 		$p  = function_exists( 'get_post' ) ? get_post( $id ) : null;
 		if ( ! $p || $p->post_type !== self::POST_TYPE ) {
-			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-syntex' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-page-builder' ), array( 'status' => 404 ) );
 		}
 		if ( ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot manage templates.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot manage templates.', 'sidcraft-page-builder' ), array( 'status' => 403 ) );
 		}
 		$new = wp_insert_post(
 			array(
 				'post_type'   => self::POST_TYPE,
 				'post_status' => 'publish',
-				'post_title'  => $p->post_title . ' ' . __( 'Copy', 'sidcraft-syntex' ),
+				'post_title'  => $p->post_title . ' ' . __( 'Copy', 'sidcraft-page-builder' ),
 			),
 			true
 		);
 		if ( is_wp_error( $new ) || ! $new ) {
-			return $new ? $new : new \WP_Error( 'create_failed', __( 'Could not duplicate the template.', 'sidcraft-syntex' ) );
+			return $new ? $new : new \WP_Error( 'create_failed', __( 'Could not duplicate the template.', 'sidcraft-page-builder' ) );
 		}
 		$new = absint( $new );
 		$d   = get_post_meta( $id, self::META_DATA, true );
@@ -387,8 +387,8 @@ class SavedTemplates {
 		if ( ! $light ) {
 			$row['document'] = $doc;
 		}
-		if ( class_exists( '\SidcraftSyntex\Theme\Locations' ) ) {
-			$row = \SidcraftSyntex\Theme\Locations::with_export_locations( $row, $id, is_array( $doc ) ? $doc : array() );
+		if ( class_exists( '\SidcraftPageBuilder\Theme\Locations' ) ) {
+			$row = \SidcraftPageBuilder\Theme\Locations::with_export_locations( $row, $id, is_array( $doc ) ? $doc : array() );
 		}
 		return $row;
 	}
@@ -515,29 +515,29 @@ class SavedTemplates {
 
 	public static function menu() {
 		add_submenu_page(
-			'sidcraft-syntex',
-			__( 'Import Templates', 'sidcraft-syntex' ),
-			__( 'Import Templates', 'sidcraft-syntex' ),
+			'sidcraft-page-builder',
+			__( 'Import Templates', 'sidcraft-page-builder' ),
+			__( 'Import Templates', 'sidcraft-page-builder' ),
 			'edit_pages',
-			'sidcraft-syntex-template-import',
+			'sidcraft-page-builder-template-import',
 			array( self::class, 'import_screen' )
 		);
 	}
 
 	public static function admin_assets( $hook_suffix = '' ) {
-		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::should_enqueue( $hook_suffix ) ) {
+		if ( class_exists( '\\SidcraftPageBuilder\\Admin\\AdminContext' ) && ! \SidcraftPageBuilder\Admin\AdminContext::should_enqueue( $hook_suffix ) ) {
 			return;
 		}
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 		$id     = $screen && isset( $screen->id ) ? (string) $screen->id : (string) $hook_suffix;
-		if ( strpos( $id, self::POST_TYPE ) === false && strpos( $id, 'sidcraft-syntex-template-import' ) === false ) {
+		if ( strpos( $id, self::POST_TYPE ) === false && strpos( $id, 'sidcraft-page-builder-template-import' ) === false ) {
 			return;
 		}
 		wp_enqueue_style(
-			'sidcraft-syntex-admin-templates',
-			SIDCRAFT_SYNTEX_URL . 'assets/css/admin-templates.css',
+			'sidcraft-page-builder-admin-templates',
+			SIDCRAFT_PAGE_BUILDER_URL . 'assets/css/admin-templates.css',
 			array(),
-			defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0'
+			defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '0'
 		);
 	}
 
@@ -567,24 +567,24 @@ class SavedTemplates {
 		$out = array();
 		foreach ( (array) $cols as $key => $label ) {
 			if ( $key === 'title' ) {
-				$out['sidsyn_thumb'] = __( 'Thumbnail', 'sidcraft-syntex' );
+				$out['sidsyn_thumb'] = __( 'Thumbnail', 'sidcraft-page-builder' );
 				$out[ $key ]     = $label;
-				$out['sidsyn_type']  = __( 'Type', 'sidcraft-syntex' );
+				$out['sidsyn_type']  = __( 'Type', 'sidcraft-page-builder' );
 				continue;
 			}
 			if ( $key === 'date' ) {
-				$out['sidsyn_shortcode'] = __( 'Shortcode', 'sidcraft-syntex' );
+				$out['sidsyn_shortcode'] = __( 'Shortcode', 'sidcraft-page-builder' );
 			}
 			$out[ $key ] = $label;
 		}
 		if ( ! isset( $out['sidsyn_thumb'] ) ) {
-			$out = array( 'sidsyn_thumb' => __( 'Thumbnail', 'sidcraft-syntex' ) ) + $out;
+			$out = array( 'sidsyn_thumb' => __( 'Thumbnail', 'sidcraft-page-builder' ) ) + $out;
 		}
 		if ( ! isset( $out['sidsyn_type'] ) ) {
-			$out['sidsyn_type'] = __( 'Type', 'sidcraft-syntex' );
+			$out['sidsyn_type'] = __( 'Type', 'sidcraft-page-builder' );
 		}
 		if ( ! isset( $out['sidsyn_shortcode'] ) ) {
-			$out['sidsyn_shortcode'] = __( 'Shortcode', 'sidcraft-syntex' );
+			$out['sidsyn_shortcode'] = __( 'Shortcode', 'sidcraft-page-builder' );
 		}
 		return $out;
 	}
@@ -625,12 +625,12 @@ class SavedTemplates {
 		$current = isset( $_GET['sidsyn_template_type'] ) ? sanitize_key( wp_unslash( $_GET['sidsyn_template_type'] ) ) : '';
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		echo '<select name="sidsyn_template_type" id="lb-filter-template-type">';
-		echo '<option value="">' . esc_html__( 'All types', 'sidcraft-syntex' ) . '</option>';
+		echo '<option value="">' . esc_html__( 'All types', 'sidcraft-page-builder' ) . '</option>';
 		foreach ( self::types() as $slug => $label ) {
 			echo '<option value="' . esc_attr( $slug ) . '"' . selected( $current, $slug, false ) . '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select> ';
-		echo '<a class="button" href="' . esc_url( self::import_url() ) . '">' . esc_html__( 'Import', 'sidcraft-syntex' ) . '</a>';
+		echo '<a class="button" href="' . esc_url( self::import_url() ) . '">' . esc_html__( 'Import', 'sidcraft-page-builder' ) . '</a>';
 	}
 
 	public static function filter_query( $q ) {
@@ -658,8 +658,8 @@ class SavedTemplates {
 			return $actions;
 		}
 		$id   = (int) $post->ID;
-		$edit = '<a href="' . esc_url( self::editor_url( $id ) ) . '">' . esc_html__( 'Edit with Sidcraft Syntex', 'sidcraft-syntex' ) . '</a>';
-		$exp  = '<a href="' . esc_url( self::export_url( $id ) ) . '">' . esc_html__( 'Export', 'sidcraft-syntex' ) . '</a>';
+		$edit = '<a href="' . esc_url( self::editor_url( $id ) ) . '">' . esc_html__( 'Edit with Sidcraft Page Builder', 'sidcraft-page-builder' ) . '</a>';
+		$exp  = '<a href="' . esc_url( self::export_url( $id ) ) . '">' . esc_html__( 'Export', 'sidcraft-page-builder' ) . '</a>';
 		$out  = array();
 		if ( isset( $actions['edit'] ) ) {
 			$out['edit'] = $actions['edit'];
@@ -675,7 +675,7 @@ class SavedTemplates {
 	}
 
 	public static function bulk_actions( $actions ) {
-		$actions['sidsyn_export'] = __( 'Export', 'sidcraft-syntex' );
+		$actions['sidsyn_export'] = __( 'Export', 'sidcraft-page-builder' );
 		return $actions;
 	}
 
@@ -703,7 +703,7 @@ class SavedTemplates {
 
 	public static function handle_export() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'You cannot export templates.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'You cannot export templates.', 'sidcraft-page-builder' ) );
 		}
 		$id = absint( $_GET['template_id'] ?? $_POST['template_id'] ?? 0 );
 		if ( $id ) {
@@ -719,7 +719,7 @@ class SavedTemplates {
 
 	public static function handle_import() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'You cannot import templates.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'You cannot import templates.', 'sidcraft-page-builder' ) );
 		}
 		check_admin_referer( 'sidsyn_template_import' );
 		$file = array(
@@ -731,11 +731,11 @@ class SavedTemplates {
 			'size'     => isset( $_FILES['template_file']['size'] ) ? absint( $_FILES['template_file']['size'] ) : 0,
 		);
 		if ( $file['tmp_name'] === '' ) {
-			self::store_notice( 'error', __( 'Choose a JSON or ZIP file to import.', 'sidcraft-syntex' ) );
+			self::store_notice( 'error', __( 'Choose a JSON or ZIP file to import.', 'sidcraft-page-builder' ) );
 			wp_safe_redirect( self::import_url() );
 			exit;
 		}
-		$result = class_exists( TemplateIO::class ) ? TemplateIO::import( $file['tmp_name'] ) : new \WP_Error( 'missing', __( 'Importer is unavailable.', 'sidcraft-syntex' ) );
+		$result = class_exists( TemplateIO::class ) ? TemplateIO::import( $file['tmp_name'] ) : new \WP_Error( 'missing', __( 'Importer is unavailable.', 'sidcraft-page-builder' ) );
 		if ( is_wp_error( $result ) ) {
 			self::store_notice( 'error', $result->get_error_message() );
 		} else {
@@ -743,7 +743,7 @@ class SavedTemplates {
 				'success',
 				sprintf(
 					/* translators: 1: templates imported, 2: media items */
-					__( 'Imported %1$d template(s) and %2$d media item(s).', 'sidcraft-syntex' ),
+					__( 'Imported %1$d template(s) and %2$d media item(s).', 'sidcraft-page-builder' ),
 					(int) ( $result['templates'] ?? 0 ),
 					(int) ( $result['media'] ?? 0 )
 				)
@@ -754,31 +754,31 @@ class SavedTemplates {
 	}
 
 	public static function import_url() {
-		return admin_url( 'admin.php?page=sidcraft-syntex-template-import' );
+		return admin_url( 'admin.php?page=sidcraft-page-builder-template-import' );
 	}
 
 	public static function import_screen() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'You cannot import templates.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'You cannot import templates.', 'sidcraft-page-builder' ) );
 		}
-		echo '<div class="wrap"><h1>' . esc_html__( 'Import Templates', 'sidcraft-syntex' ) . '</h1>';
-		echo '<p class="description">' . esc_html__( 'Import Sidcraft Syntex templates from a JSON file or a ZIP that includes media. Remote image URLs are downloaded and remapped.', 'sidcraft-syntex' ) . '</p>';
+		echo '<div class="wrap"><h1>' . esc_html__( 'Import Templates', 'sidcraft-page-builder' ) . '</h1>';
+		echo '<p class="description">' . esc_html__( 'Import Sidcraft Page Builder templates from a JSON file or a ZIP that includes media. Remote image URLs are downloaded and remapped.', 'sidcraft-page-builder' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" enctype="multipart/form-data">';
 		wp_nonce_field( 'sidsyn_template_import' );
 		echo '<input type="hidden" name="action" value="sidsyn_template_import">';
-		echo '<table class="form-table"><tbody><tr><th><label for="lb-template-file">' . esc_html__( 'Template file', 'sidcraft-syntex' ) . '</label></th><td>';
+		echo '<table class="form-table"><tbody><tr><th><label for="lb-template-file">' . esc_html__( 'Template file', 'sidcraft-page-builder' ) . '</label></th><td>';
 		echo '<input id="lb-template-file" type="file" name="template_file" accept=".json,.zip,application/json,application/zip" required>';
-		echo '<p class="description">' . esc_html__( 'Accepts a Sidcraft Syntex template JSON, a multi-template JSON, or a ZIP with templates.json / kit.json and a media folder.', 'sidcraft-syntex' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Accepts a Sidcraft Page Builder template JSON, a multi-template JSON, or a ZIP with templates.json / kit.json and a media folder.', 'sidcraft-page-builder' ) . '</p>';
 		echo '</td></tr></tbody></table>';
-		echo '<p><button class="button button-primary">' . esc_html__( 'Import Templates', 'sidcraft-syntex' ) . '</button> ';
-		echo '<a class="button" href="' . esc_url( admin_url( 'edit.php?post_type=' . self::POST_TYPE ) ) . '">' . esc_html__( 'Back to templates', 'sidcraft-syntex' ) . '</a></p>';
+		echo '<p><button class="button button-primary">' . esc_html__( 'Import Templates', 'sidcraft-page-builder' ) . '</button> ';
+		echo '<a class="button" href="' . esc_url( admin_url( 'edit.php?post_type=' . self::POST_TYPE ) ) . '">' . esc_html__( 'Back to templates', 'sidcraft-page-builder' ) . '</a></p>';
 		echo '</form></div>';
 	}
 
 	public static function metaboxes() {
 		add_meta_box(
 			'lb-template-details',
-			__( 'Template Details', 'sidcraft-syntex' ),
+			__( 'Template Details', 'sidcraft-page-builder' ),
 			array( self::class, 'metabox' ),
 			self::POST_TYPE,
 			'side',
@@ -792,16 +792,16 @@ class SavedTemplates {
 		}
 		wp_nonce_field( 'sidsyn_template_meta', 'sidsyn_template_meta_nonce' );
 		$type = self::normalize_type( get_post_meta( $post->ID, self::META_TYPE, true ) ?: 'page' );
-		echo '<p><label for="lb-template-type"><strong>' . esc_html__( 'Type', 'sidcraft-syntex' ) . '</strong></label></p>';
+		echo '<p><label for="lb-template-type"><strong>' . esc_html__( 'Type', 'sidcraft-page-builder' ) . '</strong></label></p>';
 		echo '<select id="lb-template-type" name="sidsyn_template_type" style="width:100%">';
 		foreach ( self::types() as $slug => $label ) {
 			echo '<option value="' . esc_attr( $slug ) . '"' . selected( $type, $slug, false ) . '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Used by the library, Collection Loop, Template widget, shortcode, and Gutenberg block.', 'sidcraft-syntex' ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Shortcode', 'sidcraft-syntex' ) . '</strong></p>';
+		echo '<p class="description">' . esc_html__( 'Used by the library, Collection Loop, Template widget, shortcode, and Gutenberg block.', 'sidcraft-page-builder' ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Shortcode', 'sidcraft-page-builder' ) . '</strong></p>';
 		echo '<code>' . esc_html( self::shortcode_for( $post->ID ) ) . '</code>';
-		echo '<p><a class="button button-primary" href="' . esc_url( self::editor_url( $post->ID ) ) . '">' . esc_html__( 'Edit with Sidcraft Syntex', 'sidcraft-syntex' ) . '</a></p>';
+		echo '<p><a class="button button-primary" href="' . esc_url( self::editor_url( $post->ID ) ) . '">' . esc_html__( 'Edit with Sidcraft Page Builder', 'sidcraft-page-builder' ) . '</a></p>';
 	}
 
 	public static function save_metabox( $post_id, $post ) {
@@ -851,7 +851,7 @@ class SavedTemplates {
 			return;
 		}
 		$id = (string) ( $screen->id ?? '' );
-		if ( strpos( $id, self::POST_TYPE ) === false && strpos( $id, 'sidcraft-syntex-template-import' ) === false ) {
+		if ( strpos( $id, self::POST_TYPE ) === false && strpos( $id, 'sidcraft-page-builder-template-import' ) === false ) {
 			return;
 		}
 		$n = get_transient( self::NOTICE . '_' . get_current_user_id() );
@@ -864,7 +864,7 @@ class SavedTemplates {
 	}
 
 	/**
-	 * Render `[sidcraft_syntex_template id=""]`. Enqueues CSS/JS for the embedded template.
+	 * Render `[sidcraft_page_builder_template id=""]`. Enqueues CSS/JS for the embedded template.
 	 *
 	 * @param array $atts
 	 * @return string
@@ -891,14 +891,14 @@ class SavedTemplates {
 		$html         = '';
 		if ( class_exists( FrontendRenderer::class ) ) {
 			if ( function_exists( 'wp_enqueue_style' ) ) {
-				wp_enqueue_style( 'sidcraft-syntex-frontend' );
+				wp_enqueue_style( 'sidcraft-page-builder-frontend' );
 			}
-			if ( class_exists( '\\SidcraftSyntex\\Design\\CssPrint' ) ) {
-				\SidcraftSyntex\Design\CssPrint::enqueue_for_document( $id );
+			if ( class_exists( '\\SidcraftPageBuilder\\Design\\CssPrint' ) ) {
+				\SidcraftPageBuilder\Design\CssPrint::enqueue_for_document( $id );
 			} elseif ( class_exists( DocumentManager::class ) ) {
 				$css = DocumentManager::compiled_css( $id );
 				if ( $css && function_exists( 'wp_add_inline_style' ) ) {
-					wp_add_inline_style( 'sidcraft-syntex-frontend', wp_strip_all_tags( $css ) );
+					wp_add_inline_style( 'sidcraft-page-builder-frontend', wp_strip_all_tags( $css ) );
 				}
 			}
 			$html = OutputEscape::render(
@@ -942,7 +942,7 @@ class SavedTemplates {
 		$d     = is_array( $req->get_json_params() ) ? $req->get_json_params() : array();
 		$title = sanitize_text_field( $d['title'] ?? '' );
 		if ( $title === '' ) {
-			return new \WP_Error( 'invalid', __( 'Template title required', 'sidcraft-syntex' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'Template title required', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
 		}
 		$id = self::create(
 			array(
@@ -982,10 +982,10 @@ class SavedTemplates {
 	public static function rest_export( $req ) {
 		$id = absint( $req['id'] ?? 0 );
 		if ( ! $id || ! self::is_template( $id ) ) {
-			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-syntex' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-page-builder' ), array( 'status' => 404 ) );
 		}
 		if ( ! class_exists( TemplateIO::class ) ) {
-			return new \WP_Error( 'missing', __( 'Exporter is unavailable.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'missing', __( 'Exporter is unavailable.', 'sidcraft-page-builder' ), array( 'status' => 500 ) );
 		}
 		return rest_ensure_response( TemplateIO::payload( array( $id ) ) );
 	}
@@ -1001,17 +1001,17 @@ class SavedTemplates {
 		}
 		$ids = array_values( array_filter( array_map( 'absint', (array) $ids ) ) );
 		if ( ! $ids ) {
-			return new \WP_Error( 'invalid', __( 'Select at least one template to export.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'Select at least one template to export.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
 		}
 		if ( ! class_exists( TemplateIO::class ) ) {
-			return new \WP_Error( 'missing', __( 'Exporter is unavailable.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'missing', __( 'Exporter is unavailable.', 'sidcraft-page-builder' ), array( 'status' => 500 ) );
 		}
 		return rest_ensure_response( TemplateIO::payload( $ids ) );
 	}
 
 	public static function rest_import( $req ) {
 		if ( ! class_exists( TemplateIO::class ) ) {
-			return new \WP_Error( 'missing', __( 'Importer is unavailable.', 'sidcraft-syntex' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'missing', __( 'Importer is unavailable.', 'sidcraft-page-builder' ), array( 'status' => 500 ) );
 		}
 		$files = $req->get_file_params();
 		$file  = $files['file'] ?? ( $files['template'] ?? null );
@@ -1021,7 +1021,7 @@ class SavedTemplates {
 		}
 		$d = $req->get_json_params();
 		if ( ! is_array( $d ) ) {
-			return new \WP_Error( 'invalid', __( 'Upload a JSON or ZIP file, or send template JSON.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'Upload a JSON or ZIP file, or send template JSON.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
 		}
 		$r = TemplateIO::import_payload( $d );
 		return is_wp_error( $r ) ? $r : rest_ensure_response( $r );
@@ -1030,10 +1030,10 @@ class SavedTemplates {
 	public static function rest_thumbnail( $req ) {
 		$id = absint( $req['id'] ?? 0 );
 		if ( ! $id || ! self::is_template( $id ) ) {
-			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-syntex' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'not_found', __( 'Template not found', 'sidcraft-page-builder' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $id ) && ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot update this template.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot update this template.', 'sidcraft-page-builder' ), array( 'status' => 403 ) );
 		}
 		$d        = is_array( $req->get_json_params() ) ? $req->get_json_params() : array();
 		$media_id = absint( $d['thumbnail_id'] ?? $d['attachment_id'] ?? 0 );
@@ -1064,7 +1064,7 @@ class SavedTemplates {
 				)
 			);
 		}
-		return new \WP_Error( 'invalid', __( 'Send a thumbnail image or media id.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
+		return new \WP_Error( 'invalid', __( 'Send a thumbnail image or media id.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
 	}
 
 	public static function rest_types() {

@@ -1,11 +1,17 @@
-=== Sidcraft Syntex - Visual Page Builder: full changelog ===
+=== Sidcraft Page Builder: full changelog ===
+= 0.14.0 =
+* Changed: Renamed to Sidcraft Page Builder (slug and text domain sidcraft-page-builder) after the WordPress.org plugin review.
+* Removed: Custom CSS fields on pages and units, and the Global Classes manager. Use XEditor classes instead. Custom CSS saved by earlier versions is no longer printed.
+* Security: The theme header and footer capture no longer forwards visitor cookies. Inline CSS is printed through WordPress's style functions, and rendered pages, template blocks and template shortcodes are escaped with wp_kses before output.
+* Docs: The readme now lists every external service, what it receives and when, and where the editor source and build tools are.
+
 = 0.13.3 =
-* Fixed: With WP-Optimize page caching on, visitors kept seeing the old version of a page after it was saved in Sidcraft Syntex (for example, a newly added Form did not appear). Sidcraft Syntex now clears that page from the WP-Optimize cache on every save, as it already did for WP Super Cache, W3 Total Cache, WP Rocket, LiteSpeed, SiteGround, Breeze and others.
+* Fixed: With WP-Optimize page caching on, visitors kept seeing the old version of a page after it was saved in Sidcraft Page Builder (for example, a newly added Form did not appear). Sidcraft Page Builder now clears that page from the WP-Optimize cache on every save, as it already did for WP Super Cache, W3 Total Cache, WP Rocket, LiteSpeed, SiteGround, Breeze and others.
 
 = 0.13.2 =
 * New: "Require Cloudflare Turnstile" on the Login unit (Security section). The Log In button stays disabled until the visitor completes the Turnstile check, and the login is rejected without a valid token.
 * New: Submit gate for every Turnstile-protected form. The Form unit (Spam protection → Require Cloudflare Turnstile), the Login unit, and the WordPress login and comment forms keep their Submit / Log In button disabled until the check passes, lock it again when the token expires, errors, or is used, and block Enter-key submits while locked.
-* New: Turnstile verification for Sidcraft Syntex login, register and lost-password forms that post to wp-login.php, used by the Login unit and by Sidcraft Syntex Pro's Login & Register unit.
+* New: Turnstile verification for Sidcraft Page Builder login, register and lost-password forms that post to wp-login.php, used by the Login unit and by Sidcraft Page Builder Pro's Login & Register unit.
 * New: Turnstile widgets inside hidden tabs render when the tab opens.
 * Changed: If Settings → Integrations → WordPress forms → Login form is on, the Login unit now shows the Turnstile check automatically so its logins are not rejected.
 * Docs: readme rewritten with the full feature list, Turnstile setup steps and new FAQ entries.
@@ -18,8 +24,8 @@
 * New: XEditor Atomic Elements — Div Block, Flexbox, Grid, Heading, Paragraph, Image and Button. Each prints ONE HTML element on the live page (no wrapper divs); aria-label, role and custom attributes go on that element.
 * New: XEditor Classes & Variables Manager. Variables are global tokens printed as `--xe-var-*` custom properties (colors, fonts, sizes, spacing, per-breakpoint values). Classes are reusable utility presets printed as `.xe-class-*`, with Normal/Hover/Focus/Active states and per-breakpoint values; use `$name` in any value to reference a variable. Class priority is set by the order in the manager.
 * New: Class stacking on every unit (XEditor and classic): add, create or remove classes from the Classes bar at the top of the settings panel. Element "Local Style" values use zero-specificity selectors, so a stacked class always wins.
-* New: XEditor Loop data model (Loop > Loop Layout > Loop Item) with dynamic tokens such as {{post.title}}, {{post.url}}, {{post.featured_image}}, {{term.name}} and {{loop.number}}. Rendering and editor preview come from Sidcraft Syntex Pro; without a Pro license loops are locked in the editor, not rendered, and kept in the page data.
-* New: Cloudflare Turnstile. Sidcraft Syntex → Settings → Integrations: site key, secret key, optional Cloudflare API token (Verify, or Create a Turnstile widget with your Account ID), Cloudflare test keys, default look, and optional protection for all Sidcraft Syntex forms, the WordPress login form and comments. New "Cloudflare Turnstile" unit protects the form in the same container; the Form unit has a new "Spam protection" option. Tokens are verified server-side (Siteverify) and reset after each submission.
+* New: XEditor Loop data model (Loop > Loop Layout > Loop Item) with dynamic tokens such as {{post.title}}, {{post.url}}, {{post.featured_image}}, {{term.name}} and {{loop.number}}. Rendering and editor preview come from Sidcraft Page Builder Pro; without a Pro license loops are locked in the editor, not rendered, and kept in the page data.
+* New: Cloudflare Turnstile. Sidcraft Page Builder → Settings → Integrations: site key, secret key, optional Cloudflare API token (Verify, or Create a Turnstile widget with your Account ID), Cloudflare test keys, default look, and optional protection for all Sidcraft Page Builder forms, the WordPress login form and comments. New "Cloudflare Turnstile" unit protects the form in the same container; the Form unit has a new "Spam protection" option. Tokens are verified server-side (Siteverify) and reset after each submission.
 * Fixed: ARIA Label had no effect on most units because it was printed on a generic wrapper <div>. It is now placed on the unit's link, button, field, form or image; containers and multi-link units get role="group" so the name is announced.
 * Fixed: Form errors now show the server's message (for example a failed security check) instead of a generic error.
 
@@ -30,7 +36,7 @@
 * Changed: Autosave now runs silently in the background. The "An autosave is newer than the last save. Restore it?" browser dialog is gone; when a newer autosave exists, a small bar under the top menu offers Restore or dismiss, and it is not shown when the autosave matches the page or after you dismiss it in that session.
 
 = 0.12.111 =
-* Added: Sidcraft Syntex colour picker for every colour control, replacing the browser / Windows colour dialog (the one with the "Define Custom Colors >>" button). It has a saturation area, hue and opacity sliders, HEX / RGB / HSL format switch, a value box, Global Colors, preset and recent swatches, Clear and Eyedropper.
+* Added: Sidcraft Page Builder colour picker for every colour control, replacing the browser / Windows colour dialog (the one with the "Define Custom Colors >>" button). It has a saturation area, hue and opacity sliders, HEX / RGB / HSL format switch, a value box, Global Colors, preset and recent swatches, Clear and Eyedropper.
 * Added: Colour values can be typed as HEX (#rgb, #rrggbb, #rrggbbaa), rgb()/rgba(), hsl()/hsla() or CSS colour names (tomato, transparent). The value is saved as typed, and Global Colors accept the same formats.
 
 = 0.12.110 =
@@ -54,7 +60,7 @@
 
 = 0.12.105 =
 * Fixed: Site Menu button turned the theme's button colour (for example red) on hover and after a click, instead of keeping its Background colour and switching the text to the Hover colour. Themes that style every button on hover/focus no longer override it, in the editor or on the saved page.
-* Fixed: The same theme override affected other Sidcraft Syntex buttons on hover/focus: Tabs and Nested Tabs titles, the Alert close button, the Video play button, Image Carousel arrows and dots, and Loop Grid arrows and dots. They now keep their own colours.
+* Fixed: The same theme override affected other Sidcraft Page Builder buttons on hover/focus: Tabs and Nested Tabs titles, the Alert close button, the Video play button, Image Carousel arrows and dots, and Loop Grid arrows and dots. They now keep their own colours.
 
 = 0.12.104 =
 * Fixed: Hover colours did not show in the editor canvas for Button, Heading, Text Editor, Price Table and other units. The canvas draws these units with inline colours, which outranked every :hover rule. Hover and focus rules now win in the canvas; the saved page was not affected.
@@ -81,7 +87,7 @@
 
 = 0.12.99 =
 * Fixed: corrupted symbols in the editor. Icons such as the repeater drag handle, duplicate and remove buttons, and the close button on the A11y, Assets, Lock, Breakpoints and other popups showed mojibake (garbled letters instead of the close "x"). The editor bundle had stored these symbols in a double-encoded form. All 30 affected symbols are restored and stored as ASCII-safe escape codes.
-* Fixed: text encoding hardening. Every PHP, JS and CSS file stores symbols as ASCII-safe escape codes or HTML entities, so no layer that guesses the wrong encoding can corrupt them. Canvas and maintenance templates and all Sidcraft Syntex REST responses send an explicit UTF-8 charset. Text shortening uses UTF-8 aware helpers so accented and non-Latin characters are never cut in half. A documentation image that was saved in the wrong encoding is fixed.
+* Fixed: text encoding hardening. Every PHP, JS and CSS file stores symbols as ASCII-safe escape codes or HTML entities, so no layer that guesses the wrong encoding can corrupt them. Canvas and maintenance templates and all Sidcraft Page Builder REST responses send an explicit UTF-8 charset. Text shortening uses UTF-8 aware helpers so accented and non-Latin characters are never cut in half. A documentation image that was saved in the wrong encoding is fixed.
 * Fixed: Image Carousel canvas preview is now WYSIWYG. Arrows, dots, autoplay, the Slide and Fade effects, animation speed, infinite loop and right-to-left direction all work in the editor canvas, just as on the published page. Autoplay pauses while the pointer is over the carousel so it can be edited.
 * Fixed: Image Carousel showed only part of the first image, with the next slide bleeding in. The carousel wrapper used the same CSS class as each slide, so it picked up slide sizing.
 * Fixed: after adding an image to the Image Carousel, the canvas now moves to the new slide so it is visible right away.
@@ -112,13 +118,13 @@
 * Converted Elementor pages open on the canvas. The editor no longer treats a toolbar element as the translator, so canvas sizing keeps running, and the page document is loaded from a JSON block instead of an attribute that large layouts truncate.
 
 = 0.12.80 =
-* Plugin header name matches the readme title: Sidcraft Syntex - Visual Page Builder.
+* Plugin header name matches the readme title: Sidcraft Page Builder.
 
 = 0.12.77 =
 * Styles and scripts load through WordPress enqueue APIs, and only on the screens that use them.
 
 = 0.12.76 =
-* The Sidcraft Syntex dashboard shows the Sidcraft Syntex Pro annual price table when Pro is active.
+* The Sidcraft Page Builder dashboard shows the Sidcraft Page Builder Pro annual price table when Pro is active.
 
 = 0.12.74 =
 * Menu Anchor shows its target on the canvas and scrolls the page to that ID. A sticky header can clear the target with the `--lb-anchor-scroll-offset` custom property.
@@ -133,16 +139,16 @@
 * PHPUnit (wp-env) tests for DocumentManager sanitization/migration, Style CSS output and REST permissions, Playwright editor flows (add, drag, responsive, save, undo, template insert), and a GitHub Actions CI workflow (Roadmap 7.7).
 
 = 0.12.70 =
-* WP-CLI commands (`wp sidcraft-syntex regenerate-css`, `flush-cache`, `replace-url`, `import`, `export`, `convert`) and an admin-bar Edit with Sidcraft Syntex node on the frontend and back end (Roadmap 7.6).
+* WP-CLI commands (`wp sidcraft-page-builder regenerate-css`, `flush-cache`, `replace-url`, `import`, `export`, `convert`) and an admin-bar Edit with Sidcraft Page Builder node on the frontend and back end (Roadmap 7.6).
 
 = 0.12.69 =
-* Versioned upgrade framework (`Upgrades::run()` on plugin version change) with background-batched document migrations, a rotating logger under uploads/sidcraft-syntex/logs, and admin notices for failed upgrades (Roadmap 7.4).
+* Versioned upgrade framework (`Upgrades::run()` on plugin version change) with background-batched document migrations, a rotating logger under uploads/sidcraft-page-builder/logs, and admin notices for failed upgrades (Roadmap 7.4).
 
 = 0.12.68 =
 * Maintenance / Coming Soon mode (saved template, role exclusions, HTTP 503 vs 200), per-user Safe Mode (editor loads without other plugins or the theme), System Info report + download, and plugin version rollback from stored ZIPs (Roadmap 7.3).
 
 = 0.12.67 =
-* Element Manager and Role Manager: enable or disable each element, restrict elements per role, usage counts, and role access of no access / content only / full. Design-system saves use `sidcraft_syntex_design` instead of `manage_options` (Roadmap 7.2).
+* Element Manager and Role Manager: enable or disable each element, restrict elements per role, usage counts, and role access of no access / content only / full. Design-system saves use `sidcraft_page_builder_design` instead of `manage_options` (Roadmap 7.2).
 
 = 0.12.66 =
 * Admin settings screens (General, Integrations, Advanced, Performance, Tools, Features) with a single sanitized settings API, capability checks, REST `/settings`, Maps/reCAPTCHA keys, experiments, and editor iframe loader (Roadmap 7.1).
@@ -151,25 +157,25 @@
 * oEmbed via wp_oembed_get with a host allow-list and transient cache for Video and Audio fallbacks, lone-URL HTML widgets, and a new Embed element (Roadmap 6.5).
 
 = 0.12.64 =
-* Elements declare `scripts()`/`styles()` WordPress handles; the renderer enqueues only assets the page uses. `SidcraftSyntexFrontend.registerHandler(type, fn)` runs for first paint and AJAX-inserted content (Roadmap 6.4).
+* Elements declare `scripts()`/`styles()` WordPress handles; the renderer enqueues only assets the page uses. `SidcraftPageBuilderFrontend.registerHandler(type, fn)` runs for first paint and AJAX-inserted content (Roadmap 6.4).
 
 = 0.12.63 =
 * Element fragment cache for non-dynamic widgets (TTL and invalidation), lazy-loaded background images below the first one, fetchpriority=high on the first image with loading=lazy after, and an optional optimized-markup mode that removes extra node wrappers (Roadmap 6.3).
 
 = 0.12.62 =
-* Weight-aware Google Fonts loading (only used weights and italic styles), a font-display setting, preconnect hints, and optional local font hosting under uploads/sidcraft-syntex/fonts (Roadmap 6.2).
+* Weight-aware Google Fonts loading (only used weights and italic styles), a font-display setting, preconnect hints, and optional local font hosting under uploads/sidcraft-page-builder/fonts (Roadmap 6.2).
 
 = 0.12.61 =
-* External CSS files at uploads/sidcraft-syntex/css (global.css and post-{id}.css) with hash cache busting, a css_print_method setting (external or inline), minification, and a Regenerate CSS tool (Roadmap 6.1).
+* External CSS files at uploads/sidcraft-page-builder/css (global.css and post-{id}.css) with hash cache busting, a css_print_method setting (external or inline), minification, and a Regenerate CSS tool (Roadmap 6.1).
 
 = 0.12.60 =
-* Replace URL tool on Sidcraft Syntex → Tools (document JSON + CSS cache, dry run). WordPress importer/exporter keeps JSON meta valid, and post-duplication plugins copy Sidcraft Syntex document data (Roadmap 5.4).
+* Replace URL tool on Sidcraft Page Builder → Tools (document JSON + CSS cache, dry run). WordPress importer/exporter keeps JSON meta valid, and post-duplication plugins copy Sidcraft Page Builder document data (Roadmap 5.4).
 
 = 0.12.59 =
-* Convert stored layout JSON into Sidcraft Syntex documents: widget mapping table, sections/columns → containers, responsive breakpoint keys, global color binds, dry-run report, and a bulk tool on Sidcraft Syntex → Tools (Roadmap 5.3).
+* Convert stored layout JSON into Sidcraft Page Builder documents: widget mapping table, sections/columns → containers, responsive breakpoint keys, global color binds, dry-run report, and a bulk tool on Sidcraft Page Builder → Tools (Roadmap 5.3).
 
 = 0.12.58 =
-* Template shortcode `[sidcraft_syntex_template id=""]`, Gutenberg block (`sidcraft-syntex/template`) with picker and preview, Template widget, and a WordPress sidebar widget (Roadmap 5.2).
+* Template shortcode `[sidcraft_page_builder_template id=""]`, Gutenberg block (`sidcraft-page-builder/template`) with picker and preview, Template widget, and a WordPress sidebar widget (Roadmap 5.2).
 * Embedded templates enqueue their CSS, fonts and frontend scripts, with recursion protection and scoped selectors.
 
 = 0.12.57 =
@@ -185,7 +191,7 @@
 
 = 0.12.54 =
 * Dynamic tags no longer fatal when `Tag` is missing; the registry loads `class-tag.php` from the same directory.
-* The plugin no longer defines `SIDCRAFT_SYNTEX_DEV_MODE`, so a late `wp-config.php` define is not a PHP 9 error.
+* The plugin no longer defines `SIDCRAFT_PAGE_BUILDER_DEV_MODE`, so a late `wp-config.php` define is not a PHP 9 error.
 
 = 0.12.53 =
 * Dynamic tags framework: extensible registry, per-control toggle with before/after/fallback, built-in post/site/user/archive tags, editor previews and frontend resolution (Roadmap 3.8).
@@ -212,7 +218,7 @@
 
 = 0.12.47 =
 * Site kit export/import: ZIP packages of site settings, design tokens, theme style, classes, components, saved templates and optional pages with media, using merge or replace (Roadmap 2.4).
-* Tools screen under Sidcraft Syntex and a Kit tab in Site Settings. REST endpoints at `/sidcraft-syntex/v1/kit`.
+* Tools screen under Sidcraft Page Builder and a Kit tab in Site Settings. REST endpoints at `/sidcraft-page-builder/v1/kit`.
 
 = 0.12.46 =
 * Site Settings Layout tab: content width, widgets space, page title selector, default template, site identity (WordPress title/tagline/logo/favicon), global lightbox, and site background (Roadmap 2.3).
@@ -223,8 +229,8 @@
 * Color fields in Theme Style can bind to global color tokens.
 
 = 0.12.44 =
-* Custom post type support: an enabled-post-types setting (default Posts and Pages) replaces hard-coded `post`/`page` checks so any public CPT can be edited with Sidcraft Syntex (Roadmap 1.4).
-* "Edit with Sidcraft Syntex" now appears on every enabled post type's list table and in the block editor.
+* Custom post type support: an enabled-post-types setting (default Posts and Pages) replaces hard-coded `post`/`page` checks so any public CPT can be edited with Sidcraft Page Builder (Roadmap 1.4).
+* "Edit with Sidcraft Page Builder" now appears on every enabled post type's list table and in the block editor.
 
 = 0.12.43 =
 * Editor JavaScript is now built from ES modules under `src/editor/` with esbuild (`npm run build`). The bundled `assets/js/editor.js` is still shipped so the plugin runs without Node.
@@ -300,7 +306,7 @@
 
 = 0.10.3 =
 * Fixed Style > Typography > Font Family so the primary control is a native Google Fonts dropdown.
-* Populates the selector from Sidcraft Syntex's bundled Google Fonts catalog without requiring a network request to display the font list.
+* Populates the selector from Sidcraft Page Builder's bundled Google Fonts catalog without requiring a network request to display the font list.
 * Selecting a font updates the document and loads the selected Google Font for the editor preview.
 * Added an explicit editor asset version bump to reduce stale browser/cache loading after upgrades.
 
@@ -313,7 +319,7 @@
 * Added a native WordPress-powered "TinyMCE Text Editor" element.
 * Uses WordPress editor/TinyMCE assets via wp_enqueue_editor() and wp.editor.initialize().
 * Double-clicking the element opens a stable TinyMCE editing dialog; single-click continues to select the element.
-* Rich HTML is stored in the Sidcraft Syntex document and rendered as frontend HTML after WordPress sanitization.
+* Rich HTML is stored in the Sidcraft Page Builder document and rendered as frontend HTML after WordPress sanitization.
 * Added a focused Content panel action, TinyMCE toolbar, and editor lifecycle cleanup.
 
 = 0.11.0 =
@@ -334,16 +340,16 @@
 
 = 0.11.4 =
 * Fixed TinyMCE Text Editor initialization with a native TinyMCE fallback and clearer diagnostics.
-* Added Page > Add New Page workflow that creates a draft and opens it directly in Sidcraft Syntex instead of the WordPress block editor.
+* Added Page > Add New Page workflow that creates a draft and opens it directly in Sidcraft Page Builder instead of the WordPress block editor.
 
 = 0.11.5 =
 * Fixed TinyMCE Text Editor action binding after Settings panel re-renders.
-* Fixed WordPress Dashboard Pages > Add New to open directly in Sidcraft Syntex instead of the block editor.
+* Fixed WordPress Dashboard Pages > Add New to open directly in Sidcraft Page Builder instead of the block editor.
 * Added safe draft-page creation for dashboard page creation.
 
 = 0.11.9 =
-* Isolates native WordPress post/page Gutenberg screens from Sidcraft Syntex runtime hooks.
-* Adds a safe Edit with Sidcraft Syntex launcher after the native editor renders.
+* Isolates native WordPress post/page Gutenberg screens from Sidcraft Page Builder runtime hooks.
+* Adds a safe Edit with Sidcraft Page Builder launcher after the native editor renders.
 
 = 0.8.1 =
 * Core feature-depth and stabilization release.

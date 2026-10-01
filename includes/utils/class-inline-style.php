@@ -8,10 +8,10 @@
  * block with core's own wp_add_inline_style() machinery instead of a
  * hand-built tag.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\Utils;
+namespace SidcraftPageBuilder\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -33,7 +33,7 @@ class InlineStyle {
 	}
 
 	/**
-	 * @param string $handle Unique handle, prefixed with sidcraft-syntex-.
+	 * @param string $handle Unique handle, prefixed with sidcraft-page-builder-.
 	 * @param string $css    Plain CSS.
 	 * @return string The printed <style> block, or '' when there is no CSS.
 	 */

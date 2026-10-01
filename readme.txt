@@ -1,10 +1,10 @@
-=== Sidcraft Syntex - Visual Page Builder ===
+=== Sidcraft Page Builder ===
 Contributors: ssiddiqi4
 Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.13.3
+Stable tag: 0.14.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,9 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 
 == Description ==
 
-**Sidcraft Syntex is a free visual page builder for WordPress.** Build landing pages, home pages, blog layouts and complete websites on a live canvas with drag and drop, nested containers, CSS Grid and responsive controls, then publish through the normal WordPress workflow. No coding needed, and clean HTML and CSS when you want it.
+**Sidcraft Page Builder is a free visual page builder for WordPress.** Build landing pages, home pages, blog layouts and complete websites on a live canvas with drag and drop, nested containers, CSS Grid and responsive controls, then publish through the normal WordPress workflow. No coding needed, and clean HTML and CSS when you want it.
 
-= Why Sidcraft Syntex? =
+= Why Sidcraft Page Builder? =
 
 * **True visual editing**: drag units from the library, edit text inline, undo and redo, right-click menus, and preview desktop, tablet and mobile side by side.
 * **CSS-first output**: XEditor elements print one clean HTML element each, with no wrapper divs, so pages stay light and fast.
@@ -27,7 +27,7 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 * Drag-and-drop canvas with Containers, Inner Sections and CSS Grid (tracks, gaps, spans, drag-to-resize).
 * Desktop, tablet and mobile views with per-breakpoint values and custom breakpoints.
 * Inline text editing, undo/redo, revisions and history, autosave with restore bar, favorites and a searchable unit library.
-* Sidcraft Syntex colour picker with HEX, RGB, HSL, opacity, eyedropper and Global Colors.
+* Sidcraft Page Builder colour picker with HEX, RGB, HSL, opacity, eyedropper and Global Colors.
 * Content, Style and Advanced tabs on every unit: spacing, borders, shadows, backgrounds (image, gradient, video, slideshow), transforms, filters and blend modes.
 * Style > Items flex controls (direction, justify, align, gaps, wrap) on containers and widgets.
 * Editing lock so two people never overwrite each other.
@@ -37,7 +37,7 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 * Atomic elements: Div Block, Flexbox, Grid, Heading, Paragraph, Image and Button.
 * Classes & Variables Manager: global `--xe-var-*` tokens and reusable `.xe-class-*` utility classes with Normal, Hover, Focus and Active states and breakpoints.
 * Class stacking on every unit (XEditor and classic).
-* XEditor Loop data model with dynamic tokens such as `{{post.title}}` and `{{post.url}}` (rendering comes with Sidcraft Syntex Pro).
+* XEditor Loop data model with dynamic tokens such as `{{post.title}}` and `{{post.url}}` (rendering comes with Sidcraft Page Builder Pro).
 
 = 50+ free units =
 
@@ -51,17 +51,17 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 = Forms, login and spam protection =
 
 * **Form unit**: text, email, phone, URL, textarea, select and checkbox fields; stacked, inline or two-column layout; custom recipient and success message.
-* **Cloudflare Turnstile (new)**: under Settings → Integrations, paste your site and secret keys, or let Sidcraft Syntex create the Turnstile widget for you with a Cloudflare API token. Test keys, theme, size and appearance options are included.
+* **Cloudflare Turnstile (new)**: under Settings → Integrations, paste your site and secret keys, or let Sidcraft Page Builder create the Turnstile widget for you with a Cloudflare API token. Test keys, theme, size and appearance options are included.
 * **Require Turnstile per form**: the Form unit (Spam protection → Require Cloudflare Turnstile) and the Login unit (Require Cloudflare Turnstile) keep the Submit or Log In button disabled until the visitor completes the check. The button locks again if the token expires or after each submission, and every token is verified on the server with Cloudflare Siteverify.
-* **Site-wide protection**: optionally protect every Sidcraft Syntex form, the WordPress login form (wp-login.php) and the comment form.
-* **Cloudflare Turnstile unit**: drop it next to any Sidcraft Syntex form to protect that form.
+* **Site-wide protection**: optionally protect every Sidcraft Page Builder form, the WordPress login form (wp-login.php) and the comment form.
+* **Cloudflare Turnstile unit**: drop it next to any Sidcraft Page Builder form to protect that form.
 * Honeypot and Google reCAPTCHA (v2 or v3) are also supported.
 
 = Templates and theme =
 
-* Save any section as a template and place it with the Template unit, the Sidcraft Syntex Template block, a sidebar widget or the `[sidcraft_syntex_template]` shortcode.
+* Save any section as a template and place it with the Template unit, the Sidcraft Page Builder Template block, a sidebar widget or the `[sidcraft_page_builder_template]` shortcode.
 * Canvas and Full Width page templates, header and footer editing, and template import and export.
-* Works with any theme; optionally turn off Sidcraft Syntex's default colors and fonts so your theme keeps them.
+* Works with any theme; optionally turn off Sidcraft Page Builder's default colors and fonts so your theme keeps them.
 
 = Motion and accessibility =
 
@@ -71,21 +71,21 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 
 = Site tools =
 
-* Maintenance and Coming Soon mode, Safe mode for troubleshooting, and one-click rollback to an earlier Sidcraft Syntex version.
+* Maintenance and Coming Soon mode, Safe mode for troubleshooting, and one-click rollback to an earlier Sidcraft Page Builder version.
 * Replace URL tool, system info, roles and capabilities, Units Manager and experiments.
-* Yoast SEO and Rank Math see your Sidcraft Syntex content; WPML and Polylang can translate it.
-* Import pages and templates built with Elementor (when Elementor is active) into new Sidcraft Syntex documents.
+* Yoast SEO and Rank Math see your Sidcraft Page Builder content; WPML and Polylang can translate it.
+* Import pages and templates built with Elementor (when Elementor is active) into new Sidcraft Page Builder documents.
 * REST routes, WP-CLI commands and hooks for developers.
 
-= Sidcraft Syntex Pro =
+= Sidcraft Page Builder Pro =
 
-[Sidcraft Syntex Pro](https://canvasly.pro/price.html#lite-vs-pro) is a separate add-on that adds Theme Builder, popups, display conditions, dynamic tags, Loop Grid and Loop Carousel, 70+ extra units, WooCommerce builder units, hosted payments (Stripe, PayPal, Square, Authorize.Net, Razorpay, Mollie) with Payment Forms, form actions and submissions, custom fonts and icons, custom code, editor notes and an AI assistant with an MCP server. Pro's Login & Register and Payment Form units also include the "Require Cloudflare Turnstile" option.
+[Sidcraft Page Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) is a separate add-on that adds Theme Builder, popups, display conditions, dynamic tags, Loop Grid and Loop Carousel, 70+ extra units, WooCommerce builder units, hosted payments (Stripe, PayPal, Square, Authorize.Net, Razorpay, Mollie) with Payment Forms, form actions and submissions, custom fonts and icons, custom code, editor notes and an AI assistant with an MCP server. Pro's Login & Register and Payment Form units also include the "Require Cloudflare Turnstile" option.
 
 The full unit list and user guide are at [canvasly.pro](https://canvasly.pro/blocks.html). For third-party services used by optional features, see "External services" below.
 
 == External services ==
 
-Sidcraft Syntex works without any external service. The services below are contacted only when you use the feature that needs them; none of them is used to track you or your visitors, and no data is sent to the plugin author.
+Sidcraft Page Builder works without any external service. The services below are contacted only when you use the feature that needs them; none of them is used to track you or your visitors, and no data is sent to the plugin author.
 
 = Google Fonts (Google LLC) =
 
@@ -153,48 +153,48 @@ The editor script (assets/js/editor.js) is built from the files in src/editor/ w
 * WordPress 6.9 or greater, tested up to 7.1
 * PHP 8.1 or greater
 
-Shop units appear only while WooCommerce is active. [Sidcraft Syntex Pro](https://canvasly.pro/installation.html) will not start if Sidcraft Syntex is missing, switched off, or older than 0.12.73.
+Shop units appear only while WooCommerce is active. [Sidcraft Page Builder Pro](https://canvasly.pro/installation.html) will not start if Sidcraft Page Builder is missing, switched off, or older than 0.12.73.
 
 = Installation =
 
 1. Install using **Plugins → Add New → Upload Plugin**, or place the plugin folder in `wp-content/plugins/`.
-2. Activate **Sidcraft Syntex** on the Plugins screen.
-3. Open a page or post and choose **Edit with Sidcraft Syntex**. The same link is in the admin bar.
+2. Activate **Sidcraft Page Builder** on the Plugins screen.
+3. Open a page or post and choose **Edit with Sidcraft Page Builder**. The same link is in the admin bar.
 4. Drag units from the left library onto the canvas, then save. Publish or update the page in WordPress.
 
 = Set up Cloudflare Turnstile (optional) =
 
-1. Go to **Sidcraft Syntex → Settings → Integrations → Cloudflare Turnstile**.
+1. Go to **Sidcraft Page Builder → Settings → Integrations → Cloudflare Turnstile**.
 2. Paste the site key and secret key from your Cloudflare dashboard, or paste an API token and Account ID and click **Create Turnstile widget for this site**.
 3. In the editor, select a Form and set **Spam protection** to **Require Cloudflare Turnstile**, or select a Login unit and turn on **Require Cloudflare Turnstile**.
 
-Step-by-step install for Sidcraft Syntex and Sidcraft Syntex Pro, including the license screen, is in the [installation guide](https://canvasly.pro/installation.html). Settings for post types, CSS, fonts, maps, and performance are in the [settings guide](https://canvasly.pro/settings.html).
+Step-by-step install for Sidcraft Page Builder and Sidcraft Page Builder Pro, including the license screen, is in the [installation guide](https://canvasly.pro/installation.html). Settings for post types, CSS, fonts, maps, and performance are in the [settings guide](https://canvasly.pro/settings.html).
 
 == Frequently Asked Questions ==
 
-= How do I install Sidcraft Syntex? =
+= How do I install Sidcraft Page Builder? =
 
-From the WordPress dashboard go to Plugins → Add New → Upload Plugin, upload the Sidcraft Syntex zip, then Activate. You can also copy the plugin folder into `wp-content/plugins/`. The [installation guide](https://canvasly.pro/installation.html) covers Sidcraft Syntex Pro as well.
+From the WordPress dashboard go to Plugins → Add New → Upload Plugin, upload the Sidcraft Page Builder zip, then Activate. You can also copy the plugin folder into `wp-content/plugins/`. The [installation guide](https://canvasly.pro/installation.html) covers Sidcraft Page Builder Pro as well.
 
-= Is Sidcraft Syntex free? =
+= Is Sidcraft Page Builder free? =
 
-Yes. Sidcraft Syntex is free and GPL licensed, with no limit on pages or sites. [Sidcraft Syntex Pro](https://canvasly.pro/price.html) is an optional paid add-on.
+Yes. Sidcraft Page Builder is free and GPL licensed, with no limit on pages or sites. [Sidcraft Page Builder Pro](https://canvasly.pro/price.html) is an optional paid add-on.
 
-= What does Sidcraft Syntex require? =
+= What does Sidcraft Page Builder require? =
 
-WordPress 6.9 or later and PHP 7.4 or later. The plugin is tested up to WordPress 7.1. Sidcraft Syntex Pro needs Sidcraft Syntex 0.12.73 or newer; the Turnstile options in Pro's Login & Register and Payment Form units need Sidcraft Syntex 0.13.2 or newer.
+WordPress 6.9 or later and PHP 7.4 or later. The plugin is tested up to WordPress 7.1. Sidcraft Page Builder Pro needs Sidcraft Page Builder 0.12.73 or newer; the Turnstile options in Pro's Login & Register and Payment Form units need Sidcraft Page Builder 0.13.2 or newer.
 
 = How do I edit a page? =
 
-Open the page and choose **Edit with Sidcraft Syntex**, or use the admin-bar link. Posts and Pages work as soon as you activate the plugin. Other public types stay off until you enable them under Sidcraft Syntex → Settings → General.
+Open the page and choose **Edit with Sidcraft Page Builder**, or use the admin-bar link. Posts and Pages work as soon as you activate the plugin. Other public types stay off until you enable them under Sidcraft Page Builder → Settings → General.
 
 = Where are the settings? =
 
-[Sidcraft Syntex → Settings](https://canvasly.pro/settings.html) covers post types, maps, reCAPTCHA, Cloudflare Turnstile (Integrations tab), CSS, fonts, performance, tools, and experiments. Colors, type, and breakpoints are under Design System.
+[Sidcraft Page Builder → Settings](https://canvasly.pro/settings.html) covers post types, maps, reCAPTCHA, Cloudflare Turnstile (Integrations tab), CSS, fonts, performance, tools, and experiments. Colors, type, and breakpoints are under Design System.
 
 = How do I add Cloudflare Turnstile to a form or login? =
 
-Add your Turnstile keys under Sidcraft Syntex → Settings → Integrations. Then select the Form unit and set Content → Spam protection to **Require Cloudflare Turnstile**, or select the Login unit and turn on **Security → Require Cloudflare Turnstile**. With Sidcraft Syntex Pro, the Login & Register and Payment Form units have the same switch under Security.
+Add your Turnstile keys under Sidcraft Page Builder → Settings → Integrations. Then select the Form unit and set Content → Spam protection to **Require Cloudflare Turnstile**, or select the Login unit and turn on **Security → Require Cloudflare Turnstile**. With Sidcraft Page Builder Pro, the Login & Register and Payment Form units have the same switch under Security.
 
 = Why is the Submit or Log In button greyed out? =
 
@@ -202,7 +202,7 @@ That form requires Cloudflare Turnstile. The button stays disabled until the vis
 
 = Is Cloudflare Turnstile better than reCAPTCHA? =
 
-Turnstile is a free, privacy-friendly CAPTCHA alternative from Cloudflare that usually passes without puzzles. You do not need to use Cloudflare for DNS. Sidcraft Syntex supports both, so choose per form.
+Turnstile is a free, privacy-friendly CAPTCHA alternative from Cloudflare that usually passes without puzzles. You do not need to use Cloudflare for DNS. Sidcraft Page Builder supports both, so choose per form.
 
 = Does the Turnstile option protect wp-login.php too? =
 
@@ -212,72 +212,72 @@ The Login unit's switch protects logins sent from that unit. To protect the stan
 
 Click **Use Cloudflare test keys** under Settings → Integrations. Every challenge passes with these keys, so replace them with your real keys before launch.
 
-= Does Sidcraft Syntex work with my theme and with Gutenberg? =
+= Does Sidcraft Page Builder work with my theme and with Gutenberg? =
 
-On the normal WordPress editing screen, Sidcraft Syntex does not load its full editor. The Sidcraft Syntex Template block and the Edit with Sidcraft Syntex launcher still appear. You can turn off Sidcraft Syntex's default colors and fonts so the theme keeps those. See the [FAQ](https://canvasly.pro/faq.html).
+On the normal WordPress editing screen, Sidcraft Page Builder does not load its full editor. The Sidcraft Page Builder Template block and the Edit with Sidcraft Page Builder launcher still appear. You can turn off Sidcraft Page Builder's default colors and fonts so the theme keeps those. See the [FAQ](https://canvasly.pro/faq.html).
 
 = Do I need to know how to code? =
 
 No. The free unit library, templates, and design system cover a typical page. Custom CSS, HTML, and the Code unit are there when you want them.
 
-= Can I build landing pages with Sidcraft Syntex? =
+= Can I build landing pages with Sidcraft Page Builder? =
 
 Yes. Use the Canvas page template for a blank page without the theme header and footer, then add a hero, pricing, testimonials and a form with Turnstile protection.
 
-= Is Sidcraft Syntex responsive and mobile friendly? =
+= Is Sidcraft Page Builder responsive and mobile friendly? =
 
 Yes. Every layout and style value can be set per breakpoint, and the editor previews desktop, tablet and mobile.
 
 = Can I reuse a section on another page? =
 
-Right-click a Container or Grid and choose Save as Template. Place it later with the Template unit, `[sidcraft_syntex_template id="42"]`, the Sidcraft Syntex Template block, or the Sidcraft Syntex Template sidebar widget. Attributes are listed on the [shortcodes page](https://canvasly.pro/shortcodes.html).
+Right-click a Container or Grid and choose Save as Template. Place it later with the Template unit, `[sidcraft_page_builder_template id="42"]`, the Sidcraft Page Builder Template block, or the Sidcraft Page Builder Template sidebar widget. Attributes are listed on the [shortcodes page](https://canvasly.pro/shortcodes.html).
 
 = Why is a unit missing from the library? =
 
-Units Manager can disable a type or hide it from your role. Nested Tabs, Accordion, and Toggle, Collection Loop, and Grid container can also be switched off under Settings → Features. Shop units are absent unless WooCommerce is active. Pro units are absent unless [Sidcraft Syntex Pro](https://canvasly.pro/price.html) has started.
+Units Manager can disable a type or hide it from your role. Nested Tabs, Accordion, and Toggle, Collection Loop, and Grid container can also be switched off under Settings → Features. Shop units are absent unless WooCommerce is active. Pro units are absent unless [Sidcraft Page Builder Pro](https://canvasly.pro/price.html) has started.
 
 = I saved a page but visitors still see the old version. Why? =
 
-A page cache (from a caching plugin, your host, or a CDN) is serving an older copy. Sidcraft Syntex clears the page from WP-Optimize, WP Super Cache, W3 Total Cache, WP Rocket, LiteSpeed Cache, SiteGround Optimizer, Breeze, WP Fastest Cache, FlyingPress, NitroPack, Hummingbird and Cache Enabler when you save. For any other cache, purge it from that plugin, your host panel or your CDN after saving.
+A page cache (from a caching plugin, your host, or a CDN) is serving an older copy. Sidcraft Page Builder clears the page from WP-Optimize, WP Super Cache, W3 Total Cache, WP Rocket, LiteSpeed Cache, SiteGround Optimizer, Breeze, WP Fastest Cache, FlyingPress, NitroPack, Hummingbird and Cache Enabler when you save. For any other cache, purge it from that plugin, your host panel or your CDN after saving.
 
-= Will Sidcraft Syntex slow down my site? =
+= Will Sidcraft Page Builder slow down my site? =
 
 CSS and scripts load only for the units on the page. You can print CSS as external files, cache non-dynamic unit HTML, lazy-load images, and self-host Google Fonts. The Turnstile script loads only on pages with a protected form. See [Performance](https://canvasly.pro/settings.html#performance).
 
-= Is Sidcraft Syntex SEO friendly? =
+= Is Sidcraft Page Builder SEO friendly? =
 
-Yes. Sidcraft Syntex prints semantic HTML with real heading tags, and Yoast SEO and Rank Math can analyze the content you build.
+Yes. Sidcraft Page Builder prints semantic HTML with real heading tags, and Yoast SEO and Rank Math can analyze the content you build.
 
-= Can I translate Sidcraft Syntex pages? =
+= Can I translate Sidcraft Page Builder pages? =
 
-Yes. Sidcraft Syntex works with WPML and Polylang and is translation ready.
+Yes. Sidcraft Page Builder works with WPML and Polylang and is translation ready.
 
 = How do I move the site to a new address? =
 
-Use Sidcraft Syntex → Settings → Tools → Replace URL. Run Dry run first. The replacement cannot be undone from that screen.
+Use Sidcraft Page Builder → Settings → Tools → Replace URL. Run Dry run first. The replacement cannot be undone from that screen.
 
-= What is the difference between Sidcraft Syntex and Sidcraft Syntex Pro? =
+= What is the difference between Sidcraft Page Builder and Sidcraft Page Builder Pro? =
 
-Sidcraft Syntex is the free page builder: the visual editor, the free unit library, the design system, forms with Turnstile, entrance and exit motion, page templates, the collection loop, and basic dynamic tags. [Sidcraft Syntex Pro](https://canvasly.pro/price.html#lite-vs-pro) adds Theme Builder, popups, Loop Grid, 70+ extra units, shop units, hosted payments, extra form actions, editor notes, and the AI connection. Every Pro plan includes the same features.
+Sidcraft Page Builder is the free page builder: the visual editor, the free unit library, the design system, forms with Turnstile, entrance and exit motion, page templates, the collection loop, and basic dynamic tags. [Sidcraft Page Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) adds Theme Builder, popups, Loop Grid, 70+ extra units, shop units, hosted payments, extra form actions, editor notes, and the AI connection. Every Pro plan includes the same features.
 
 = The editor looks broken. What should I try? =
 
 Under Settings → Advanced, set Editor loader to Iframe. Under Settings → Tools, turn on Safe mode for your account. Safe mode loads the editor without other plugins and without the theme. More answers are in the [FAQ](https://canvasly.pro/faq.html).
 
-= Does Sidcraft Syntex work with other page builders? =
+= Does Sidcraft Page Builder work with other page builders? =
 
-Sidcraft Syntex is a standalone page builder and does not require any other builder. If Elementor is installed and active on your site, Sidcraft Syntex can:
+Sidcraft Page Builder is a standalone page builder and does not require any other builder. If Elementor is installed and active on your site, Sidcraft Page Builder can:
 
-* Import pages, posts and library templates that were built with Elementor into new Sidcraft Syntex documents. The original content is never changed or deleted.
-* Show a theme header or footer built with Elementor correctly in the Sidcraft Syntex editor, by loading the stylesheets that your installed copy of Elementor already provides.
+* Import pages, posts and library templates that were built with Elementor into new Sidcraft Page Builder documents. The original content is never changed or deleted.
+* Show a theme header or footer built with Elementor correctly in the Sidcraft Page Builder editor, by loading the stylesheets that your installed copy of Elementor already provides.
 
-Sidcraft Syntex does not include, copy or redistribute any Elementor code, stylesheets or images. It only references the files already installed on your site, and this compatibility only applies while Elementor is active.
+Sidcraft Page Builder does not include, copy or redistribute any Elementor code, stylesheets or images. It only references the files already installed on your site, and this compatibility only applies while Elementor is active.
 
-= Is Sidcraft Syntex affiliated with Elementor? =
+= Is Sidcraft Page Builder affiliated with Elementor? =
 
-No. Elementor is a trademark of its respective owner. Sidcraft Syntex is an independent plugin and is not affiliated with, sponsored by or endorsed by Elementor or its owner. The name is used only to describe compatibility.
+No. Elementor is a trademark of its respective owner. Sidcraft Page Builder is an independent plugin and is not affiliated with, sponsored by or endorsed by Elementor or its owner. The name is used only to describe compatibility.
 
-= Does Sidcraft Syntex connect to external services? =
+= Does Sidcraft Page Builder connect to external services? =
 
 Only when you use a feature that needs one, such as Google Fonts, a captcha, a map or a video embed. The "External services" section above lists each service, what is sent and when, and links to its terms and privacy policy.
 
@@ -292,17 +292,23 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 3. **CSS Grid** - Place children in rows and columns, span cells, and resize by dragging an edge.
 4. **Design system** - Global colors, typography, classes, variables, and components.
 5. **Templates** - Save a section and embed it with a shortcode, a block, a unit, or a sidebar widget.
-6. **Sidcraft Syntex Pro** - Theme Builder, popups, shop units, and the annual plans.
+6. **Sidcraft Page Builder Pro** - Theme Builder, popups, shop units, and the annual plans.
 
 == Changelog ==
 
+= 0.14.0 =
+* Changed: Renamed to Sidcraft Page Builder (slug and text domain sidcraft-page-builder) after the WordPress.org plugin review.
+* Removed: Custom CSS fields on pages and units, and the Global Classes manager. Use XEditor classes instead. Custom CSS saved by earlier versions is no longer printed.
+* Security: The theme header and footer capture no longer forwards visitor cookies. Inline CSS is printed through WordPress's style functions, and rendered pages, template blocks and template shortcodes are escaped with wp_kses before output.
+* Docs: The readme now lists every external service, what it receives and when, and where the editor source and build tools are.
+
 = 0.13.3 =
-* Fixed: With WP-Optimize page caching on, visitors kept seeing the old version of a page after it was saved in Sidcraft Syntex (for example, a newly added Form did not appear). Sidcraft Syntex now clears that page from the WP-Optimize cache on every save, as it already did for WP Super Cache, W3 Total Cache, WP Rocket, LiteSpeed, SiteGround, Breeze and others.
+* Fixed: With WP-Optimize page caching on, visitors kept seeing the old version of a page after it was saved in Sidcraft Page Builder (for example, a newly added Form did not appear). Sidcraft Page Builder now clears that page from the WP-Optimize cache on every save, as it already did for WP Super Cache, W3 Total Cache, WP Rocket, LiteSpeed, SiteGround, Breeze and others.
 
 = 0.13.2 =
 * New: "Require Cloudflare Turnstile" on the Login unit (Security section). The Log In button stays disabled until the visitor completes the Turnstile check, and the login is rejected without a valid token.
 * New: Submit gate for every Turnstile-protected form. The Form unit (Spam protection → Require Cloudflare Turnstile), the Login unit, and the WordPress login and comment forms keep their Submit / Log In button disabled until the check passes, lock it again when the token expires, errors, or is used, and block Enter-key submits while locked.
-* New: Turnstile verification for Sidcraft Syntex login, register and lost-password forms that post to wp-login.php, used by the Login unit and by Sidcraft Syntex Pro's Login & Register unit.
+* New: Turnstile verification for Sidcraft Page Builder login, register and lost-password forms that post to wp-login.php, used by the Login unit and by Sidcraft Page Builder Pro's Login & Register unit.
 * New: Turnstile widgets inside hidden tabs render when the tab opens.
 * Changed: If Settings → Integrations → WordPress forms → Login form is on, the Login unit now shows the Turnstile check automatically so its logins are not rejected.
 * Docs: readme rewritten with the full feature list, Turnstile setup steps and new FAQ entries.
@@ -315,8 +321,8 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * New: XEditor Atomic Elements — Div Block, Flexbox, Grid, Heading, Paragraph, Image and Button. Each prints ONE HTML element on the live page (no wrapper divs); aria-label, role and custom attributes go on that element.
 * New: XEditor Classes & Variables Manager. Variables are global tokens printed as `--xe-var-*` custom properties (colors, fonts, sizes, spacing, per-breakpoint values). Classes are reusable utility presets printed as `.xe-class-*`, with Normal/Hover/Focus/Active states and per-breakpoint values; use `$name` in any value to reference a variable. Class priority is set by the order in the manager.
 * New: Class stacking on every unit (XEditor and classic): add, create or remove classes from the Classes bar at the top of the settings panel. Element "Local Style" values use zero-specificity selectors, so a stacked class always wins.
-* New: XEditor Loop data model (Loop > Loop Layout > Loop Item) with dynamic tokens such as {{post.title}}, {{post.url}}, {{post.featured_image}}, {{term.name}} and {{loop.number}}. Rendering and editor preview come from Sidcraft Syntex Pro; without a Pro license loops are locked in the editor, not rendered, and kept in the page data.
-* New: Cloudflare Turnstile. Sidcraft Syntex → Settings → Integrations: site key, secret key, optional Cloudflare API token (Verify, or Create a Turnstile widget with your Account ID), Cloudflare test keys, default look, and optional protection for all Sidcraft Syntex forms, the WordPress login form and comments. New "Cloudflare Turnstile" unit protects the form in the same container; the Form unit has a new "Spam protection" option. Tokens are verified server-side (Siteverify) and reset after each submission.
+* New: XEditor Loop data model (Loop > Loop Layout > Loop Item) with dynamic tokens such as {{post.title}}, {{post.url}}, {{post.featured_image}}, {{term.name}} and {{loop.number}}. Rendering and editor preview come from Sidcraft Page Builder Pro; without a Pro license loops are locked in the editor, not rendered, and kept in the page data.
+* New: Cloudflare Turnstile. Sidcraft Page Builder → Settings → Integrations: site key, secret key, optional Cloudflare API token (Verify, or Create a Turnstile widget with your Account ID), Cloudflare test keys, default look, and optional protection for all Sidcraft Page Builder forms, the WordPress login form and comments. New "Cloudflare Turnstile" unit protects the form in the same container; the Form unit has a new "Spam protection" option. Tokens are verified server-side (Siteverify) and reset after each submission.
 * Fixed: ARIA Label had no effect on most units because it was printed on a generic wrapper <div>. It is now placed on the unit's link, button, field, form or image; containers and multi-link units get role="group" so the name is announced.
 * Fixed: Form errors now show the server's message (for example a failed security check) instead of a generic error.
 
@@ -324,6 +330,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 The complete history is in `changelog.txt` inside the plugin folder.
 
 == Upgrade Notice ==
+
+= 0.14.0 =
+The plugin is now called Sidcraft Page Builder. Custom CSS fields and Global Classes are removed; move any custom CSS into XEditor classes before updating.
 
 = 0.13.3 =
 Saved pages now refresh right away on sites that use the WP-Optimize page cache.
@@ -338,7 +347,7 @@ Borders with a style but no colour now default to white instead of a dark box.
 Adds button hover colours to Site Menu, Form, Login, Link in Bio and Collection Loop, and fixes sliders that showed 0 at the minimum position.
 
 = 0.12.105 =
-Stops themes from recolouring the Site Menu button and other Sidcraft Syntex buttons on hover (for example turning them red).
+Stops themes from recolouring the Site Menu button and other Sidcraft Page Builder buttons on hover (for example turning them red).
 
 = 0.12.104 =
 Fixes Hover colours not showing in the editor canvas, adds Hover to the Site Menu button, and fixes Social Icons hover background.

@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Query;
+namespace SidcraftPageBuilder\Query;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -28,7 +28,7 @@ class Query {
 			$result = self::run_posts( $settings, $page, $context_post_id );
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'sidcraft-syntex/query/results', $result, $settings, $page, $context_post_id );
+			$filtered = apply_filters( 'sidcraft-page-builder/query/results', $result, $settings, $page, $context_post_id );
 			if ( is_array( $filtered ) ) {
 				$result = $filtered;
 			}
@@ -116,7 +116,7 @@ class Query {
 		$args = self::apply_request_tax( $args, $settings );
 
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'sidcraft-syntex/query/args', $args, $settings, $page, $context_post_id );
+			$filtered = apply_filters( 'sidcraft-page-builder/query/args', $args, $settings, $page, $context_post_id );
 			if ( is_array( $filtered ) ) {
 				$args = $filtered;
 			}
@@ -160,7 +160,7 @@ class Query {
 			$args['exclude'] = $exclude;
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'sidcraft-syntex/query/term_args', $args, $settings );
+			$filtered = apply_filters( 'sidcraft-page-builder/query/term_args', $args, $settings );
 			if ( is_array( $filtered ) ) {
 				$args = $filtered;
 			}
@@ -173,7 +173,7 @@ class Query {
 	 *
 	 * The loop REST route sets this from `taxonomy` and `terms`. It is not a
 	 * WP_Query argument. `posts_args()` turns it into `tax_query` before
-	 * `sidcraft-syntex/query/args` runs, so add-ons still see one query.
+	 * `sidcraft-page-builder/query/args` runs, so add-ons still see one query.
 	 *
 	 * @param array  $settings
 	 * @param mixed  $taxonomy
@@ -503,8 +503,8 @@ class Query {
 		if ( $type === '' || $type === 'any' ) {
 			return $type === 'any' ? 'any' : 'post';
 		}
-		if ( class_exists( '\\SidcraftSyntex\\Document\\Documents' ) ) {
-			$excluded = \SidcraftSyntex\Document\Documents::excluded();
+		if ( class_exists( '\\SidcraftPageBuilder\\Document\\Documents' ) ) {
+			$excluded = \SidcraftPageBuilder\Document\Documents::excluded();
 			if ( in_array( $type, $excluded, true ) ) {
 				return 'post';
 			}

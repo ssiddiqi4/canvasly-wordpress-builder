@@ -1,13 +1,13 @@
 <?php
-namespace SidcraftSyntex\Settings;
-use SidcraftSyntex\Design\Variables;
-use SidcraftSyntex\Design\GlobalClasses;
-use SidcraftSyntex\Document\DocumentManager;
-use SidcraftSyntex\Document\Documents;
+namespace SidcraftPageBuilder\Settings;
+use SidcraftPageBuilder\Design\Variables;
+use SidcraftPageBuilder\Design\GlobalClasses;
+use SidcraftPageBuilder\Document\DocumentManager;
+use SidcraftPageBuilder\Document\Documents;
 if(!defined('ABSPATH')) exit;
 class GlobalSettings {
- const KEY='sidcraft_syntex_global_settings';
- const CSS_GENERATION='sidcraft_syntex_css_generation';
+ const KEY='sidcraft_page_builder_global_settings';
+ const CSS_GENERATION='sidcraft_page_builder_css_generation';
  /** @var array|null */
  private static $cached=null;
  /** @var mixed */
@@ -58,14 +58,14 @@ class GlobalSettings {
   if(self::$cached!==null&&self::$cached_raw===$raw)return self::$cached;
   $d=wp_parse_args($raw,self::defaults());
   $d['breakpoints']=Breakpoints::normalize($d['breakpoints']??[]);
-  $d['css_print_method']=class_exists('\\SidcraftSyntex\\Design\\CssPrint')?\SidcraftSyntex\Design\CssPrint::sanitize_method($d['css_print_method']??'external'):((($d['css_print_method']??'')==='inline')?'inline':'external');
-  $d['font_display']=class_exists('\\SidcraftSyntex\\Design\\Fonts')?\SidcraftSyntex\Design\Fonts::sanitize_display($d['font_display']??'swap'):'swap';
-  $d['google_fonts_local']=class_exists('\\SidcraftSyntex\\Design\\Fonts')?\SidcraftSyntex\Design\Fonts::sanitize_local($d['google_fonts_local']??false):!empty($d['google_fonts_local']);
-  if(class_exists('\\SidcraftSyntex\\Design\\Optimize')){
-   $d['unit_cache']=\SidcraftSyntex\Design\Optimize::sanitize_bool($d['unit_cache']??true);
-   $d['unit_cache_ttl']=\SidcraftSyntex\Design\Optimize::sanitize_ttl($d['unit_cache_ttl']??86400);
-   $d['lazy_load']=\SidcraftSyntex\Design\Optimize::sanitize_bool($d['lazy_load']??true);
-   $d['optimized_markup']=\SidcraftSyntex\Design\Optimize::sanitize_bool($d['optimized_markup']??false);
+  $d['css_print_method']=class_exists('\\SidcraftPageBuilder\\Design\\CssPrint')?\SidcraftPageBuilder\Design\CssPrint::sanitize_method($d['css_print_method']??'external'):((($d['css_print_method']??'')==='inline')?'inline':'external');
+  $d['font_display']=class_exists('\\SidcraftPageBuilder\\Design\\Fonts')?\SidcraftPageBuilder\Design\Fonts::sanitize_display($d['font_display']??'swap'):'swap';
+  $d['google_fonts_local']=class_exists('\\SidcraftPageBuilder\\Design\\Fonts')?\SidcraftPageBuilder\Design\Fonts::sanitize_local($d['google_fonts_local']??false):!empty($d['google_fonts_local']);
+  if(class_exists('\\SidcraftPageBuilder\\Design\\Optimize')){
+   $d['unit_cache']=\SidcraftPageBuilder\Design\Optimize::sanitize_bool($d['unit_cache']??true);
+   $d['unit_cache_ttl']=\SidcraftPageBuilder\Design\Optimize::sanitize_ttl($d['unit_cache_ttl']??86400);
+   $d['lazy_load']=\SidcraftPageBuilder\Design\Optimize::sanitize_bool($d['lazy_load']??true);
+   $d['optimized_markup']=\SidcraftPageBuilder\Design\Optimize::sanitize_bool($d['optimized_markup']??false);
   }else{
    $d['unit_cache']=!isset($d['unit_cache'])||!empty($d['unit_cache']);
    $d['unit_cache_ttl']=max(60,(int)($d['unit_cache_ttl']??86400));
@@ -78,7 +78,7 @@ class GlobalSettings {
   return self::$cached=$d;
  }
  public static function init(){add_action('admin_menu',[__CLASS__,'menu']);}
- public static function menu(){add_submenu_page('sidcraft-syntex',__('Design System', 'sidcraft-syntex'),__('Design System', 'sidcraft-syntex'),'manage_options','sidcraft-syntex-global',[__CLASS__,'screen']);}
+ public static function menu(){add_submenu_page('sidcraft-page-builder',__('Design System', 'sidcraft-page-builder'),__('Design System', 'sidcraft-page-builder'),'manage_options','sidcraft-page-builder-global',[__CLASS__,'screen']);}
 
  /**
   * Persist a full breakpoint catalog from REST or the admin form and drop CSS caches.
@@ -105,10 +105,10 @@ class GlobalSettings {
   if(function_exists('delete_post_meta_by_key')&&class_exists(DocumentManager::class)){
    delete_post_meta_by_key(DocumentManager::CSS_CACHE);
   }
-  if(function_exists('delete_post_meta_by_key')&&class_exists('\\SidcraftSyntex\\Design\\CssPrint')){
-   delete_post_meta_by_key(\SidcraftSyntex\Design\CssPrint::META_HASH);
+  if(function_exists('delete_post_meta_by_key')&&class_exists('\\SidcraftPageBuilder\\Design\\CssPrint')){
+   delete_post_meta_by_key(\SidcraftPageBuilder\Design\CssPrint::META_HASH);
   }
-  if(class_exists('\\SidcraftSyntex\\Design\\CssPrint'))\SidcraftSyntex\Design\CssPrint::invalidate_all();
+  if(class_exists('\\SidcraftPageBuilder\\Design\\CssPrint'))\SidcraftPageBuilder\Design\CssPrint::invalidate_all();
   update_option(self::CSS_GENERATION,(string)time(),false);
  }
 
@@ -162,25 +162,25 @@ class GlobalSettings {
   $v=Variables::all();
   $c=GlobalClasses::all();
   $bps=Breakpoints::normalize($d['breakpoints']??[]);
-  echo '<div class="wrap"><h1>'.esc_html__('Sidcraft Syntex Design System', 'sidcraft-syntex').'</h1><form method="post">';
+  echo '<div class="wrap"><h1>'.esc_html__('Sidcraft Page Builder Design System', 'sidcraft-page-builder').'</h1><form method="post">';
   wp_nonce_field('sidsyn_global');
-  echo '<h2>'.esc_html__('Global colors', 'sidcraft-syntex').'</h2><table class="form-table">';
-  foreach(['primary'=>__('Primary', 'sidcraft-syntex'),'secondary'=>__('Secondary', 'sidcraft-syntex'),'text'=>__('Text', 'sidcraft-syntex'),'accent'=>__('Accent', 'sidcraft-syntex')] as $k=>$l){
+  echo '<h2>'.esc_html__('Global colors', 'sidcraft-page-builder').'</h2><table class="form-table">';
+  foreach(['primary'=>__('Primary', 'sidcraft-page-builder'),'secondary'=>__('Secondary', 'sidcraft-page-builder'),'text'=>__('Text', 'sidcraft-page-builder'),'accent'=>__('Accent', 'sidcraft-page-builder')] as $k=>$l){
    echo '<tr><th>'.esc_html($l).'</th><td><input type="color" name="'.esc_attr($k).'" value="'.esc_attr($d['colors'][$k]).'"></td></tr>';
   }
-  echo '</table><p class="description">'.esc_html__('Unlimited custom colors and typography presets are managed from Site Settings in the Sidcraft Syntex editor.', 'sidcraft-syntex').'</p>';
-  echo '<h2>'.esc_html__('Typography', 'sidcraft-syntex').'</h2><table class="form-table">';
-  echo '<tr><th>'.esc_html__('Heading Font', 'sidcraft-syntex').'</th><td><input class="regular-text" name="heading" value="'.esc_attr($d['fonts']['heading']).'"></td></tr>';
-  echo '<tr><th>'.esc_html__('Body Font', 'sidcraft-syntex').'</th><td><input class="regular-text" name="body" value="'.esc_attr($d['fonts']['body']).'"></td></tr>';
-  echo '<tr><th>'.esc_html__('Content Width', 'sidcraft-syntex').'</th><td><input class="regular-text" name="content_width" value="'.esc_attr($d['content_width']).'"></td></tr>';
-  echo '</table><h2>'.esc_html__('Breakpoints', 'sidcraft-syntex').'</h2>';
-  echo '<p class="description">'.esc_html__('Enable extra devices and set the max-width (or min-width for Widescreen) used by responsive CSS. The canvas width is the editor preview.', 'sidcraft-syntex').'</p>';
+  echo '</table><p class="description">'.esc_html__('Unlimited custom colors and typography presets are managed from Site Settings in the Sidcraft Page Builder editor.', 'sidcraft-page-builder').'</p>';
+  echo '<h2>'.esc_html__('Typography', 'sidcraft-page-builder').'</h2><table class="form-table">';
+  echo '<tr><th>'.esc_html__('Heading Font', 'sidcraft-page-builder').'</th><td><input class="regular-text" name="heading" value="'.esc_attr($d['fonts']['heading']).'"></td></tr>';
+  echo '<tr><th>'.esc_html__('Body Font', 'sidcraft-page-builder').'</th><td><input class="regular-text" name="body" value="'.esc_attr($d['fonts']['body']).'"></td></tr>';
+  echo '<tr><th>'.esc_html__('Content Width', 'sidcraft-page-builder').'</th><td><input class="regular-text" name="content_width" value="'.esc_attr($d['content_width']).'"></td></tr>';
+  echo '</table><h2>'.esc_html__('Breakpoints', 'sidcraft-page-builder').'</h2>';
+  echo '<p class="description">'.esc_html__('Enable extra devices and set the max-width (or min-width for Widescreen) used by responsive CSS. The canvas width is the editor preview.', 'sidcraft-page-builder').'</p>';
   echo '<table class="widefat striped" style="max-width:720px"><thead><tr>';
-  echo '<th>'.esc_html__('Enabled', 'sidcraft-syntex').'</th><th>'.esc_html__('Device', 'sidcraft-syntex').'</th><th>'.esc_html__('Width (px)', 'sidcraft-syntex').'</th><th>'.esc_html__('Query', 'sidcraft-syntex').'</th><th>'.esc_html__('Canvas (px)', 'sidcraft-syntex').'</th>';
+  echo '<th>'.esc_html__('Enabled', 'sidcraft-page-builder').'</th><th>'.esc_html__('Device', 'sidcraft-page-builder').'</th><th>'.esc_html__('Width (px)', 'sidcraft-page-builder').'</th><th>'.esc_html__('Query', 'sidcraft-page-builder').'</th><th>'.esc_html__('Canvas (px)', 'sidcraft-page-builder').'</th>';
   echo '</tr></thead><tbody>';
   foreach($bps as $name=>$b){
    $locked=$name==='desktop';
-   $dir=($b['direction']??'')==='min'?__('min-width', 'sidcraft-syntex'):(($b['direction']??'')==='base'?__('Base', 'sidcraft-syntex'):__('max-width', 'sidcraft-syntex'));
+   $dir=($b['direction']??'')==='min'?__('min-width', 'sidcraft-page-builder'):(($b['direction']??'')==='base'?__('Base', 'sidcraft-page-builder'):__('max-width', 'sidcraft-page-builder'));
    echo '<tr><td>';
    echo '<input type="checkbox" name="bp_'.esc_attr($name).'_enabled" value="1"'.(!empty($b['enabled'])?' checked':'').($locked?' disabled':'').'>';
    echo '</td><td>'.esc_html($b['label']??$name).'</td><td>';
@@ -190,19 +190,19 @@ class GlobalSettings {
    echo '</td></tr>';
   }
   echo '</tbody></table>';
-  echo '<h2>'.esc_html__('Post Types', 'sidcraft-syntex').'</h2>';
-  echo '<p class="description">'.esc_html__('Choose which public post types can be edited with Sidcraft Syntex. Posts and Pages are enabled by default; any public custom post type can be added.', 'sidcraft-syntex').'</p>';
+  echo '<h2>'.esc_html__('Post Types', 'sidcraft-page-builder').'</h2>';
+  echo '<p class="description">'.esc_html__('Choose which public post types can be edited with Sidcraft Page Builder. Posts and Pages are enabled by default; any public custom post type can be added.', 'sidcraft-page-builder').'</p>';
   echo '<input type="hidden" name="sidsyn_post_types_present" value="1">';
   $enabled_types=class_exists(Documents::class)?Documents::enabled():(array)($d['post_types']??['post','page']);
-  $available_types=class_exists(Documents::class)?Documents::available():['post'=>__('Posts', 'sidcraft-syntex'),'page'=>__('Pages', 'sidcraft-syntex')];
+  $available_types=class_exists(Documents::class)?Documents::available():['post'=>__('Posts', 'sidcraft-page-builder'),'page'=>__('Pages', 'sidcraft-page-builder')];
   echo '<fieldset>';
   foreach($available_types as $slug=>$label){
    echo '<label style="display:block;margin:4px 0;"><input type="checkbox" name="post_types[]" value="'.esc_attr($slug).'"'.(in_array($slug,$enabled_types,true)?' checked':'').'> '.esc_html($label).' <code>'.esc_html($slug).'</code></label>';
   }
   echo '</fieldset>';
-  echo '<h2>'.esc_html__('Variables', 'sidcraft-syntex').'</h2><table class="form-table">';
+  echo '<h2>'.esc_html__('Variables', 'sidcraft-page-builder').'</h2><table class="form-table">';
   foreach($v['sizes'] as $k=>$val)echo '<tr><th>'.esc_html($k).'</th><td><input class="regular-text" name="var_'.esc_attr($k).'" value="'.esc_attr($val).'" disabled></td></tr>';
-  echo '</table><h2>'.esc_html__('Global Classes', 'sidcraft-syntex').'</h2><p>'.esc_html__('Manage reusable classes from the Sidcraft Syntex editor. Current classes: ', 'sidcraft-syntex').esc_html(count($c)).'</p>';
-  echo '<p><button class="button button-primary" name="sidsyn_save_global" value="1">'.esc_html__('Save Design System', 'sidcraft-syntex').'</button></p></form></div>';
+  echo '</table><h2>'.esc_html__('Global Classes', 'sidcraft-page-builder').'</h2><p>'.esc_html__('Manage reusable classes from the Sidcraft Page Builder editor. Current classes: ', 'sidcraft-page-builder').esc_html(count($c)).'</p>';
+  echo '<p><button class="button button-primary" name="sidsyn_save_global" value="1">'.esc_html__('Save Design System', 'sidcraft-page-builder').'</button></p></form></div>';
  }
 }

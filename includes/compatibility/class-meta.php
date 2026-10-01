@@ -1,14 +1,14 @@
 <?php
-namespace SidcraftSyntex\Compatibility;
+namespace SidcraftPageBuilder\Compatibility;
 
-use SidcraftSyntex\Document\DocumentManager;
+use SidcraftPageBuilder\Document\DocumentManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Shared Sidcraft Syntex post-meta keys and JSON write/repair helpers.
+ * Shared Sidcraft Page Builder post-meta keys and JSON write/repair helpers.
  *
  * WordPress `update_post_meta()` unslashes values. JSON documents contain
  * `\"` sequences, so writes must `wp_slash()` first or quotes inside strings
@@ -35,7 +35,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/portability/json_keys', $keys );
+		$filtered = apply_filters( 'sidcraft-page-builder/portability/json_keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 
@@ -56,7 +56,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/replace_url/keys', $keys );
+		$filtered = apply_filters( 'sidcraft-page-builder/replace_url/keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 
@@ -87,7 +87,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/portability/ephemeral_keys', $keys );
+		$filtered = apply_filters( 'sidcraft-page-builder/portability/ephemeral_keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 
@@ -123,7 +123,7 @@ class Meta {
 		 *
 		 * @param string[] $keys
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/duplicate/meta_keys', $keys );
+		$filtered = apply_filters( 'sidcraft-page-builder/duplicate/meta_keys', $keys );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'strval', $filtered ) ) ) : $keys;
 	}
 
@@ -151,7 +151,7 @@ class Meta {
 	}
 
 	/**
-	 * Whether this key is Sidcraft Syntex post meta.
+	 * Whether this key is Sidcraft Page Builder post meta.
 	 *
 	 * @param string $key
 	 * @return bool

@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Settings;
+namespace SidcraftPageBuilder\Settings;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Per-user editor preferences (Roadmap 3.6).
  */
 class UserPreferences {
-	const KEY = 'sidcraft_syntex_user_preferences';
+	const KEY = 'sidcraft_page_builder_user_preferences';
 
 	/**
 	 * @return array<string,mixed>
@@ -42,7 +42,7 @@ class UserPreferences {
 		 * @param array<string,mixed> $clean
 		 * @param int                 $user_id
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/user_preferences', $clean, $user_id );
+		$filtered = apply_filters( 'sidcraft-page-builder/user_preferences', $clean, $user_id );
 		return is_array( $filtered ) ? self::sanitize( $filtered ) : $clean;
 	}
 
@@ -54,7 +54,7 @@ class UserPreferences {
 	public static function save( $data, $user_id = 0 ) {
 		$user_id = $user_id ? absint( $user_id ) : get_current_user_id();
 		if ( ! $user_id ) {
-			return new \WP_Error( 'forbidden', __( 'You must be logged in to save preferences.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'You must be logged in to save preferences.', 'sidcraft-page-builder' ), array( 'status' => 403 ) );
 		}
 		$clean = self::sanitize( is_array( $data ) ? $data : array() );
 		update_user_meta( $user_id, self::KEY, $clean );

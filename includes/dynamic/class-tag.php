@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Dynamic;
+namespace SidcraftPageBuilder\Dynamic;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

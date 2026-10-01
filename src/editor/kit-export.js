@@ -16,7 +16,7 @@ function installKitExport() {
 <label class="lb-kit-check"><input type="checkbox" id="lb-kit-ex-templates" checked> ${app.t("Saved templates")}</label>
 <label class="lb-kit-check"><input type="checkbox" id="lb-kit-ex-media" checked> ${app.t("Media files")}</label>
 <label class="lb-kit-check"><input type="checkbox" id="lb-kit-ex-content"> ${app.t("Selected pages and posts")}</label>
-<div class="lb-kit-pages">${rows || '<p class="lb-muted">' + app.t("No Sidcraft Syntex pages were found.") + "</p>"}</div>
+<div class="lb-kit-pages">${rows || '<p class="lb-muted">' + app.t("No Sidcraft Page Builder pages were found.") + "</p>"}</div>
 <button type="button" class="lb-btn primary" id="lb-kit-export">${app.t("Download Kit ZIP")}</button>
 </div>
 <div class="lb-ss-section">
@@ -65,7 +65,7 @@ function installKitExport() {
       if (!r.ok || !d.url) throw new Error(d.message || app.t("Could not export kit."));
       const a = document.createElement("a");
       a.href = d.url;
-      a.download = d.filename || "sidcraft-syntex-kit.zip";
+      a.download = d.filename || "sidcraft-page-builder-kit.zip";
       document.body.appendChild(a);
       a.click();
       a.remove();

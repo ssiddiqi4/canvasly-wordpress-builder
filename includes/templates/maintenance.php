@@ -5,14 +5,14 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( class_exists( '\SidcraftSyntex\Ops\Maintenance' ) ) {
-	\SidcraftSyntex\Ops\Maintenance::headers();
+if ( class_exists( '\SidcraftPageBuilder\Ops\Maintenance' ) ) {
+	\SidcraftPageBuilder\Ops\Maintenance::headers();
 }
 // Plugin output is UTF-8; say so explicitly so symbols never render as mojibake.
 if ( ! headers_sent() ) {
 	header( 'Content-Type: text/html; charset=UTF-8' );
 }
-$mode = class_exists( '\SidcraftSyntex\Ops\Maintenance' ) ? \SidcraftSyntex\Ops\Maintenance::mode() : 'maintenance';
+$mode = class_exists( '\SidcraftPageBuilder\Ops\Maintenance' ) ? \SidcraftPageBuilder\Ops\Maintenance::mode() : 'maintenance';
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -28,8 +28,8 @@ $mode = class_exists( '\SidcraftSyntex\Ops\Maintenance' ) ? \SidcraftSyntex\Ops\
 if ( function_exists( 'wp_body_open' ) ) {
 	wp_body_open();
 }
-if ( class_exists( '\SidcraftSyntex\Ops\Maintenance' ) ) {
-	\SidcraftSyntex\Ops\Maintenance::print_content();
+if ( class_exists( '\SidcraftPageBuilder\Ops\Maintenance' ) ) {
+	\SidcraftPageBuilder\Ops\Maintenance::print_content();
 }
 wp_footer();
 ?>

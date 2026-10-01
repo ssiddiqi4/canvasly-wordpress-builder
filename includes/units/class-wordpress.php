@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Units;
+namespace SidcraftPageBuilder\Units;
 if(!defined('ABSPATH')) exit;
 /**
  * WordPress Widget: renders any widget registered with the widget factory
@@ -7,7 +7,7 @@ if(!defined('ABSPATH')) exit;
  * with an optional title and free-form settings. Falls back to a whole sidebar.
  */
 class WordPressWidget extends Unit {
- public function type(){return 'wordpress_widget';} public function title(){return __('WordPress Widget', 'sidcraft-syntex');} public function icon(){return 'W';} public function category(){return 'advanced';}
+ public function type(){return 'wordpress_widget';} public function title(){return __('WordPress Widget', 'sidcraft-page-builder');} public function icon(){return 'W';} public function category(){return 'advanced';}
  public function keywords(){return ['wordpress','widget','recent posts','categories','search','calendar','archives','tag cloud'];}
  public function defaults(){return ['widget'=>'','title'=>'','widget_options'=>'','sidebar'=>'','css_class'=>''];}
  public function controls(){return ['widget'=>'select','title'=>'text','widget_options'=>'textarea','sidebar'=>'select','css_class'=>'text'];}
@@ -27,7 +27,7 @@ class WordPressWidget extends Unit {
   } elseif(!empty($s['sidebar'])&&function_exists('dynamic_sidebar')){
    if(($s['title']??'')!=='')echo '<h3 class="lb-wp-widget-title">'.esc_html($s['title']).'</h3>';
    dynamic_sidebar(sanitize_key($s['sidebar']));
-  } else echo '<div class="lb-embed-placeholder">'.esc_html__('Choose a WordPress widget', 'sidcraft-syntex').'</div>';
-  return '<div class="'.$this->cls($s).' lb-wordpress-widget">'.\SidcraftSyntex\Rendering\OutputEscape::raw(ob_get_clean()).'</div>';
+  } else echo '<div class="lb-embed-placeholder">'.esc_html__('Choose a WordPress widget', 'sidcraft-page-builder').'</div>';
+  return '<div class="'.$this->cls($s).' lb-wordpress-widget">'.\SidcraftPageBuilder\Rendering\OutputEscape::raw(ob_get_clean()).'</div>';
  }
 }

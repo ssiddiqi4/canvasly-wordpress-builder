@@ -1,11 +1,11 @@
 <?php
-namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftPageBuilder\Units; if(!defined('ABSPATH')) exit;
 /**
  * Social Links: repeater of network / URL / optional icon. Legacy "Network|URL[|icon]"
  * rows are migrated on load.
  */
 class Social extends Unit {
- public function type(){return 'social';} public function title(){return __('Social Icons', 'sidcraft-syntex');} public function icon(){return "\u{26AD}";} public function category(){return 'basic';}
+ public function type(){return 'social';} public function title(){return __('Social Icons', 'sidcraft-page-builder');} public function icon(){return "\u{26AD}";} public function category(){return 'basic';}
  public function keywords(){return ['social','icons','share','facebook','instagram','linkedin','x','youtube','network'];}
  /** network key => [icon id, brand colour] */
  public static function networks(){return [
@@ -44,31 +44,31 @@ class Social extends Unit {
   'target'=>'_blank','shape'=>'rounded','color_scheme'=>'official','color'=>'#333333','icon_color'=>'#ffffff','hover_color'=>'','hover_icon_color'=>'','size'=>32,'icon_padding'=>'','gap'=>14,'row_gap'=>14,'align'=>'center','columns'=>3,'icon_radius'=>'','hover_animation'=>'',
  ];}
  public function controls(){
-  $soc=__('Social Icons', 'sidcraft-syntex'); $icon=__('Icon', 'sidcraft-syntex');
+  $soc=__('Social Icons', 'sidcraft-page-builder'); $icon=__('Icon', 'sidcraft-page-builder');
   return [
-   'links'=>$this->ctrl('repeater',__('Icons', 'sidcraft-syntex'),'content',$soc,[
+   'links'=>$this->ctrl('repeater',__('Icons', 'sidcraft-page-builder'),'content',$soc,[
     'title_field'=>'{{network}}','prevent_empty'=>true,
     'fields'=>[
-     'network'=>$this->field('text',__('Network', 'sidcraft-syntex')),
-     'url'=>$this->field('url',__('URL', 'sidcraft-syntex')),
-     'icon'=>$this->field('icon',__('Icon', 'sidcraft-syntex')),
+     'network'=>$this->field('text',__('Network', 'sidcraft-page-builder')),
+     'url'=>$this->field('url',__('URL', 'sidcraft-page-builder')),
+     'icon'=>$this->field('icon',__('Icon', 'sidcraft-page-builder')),
     ],
    ]),
-   'target'=>$this->ctrl('select',__('Open In', 'sidcraft-syntex'),'content',$soc,['options'=>self::opt_target()]),
-   'shape'=>$this->ctrl('select',__('Shape', 'sidcraft-syntex'),'content',$soc,['options'=>['square'=>__('Square', 'sidcraft-syntex'),'rounded'=>__('Rounded', 'sidcraft-syntex'),'circle'=>__('Circle', 'sidcraft-syntex')]]),
-   'color_scheme'=>$this->ctrl('select',__('Color', 'sidcraft-syntex'),'content',$soc,['options'=>['official'=>__('Official', 'sidcraft-syntex'),'custom'=>__('Custom', 'sidcraft-syntex')]]),
-   'align'=>$this->ctrl('select',__('Alignment', 'sidcraft-syntex'),'content',$soc,['options'=>self::opt_lcr()]),
-   'columns'=>$this->ctrl('number',__('Columns', 'sidcraft-syntex'),'content',$soc,['range'=>['min'=>0,'max'=>12]]),
-   'hover_animation'=>$this->ctrl('select',__('Hover Animation', 'sidcraft-syntex'),'content',$soc,['options'=>self::opt_hover()]),
-   'color'=>$this->ctrl('color',__('Background', 'sidcraft-syntex'),'style',$icon,['condition'=>['color_scheme'=>'custom'],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-bg: {{VALUE}};']]),
-   'icon_color'=>$this->ctrl('color',__('Icon Color', 'sidcraft-syntex'),'style',$icon,['selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-color: {{VALUE}};']]),
-   'hover_color'=>$this->ctrl('color',__('Hover Background', 'sidcraft-syntex'),'style',$icon,['selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-hover-bg: {{VALUE}};']]),
-   'hover_icon_color'=>$this->ctrl('color',__('Hover Icon Color', 'sidcraft-syntex'),'style',$icon,['selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-hover-color: {{VALUE}};']]),
-   'size'=>$this->ctrl('slider',__('Size', 'sidcraft-syntex'),'style',$icon,['units'=>['px','em','rem'],'range'=>['min'=>6,'max'=>300],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-size: {{SIZE}}{{UNIT}};']]),
-   'icon_padding'=>$this->ctrl('slider',__('Padding', 'sidcraft-syntex'),'style',$icon,['units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>80],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-padding: {{SIZE}}{{UNIT}};']]),
-   'gap'=>$this->ctrl('slider',__('Spacing', 'sidcraft-syntex'),'style',$icon,['units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>100],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-gap: {{SIZE}}{{UNIT}};']]),
-   'row_gap'=>$this->ctrl('slider',__('Rows Gap', 'sidcraft-syntex'),'style',$icon,['units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>100],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-row-gap: {{SIZE}}{{UNIT}};']]),
-   'icon_radius'=>$this->ctrl('slider',__('Border Radius', 'sidcraft-syntex'),'style',$icon,['units'=>['px','%','em'],'range'=>['min'=>0,'max'=>200],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-radius: {{SIZE}}{{UNIT}};']]),
+   'target'=>$this->ctrl('select',__('Open In', 'sidcraft-page-builder'),'content',$soc,['options'=>self::opt_target()]),
+   'shape'=>$this->ctrl('select',__('Shape', 'sidcraft-page-builder'),'content',$soc,['options'=>['square'=>__('Square', 'sidcraft-page-builder'),'rounded'=>__('Rounded', 'sidcraft-page-builder'),'circle'=>__('Circle', 'sidcraft-page-builder')]]),
+   'color_scheme'=>$this->ctrl('select',__('Color', 'sidcraft-page-builder'),'content',$soc,['options'=>['official'=>__('Official', 'sidcraft-page-builder'),'custom'=>__('Custom', 'sidcraft-page-builder')]]),
+   'align'=>$this->ctrl('select',__('Alignment', 'sidcraft-page-builder'),'content',$soc,['options'=>self::opt_lcr()]),
+   'columns'=>$this->ctrl('number',__('Columns', 'sidcraft-page-builder'),'content',$soc,['range'=>['min'=>0,'max'=>12]]),
+   'hover_animation'=>$this->ctrl('select',__('Hover Animation', 'sidcraft-page-builder'),'content',$soc,['options'=>self::opt_hover()]),
+   'color'=>$this->ctrl('color',__('Background', 'sidcraft-page-builder'),'style',$icon,['condition'=>['color_scheme'=>'custom'],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-bg: {{VALUE}};']]),
+   'icon_color'=>$this->ctrl('color',__('Icon Color', 'sidcraft-page-builder'),'style',$icon,['selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-color: {{VALUE}};']]),
+   'hover_color'=>$this->ctrl('color',__('Hover Background', 'sidcraft-page-builder'),'style',$icon,['selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-hover-bg: {{VALUE}};']]),
+   'hover_icon_color'=>$this->ctrl('color',__('Hover Icon Color', 'sidcraft-page-builder'),'style',$icon,['selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-hover-color: {{VALUE}};']]),
+   'size'=>$this->ctrl('slider',__('Size', 'sidcraft-page-builder'),'style',$icon,['units'=>['px','em','rem'],'range'=>['min'=>6,'max'=>300],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-size: {{SIZE}}{{UNIT}};']]),
+   'icon_padding'=>$this->ctrl('slider',__('Padding', 'sidcraft-page-builder'),'style',$icon,['units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>80],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-padding: {{SIZE}}{{UNIT}};']]),
+   'gap'=>$this->ctrl('slider',__('Spacing', 'sidcraft-page-builder'),'style',$icon,['units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>100],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-gap: {{SIZE}}{{UNIT}};']]),
+   'row_gap'=>$this->ctrl('slider',__('Rows Gap', 'sidcraft-page-builder'),'style',$icon,['units'=>['px','em','rem'],'range'=>['min'=>0,'max'=>100],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-row-gap: {{SIZE}}{{UNIT}};']]),
+   'icon_radius'=>$this->ctrl('slider',__('Border Radius', 'sidcraft-page-builder'),'style',$icon,['units'=>['px','%','em'],'range'=>['min'=>0,'max'=>200],'selectors'=>['{{WRAPPER}} .lb-social'=>'--lb-social-radius: {{SIZE}}{{UNIT}};']]),
   ];
  }
  public function render($s,$children=''){
@@ -82,8 +82,8 @@ class Social extends Unit {
   foreach($this->repeater_items($s['links']??'',['network','url','icon']) as $row){
    $label=(string)($row['network']??$row[0]??''); $url=(string)($row['url']??$row[1]??''); if($url==='')continue;
    [$net,$icon,$brand]=self::detect($label,$url); $custom=(string)($row['icon']??$row[2]??'');
-   $glyph=$custom!==''?\SidcraftSyntex\Utils\Icons::svg($custom):\SidcraftSyntex\Utils\BrandIcons::svg($net);
-   if($glyph==='')$glyph=\SidcraftSyntex\Utils\Icons::svg($custom!==''?$custom:$icon);
+   $glyph=$custom!==''?\SidcraftPageBuilder\Utils\Icons::svg($custom):\SidcraftPageBuilder\Utils\BrandIcons::svg($net);
+   if($glyph==='')$glyph=\SidcraftPageBuilder\Utils\Icons::svg($custom!==''?$custom:$icon);
    $brandStyle=$scheme==='official'?' style="--lb-social-brand:'.esc_attr($brand).'"':'';
    $out.='<a class="lb-social-item lb-social-'.sanitize_html_class($net).$this->hover_class($s).'" href="'.esc_url($url).'"'.$t.$brandStyle.' aria-label="'.esc_attr($label!==''?$label:$net).'">'.$glyph.'<span class="lb-sr-only">'.esc_html($label).'</span></a>';
   }

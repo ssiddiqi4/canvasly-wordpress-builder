@@ -1,22 +1,22 @@
 <?php
-namespace SidcraftSyntex\Units;
+namespace SidcraftPageBuilder\Units;
 
-use SidcraftSyntex\Templates\SavedTemplates;
-use SidcraftSyntex\Templates\TemplateEmbed;
+use SidcraftPageBuilder\Templates\SavedTemplates;
+use SidcraftPageBuilder\Templates\TemplateEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Template widget: insert a saved Sidcraft Syntex template into the canvas.
+ * Template widget: insert a saved Sidcraft Page Builder template into the canvas.
  */
 class Template extends Unit {
 	public function type() {
 		return 'template';
 	}
 	public function title() {
-		return __( 'Template', 'sidcraft-syntex' );
+		return __( 'Template', 'sidcraft-page-builder' );
 	}
 	public function icon() {
 		return "\u{25A3}";
@@ -35,11 +35,11 @@ class Template extends Unit {
 	}
 
 	public function controls() {
-		$tpl = __( 'Template', 'sidcraft-syntex' );
+		$tpl = __( 'Template', 'sidcraft-page-builder' );
 		return array(
-			'template_id' => $this->ctrl( 'select', __( 'Saved Template', 'sidcraft-syntex' ), 'content', $tpl, array(
+			'template_id' => $this->ctrl( 'select', __( 'Saved Template', 'sidcraft-page-builder' ), 'content', $tpl, array(
 				'options'     => self::template_options(),
-				'description' => __( 'Choose a saved template to embed. CSS and scripts for that template are loaded automatically.', 'sidcraft-syntex' ),
+				'description' => __( 'Choose a saved template to embed. CSS and scripts for that template are loaded automatically.', 'sidcraft-page-builder' ),
 			) ),
 		);
 	}
@@ -47,9 +47,9 @@ class Template extends Unit {
 	public function render( $s, $children = '' ) {
 		$id = absint( $s['template_id'] ?? 0 );
 		if ( ! $id ) {
-			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Select a saved template', 'sidcraft-syntex' ) . '</div></div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Select a saved template', 'sidcraft-page-builder' ) . '</div></div>';
 		}
-		return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Template', 'sidcraft-syntex' ) . '</div></div>';
+		return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Template', 'sidcraft-page-builder' ) . '</div></div>';
 	}
 
 	/**
@@ -67,14 +67,14 @@ class Template extends Unit {
 		$host_id       = preg_replace( '/[^a-zA-Z0-9_-]/', '', (string) ( $node['id'] ?? '' ) );
 		$document_id   = absint( $document_id );
 		if ( ! $template_id ) {
-			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Select a saved template', 'sidcraft-syntex' ) . '</div></div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Select a saved template', 'sidcraft-page-builder' ) . '</div></div>';
 		}
 		$html = '';
 		if ( class_exists( TemplateEmbed::class ) ) {
 			$html = TemplateEmbed::render_inside( $template_id, $host_id, $document_id );
 		}
 		if ( $html === '' ) {
-			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Template not found', 'sidcraft-syntex' ) . '</div></div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Template not found', 'sidcraft-page-builder' ) . '</div></div>';
 		}
 		return '<div class="' . $this->cls( $s ) . ' lb-template-widget" data-lb-template="' . esc_attr( (string) $template_id ) . '">' . $html . '</div>';
 	}
@@ -91,7 +91,7 @@ class Template extends Unit {
 		if ( class_exists( SavedTemplates::class ) && method_exists( SavedTemplates::class, 'select_options' ) ) {
 			return SavedTemplates::select_options();
 		}
-		$opts = array( '0' => __( 'Select a template', 'sidcraft-syntex' ) );
+		$opts = array( '0' => __( 'Select a template', 'sidcraft-page-builder' ) );
 		if ( ! function_exists( 'get_posts' ) ) {
 			return $opts;
 		}

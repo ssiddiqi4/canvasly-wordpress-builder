@@ -180,7 +180,7 @@ function installImageCarouselPreview() {
     try {
       initAll(app.frameDoc());
     } catch (err) {
-      if (window.console) console.error("[Sidcraft Syntex] carousel preview", err);
+      if (window.console) console.error("[Sidcraft Page Builder] carousel preview", err);
     }
     return out;
   };

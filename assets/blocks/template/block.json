@@ -1,12 +1,12 @@
 {
   "apiVersion": 3,
-  "name": "sidcraft-syntex/template",
-  "title": "Sidcraft Syntex Template",
-  "category": "sidcraft-syntex",
+  "name": "sidcraft-page-builder/template",
+  "title": "Sidcraft Page Builder Template",
+  "category": "sidcraft-page-builder",
   "icon": "layout",
-  "description": "Insert a saved Sidcraft Syntex template.",
-  "keywords": [ "template", "saved", "section", "library", "sidcraft-syntex" ],
-  "textdomain": "sidcraft-syntex",
+  "description": "Insert a saved Sidcraft Page Builder template.",
+  "keywords": [ "template", "saved", "section", "library", "sidcraft-page-builder" ],
+  "textdomain": "sidcraft-page-builder",
   "attributes": {
     "id": {
       "type": "number",
@@ -19,6 +19,6 @@
     "anchor": true,
     "className": true
   },
-  "editorScript": "sidcraft-syntex-template-block",
-  "editorStyle": "sidcraft-syntex-template-block-editor"
+  "editorScript": "sidcraft-page-builder-template-block",
+  "editorStyle": "sidcraft-page-builder-template-block-editor"
 }

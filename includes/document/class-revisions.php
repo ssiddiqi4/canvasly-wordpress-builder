@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Document;
+namespace SidcraftPageBuilder\Document;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -23,7 +23,7 @@ class Revisions {
 	}
 
 	/**
-	 * Sidcraft Syntex documents live in post meta, so enabled types need WP revisions.
+	 * Sidcraft Page Builder documents live in post meta, so enabled types need WP revisions.
 	 */
 	public static function enable_post_type_support() {
 		if ( ! class_exists( Documents::class ) || ! function_exists( 'add_post_type_support' ) ) {
@@ -35,7 +35,7 @@ class Revisions {
 	}
 
 	/**
-	 * Copy the parent document onto every WP revision of a Sidcraft Syntex post.
+	 * Copy the parent document onto every WP revision of a Sidcraft Page Builder post.
 	 *
 	 * @param int $revision_id
 	 */
@@ -58,7 +58,7 @@ class Revisions {
 	}
 
 	/**
-	 * Force a WP revision when the Sidcraft Syntex document changed even if post_content did not.
+	 * Force a WP revision when the Sidcraft Page Builder document changed even if post_content did not.
 	 *
 	 * @param bool     $post_has_changed
 	 * @param \WP_Post|null $last_revision
@@ -71,7 +71,7 @@ class Revisions {
 		}
 		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			|| ( function_exists( 'wp_doing_autosave' ) && wp_doing_autosave() )
-			|| ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && \SidcraftSyntex\Admin\AdminContext::is_autosave() ) ) {
+			|| ( class_exists( '\\SidcraftPageBuilder\\Admin\\AdminContext' ) && \SidcraftPageBuilder\Admin\AdminContext::is_autosave() ) ) {
 			return $post_has_changed;
 		}
 		if ( ! self::is_document_post( (int) $post->ID ) ) {
@@ -86,7 +86,7 @@ class Revisions {
 	}
 
 	/**
-	 * Sidcraft Syntex stores a full document JSON on every revision. Unbounded WP
+	 * Sidcraft Page Builder stores a full document JSON on every revision. Unbounded WP
 	 * revision history (the default) exhausts wp_posts / wp_postmeta.
 	 *
 	 * @param int      $num
@@ -194,7 +194,7 @@ class Revisions {
 		}
 		$doc = self::document_from_revision( (int) $owned->ID );
 		if ( ! $doc ) {
-			return new \WP_Error( 'not_found', __( 'Revision not found.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'not_found', __( 'Revision not found.', 'sidcraft-page-builder' ) );
 		}
 		$entry              = self::entry( $owned );
 		$entry['document'] = DocumentManager::sanitize( $doc );
@@ -212,7 +212,7 @@ class Revisions {
 		$post_id     = absint( $post_id );
 		$revision_id = absint( $revision_id );
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot edit this document.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot edit this document.', 'sidcraft-page-builder' ) );
 		}
 		$owned = self::owned_revision( $post_id, $revision_id );
 		if ( is_wp_error( $owned ) ) {
@@ -220,17 +220,17 @@ class Revisions {
 		}
 		$doc = self::document_from_revision( (int) $owned->ID );
 		if ( ! $doc ) {
-			return new \WP_Error( 'not_found', __( 'Revision not found.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'not_found', __( 'Revision not found.', 'sidcraft-page-builder' ) );
 		}
-		self::record( $post_id, __( 'Before restore', 'sidcraft-syntex' ) );
+		self::record( $post_id, __( 'Before restore', 'sidcraft-page-builder' ) );
 		$clean = DocumentManager::sanitize( $doc );
 		DocumentManager::write_json_meta( $post_id, DocumentManager::META, wp_json_encode( $clean ) );
-		update_post_meta( $post_id, DocumentManager::VERSION, SIDCRAFT_SYNTEX_VERSION );
+		update_post_meta( $post_id, DocumentManager::VERSION, SIDCRAFT_PAGE_BUILDER_VERSION );
 		update_post_meta( $post_id, DocumentManager::UPDATED, current_time( 'mysql' ) );
 		delete_post_meta( $post_id, DocumentManager::CSS_CACHE );
 		self::delete_autosave( $post_id );
-		if ( class_exists( 'SidcraftSyntex\\Design\\Performance' ) ) {
-			\SidcraftSyntex\Design\Performance::invalidate( $post_id );
+		if ( class_exists( 'SidcraftPageBuilder\\Design\\Performance' ) ) {
+			\SidcraftPageBuilder\Design\Performance::invalidate( $post_id );
 		}
 		return $clean;
 	}
@@ -260,7 +260,7 @@ class Revisions {
 				return true;
 			}
 			DocumentManager::write_json_meta( $auto_id, DocumentManager::META, $json );
-			update_post_meta( $auto_id, self::LABEL_META, __( 'Autosave', 'sidcraft-syntex' ) );
+			update_post_meta( $auto_id, self::LABEL_META, __( 'Autosave', 'sidcraft-page-builder' ) );
 			delete_post_meta( $post_id, self::AUTOSAVE );
 			return true;
 		}
@@ -279,7 +279,7 @@ class Revisions {
 		}
 		if ( $auto_id ) {
 			DocumentManager::write_json_meta( $auto_id, DocumentManager::META, $json );
-			update_post_meta( $auto_id, self::LABEL_META, __( 'Autosave', 'sidcraft-syntex' ) );
+			update_post_meta( $auto_id, self::LABEL_META, __( 'Autosave', 'sidcraft-page-builder' ) );
 			delete_post_meta( $post_id, self::AUTOSAVE );
 			return true;
 		}
@@ -412,7 +412,7 @@ class Revisions {
 			return 0;
 		}
 		DocumentManager::write_json_meta( (int) $id, DocumentManager::META, wp_json_encode( $clean ) );
-		update_post_meta( (int) $id, self::LABEL_META, __( 'Migrated revision', 'sidcraft-syntex' ) );
+		update_post_meta( (int) $id, self::LABEL_META, __( 'Migrated revision', 'sidcraft-page-builder' ) );
 		return (int) $id;
 	}
 
@@ -425,12 +425,12 @@ class Revisions {
 		$post_id     = absint( $post_id );
 		$revision_id = absint( $revision_id );
 		if ( ! $post_id || ! $revision_id ) {
-			return new \WP_Error( 'not_found', __( 'Revision not found.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'not_found', __( 'Revision not found.', 'sidcraft-page-builder' ) );
 		}
 		self::migrate_legacy( $post_id );
 		$rev = get_post( $revision_id );
 		if ( ! $rev || ( isset( $rev->post_type ) && $rev->post_type !== 'revision' ) ) {
-			return new \WP_Error( 'not_found', __( 'Revision not found.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'not_found', __( 'Revision not found.', 'sidcraft-page-builder' ) );
 		}
 		$parent = isset( $rev->post_parent ) ? (int) $rev->post_parent : 0;
 		if ( function_exists( 'wp_is_post_revision' ) ) {
@@ -440,7 +440,7 @@ class Revisions {
 			}
 		}
 		if ( $parent !== $post_id ) {
-			return new \WP_Error( 'not_found', __( 'Revision not found.', 'sidcraft-syntex' ) );
+			return new \WP_Error( 'not_found', __( 'Revision not found.', 'sidcraft-page-builder' ) );
 		}
 		return $rev;
 	}
@@ -462,8 +462,8 @@ class Revisions {
 			return $d;
 		}
 		// Revisions written before the slash-safe copy may hold over-unslashed JSON.
-		if ( class_exists( '\\SidcraftSyntex\\Compatibility\\Meta' ) ) {
-			$fixed = \SidcraftSyntex\Compatibility\Meta::repair_json( $raw );
+		if ( class_exists( '\\SidcraftPageBuilder\\Compatibility\\Meta' ) ) {
+			$fixed = \SidcraftPageBuilder\Compatibility\Meta::repair_json( $raw );
 			if ( is_string( $fixed ) && $fixed !== $raw ) {
 				$d = json_decode( $fixed, true );
 				if ( is_array( $d ) ) {

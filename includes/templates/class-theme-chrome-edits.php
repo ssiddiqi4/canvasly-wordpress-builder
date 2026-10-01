@@ -1,7 +1,7 @@
 <?php
-namespace SidcraftSyntex\Templates;
+namespace SidcraftPageBuilder\Templates;
 
-use SidcraftSyntex\Settings\Roles;
+use SidcraftPageBuilder\Settings\Roles;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,9 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Empty HTML means "use the theme file" for that part.
  */
 class ThemeChromeEdits {
-	const OPTION = 'sidcraft_syntex_theme_chrome_html';
-	const META   = '_sidcraft_syntex_theme_chrome_html';
-	const SCOPE  = '_sidcraft_syntex_theme_chrome_scope';
+	const OPTION = 'sidcraft_page_builder_theme_chrome_html';
+	const META   = '_sidcraft_page_builder_theme_chrome_html';
+	const SCOPE  = '_sidcraft_page_builder_theme_chrome_scope';
 
 	public static function init() {
 		add_action( 'rest_api_init', array( self::class, 'register_route' ) );
@@ -25,7 +25,7 @@ class ThemeChromeEdits {
 
 	public static function register_route() {
 		register_rest_route(
-			'sidcraft-syntex/v1',
+			'sidcraft-page-builder/v1',
 			'/theme-chrome',
 			array(
 				'methods'             => 'POST',
@@ -120,11 +120,11 @@ class ThemeChromeEdits {
 	public static function save( $post_id, $scope, $parts ) {
 		$post_id = absint( $post_id );
 		if ( ! $post_id ) {
-			return new \WP_Error( 'sidcraft_syntex_theme_chrome', 'Missing page.', array( 'status' => 400 ) );
+			return new \WP_Error( 'sidcraft_page_builder_theme_chrome', 'Missing page.', array( 'status' => 400 ) );
 		}
 		$scope = 'theme' === $scope ? 'theme' : 'page';
 		if ( 'theme' === $scope && ! self::can_publish_theme() ) {
-			return new \WP_Error( 'sidcraft_syntex_theme_chrome_scope', 'You cannot change the theme header and footer.', array( 'status' => 403 ) );
+			return new \WP_Error( 'sidcraft_page_builder_theme_chrome_scope', 'You cannot change the theme header and footer.', array( 'status' => 403 ) );
 		}
 		$parts  = is_array( $parts ) ? $parts : array();
 		$bundle = 'theme' === $scope ? self::global_bundle() : self::page_bundle( $post_id );
@@ -227,10 +227,10 @@ class ThemeChromeEdits {
 		if ( ! is_array( $node ) || empty( $node['type'] ) ) {
 			return '';
 		}
-		if ( ! class_exists( '\\SidcraftSyntex\\Rendering\\FrontendRenderer' ) ) {
+		if ( ! class_exists( '\\SidcraftPageBuilder\\Rendering\\FrontendRenderer' ) ) {
 			return '';
 		}
-		return \SidcraftSyntex\Rendering\FrontendRenderer::render_nodes( array( $node ), self::current_post_id() );
+		return \SidcraftPageBuilder\Rendering\FrontendRenderer::render_nodes( array( $node ), self::current_post_id() );
 	}
 
 	/**
@@ -241,8 +241,8 @@ class ThemeChromeEdits {
 	public static function unit_node( $id, $json ) {
 		$id  = (string) $id;
 		$doc = array();
-		if ( class_exists( '\\SidcraftSyntex\\Document\\DocumentManager' ) ) {
-			$loaded = \SidcraftSyntex\Document\DocumentManager::get( self::current_post_id() );
+		if ( class_exists( '\\SidcraftPageBuilder\\Document\\DocumentManager' ) ) {
+			$loaded = \SidcraftPageBuilder\Document\DocumentManager::get( self::current_post_id() );
 			$doc    = is_array( $loaded ) ? $loaded : array();
 		}
 		foreach ( array( 'header', 'footer', 'root' ) as $part ) {
@@ -371,7 +371,7 @@ class ThemeChromeEdits {
 		$html = preg_replace( '/\sspellcheck\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', (string) $html );
 		$html = (string) $html;
 		if ( strlen( $html ) > ThemeChrome::MAX_HTML ) {
-			$html = \SidcraftSyntex\Utils\Text::cut_bytes( $html, 0, ThemeChrome::MAX_HTML );
+			$html = \SidcraftPageBuilder\Utils\Text::cut_bytes( $html, 0, ThemeChrome::MAX_HTML );
 		}
 		return trim( $html );
 	}

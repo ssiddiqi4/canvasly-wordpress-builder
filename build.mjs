@@ -11,7 +11,7 @@ const result = await build({
   bundle: true,
   format: "iife",
   charset: "utf8",
-  banner: { js: "/* Sidcraft Syntex editor bundle. Source: src/editor/. Rebuild with `npm run build`. */" },
+  banner: { js: "/* Sidcraft Page Builder editor bundle. Source: src/editor/. Rebuild with `npm run build`. */" },
   outfile,
   write: !check,
   logLevel: "warning",

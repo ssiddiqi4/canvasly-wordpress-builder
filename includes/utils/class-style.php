@@ -1,14 +1,14 @@
 <?php
-namespace SidcraftSyntex\Utils;
+namespace SidcraftPageBuilder\Utils;
 
-use SidcraftSyntex\Design\Variables;
-use SidcraftSyntex\Design\ThemeStyle;
-use SidcraftSyntex\Design\GlobalClasses;
-use SidcraftSyntex\Units\Unit;
-use SidcraftSyntex\Units\UnitRegistry;
-use SidcraftSyntex\Controls\Controls;
-use SidcraftSyntex\Controls\Groups;
-use SidcraftSyntex\Settings\Breakpoints;
+use SidcraftPageBuilder\Design\Variables;
+use SidcraftPageBuilder\Design\ThemeStyle;
+use SidcraftPageBuilder\Design\GlobalClasses;
+use SidcraftPageBuilder\Units\Unit;
+use SidcraftPageBuilder\Units\UnitRegistry;
+use SidcraftPageBuilder\Controls\Controls;
+use SidcraftPageBuilder\Controls\Groups;
+use SidcraftPageBuilder\Settings\Breakpoints;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,7 +20,7 @@ class Style {
 
 	public static function document_css( $doc ) {
 		$root = is_array( $doc['root'] ?? null ) ? $doc['root'] : [];
-		$css  = Variables::css() . ( class_exists( ThemeStyle::class ) ? ThemeStyle::css() : '' ) . ( class_exists( '\\SidcraftSyntex\\Settings\\KitSettings' ) ? \SidcraftSyntex\Settings\KitSettings::css() : '' ) . GlobalClasses::css() . Breakpoints::css();
+		$css  = Variables::css() . ( class_exists( ThemeStyle::class ) ? ThemeStyle::css() : '' ) . ( class_exists( '\\SidcraftPageBuilder\\Settings\\KitSettings' ) ? \SidcraftPageBuilder\Settings\KitSettings::css() : '' ) . GlobalClasses::css() . Breakpoints::css();
 		$walk = function ( $nodes, $in_loop = false ) use ( &$walk, &$css ) {
 			foreach ( (array) $nodes as $n ) {
 				$chunk = self::node_css( $n );
@@ -36,8 +36,8 @@ class Style {
 			}
 		};
 		$parts = array_merge( is_array( $doc['header'] ?? null ) ? $doc['header'] : [], $root, is_array( $doc['footer'] ?? null ) ? $doc['footer'] : [] );
-		if ( class_exists( '\\SidcraftSyntex\\Design\\Optimize' ) ) {
-			\SidcraftSyntex\Design\Optimize::begin( $parts );
+		if ( class_exists( '\\SidcraftPageBuilder\\Design\\Optimize' ) ) {
+			\SidcraftPageBuilder\Design\Optimize::begin( $parts );
 		}
 		$walk( $doc['header'] ?? [] );
 		$walk( $root );
@@ -49,8 +49,8 @@ class Style {
 	public static function nodes_css( $nodes ) {
 		$css   = '';
 		$nodes = is_array( $nodes ) ? $nodes : [];
-		if ( class_exists( '\\SidcraftSyntex\\Design\\Optimize' ) ) {
-			\SidcraftSyntex\Design\Optimize::begin( $nodes );
+		if ( class_exists( '\\SidcraftPageBuilder\\Design\\Optimize' ) ) {
+			\SidcraftPageBuilder\Design\Optimize::begin( $nodes );
 		}
 		$walk = function ( $items ) use ( &$walk, &$css ) {
 			foreach ( (array) $items as $n ) {
@@ -178,8 +178,8 @@ class Style {
 		$el  = UnitRegistry::instance()->get( (string) ( $n['type'] ?? '' ) );
 		$s   = (array) ( $n['settings'] ?? [] );
 		$sel = '#lb-node-' . $id;
-		if ( class_exists( '\\SidcraftSyntex\\Dynamic\\Resolver' ) ) {
-			$s = \SidcraftSyntex\Dynamic\Resolver::settings( $s, \SidcraftSyntex\Dynamic\Resolver::context(), $el ? $el->all_controls() : [] );
+		if ( class_exists( '\\SidcraftPageBuilder\\Dynamic\\Resolver' ) ) {
+			$s = \SidcraftPageBuilder\Dynamic\Resolver::settings( $s, \SidcraftPageBuilder\Dynamic\Resolver::context(), $el ? $el->all_controls() : [] );
 		}
 		$schema    = $el && method_exists( $el, 'uses_schema' ) && $el->uses_schema();
 		$controls  = $el ? $el->all_controls() : [];
@@ -301,17 +301,17 @@ class Style {
 		if ( $typoBound ) {
 			$css .= self::typography_bind_css( $sel, $typoBound );
 		}
-		if ( class_exists( '\\SidcraftSyntex\\Design\\Interactions' ) ) {
-			$css .= \SidcraftSyntex\Design\Interactions::custom_css( $n );
+		if ( class_exists( '\\SidcraftPageBuilder\\Design\\Interactions' ) ) {
+			$css .= \SidcraftPageBuilder\Design\Interactions::custom_css( $n );
 		}
-		if ( class_exists( '\\SidcraftSyntex\\Design\\Optimize' ) ) {
-			if ( \SidcraftSyntex\Design\Optimize::is_lazy_bg( $id ) ) {
-				$css = \SidcraftSyntex\Design\Optimize::strip_node_bg_image( $css, $id );
+		if ( class_exists( '\\SidcraftPageBuilder\\Design\\Optimize' ) ) {
+			if ( \SidcraftPageBuilder\Design\Optimize::is_lazy_bg( $id ) ) {
+				$css = \SidcraftPageBuilder\Design\Optimize::strip_node_bg_image( $css, $id );
 			}
-			$css = \SidcraftSyntex\Design\Optimize::expand_selectors( $css );
+			$css = \SidcraftPageBuilder\Design\Optimize::expand_selectors( $css );
 		}
 		/** Filter the CSS generated for one node. @param string $css @param array $n Node @param Unit|null $el */
-		$filtered = apply_filters( 'sidcraft-syntex/unit/style_css', $css, $n, $el );
+		$filtered = apply_filters( 'sidcraft-page-builder/unit/style_css', $css, $n, $el );
 		return is_string( $filtered ) ? $filtered : $css;
 	}
 

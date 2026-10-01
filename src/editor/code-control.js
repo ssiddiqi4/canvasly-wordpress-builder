@@ -126,7 +126,7 @@ function installCodeControl() {
         }
         return inst;
       } catch (e) {
-        console.error("[Sidcraft Syntex] code editor failed:", e);
+        console.error("[Sidcraft Page Builder] code editor failed:", e);
       }
     }
     if (!ta.__lbFallback) {

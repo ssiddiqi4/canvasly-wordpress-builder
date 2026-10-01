@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Settings;
+namespace SidcraftPageBuilder\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -8,23 +8,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Role Manager (Roadmap 7.2).
  *
- * Maps each WordPress role to Sidcraft Syntex access: none, content-only (Style/Advanced
- * hidden), or full. Grants `sidcraft_syntex_edit` / `sidcraft_syntex_design` so design-system
+ * Maps each WordPress role to Sidcraft Page Builder access: none, content-only (Style/Advanced
+ * hidden), or full. Grants `sidcraft_page_builder_edit` / `sidcraft_page_builder_design` so design-system
  * saves are not tied to `manage_options`.
  */
 class Roles {
-	const OPTION     = 'sidcraft_syntex_role_access';
-	const PAGE       = 'sidcraft-syntex-roles';
+	const OPTION     = 'sidcraft_page_builder_role_access';
+	const PAGE       = 'sidcraft-page-builder-roles';
 	const NONCE      = 'sidsyn_role_manager';
-	const CAP_EDIT   = 'sidcraft_syntex_edit';
-	const CAP_DESIGN = 'sidcraft_syntex_design';
+	const CAP_EDIT   = 'sidcraft_page_builder_edit';
+	const CAP_DESIGN = 'sidcraft_page_builder_design';
 	const NONE       = 'none';
 	const CONTENT    = 'content';
 	const FULL       = 'full';
 
 	public static function init() {
 		self::maybe_sync();
-		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_menu', array( self::class, 'menu' ), 11 );
 			add_action( 'admin_init', array( self::class, 'maybe_save' ) );
@@ -33,9 +33,9 @@ class Roles {
 
 	public static function menu() {
 		add_submenu_page(
-			'sidcraft-syntex',
-			__( 'Role Manager', 'sidcraft-syntex' ),
-			__( 'Role Manager', 'sidcraft-syntex' ),
+			'sidcraft-page-builder',
+			__( 'Role Manager', 'sidcraft-page-builder' ),
+			__( 'Role Manager', 'sidcraft-page-builder' ),
 			'manage_options',
 			self::PAGE,
 			array( self::class, 'screen' )
@@ -104,7 +104,7 @@ class Roles {
 		 * @param string   $best
 		 * @param string[] $roles
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/roles/current_access', $best, $roles );
+		$filtered = apply_filters( 'sidcraft-page-builder/roles/current_access', $best, $roles );
 		return self::sanitize_access( $filtered );
 	}
 
@@ -147,7 +147,7 @@ class Roles {
 		 *
 		 * @param array<string,string> $out
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/roles/access', $out );
+		$filtered = apply_filters( 'sidcraft-page-builder/roles/access', $out );
 		return is_array( $filtered ) ? array_map( array( self::class, 'sanitize_access' ), $filtered ) : $out;
 	}
 
@@ -178,7 +178,7 @@ class Roles {
 	 */
 	public static function save( $map ) {
 		if ( ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'Only administrators can change role access.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'Only administrators can change role access.', 'sidcraft-page-builder' ), array( 'status' => 403 ) );
 		}
 		$clean = self::sanitize( $map );
 		update_option( self::OPTION, $clean, false );
@@ -189,7 +189,7 @@ class Roles {
 		 *
 		 * @param array<string,string> $clean
 		 */
-		do_action( 'sidcraft-syntex/roles/after_save', $clean );
+		do_action( 'sidcraft-page-builder/roles/after_save', $clean );
 		return $clean;
 	}
 
@@ -209,8 +209,8 @@ class Roles {
 		if ( $done ) {
 			return;
 		}
-		$ver    = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? (string) SIDCRAFT_SYNTEX_VERSION : '';
-		$stored = function_exists( 'get_option' ) ? (string) get_option( 'sidcraft_syntex_roles_synced', '' ) : '';
+		$ver    = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? (string) SIDCRAFT_PAGE_BUILDER_VERSION : '';
+		$stored = function_exists( 'get_option' ) ? (string) get_option( 'sidcraft_page_builder_roles_synced', '' ) : '';
 		if ( $ver !== '' && $stored === $ver ) {
 			$done = true;
 			return;
@@ -220,9 +220,9 @@ class Roles {
 	}
 
 	private static function mark_synced() {
-		$ver = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? (string) SIDCRAFT_SYNTEX_VERSION : '';
+		$ver = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? (string) SIDCRAFT_PAGE_BUILDER_VERSION : '';
 		if ( $ver !== '' && function_exists( 'update_option' ) ) {
-			update_option( 'sidcraft_syntex_roles_synced', $ver, false );
+			update_option( 'sidcraft_page_builder_roles_synced', $ver, false );
 		}
 	}
 
@@ -346,7 +346,7 @@ class Roles {
 	}
 
 	public static function maybe_save() {
-		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::is_plugin_page() ) {
+		if ( class_exists( '\\SidcraftPageBuilder\\Admin\\AdminContext' ) && ! \SidcraftPageBuilder\Admin\AdminContext::is_plugin_page() ) {
 			return;
 		}
 		if ( empty( $_POST['sidsyn_save_roles'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -366,25 +366,25 @@ class Roles {
 			}
 		}
 		self::save( $raw );
-		add_settings_error( 'sidcraft_syntex_roles', 'saved', __( 'Role access saved.', 'sidcraft-syntex' ), 'updated' );
+		add_settings_error( 'sidcraft_page_builder_roles', 'saved', __( 'Role access saved.', 'sidcraft-page-builder' ), 'updated' );
 	}
 
 	public static function screen() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can manage Sidcraft Syntex roles.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'Only administrators can manage Sidcraft Page Builder roles.', 'sidcraft-page-builder' ) );
 		}
 		$map = self::all();
 		echo '<div class="wrap lb-settings-wrap lb-role-manager">';
-		echo '<h1>' . esc_html__( 'Role Manager', 'sidcraft-syntex' ) . '</h1>';
-		settings_errors( 'sidcraft_syntex_roles' );
-		echo '<p class="description">' . esc_html__( "Choose who can open Sidcraft Syntex. Content only hides Style and Advanced tabs. Full access is not limited to administrators \u{2014} it uses a dedicated design capability.", 'sidcraft-syntex' ) . '</p>';
+		echo '<h1>' . esc_html__( 'Role Manager', 'sidcraft-page-builder' ) . '</h1>';
+		settings_errors( 'sidcraft_page_builder_roles' );
+		echo '<p class="description">' . esc_html__( "Choose who can open Sidcraft Page Builder. Content only hides Style and Advanced tabs. Full access is not limited to administrators \u{2014} it uses a dedicated design capability.", 'sidcraft-page-builder' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE ) ) . '">';
 		wp_nonce_field( self::NONCE );
 		echo '<table class="widefat striped lb-roles-table"><thead><tr>';
-		echo '<th>' . esc_html__( 'Role', 'sidcraft-syntex' ) . '</th>';
-		echo '<th>' . esc_html__( 'No Access', 'sidcraft-syntex' ) . '</th>';
-		echo '<th>' . esc_html__( 'Content Only', 'sidcraft-syntex' ) . '</th>';
-		echo '<th>' . esc_html__( 'Full Access', 'sidcraft-syntex' ) . '</th>';
+		echo '<th>' . esc_html__( 'Role', 'sidcraft-page-builder' ) . '</th>';
+		echo '<th>' . esc_html__( 'No Access', 'sidcraft-page-builder' ) . '</th>';
+		echo '<th>' . esc_html__( 'Content Only', 'sidcraft-page-builder' ) . '</th>';
+		echo '<th>' . esc_html__( 'Full Access', 'sidcraft-page-builder' ) . '</th>';
 		echo '</tr></thead><tbody>';
 		foreach ( self::role_list() as $slug => $_role ) {
 			$access = $map[ $slug ] ?? self::default_access( $_role );
@@ -400,8 +400,8 @@ class Roles {
 			echo '</tr>';
 		}
 		echo '</tbody></table>';
-		echo '<p class="description">' . esc_html__( 'Content only: users can edit widget content and save the page. Style, Advanced, Site Settings, Classes and Variables stay hidden. No access hides the editor, row actions and REST routes.', 'sidcraft-syntex' ) . '</p>';
-		echo '<p class="submit"><button type="submit" class="button button-primary" name="sidsyn_save_roles" value="1">' . esc_html__( 'Save Changes', 'sidcraft-syntex' ) . '</button></p>';
+		echo '<p class="description">' . esc_html__( 'Content only: users can edit widget content and save the page. Style, Advanced, Site Settings, Classes and Variables stay hidden. No access hides the editor, row actions and REST routes.', 'sidcraft-page-builder' ) . '</p>';
+		echo '<p class="submit"><button type="submit" class="button button-primary" name="sidsyn_save_roles" value="1">' . esc_html__( 'Save Changes', 'sidcraft-page-builder' ) . '</button></p>';
 		echo '</form></div>';
 	}
 
@@ -432,7 +432,7 @@ class Roles {
 	 * @return true|\WP_Error
 	 */
 	public static function rest_can_manage( $request = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-		return self::can_manage() ? true : new \WP_Error( 'forbidden', __( 'Only administrators can manage Sidcraft Syntex roles.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
+		return self::can_manage() ? true : new \WP_Error( 'forbidden', __( 'Only administrators can manage Sidcraft Page Builder roles.', 'sidcraft-page-builder' ), array( 'status' => 403 ) );
 	}
 
 	public static function rest_get() {

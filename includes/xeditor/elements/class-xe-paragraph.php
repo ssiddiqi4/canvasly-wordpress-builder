@@ -2,10 +2,10 @@
 /**
  * XEditor Paragraph.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\XEditor\Elements;
+namespace SidcraftPageBuilder\XEditor\Elements;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,7 +19,7 @@ class XeParagraph extends XEditorElement {
 	}
 
 	public function title() {
-		return __( 'Paragraph', 'sidcraft-syntex' );
+		return __( 'Paragraph', 'sidcraft-page-builder' );
 	}
 
 	public function icon() {
@@ -32,15 +32,15 @@ class XeParagraph extends XEditorElement {
 
 	public function defaults() {
 		return array(
-			'text' => __( 'Type your text here. XEditor elements print one clean element with your utility classes.', 'sidcraft-syntex' ),
+			'text' => __( 'Type your text here. XEditor elements print one clean element with your utility classes.', 'sidcraft-page-builder' ),
 			'tag'  => 'p',
 		);
 	}
 
 	protected function own_controls() {
-		$sec = __( 'Paragraph', 'sidcraft-syntex' );
+		$sec = __( 'Paragraph', 'sidcraft-page-builder' );
 		return array(
-			'text' => $this->ctrl( 'textarea', __( 'Text', 'sidcraft-syntex' ), 'content', $sec, array( 'dynamic' => true, 'description' => __( 'Line breaks are kept. Basic inline HTML (strong, em, a, br, span, code) is allowed.', 'sidcraft-syntex' ) ) ),
+			'text' => $this->ctrl( 'textarea', __( 'Text', 'sidcraft-page-builder' ), 'content', $sec, array( 'dynamic' => true, 'description' => __( 'Line breaks are kept. Basic inline HTML (strong, em, a, br, span, code) is allowed.', 'sidcraft-page-builder' ) ) ),
 			'tag'  => $this->tag_control( $sec ),
 		) + $this->typography_controls();
 	}

@@ -1,8 +1,8 @@
 <?php
-namespace SidcraftSyntex\Design;
+namespace SidcraftPageBuilder\Design;
 
-use SidcraftSyntex\Document\DocumentManager;
-use SidcraftSyntex\Settings\GlobalSettings;
+use SidcraftPageBuilder\Document\DocumentManager;
+use SidcraftPageBuilder\Settings\GlobalSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,14 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Collects used families/weights/styles from the document, global typography and
  * theme style; prints CSS2 URLs with only those variants; honours a `font-display`
  * setting; adds preconnect hints; optionally self-hosts files under
- * `uploads/sidcraft-syntex/fonts` after an explicit consent setting.
+ * `uploads/sidcraft-page-builder/fonts` after an explicit consent setting.
  */
 class Fonts {
 	const DISPLAY_DEFAULT = 'swap';
-	const SUBDIR          = 'sidcraft-syntex/fonts';
+	const SUBDIR          = 'sidcraft-page-builder/fonts';
 	const LOCAL_CSS       = 'local.css';
-	const OPTION_CACHE    = 'sidcraft_syntex_fonts_cache';
-	const HANDLE          = 'sidcraft-syntex-google-fonts';
+	const OPTION_CACHE    = 'sidcraft_page_builder_fonts_cache';
+	const HANDLE          = 'sidcraft-page-builder-google-fonts';
 	const UA              = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 	/** @var array<string,array{weights:array<int,bool>,italic:array<int,bool>}> */
@@ -53,10 +53,10 @@ class Fonts {
 		}
 		self::$booted = true;
 		add_filter( 'wp_resource_hints', array( self::class, 'resource_hints' ), 10, 2 );
-		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'sidcraft-syntex/document/after_save', array( self::class, 'on_after_save' ), 30, 2 );
+		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-page-builder/document/after_save', array( self::class, 'on_after_save' ), 30, 2 );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
-			add_action( 'sidcraft-syntex/tools/screen', array( self::class, 'screen' ), 6 );
+			add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'screen' ), 6 );
 			add_action( 'admin_post_sidsyn_fonts_settings', array( self::class, 'handle_settings' ) );
 			add_action( 'admin_post_sidsyn_fonts_download', array( self::class, 'handle_download' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
@@ -80,7 +80,7 @@ class Fonts {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-page-builder/v1';
 		register_rest_route(
 			$ns,
 			'/fonts',
@@ -196,7 +196,7 @@ class Fonts {
 			$raw = is_array( $g ) ? (string) ( $g['font_display'] ?? '' ) : '';
 		}
 		if ( $raw === '' ) {
-			$raw = (string) get_option( 'sidcraft_syntex_font_display', '' );
+			$raw = (string) get_option( 'sidcraft_page_builder_font_display', '' );
 		}
 		$display = self::sanitize_display( $raw !== '' ? $raw : self::DISPLAY_DEFAULT );
 		/**
@@ -204,7 +204,7 @@ class Fonts {
 		 *
 		 * @param string $display auto|block|swap|fallback|optional
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/fonts/display', $display );
+		$filtered = apply_filters( 'sidcraft-page-builder/fonts/display', $display );
 		return self::sanitize_display( is_string( $filtered ) ? $filtered : $display );
 	}
 
@@ -220,7 +220,7 @@ class Fonts {
 			}
 		}
 		if ( $raw === null ) {
-			$raw = get_option( 'sidcraft_syntex_google_fonts_local', false );
+			$raw = get_option( 'sidcraft_page_builder_google_fonts_local', false );
 		}
 		$local = self::sanitize_local( $raw );
 		/**
@@ -228,7 +228,7 @@ class Fonts {
 		 *
 		 * @param bool $local
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/fonts/local', $local );
+		$filtered = apply_filters( 'sidcraft-page-builder/fonts/local', $local );
 		return ! empty( $filtered );
 	}
 
@@ -243,7 +243,7 @@ class Fonts {
 			$g['font_display']   = $display;
 			update_option( GlobalSettings::KEY, $g, false );
 		} else {
-			update_option( 'sidcraft_syntex_font_display', $display, false );
+			update_option( 'sidcraft_page_builder_font_display', $display, false );
 		}
 		return $display;
 	}
@@ -259,7 +259,7 @@ class Fonts {
 			$g['google_fonts_local'] = $local;
 			update_option( GlobalSettings::KEY, $g, false );
 		} else {
-			update_option( 'sidcraft_syntex_google_fonts_local', $local ? 1 : 0, false );
+			update_option( 'sidcraft_page_builder_google_fonts_local', $local ? 1 : 0, false );
 		}
 		return $local;
 	}
@@ -366,12 +366,12 @@ class Fonts {
 			return self::$catalog;
 		}
 		self::$catalog = array();
-		$file          = ( defined( 'SIDCRAFT_SYNTEX_PATH' ) ? SIDCRAFT_SYNTEX_PATH : '' ) . 'assets/data/google-fonts.json';
+		$file          = ( defined( 'SIDCRAFT_PAGE_BUILDER_PATH' ) ? SIDCRAFT_PAGE_BUILDER_PATH : '' ) . 'assets/data/google-fonts.json';
 		if ( $file === 'assets/data/google-fonts.json' ) {
 			return self::$catalog;
 		}
-		$data = class_exists( '\\SidcraftSyntex\\Utils\\JsonCache' )
-			? \SidcraftSyntex\Utils\JsonCache::read( $file )
+		$data = class_exists( '\\SidcraftPageBuilder\\Utils\\JsonCache' )
+			? \SidcraftPageBuilder\Utils\JsonCache::read( $file )
 			: array();
 		if ( ! $data && is_readable( $file ) ) {
 			$decoded = json_decode( (string) file_get_contents( $file ), true );
@@ -422,7 +422,7 @@ class Fonts {
 		 * @param array $out   family => {weights,italic}
 		 * @param array $nodes
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/fonts/usage', $out, $nodes );
+		$filtered = apply_filters( 'sidcraft-page-builder/fonts/usage', $out, $nodes );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 
@@ -740,15 +740,15 @@ class Fonts {
 	}
 
 	public static function tools_url() {
-		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
-			return \SidcraftSyntex\Settings\AdminSettings::tools_or_settings_url();
+		if ( class_exists( '\\SidcraftPageBuilder\\Settings\\AdminSettings' ) ) {
+			return \SidcraftPageBuilder\Settings\AdminSettings::tools_or_settings_url();
 		}
-		return admin_url( 'admin.php?page=sidcraft-syntex-tools' );
+		return admin_url( 'admin.php?page=sidcraft-page-builder-tools' );
 	}
 
 	public static function handle_settings() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can change font loading settings.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'Only administrators can change font loading settings.', 'sidcraft-page-builder' ) );
 		}
 		check_admin_referer( 'sidsyn_fonts_settings' );
 		$display = self::save_display( sanitize_text_field( wp_unslash( $_POST['font_display'] ?? self::DISPLAY_DEFAULT ) ) );
@@ -760,7 +760,7 @@ class Fonts {
 			'success',
 			sprintf(
 				/* translators: %s: font-display value */
-				__( 'Font loading saved. font-display is %s.', 'sidcraft-syntex' ),
+				__( 'Font loading saved. font-display is %s.', 'sidcraft-page-builder' ),
 				$display
 			)
 		);
@@ -770,7 +770,7 @@ class Fonts {
 
 	public static function handle_download() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can download Google Fonts.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'Only administrators can download Google Fonts.', 'sidcraft-page-builder' ) );
 		}
 		check_admin_referer( 'sidsyn_fonts_download' );
 		if ( ! self::is_local() ) {
@@ -779,17 +779,17 @@ class Fonts {
 		$out = self::download_site( array() );
 		$ttl = defined( 'MINUTE_IN_SECONDS' ) ? 10 * MINUTE_IN_SECONDS : 600;
 		if ( function_exists( 'set_transient' ) ) {
-			set_transient( 'sidcraft_syntex_fonts_report_' . get_current_user_id(), $out, $ttl );
+			set_transient( 'sidcraft_page_builder_fonts_report_' . get_current_user_id(), $out, $ttl );
 		}
 		self::store_notice(
 			! empty( $out['ok'] ) ? 'success' : 'error',
 			! empty( $out['ok'] )
 				? sprintf(
 					/* translators: 1: font files written */
-					__( 'Downloaded Google Fonts locally: %d files written.', 'sidcraft-syntex' ),
+					__( 'Downloaded Google Fonts locally: %d files written.', 'sidcraft-page-builder' ),
 					(int) ( $out['written'] ?? 0 )
 				)
-				: __( 'Could not download Google Fonts. Check that the site can reach fonts.googleapis.com.', 'sidcraft-syntex' )
+				: __( 'Could not download Google Fonts. Check that the site can reach fonts.googleapis.com.', 'sidcraft-page-builder' )
 		);
 		wp_safe_redirect( self::tools_url() );
 		exit;
@@ -797,18 +797,18 @@ class Fonts {
 
 	public static function admin_notice() {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
-			if ( ! \SidcraftSyntex\Settings\AdminSettings::is_ops_screen( $screen ) ) {
+		if ( class_exists( '\\SidcraftPageBuilder\\Settings\\AdminSettings' ) ) {
+			if ( ! \SidcraftPageBuilder\Settings\AdminSettings::is_ops_screen( $screen ) ) {
 				return;
 			}
-		} elseif ( ! $screen || ( $screen->id ?? '' ) !== 'sidcraft-syntex_page_sidcraft-syntex-tools' ) {
+		} elseif ( ! $screen || ( $screen->id ?? '' ) !== 'sidcraft-page-builder_page_sidcraft-page-builder-tools' ) {
 			return;
 		}
-		$n = get_transient( 'sidcraft_syntex_fonts_notice_' . get_current_user_id() );
+		$n = get_transient( 'sidcraft_page_builder_fonts_notice_' . get_current_user_id() );
 		if ( ! is_array( $n ) ) {
 			return;
 		}
-		delete_transient( 'sidcraft_syntex_fonts_notice_' . get_current_user_id() );
+		delete_transient( 'sidcraft_page_builder_fonts_notice_' . get_current_user_id() );
 		$class = ( $n['type'] ?? '' ) === 'success' ? 'notice-success' : 'notice-error';
 		echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible"><p>' . esc_html( (string) ( $n['message'] ?? '' ) ) . '</p></div>';
 	}
@@ -819,44 +819,44 @@ class Fonts {
 		}
 		$display = self::display();
 		$local   = self::is_local();
-		$report  = function_exists( 'get_transient' ) ? get_transient( 'sidcraft_syntex_fonts_report_' . get_current_user_id() ) : null;
+		$report  = function_exists( 'get_transient' ) ? get_transient( 'sidcraft_page_builder_fonts_report_' . get_current_user_id() ) : null;
 		$labels  = array(
-			'auto'     => __( 'Auto', 'sidcraft-syntex' ),
-			'block'    => __( 'Block', 'sidcraft-syntex' ),
-			'swap'     => __( 'Swap (recommended)', 'sidcraft-syntex' ),
-			'fallback' => __( 'Fallback', 'sidcraft-syntex' ),
-			'optional' => __( 'Optional', 'sidcraft-syntex' ),
+			'auto'     => __( 'Auto', 'sidcraft-page-builder' ),
+			'block'    => __( 'Block', 'sidcraft-page-builder' ),
+			'swap'     => __( 'Swap (recommended)', 'sidcraft-page-builder' ),
+			'fallback' => __( 'Fallback', 'sidcraft-page-builder' ),
+			'optional' => __( 'Optional', 'sidcraft-page-builder' ),
 		);
 
-		echo '<hr><h2>' . esc_html__( 'Font loading', 'sidcraft-syntex' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Google Fonts are requested with only the weights and styles a document actually uses. font-display controls how text renders while a webfont loads. Self-hosting downloads those files into uploads/sidcraft-syntex/fonts so visitors never connect to Google.', 'sidcraft-syntex' ) . '</p>';
+		echo '<hr><h2>' . esc_html__( 'Font loading', 'sidcraft-page-builder' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Google Fonts are requested with only the weights and styles a document actually uses. font-display controls how text renders while a webfont loads. Self-hosting downloads those files into uploads/sidcraft-page-builder/fonts so visitors never connect to Google.', 'sidcraft-page-builder' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		wp_nonce_field( 'sidsyn_fonts_settings' );
 		echo '<input type="hidden" name="action" value="sidsyn_fonts_settings">';
 		echo '<table class="form-table"><tbody>';
-		echo '<tr><th>' . esc_html__( 'font-display', 'sidcraft-syntex' ) . '</th><td><select name="font_display">';
+		echo '<tr><th>' . esc_html__( 'font-display', 'sidcraft-page-builder' ) . '</th><td><select name="font_display">';
 		foreach ( $labels as $k => $label ) {
 			echo '<option value="' . esc_attr( $k ) . '"' . ( $display === $k ? ' selected' : '' ) . '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select></td></tr>';
-		echo '<tr><th>' . esc_html__( 'Self-host Google Fonts', 'sidcraft-syntex' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="google_fonts_local" value="1"' . ( $local ? ' checked' : '' ) . '> ' . esc_html__( 'Download used Google Fonts to this site and serve them locally. Enable only if you agree to host the font files on your server (visitors will not connect to Google).', 'sidcraft-syntex' ) . '</label>';
+		echo '<tr><th>' . esc_html__( 'Self-host Google Fonts', 'sidcraft-page-builder' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="google_fonts_local" value="1"' . ( $local ? ' checked' : '' ) . '> ' . esc_html__( 'Download used Google Fonts to this site and serve them locally. Enable only if you agree to host the font files on your server (visitors will not connect to Google).', 'sidcraft-page-builder' ) . '</label>';
 		echo '</td></tr></tbody></table>';
-		echo '<p><button class="button" type="submit">' . esc_html__( 'Save font loading', 'sidcraft-syntex' ) . '</button></p>';
+		echo '<p><button class="button" type="submit">' . esc_html__( 'Save font loading', 'sidcraft-page-builder' ) . '</button></p>';
 		echo '</form>';
 
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		wp_nonce_field( 'sidsyn_fonts_download' );
 		echo '<input type="hidden" name="action" value="sidsyn_fonts_download">';
-		echo '<p><button class="button" type="submit">' . esc_html__( 'Download Google Fonts', 'sidcraft-syntex' ) . '</button></p>';
+		echo '<p><button class="button" type="submit">' . esc_html__( 'Download Google Fonts', 'sidcraft-page-builder' ) . '</button></p>';
 		echo '</form>';
 
 		if ( is_array( $report ) ) {
-			echo '<p><strong>' . esc_html__( 'Last download', 'sidcraft-syntex' ) . '</strong> ';
+			echo '<p><strong>' . esc_html__( 'Last download', 'sidcraft-page-builder' ) . '</strong> ';
 			echo esc_html(
 				sprintf(
 					/* translators: 1: files written, 2: failures */
-					__( '%1$d files written, %2$d failed.', 'sidcraft-syntex' ),
+					__( '%1$d files written, %2$d failed.', 'sidcraft-page-builder' ),
 					(int) ( $report['written'] ?? 0 ),
 					(int) ( $report['failed'] ?? 0 )
 				)
@@ -875,7 +875,7 @@ class Fonts {
 		}
 		$ttl = defined( 'MINUTE_IN_SECONDS' ) ? 10 * MINUTE_IN_SECONDS : 600;
 		set_transient(
-			'sidcraft_syntex_fonts_notice_' . get_current_user_id(),
+			'sidcraft_page_builder_fonts_notice_' . get_current_user_id(),
 			array(
 				'type'    => $type,
 				'message' => $message,
@@ -905,11 +905,11 @@ class Fonts {
 			 * @param string $url
 			 * @param array  $delta
 			 */
-			$filtered = apply_filters( 'sidcraft-syntex/fonts/url', $url, $delta );
+			$filtered = apply_filters( 'sidcraft-page-builder/fonts/url', $url, $delta );
 			$url      = is_string( $filtered ) && $filtered !== '' ? $filtered : $url;
 			self::$flush_n++;
 			$handle  = self::HANDLE . ( self::$flush_n === 1 ? '' : '-' . self::$flush_n );
-			$version = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '1.0.0';
+			$version = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '1.0.0';
 			wp_enqueue_style( $handle, $url, array(), $version );
 			self::$needs_remote = true;
 		}
@@ -926,7 +926,7 @@ class Fonts {
 			return;
 		}
 		$hash = (string) ( $report['hash'] ?? ( self::cache()['hash'] ?? '' ) );
-		$ver  = $hash !== '' ? $hash : ( defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0' );
+		$ver  = $hash !== '' ? $hash : ( defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '0' );
 		wp_enqueue_style( self::HANDLE, $url, array(), $ver );
 		self::$flushed = self::merge_usage( self::$flushed, $usage );
 	}
@@ -959,8 +959,8 @@ class Fonts {
 				$tid = 0;
 				if ( 'template' === $type ) {
 					$tid = absint( $item['template_id'] ?? 0 );
-				} elseif ( 'collection_loop' === $type && class_exists( '\\SidcraftSyntex\\Units\\CollectionLoop' ) ) {
-					$tid = \SidcraftSyntex\Units\CollectionLoop::embedded_template_id( $item );
+				} elseif ( 'collection_loop' === $type && class_exists( '\\SidcraftPageBuilder\\Units\\CollectionLoop' ) ) {
+					$tid = \SidcraftPageBuilder\Units\CollectionLoop::embedded_template_id( $item );
 				}
 				if ( $tid ) {
 					$embed = self::document_root( $tid );
@@ -1162,8 +1162,8 @@ class Fonts {
 			return array();
 		}
 		self::$seen_docs[ $id ] = true;
-		if ( class_exists( '\\SidcraftSyntex\\Templates\\TemplateEmbed' ) ) {
-			$doc = \SidcraftSyntex\Templates\TemplateEmbed::document( $id );
+		if ( class_exists( '\\SidcraftPageBuilder\\Templates\\TemplateEmbed' ) ) {
+			$doc = \SidcraftPageBuilder\Templates\TemplateEmbed::document( $id );
 			if ( is_array( $doc ) && ! empty( $doc['root'] ) && is_array( $doc['root'] ) ) {
 				return $doc['root'];
 			}
@@ -1210,7 +1210,7 @@ class Fonts {
 				'Accept' => $binary ? '*/*' : 'text/css,*/*;q=0.1',
 			),
 		);
-		$pre = apply_filters( 'sidcraft-syntex/fonts/remote_get', null, $url, $args );
+		$pre = apply_filters( 'sidcraft-page-builder/fonts/remote_get', null, $url, $args );
 		if ( is_array( $pre ) ) {
 			$code = (int) ( $pre['response']['code'] ?? ( $pre['code'] ?? 0 ) );
 			$body = (string) ( $pre['body'] ?? '' );

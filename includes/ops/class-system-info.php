@@ -1,9 +1,9 @@
 <?php
-namespace SidcraftSyntex\Ops;
+namespace SidcraftPageBuilder\Ops;
 
-use SidcraftSyntex\Settings\AdminSettings;
-use SidcraftSyntex\Settings\Experiments;
-use SidcraftSyntex\Settings\GlobalSettings;
+use SidcraftPageBuilder\Settings\AdminSettings;
+use SidcraftPageBuilder\Settings\Experiments;
+use SidcraftPageBuilder\Settings\GlobalSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -13,14 +13,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * System Info report page and download (Roadmap 7.3).
  */
 class SystemInfo {
-	const PAGE = 'sidcraft-syntex-system-info';
+	const PAGE = 'sidcraft-page-builder-system-info';
 
 	public static function init() {
-		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_menu', array( self::class, 'menu' ), 22 );
 			add_action( 'admin_post_sidsyn_system_info_download', array( self::class, 'handle_download' ) );
-			add_action( 'sidcraft-syntex/tools/screen', array( self::class, 'tools_screen' ), 24 );
+			add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'tools_screen' ), 24 );
 		}
 	}
 
@@ -30,9 +30,9 @@ class SystemInfo {
 
 	public static function menu() {
 		add_submenu_page(
-			'sidcraft-syntex',
-			__( 'System Info', 'sidcraft-syntex' ),
-			__( 'System Info', 'sidcraft-syntex' ),
+			'sidcraft-page-builder',
+			__( 'System Info', 'sidcraft-page-builder' ),
+			__( 'System Info', 'sidcraft-page-builder' ),
 			'manage_options',
 			self::PAGE,
 			array( self::class, 'screen' )
@@ -50,14 +50,14 @@ class SystemInfo {
 			'server'       => self::section_server(),
 			'theme'        => self::section_theme(),
 			'plugins'      => self::section_plugins(),
-			'sidcraft-syntex'  => self::section_sidcraft_syntex(),
+			'sidcraft-page-builder'  => self::section_sidcraft_page_builder(),
 		);
 		/**
 		 * Filter the System Info report sections.
 		 *
 		 * @param array $sections
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/system_info', $sections );
+		$filtered = apply_filters( 'sidcraft-page-builder/system_info', $sections );
 		return is_array( $filtered ) ? $filtered : $sections;
 	}
 
@@ -69,7 +69,7 @@ class SystemInfo {
 		$report = is_array( $report ) ? $report : self::report();
 		$labels = self::section_labels();
 		$out    = array();
-		$out[]  = 'Sidcraft Syntex System Info';
+		$out[]  = 'Sidcraft Page Builder System Info';
 		$out[]  = 'Generated: ' . ( function_exists( 'current_time' ) ? current_time( 'c' ) : gmdate( 'c' ) );
 		$out[]  = '';
 		foreach ( $report as $id => $rows ) {
@@ -94,11 +94,11 @@ class SystemInfo {
 	 */
 	public static function section_labels() {
 		return array(
-			'wordpress'   => __( 'WordPress', 'sidcraft-syntex' ),
-			'server'      => __( 'Server', 'sidcraft-syntex' ),
-			'theme'       => __( 'Theme', 'sidcraft-syntex' ),
-			'plugins'     => __( 'Active Plugins', 'sidcraft-syntex' ),
-			'sidcraft-syntex' => __( 'Sidcraft Syntex', 'sidcraft-syntex' ),
+			'wordpress'   => __( 'WordPress', 'sidcraft-page-builder' ),
+			'server'      => __( 'Server', 'sidcraft-page-builder' ),
+			'theme'       => __( 'Theme', 'sidcraft-page-builder' ),
+			'plugins'     => __( 'Active Plugins', 'sidcraft-page-builder' ),
+			'sidcraft-page-builder' => __( 'Sidcraft Page Builder', 'sidcraft-page-builder' ),
 		);
 	}
 
@@ -196,7 +196,7 @@ class SystemInfo {
 	/**
 	 * @return array<string,string>
 	 */
-	public static function section_sidcraft_syntex() {
+	public static function section_sidcraft_page_builder() {
 		$g    = class_exists( GlobalSettings::class ) ? GlobalSettings::get() : array();
 		$m    = class_exists( AdminSettings::class ) ? AdminSettings::maintenance() : array();
 		$exp  = class_exists( Experiments::class ) ? Experiments::all() : array();
@@ -212,8 +212,8 @@ class SystemInfo {
 			$names[] = (string) ( $z['name'] ?? '' );
 		}
 		return array(
-			'Version'              => defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '',
-			'Path'                 => defined( 'SIDCRAFT_SYNTEX_PATH' ) ? SIDCRAFT_SYNTEX_PATH : '',
+			'Version'              => defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '',
+			'Path'                 => defined( 'SIDCRAFT_PAGE_BUILDER_PATH' ) ? SIDCRAFT_PAGE_BUILDER_PATH : '',
 			'CSS print method'     => (string) ( $g['css_print_method'] ?? '' ),
 			'font-display'         => (string) ( $g['font_display'] ?? '' ),
 			'Google Fonts local'   => ! empty( $g['google_fonts_local'] ) ? 'Yes' : 'No',
@@ -230,20 +230,20 @@ class SystemInfo {
 			'Active experiments'   => $active_exp ? implode( ', ', $active_exp ) : '(none)',
 			'Has Maps API key'     => ( class_exists( AdminSettings::class ) && AdminSettings::google_maps_api_key() !== '' ) ? 'Yes' : 'No',
 			'Has reCAPTCHA secret' => ( class_exists( AdminSettings::class ) && AdminSettings::recaptcha_secret_key() !== '' ) ? 'Yes' : 'No',
-			'Upgrade stored'       => class_exists( '\\SidcraftSyntex\\Upgrade\\Upgrades' ) ? (string) \SidcraftSyntex\Upgrade\Upgrades::stored_version() : '',
-			'Upgrade status'       => class_exists( '\\SidcraftSyntex\\Upgrade\\Upgrades' ) ? (string) ( \SidcraftSyntex\Upgrade\Upgrades::status()['state'] ?? '' ) : '',
-			'Log size'             => class_exists( '\\SidcraftSyntex\\Log\\Logger' ) ? (string) \SidcraftSyntex\Log\Logger::size() : '0',
+			'Upgrade stored'       => class_exists( '\\SidcraftPageBuilder\\Upgrade\\Upgrades' ) ? (string) \SidcraftPageBuilder\Upgrade\Upgrades::stored_version() : '',
+			'Upgrade status'       => class_exists( '\\SidcraftPageBuilder\\Upgrade\\Upgrades' ) ? (string) ( \SidcraftPageBuilder\Upgrade\Upgrades::status()['state'] ?? '' ) : '',
+			'Log size'             => class_exists( '\\SidcraftPageBuilder\\Log\\Logger' ) ? (string) \SidcraftPageBuilder\Log\Logger::size() : '0',
 		);
 	}
 
 	public static function screen() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can view system info.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'Only administrators can view system info.', 'sidcraft-page-builder' ) );
 		}
 		echo '<div class="wrap lb-settings-wrap">';
-		echo '<h1>' . esc_html__( 'Sidcraft Syntex System Info', 'sidcraft-syntex' ) . '</h1>';
-		echo '<p class="description">' . esc_html__( 'Environment report for support. API keys and secrets are not included.', 'sidcraft-syntex' ) . '</p>';
-		echo '<p><a class="button button-primary" href="' . esc_url( self::download_url() ) . '">' . esc_html__( 'Download report', 'sidcraft-syntex' ) . '</a></p>';
+		echo '<h1>' . esc_html__( 'Sidcraft Page Builder System Info', 'sidcraft-page-builder' ) . '</h1>';
+		echo '<p class="description">' . esc_html__( 'Environment report for support. API keys and secrets are not included.', 'sidcraft-page-builder' ) . '</p>';
+		echo '<p><a class="button button-primary" href="' . esc_url( self::download_url() ) . '">' . esc_html__( 'Download report', 'sidcraft-page-builder' ) . '</a></p>';
 		self::render_report( self::report() );
 		echo '</div>';
 	}
@@ -271,10 +271,10 @@ class SystemInfo {
 		if ( ! self::can_manage() ) {
 			return;
 		}
-		echo '<hr><h2>' . esc_html__( 'System Info', 'sidcraft-syntex' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'WordPress, server, theme, plugin and Sidcraft Syntex environment. Secrets are redacted.', 'sidcraft-syntex' ) . '</p>';
-		echo '<p><a class="button" href="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE ) ) . '">' . esc_html__( 'View report', 'sidcraft-syntex' ) . '</a> ';
-		echo '<a class="button" href="' . esc_url( self::download_url() ) . '">' . esc_html__( 'Download report', 'sidcraft-syntex' ) . '</a></p>';
+		echo '<hr><h2>' . esc_html__( 'System Info', 'sidcraft-page-builder' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'WordPress, server, theme, plugin and Sidcraft Page Builder environment. Secrets are redacted.', 'sidcraft-page-builder' ) . '</p>';
+		echo '<p><a class="button" href="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE ) ) . '">' . esc_html__( 'View report', 'sidcraft-page-builder' ) . '</a> ';
+		echo '<a class="button" href="' . esc_url( self::download_url() ) . '">' . esc_html__( 'Download report', 'sidcraft-page-builder' ) . '</a></p>';
 	}
 
 	/**
@@ -286,12 +286,12 @@ class SystemInfo {
 
 	public static function handle_download() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can view system info.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'Only administrators can view system info.', 'sidcraft-page-builder' ) );
 		}
 		check_admin_referer( 'sidsyn_system_info_download' );
 		$text = self::to_text();
 		$date = gmdate( 'Y-m-d' );
-		$filename = 'sidcraft-syntex-system-info-' . $date . '.txt';
+		$filename = 'sidcraft-page-builder-system-info-' . $date . '.txt';
 		nocache_headers();
 		header( 'Content-Type: text/plain; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
@@ -304,7 +304,7 @@ class SystemInfo {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-page-builder/v1';
 		register_rest_route(
 			$ns,
 			'/system-info',

@@ -1,14 +1,14 @@
 <?php
-namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftPageBuilder\Units; if(!defined('ABSPATH')) exit;
 /**
  * Unit registry.
  *
  * Core units are registered by Plugin::register_units() on `init`; afterwards `boot()` fires
- * `sidcraft-syntex/units/register` with the registry so add-ons can call register()/unregister().
+ * `sidcraft-page-builder/units/register` with the registry so add-ons can call register()/unregister().
  * register() accepts an Unit instance or a fully-qualified class name extending Unit.
  *
  * Core widgets may be registered lazily (file + class) so frontend and wp-admin screens that
- * never render a Sidcraft Syntex tree do not parse 50+ unit files on every request.
+ * never render a Sidcraft Page Builder tree do not parse 50+ unit files on every request.
  */
 class UnitRegistry {
  private static $i;
@@ -75,8 +75,8 @@ class UnitRegistry {
  public function boot(){
   if($this->booted) return $this;
   $this->booted=true;
-  do_action('sidcraft-syntex/units/register',$this);
-  do_action('sidcraft-syntex/elements/register',$this);
+  do_action('sidcraft-page-builder/units/register',$this);
+  do_action('sidcraft-page-builder/elements/register',$this);
   return $this;
  }
  private function realize($type){

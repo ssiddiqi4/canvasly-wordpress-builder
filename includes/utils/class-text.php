@@ -7,10 +7,10 @@
  * half and leave invalid UTF-8 behind. Browsers then render that as "?" or as
  * mojibake. Use these helpers for any user-visible or HTML text instead.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\Utils;
+namespace SidcraftPageBuilder\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

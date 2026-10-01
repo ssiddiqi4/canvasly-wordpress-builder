@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs WordPress, activates Sidcraft Syntex, and loads the editor screen as an
+# Installs WordPress, activates Sidcraft Page Builder, and loads the editor screen as an
 # admin. Fails on activation errors, PHP fatals/warnings from the plugin, or an
 # editor page that does not render the editor root.
 #
@@ -17,7 +17,7 @@ PORT="${PORT:-8888}"
 URL="http://127.0.0.1:${PORT}"
 ADMIN_USER=admin
 ADMIN_PASS=password
-SLUG=sidcraft-syntex
+SLUG=sidcraft-page-builder
 
 fail() { echo "::error::$*"; exit 1; }
 
@@ -31,7 +31,7 @@ wp config set WP_DEBUG true --raw
 wp config set WP_DEBUG_LOG true --raw
 wp config set WP_DEBUG_DISPLAY false --raw
 wp db create || true
-wp core install --url="$URL" --title="Sidcraft Syntex CI" --admin_user="$ADMIN_USER" \
+wp core install --url="$URL" --title="Sidcraft Page Builder CI" --admin_user="$ADMIN_USER" \
 	--admin_password="$ADMIN_PASS" --admin_email=ci@example.com --skip-email --quiet
 echo "WordPress $(wp core version)"
 
@@ -92,10 +92,11 @@ $doc = array( "root" => array(
 	array( "id" => "a1", "type" => "accordion", "settings" => array( "faq_schema" => true ), "children" => array() ),
 	array( "id" => "g1", "type" => "grid", "settings" => array( "grid_template_columns" => "1fr\" onmouseover=\"bad()" ), "children" => array() ),
 ) );
-$r = \SidcraftSyntex\Document\DocumentManager::save( (int) getenv( "SMOKE_PAGE_ID" ), $doc );
+$r = \SidcraftPageBuilder\Document\DocumentManager::save( (int) getenv( "SMOKE_PAGE_ID" ), $doc );
 if ( is_wp_error( $r ) ) { fwrite( STDERR, $r->get_error_message() ); exit( 1 ); }
 ' || fail "Could not save a builder document"
-check_page frontend "/?page_id=$PAGE_ID" 'smoke-text-ok'
+PAGE_PATH=$(wp post url "$PAGE_ID" | sed "s#^$URL##")
+check_page frontend "$PAGE_PATH" 'smoke-text-ok'
 grep -q 'application/ld+json' /tmp/smoke-frontend.html || fail "Accordion FAQ schema was stripped from the page"
 if grep -qE '<script>bad|onmouseover|sidsyn-raw' /tmp/smoke-frontend.html; then
 	grep -oE '.{0,80}(<script>bad|onmouseover|sidsyn-raw).{0,40}' /tmp/smoke-frontend.html | head -5
@@ -105,7 +106,7 @@ fi
 echo "--- Checking PHP log"
 if grep -E "PHP (Fatal|Parse|Warning)" "$LOG" | grep -q "plugins/$SLUG/"; then
 	grep -E "PHP (Fatal|Parse|Warning)" "$LOG" | grep "plugins/$SLUG/" | head -20
-	fail "Sidcraft Syntex logged PHP errors or warnings"
+	fail "Sidcraft Page Builder logged PHP errors or warnings"
 fi
 if [ -s "$LOG" ]; then
 	echo "Other debug.log entries (not failing the build):"

@@ -1,9 +1,9 @@
 <?php
-namespace SidcraftSyntex\Settings;
+namespace SidcraftPageBuilder\Settings;
 
-use SidcraftSyntex\Design\CssPrint;
-use SidcraftSyntex\Document\DocumentManager;
-use SidcraftSyntex\Units\UnitRegistry;
+use SidcraftPageBuilder\Design\CssPrint;
+use SidcraftPageBuilder\Document\DocumentManager;
+use SidcraftPageBuilder\Units\UnitRegistry;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -13,21 +13,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Units Manager (Roadmap 7.2).
  *
  * Globally disable types, restrict them per WordPress role, and show usage
- * counts from saved documents. Sidcraft Syntex Pro widgets registered on
- * `sidcraft-syntex/units/register` appear in the same list. Disabled types
+ * counts from saved documents. Sidcraft Page Builder Pro widgets registered on
+ * `sidcraft-page-builder/units/register` appear in the same list. Disabled types
  * stay registered so existing nodes still render and sanitize.
  */
 class UnitsManager {
-	const OPTION    = 'sidcraft_syntex_units_manager';
-	const TRANSIENT = 'sidcraft_syntex_unit_usage';
-	const PAGE      = 'sidcraft-syntex-units';
+	const OPTION    = 'sidcraft_page_builder_units_manager';
+	const TRANSIENT = 'sidcraft_page_builder_unit_usage';
+	const PAGE      = 'sidcraft-page-builder-units';
 	const NONCE     = 'sidsyn_units_manager';
 	const TTL       = 43200;
 	const WALK      = 500;
 
 	public static function init() {
-		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'sidcraft-syntex/document/after_save', array( self::class, 'invalidate_usage' ), 25, 0 );
+		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-page-builder/document/after_save', array( self::class, 'invalidate_usage' ), 25, 0 );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_menu', array( self::class, 'menu' ), 11 );
 			add_action( 'admin_init', array( self::class, 'maybe_save' ) );
@@ -44,10 +44,10 @@ class UnitsManager {
 		if ( ! is_string( $hook_suffix ) || strpos( $hook_suffix, self::PAGE ) === false ) {
 			return;
 		}
-		$ver = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0';
+		$ver = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '0';
 		wp_enqueue_script(
-			'sidcraft-syntex-units-manager',
-			SIDCRAFT_SYNTEX_URL . 'assets/js/units-manager.js',
+			'sidcraft-page-builder-units-manager',
+			SIDCRAFT_PAGE_BUILDER_URL . 'assets/js/units-manager.js',
 			array(),
 			$ver,
 			true
@@ -56,9 +56,9 @@ class UnitsManager {
 
 	public static function menu() {
 		add_submenu_page(
-			'sidcraft-syntex',
-			__( 'Units Manager', 'sidcraft-syntex' ),
-			__( 'Units Manager', 'sidcraft-syntex' ),
+			'sidcraft-page-builder',
+			__( 'Units Manager', 'sidcraft-page-builder' ),
+			__( 'Units Manager', 'sidcraft-page-builder' ),
 			'manage_options',
 			self::PAGE,
 			array( self::class, 'screen' )
@@ -82,7 +82,7 @@ class UnitsManager {
 		 *
 		 * @param string[] $locked
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/units/locked', $locked );
+		$filtered = apply_filters( 'sidcraft-page-builder/units/locked', $locked );
 		$out      = array();
 		foreach ( is_array( $filtered ) ? $filtered : $locked as $type ) {
 			$type = sanitize_key( (string) $type );
@@ -112,7 +112,7 @@ class UnitsManager {
 		 *
 		 * @param array $out
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/units/manager', $out );
+		$filtered = apply_filters( 'sidcraft-page-builder/units/manager', $out );
 		return is_array( $filtered ) ? self::sanitize( $filtered ) : $out;
 	}
 
@@ -172,7 +172,7 @@ class UnitsManager {
 	 */
 	public static function save( $data ) {
 		if ( ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'Only administrators can change the unit list.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'Only administrators can change the unit list.', 'sidcraft-page-builder' ), array( 'status' => 403 ) );
 		}
 		$clean = self::sanitize( $data );
 		update_option( self::OPTION, $clean, false );
@@ -181,7 +181,7 @@ class UnitsManager {
 		 *
 		 * @param array $clean
 		 */
-		do_action( 'sidcraft-syntex/units/after_save', $clean );
+		do_action( 'sidcraft-page-builder/units/after_save', $clean );
 		return $clean;
 	}
 
@@ -229,7 +229,7 @@ class UnitsManager {
 		 * @param string   $type
 		 * @param string[] $roles
 		 */
-		return (bool) apply_filters( 'sidcraft-syntex/units/allowed', $ok, $type, $roles );
+		return (bool) apply_filters( 'sidcraft-page-builder/units/allowed', $ok, $type, $roles );
 	}
 
 	/**
@@ -256,12 +256,12 @@ class UnitsManager {
 	}
 
 	/**
-	 * Sidcraft Syntex Pro is active, so its widgets can be toggled from this screen.
+	 * Sidcraft Page Builder Pro is active, so its widgets can be toggled from this screen.
 	 *
 	 * @return bool
 	 */
 	public static function pro_active() {
-		return defined( 'SIDCRAFT_SYNTEX_PRO_VERSION' ) || class_exists( '\\SidcraftSyntexPro\\Plugin', false );
+		return defined( 'SIDCRAFT_PAGE_BUILDER_PRO_VERSION' ) || class_exists( '\\SidcraftPageBuilderPro\\Plugin', false );
 	}
 
 	/**
@@ -283,7 +283,7 @@ class UnitsManager {
 		}
 		if ( $slug === '' ) {
 			$class = ltrim( $class, '\\' );
-			$slug  = ( strpos( $class, 'SidcraftSyntexPro\\' ) === 0 ) ? 'pro' : 'lite';
+			$slug  = ( strpos( $class, 'SidcraftPageBuilderPro\\' ) === 0 ) ? 'pro' : 'lite';
 		}
 		/**
 		 * Filter the package slug shown in Units Manager.
@@ -291,7 +291,7 @@ class UnitsManager {
 		 * @param string        $slug
 		 * @param object|string $unit
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/units/source', $slug, $unit );
+		$filtered = apply_filters( 'sidcraft-page-builder/units/source', $slug, $unit );
 		$filtered = sanitize_key( (string) $filtered );
 		return $filtered !== '' ? $filtered : 'lite';
 	}
@@ -303,10 +303,10 @@ class UnitsManager {
 	public static function source_label( $slug ) {
 		$slug = sanitize_key( (string) $slug );
 		if ( $slug === 'pro' ) {
-			return __( 'Sidcraft Syntex Pro', 'sidcraft-syntex' );
+			return __( 'Sidcraft Page Builder Pro', 'sidcraft-page-builder' );
 		}
 		if ( $slug === 'lite' ) {
-			return __( 'Sidcraft Syntex', 'sidcraft-syntex' );
+			return __( 'Sidcraft Page Builder', 'sidcraft-page-builder' );
 		}
 		return $slug;
 	}
@@ -408,13 +408,13 @@ class UnitsManager {
 	 */
 	public static function disable_unused() {
 		if ( ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'Only administrators can change the unit list.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'Only administrators can change the unit list.', 'sidcraft-page-builder' ), array( 'status' => 403 ) );
 		}
 		self::invalidate_usage();
 		$usage   = self::recount();
 		$catalog = self::catalog();
 		if ( ! $catalog ) {
-			return new \WP_Error( 'empty', __( 'No units are registered yet.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'empty', __( 'No units are registered yet.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
 		}
 		$current = self::get();
 		return self::save( self::apply_unused( $current, $usage, $catalog ) );
@@ -505,7 +505,7 @@ class UnitsManager {
 		 * @param int[] $ids
 		 * @param int   $limit
 		 */
-		$filtered = apply_filters( 'sidcraft-syntex/units/usage_ids', $ids, $limit );
+		$filtered = apply_filters( 'sidcraft-page-builder/units/usage_ids', $ids, $limit );
 		$out      = array();
 		foreach ( (array) ( is_array( $filtered ) ? $filtered : $ids ) as $id ) {
 			$id = absint( $id );
@@ -534,8 +534,8 @@ class UnitsManager {
 			if ( ! $raw && $pt === 'sidsyn_component' ) {
 				$raw = get_post_meta( $id, '_sidsyn_component_data', true );
 			}
-			$doc = class_exists( '\\SidcraftSyntex\\Utils\\JsonCache' )
-				? \SidcraftSyntex\Utils\JsonCache::decode( $raw, array() )
+			$doc = class_exists( '\\SidcraftPageBuilder\\Utils\\JsonCache' )
+				? \SidcraftPageBuilder\Utils\JsonCache::decode( $raw, array() )
 				: ( is_array( $raw ) ? $raw : ( is_string( $raw ) ? json_decode( $raw, true ) : array() ) );
 			$root = is_array( $doc['root'] ?? null ) ? $doc['root'] : array();
 			self::count_in_tree( $root, $counts );
@@ -556,7 +556,7 @@ class UnitsManager {
 	}
 
 	public static function maybe_save() {
-		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::is_plugin_page() ) {
+		if ( class_exists( '\\SidcraftPageBuilder\\Admin\\AdminContext' ) && ! \SidcraftPageBuilder\Admin\AdminContext::is_plugin_page() ) {
 			return;
 		}
 		if ( ! empty( $_POST['sidsyn_recount_units'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -568,7 +568,7 @@ class UnitsManager {
 			}
 			self::invalidate_usage();
 			self::recount();
-			add_settings_error( 'sidcraft_syntex_units', 'recounted', __( 'Unit usage counts were rebuilt.', 'sidcraft-syntex' ), 'updated' );
+			add_settings_error( 'sidcraft_page_builder_units', 'recounted', __( 'Unit usage counts were rebuilt.', 'sidcraft-page-builder' ), 'updated' );
 			return;
 		}
 		if ( ! empty( $_POST['sidsyn_disable_unused'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -580,15 +580,15 @@ class UnitsManager {
 			}
 			$saved = self::disable_unused();
 			if ( is_wp_error( $saved ) ) {
-				add_settings_error( 'sidcraft_syntex_units', 'unused', $saved->get_error_message(), 'error' );
+				add_settings_error( 'sidcraft_page_builder_units', 'unused', $saved->get_error_message(), 'error' );
 				return;
 			}
 			add_settings_error(
-				'sidcraft_syntex_units',
+				'sidcraft_page_builder_units',
 				'unused',
 				sprintf(
 					/* translators: %d: number of disabled units */
-					__( 'Unused units were turned off. %d units are now disabled.', 'sidcraft-syntex' ),
+					__( 'Unused units were turned off. %d units are now disabled.', 'sidcraft-page-builder' ),
 					count( $saved['disabled'] )
 				),
 				'updated'
@@ -605,12 +605,12 @@ class UnitsManager {
 			return;
 		}
 		self::save( self::data_from_post( wp_unslash( $_POST ) ) );
-		add_settings_error( 'sidcraft_syntex_units', 'saved', __( 'Units Manager saved.', 'sidcraft-syntex' ), 'updated' );
+		add_settings_error( 'sidcraft_page_builder_units', 'saved', __( 'Units Manager saved.', 'sidcraft-page-builder' ), 'updated' );
 	}
 
 	public static function screen() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can manage Sidcraft Syntex units.', 'sidcraft-syntex' ) );
+			wp_die( esc_html__( 'Only administrators can manage Sidcraft Page Builder units.', 'sidcraft-page-builder' ) );
 		}
 		$d          = self::get();
 		$catalog    = self::screen_rows();
@@ -633,42 +633,42 @@ class UnitsManager {
 				break;
 			}
 		}
-		$confirm = __( 'Turn off every unit that is not used on a saved page, template, or component? Required layout units stay on. Content that already uses an unit keeps rendering.', 'sidcraft-syntex' );
+		$confirm = __( 'Turn off every unit that is not used on a saved page, template, or component? Required layout units stay on. Content that already uses an unit keeps rendering.', 'sidcraft-page-builder' );
 		echo '<div class="wrap lb-settings-wrap lb-units-manager">';
-		echo '<h1>' . esc_html__( 'Units Manager', 'sidcraft-syntex' ) . '</h1>';
-		settings_errors( 'sidcraft_syntex_units' );
-		echo '<p class="description">' . esc_html__( 'Turn an unit on or off for the whole site. Off hides it from the editor panel. Restrict it per role to hide it only for that role. Existing instances on saved pages keep rendering.', 'sidcraft-syntex' ) . '</p>';
+		echo '<h1>' . esc_html__( 'Units Manager', 'sidcraft-page-builder' ) . '</h1>';
+		settings_errors( 'sidcraft_page_builder_units' );
+		echo '<p class="description">' . esc_html__( 'Turn an unit on or off for the whole site. Off hides it from the editor panel. Restrict it per role to hide it only for that role. Existing instances on saved pages keep rendering.', 'sidcraft-page-builder' ) . '</p>';
 		if ( $has_pro ) {
-			echo '<p class="description">' . esc_html__( 'Sidcraft Syntex Pro is active. Its widgets are in this same list and use the same on/off switch.', 'sidcraft-syntex' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'Sidcraft Page Builder Pro is active. Its widgets are in this same list and use the same on/off switch.', 'sidcraft-page-builder' ) . '</p>';
 		}
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE ) ) . '">';
 		wp_nonce_field( self::NONCE );
 		echo '<p class="lb-units-manager-actions">';
-		echo '<button type="submit" class="button button-primary" name="sidsyn_save_units" value="1">' . esc_html__( 'Save Changes', 'sidcraft-syntex' ) . '</button> ';
-		echo '<button type="submit" class="button" name="sidsyn_recount_units" value="1">' . esc_html__( 'Recount usage', 'sidcraft-syntex' ) . '</button> ';
-		echo '<button type="submit" class="button" name="sidsyn_disable_unused" id="lb-disable-unused" value="1" data-confirm="' . esc_attr( $confirm ) . '">' . esc_html__( 'Disable unused', 'sidcraft-syntex' ) . '</button>';
-		echo '<label>' . esc_html__( 'Show', 'sidcraft-syntex' ) . ' <select id="lb-unit-filter">';
-		echo '<option value="all">' . esc_html__( 'All units', 'sidcraft-syntex' ) . '</option>';
-		echo '<option value="lite">' . esc_html__( 'Sidcraft Syntex', 'sidcraft-syntex' ) . '</option>';
+		echo '<button type="submit" class="button button-primary" name="sidsyn_save_units" value="1">' . esc_html__( 'Save Changes', 'sidcraft-page-builder' ) . '</button> ';
+		echo '<button type="submit" class="button" name="sidsyn_recount_units" value="1">' . esc_html__( 'Recount usage', 'sidcraft-page-builder' ) . '</button> ';
+		echo '<button type="submit" class="button" name="sidsyn_disable_unused" id="lb-disable-unused" value="1" data-confirm="' . esc_attr( $confirm ) . '">' . esc_html__( 'Disable unused', 'sidcraft-page-builder' ) . '</button>';
+		echo '<label>' . esc_html__( 'Show', 'sidcraft-page-builder' ) . ' <select id="lb-unit-filter">';
+		echo '<option value="all">' . esc_html__( 'All units', 'sidcraft-page-builder' ) . '</option>';
+		echo '<option value="lite">' . esc_html__( 'Sidcraft Page Builder', 'sidcraft-page-builder' ) . '</option>';
 		if ( $has_pro ) {
-			echo '<option value="pro">' . esc_html__( 'Sidcraft Syntex Pro', 'sidcraft-syntex' ) . '</option>';
+			echo '<option value="pro">' . esc_html__( 'Sidcraft Page Builder Pro', 'sidcraft-page-builder' ) . '</option>';
 		}
-		echo '<option value="unused">' . esc_html__( 'Unused', 'sidcraft-syntex' ) . '</option>';
-		echo '<option value="disabled">' . esc_html__( 'Turned off', 'sidcraft-syntex' ) . '</option>';
+		echo '<option value="unused">' . esc_html__( 'Unused', 'sidcraft-page-builder' ) . '</option>';
+		echo '<option value="disabled">' . esc_html__( 'Turned off', 'sidcraft-page-builder' ) . '</option>';
 		echo '</select></label>';
-		echo '<label class="screen-reader-text" for="lb-unit-search">' . esc_html__( 'Search units', 'sidcraft-syntex' ) . '</label>';
-		echo '<input type="search" id="lb-unit-search" class="lb-unit-search" placeholder="' . esc_attr__( 'Search units', 'sidcraft-syntex' ) . '">';
+		echo '<label class="screen-reader-text" for="lb-unit-search">' . esc_html__( 'Search units', 'sidcraft-page-builder' ) . '</label>';
+		echo '<input type="search" id="lb-unit-search" class="lb-unit-search" placeholder="' . esc_attr__( 'Search units', 'sidcraft-page-builder' ) . '">';
 		echo '</p>';
 		echo '<table class="widefat striped lb-units-table"><thead><tr>';
-		echo '<th><label><input type="checkbox" id="lb-units-toggle-visible"' . checked( $all_on, true, false ) . '> ' . esc_html__( 'Enabled', 'sidcraft-syntex' ) . '</label></th>';
-		echo '<th>' . esc_html__( 'Unit', 'sidcraft-syntex' ) . '</th>';
-		echo '<th>' . esc_html__( 'Plugin', 'sidcraft-syntex' ) . '</th>';
-		echo '<th>' . esc_html__( 'Category', 'sidcraft-syntex' ) . '</th>';
-		echo '<th>' . esc_html__( 'Usage', 'sidcraft-syntex' ) . '</th>';
-		echo '<th>' . esc_html__( 'Hide from roles', 'sidcraft-syntex' ) . '</th>';
+		echo '<th><label><input type="checkbox" id="lb-units-toggle-visible"' . checked( $all_on, true, false ) . '> ' . esc_html__( 'Enabled', 'sidcraft-page-builder' ) . '</label></th>';
+		echo '<th>' . esc_html__( 'Unit', 'sidcraft-page-builder' ) . '</th>';
+		echo '<th>' . esc_html__( 'Plugin', 'sidcraft-page-builder' ) . '</th>';
+		echo '<th>' . esc_html__( 'Category', 'sidcraft-page-builder' ) . '</th>';
+		echo '<th>' . esc_html__( 'Usage', 'sidcraft-page-builder' ) . '</th>';
+		echo '<th>' . esc_html__( 'Hide from roles', 'sidcraft-page-builder' ) . '</th>';
 		echo '</tr></thead><tbody>';
 		if ( ! $catalog ) {
-			echo '<tr><td colspan="6">' . esc_html__( 'No units are registered yet.', 'sidcraft-syntex' ) . '</td></tr>';
+			echo '<tr><td colspan="6">' . esc_html__( 'No units are registered yet.', 'sidcraft-page-builder' ) . '</td></tr>';
 		}
 		$seen_source = '';
 		foreach ( $catalog as $type => $item ) {
@@ -685,7 +685,7 @@ class UnitsManager {
 			echo '<tr data-type="' . esc_attr( $type ) . '" data-source="' . esc_attr( $source ) . '" data-usage="' . esc_attr( (string) $count ) . '" data-enabled="' . ( $enabled ? '1' : '0' ) . '" data-locked="' . ( $locked ? '1' : '0' ) . '" data-search="' . esc_attr( $search ) . '">';
 			echo '<td><label><input type="checkbox" name="sidsyn_unit_enabled[]" value="' . esc_attr( $type ) . '"' . checked( $enabled, true, false ) . disabled( $locked, true, false ) . ' class="lb-unit-enabled" data-type="' . esc_attr( $type ) . '">';
 			if ( $locked ) {
-				echo ' <span class="description">' . esc_html__( 'Required', 'sidcraft-syntex' ) . '</span>';
+				echo ' <span class="description">' . esc_html__( 'Required', 'sidcraft-page-builder' ) . '</span>';
 			} else {
 				echo '<input type="hidden" name="sidsyn_unit_disabled_map[' . esc_attr( $type ) . ']" value="' . ( $enabled ? '0' : '1' ) . '" class="lb-unit-disabled-flag">';
 			}
@@ -696,7 +696,7 @@ class UnitsManager {
 			echo '<td>' . esc_html( (string) $count ) . '</td>';
 			echo '<td>';
 			if ( $locked ) {
-				echo '<span class="description">' . esc_html__( 'Always available.', 'sidcraft-syntex' ) . '</span>';
+				echo '<span class="description">' . esc_html__( 'Always available.', 'sidcraft-page-builder' ) . '</span>';
 			} else {
 				echo '<fieldset class="lb-unit-roles">';
 				foreach ( $role_list as $slug => $_role ) {
@@ -712,7 +712,7 @@ class UnitsManager {
 			echo '</td></tr>';
 		}
 		echo '</tbody></table>';
-		echo '<p class="submit"><button type="submit" class="button button-primary" name="sidsyn_save_units" value="1">' . esc_html__( 'Save Changes', 'sidcraft-syntex' ) . '</button></p>';
+		echo '<p class="submit"><button type="submit" class="button button-primary" name="sidsyn_save_units" value="1">' . esc_html__( 'Save Changes', 'sidcraft-page-builder' ) . '</button></p>';
 		echo '</form></div>';
 	}
 
@@ -782,7 +782,7 @@ class UnitsManager {
 	 * @return true|\WP_Error
 	 */
 	public static function rest_can_manage( $request = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-		return self::can_manage() ? true : new \WP_Error( 'forbidden', __( 'Only administrators can manage units.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
+		return self::can_manage() ? true : new \WP_Error( 'forbidden', __( 'Only administrators can manage units.', 'sidcraft-page-builder' ), array( 'status' => 403 ) );
 	}
 
 	public static function rest_get() {

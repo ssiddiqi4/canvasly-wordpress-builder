@@ -1,5 +1,5 @@
 <?php
-namespace SidcraftSyntex\Templates {
+namespace SidcraftPageBuilder\Templates {
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,8 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * as an empty string, which would be indistinguishable from "not set".
  */
 class ThemeOverrides {
-	const OPTION = 'sidcraft_syntex_theme_overrides_global';
-	const META   = '_sidcraft_syntex_theme_override';
+	const OPTION = 'sidcraft_page_builder_theme_overrides_global';
+	const META   = '_sidcraft_page_builder_theme_override';
 
 	/**
 	 * @param bool $on
@@ -165,18 +165,18 @@ class ThemeOverrides {
 }
 
 namespace {
-	if ( ! function_exists( 'sidcraft_syntex_should_suppress_theme_file' ) ) {
+	if ( ! function_exists( 'sidcraft_page_builder_should_suppress_theme_file' ) ) {
 		/**
 		 * Whether the current request should suppress the theme header/footer file.
 		 *
-		 * Post meta `_sidcraft_syntex_theme_override` wins when it is an explicit `1` or `0`.
-		 * Otherwise the site option `sidcraft_syntex_theme_overrides_global` applies.
+		 * Post meta `_sidcraft_page_builder_theme_override` wins when it is an explicit `1` or `0`.
+		 * Otherwise the site option `sidcraft_page_builder_theme_overrides_global` applies.
 		 *
 		 * @param int|null $post_id
 		 * @return bool
 		 */
-		function sidcraft_syntex_should_suppress_theme_file( $post_id = null ) {
-			return \SidcraftSyntex\Templates\ThemeOverrides::should_suppress( $post_id );
+		function sidcraft_page_builder_should_suppress_theme_file( $post_id = null ) {
+			return \SidcraftPageBuilder\Templates\ThemeOverrides::should_suppress( $post_id );
 		}
 	}
 }

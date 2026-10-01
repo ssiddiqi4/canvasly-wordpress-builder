@@ -25,12 +25,12 @@
 	background:#fef8ee;border-bottom:1px solid #dba617;
 	padding:10px 16px;color:#1d2327;display:flex;gap:10px;align-items:center;flex-wrap:wrap
 }
-body.toplevel_page_sidcraft-syntex .lb-safe-mode-banner,
+body.toplevel_page_sidcraft-page-builder .lb-safe-mode-banner,
 body.lb-editor-iframe .lb-safe-mode-banner,
 body.lb-editor-iframe-shell .lb-safe-mode-banner{
 	position:fixed;top:0;left:0;right:0;z-index:1000000
 }
-body.toplevel_page_sidcraft-syntex.lb-safe-mode-user #lb-editor-shell,
+body.toplevel_page_sidcraft-page-builder.lb-safe-mode-user #lb-editor-shell,
 body.lb-editor-iframe.lb-safe-mode-user #lb-editor-shell{padding-top:48px}
 .lb-ops-table{max-width:720px;margin-top:8px}
 .lb-ops-table th{width:220px}
@@ -100,13 +100,13 @@ body.lb-editor-iframe.lb-safe-mode-user #lb-editor-shell{padding-top:48px}
 .lb-dash-compare-note{margin:0;padding:12px 14px;color:#50575e;background:#f3e8ff;font-size:12px}
 .lb-dash-pricing h2{margin:0 0 8px;font-size:16px}
 .lb-dash-pricing>p{margin:0;color:#50575e}
-.lb-dash-pricing .sidcraft-syntex-pricing-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
-.lb-dash-pricing .sidcraft-syntex-pricing-card{background:#fff;border:1px solid #dcdcde;border-radius:6px;padding:20px}
-.lb-dash-pricing .sidcraft-syntex-pricing-card h3{margin:0 0 8px;font-size:16px}
-.lb-dash-pricing .sidcraft-syntex-pricing-price{font-size:28px;font-weight:700;margin:8px 0;color:#1d2327}
-.lb-dash-pricing .sidcraft-syntex-pricing-price span{font-size:14px;font-weight:400;color:#646970}
-.lb-dash-pricing .sidcraft-syntex-pricing-meta{color:#646970;margin:0 0 16px}
-.lb-dash-pricing .sidcraft-syntex-pricing-card p:last-child{margin:0}
+.lb-dash-pricing .sidcraft-page-builder-pricing-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
+.lb-dash-pricing .sidcraft-page-builder-pricing-card{background:#fff;border:1px solid #dcdcde;border-radius:6px;padding:20px}
+.lb-dash-pricing .sidcraft-page-builder-pricing-card h3{margin:0 0 8px;font-size:16px}
+.lb-dash-pricing .sidcraft-page-builder-pricing-price{font-size:28px;font-weight:700;margin:8px 0;color:#1d2327}
+.lb-dash-pricing .sidcraft-page-builder-pricing-price span{font-size:14px;font-weight:400;color:#646970}
+.lb-dash-pricing .sidcraft-page-builder-pricing-meta{color:#646970;margin:0 0 16px}
+.lb-dash-pricing .sidcraft-page-builder-pricing-card p:last-child{margin:0}
 .lb-dash-templates,.lb-dash-access{padding:18px}
 .lb-dash-sheets{display:flex;justify-content:center;height:92px;margin-bottom:12px}
 .lb-dash-sheets span{width:58px;height:78px;margin:0 -8px;border:1px solid #dcdcde;border-radius:6px;background:linear-gradient(#fff,#f6f7f7);box-shadow:0 6px 16px rgba(0,0,0,.08)}

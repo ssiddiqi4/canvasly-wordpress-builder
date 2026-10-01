@@ -1,7 +1,7 @@
 <?php
-namespace SidcraftSyntex\Admin;
+namespace SidcraftPageBuilder\Admin;
 
-use SidcraftSyntex\Document\Documents;
+use SidcraftPageBuilder\Document\Documents;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * secondary admin logic stay off unrelated wp-admin pages.
  */
 class AdminContext {
-	const EDITOR_SLUG = 'sidcraft-syntex';
+	const EDITOR_SLUG = 'sidcraft-page-builder';
 
 	/** @var array<string,mixed> */
 	private static $memo = array();
@@ -121,7 +121,7 @@ class AdminContext {
 	}
 
 	/**
-	 * Sidcraft Syntex admin.php screens (editor, settings, tools, roles, templates, ...).
+	 * Sidcraft Page Builder admin.php screens (editor, settings, tools, roles, templates, ...).
 	 *
 	 * @param string $hook_suffix `admin_enqueue_scripts` argument.
 	 * @return bool
@@ -134,11 +134,11 @@ class AdminContext {
 		if ( $hook === '' ) {
 			return false;
 		}
-		return strpos( $hook, 'sidcraft-syntex' ) !== false || strpos( $hook, 'sidsyn_template' ) !== false;
+		return strpos( $hook, 'sidcraft-page-builder' ) !== false || strpos( $hook, 'sidsyn_template' ) !== false;
 	}
 
 	/**
-	 * Post list / add / edit screens for Sidcraft Syntex-enabled types or saved templates.
+	 * Post list / add / edit screens for Sidcraft Page Builder-enabled types or saved templates.
 	 *
 	 * @param string $hook_suffix
 	 * @return bool
@@ -199,7 +199,7 @@ class AdminContext {
 	}
 
 	/**
-	 * Enqueue plugin JS/CSS only on Sidcraft Syntex screens or a relevant post-type editor.
+	 * Enqueue plugin JS/CSS only on Sidcraft Page Builder screens or a relevant post-type editor.
 	 *
 	 * @param string $hook_suffix
 	 * @return bool
@@ -209,14 +209,14 @@ class AdminContext {
 	}
 
 	/**
-	 * Fullscreen visual builder (`admin.php?page=sidcraft-syntex`).
+	 * Fullscreen visual builder (`admin.php?page=sidcraft-page-builder`).
 	 *
 	 * @param string $hook_suffix
 	 * @return bool
 	 */
 	public static function is_editor_page( $hook_suffix = '' ) {
 		$hook = is_string( $hook_suffix ) ? $hook_suffix : '';
-		if ( $hook === 'toplevel_page_sidcraft-syntex' ) {
+		if ( $hook === 'toplevel_page_sidcraft-page-builder' ) {
 			return true;
 		}
 		return self::plugin_page_slug() === self::EDITOR_SLUG;
@@ -238,7 +238,7 @@ class AdminContext {
 			return false;
 		}
 		if ( self::is_rest() ) {
-			return strpos( self::rest_route(), '/sidcraft-syntex/' ) !== false;
+			return strpos( self::rest_route(), '/sidcraft-page-builder/' ) !== false;
 		}
 		return self::is_plugin_page();
 	}

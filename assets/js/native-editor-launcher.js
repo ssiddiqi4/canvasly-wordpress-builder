@@ -1,10 +1,10 @@
 (function () {
 	'use strict';
 	try {
-		var cfg = window.sidcraftSyntexNativeEditor || {};
+		var cfg = window.sidcraftPageBuilderNativeEditor || {};
 		var builderBase = cfg.url || '';
 		var fixedId = parseInt(cfg.postId, 10) || 0;
-		var label = cfg.label || 'Edit with Sidcraft Syntex';
+		var label = cfg.label || 'Edit with Sidcraft Page Builder';
 		var saving = false;
 
 		function currentId() {

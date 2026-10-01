@@ -1,12 +1,12 @@
 <?php
-namespace SidcraftSyntex\Rendering;
+namespace SidcraftPageBuilder\Rendering;
 
-use SidcraftSyntex\Design\Interactions;
-use SidcraftSyntex\Design\Optimize;
-use SidcraftSyntex\Units\CollectionLoop;
-use SidcraftSyntex\Units\Unit;
-use SidcraftSyntex\Units\UnitRegistry;
-use SidcraftSyntex\Templates\TemplateEmbed;
+use SidcraftPageBuilder\Design\Interactions;
+use SidcraftPageBuilder\Design\Optimize;
+use SidcraftPageBuilder\Units\CollectionLoop;
+use SidcraftPageBuilder\Units\Unit;
+use SidcraftPageBuilder\Units\UnitRegistry;
+use SidcraftPageBuilder\Templates\TemplateEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -18,8 +18,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * FrontendRenderer::SCRIPTED_TYPES list.
  */
 class FrontendAssets {
-	const SCRIPT = 'sidcraft-syntex-frontend';
-	const STYLE  = 'sidcraft-syntex-frontend';
+	const SCRIPT = 'sidcraft-page-builder-frontend';
+	const STYLE  = 'sidcraft-page-builder-frontend';
 
 	/**
 	 * Unique script and style handles needed by `$nodes`.
@@ -33,7 +33,7 @@ class FrontendAssets {
 		$seen    = array();
 		$post_id = absint( $post_id );
 		$nodes   = is_array( $nodes ) ? $nodes : array();
-		$respect = function_exists( 'has_filter' ) && has_filter( 'sidcraft-syntex/unit/should_render' );
+		$respect = function_exists( 'has_filter' ) && has_filter( 'sidcraft-page-builder/unit/should_render' );
 		if ( $respect ) {
 			$nodes = self::omit_hidden( $nodes, $post_id );
 		}
@@ -48,7 +48,7 @@ class FrontendAssets {
 			'scripts' => array_keys( $scripts ),
 			'styles'  => array_keys( $styles ),
 		);
-		$filtered = apply_filters( 'sidcraft-syntex/frontend/assets', $out, $nodes );
+		$filtered = apply_filters( 'sidcraft-page-builder/frontend/assets', $out, $nodes );
 		if ( ! is_array( $filtered ) ) {
 			return $out;
 		}
@@ -135,7 +135,7 @@ class FrontendAssets {
 
 	/**
 	 * Template id a node embeds, including a loop-item template chosen by
-	 * `sidcraft-syntex/loop/template_id`.
+	 * `sidcraft-page-builder/loop/template_id`.
 	 *
 	 * @param string $type
 	 * @param array  $settings

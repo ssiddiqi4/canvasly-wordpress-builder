@@ -1,14 +1,14 @@
 <?php
 /**
- * Registry passed to `sidcraft-syntex/icons/register`.
+ * Registry passed to `sidcraft-page-builder/icons/register`.
  *
  * Add-ons call register() with an icon array (`id`, `title`, `svg`). The same
  * SVG allow-list as IconLibrary::save() is applied here.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\Design;
+namespace SidcraftPageBuilder\Design;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

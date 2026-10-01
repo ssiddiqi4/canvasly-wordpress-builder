@@ -1,7 +1,7 @@
 <?php
-namespace SidcraftSyntex\Templates;
+namespace SidcraftPageBuilder\Templates;
 
-use SidcraftSyntex\Utils\InlineStyle;
+use SidcraftPageBuilder\Utils\InlineStyle;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -38,7 +38,7 @@ class ThemeChrome {
 
 	public static function register_route() {
 		register_rest_route(
-			'sidcraft-syntex/v1',
+			'sidcraft-page-builder/v1',
 			'/theme-chrome',
 			array(
 				'methods'             => 'GET',
@@ -52,7 +52,7 @@ class ThemeChrome {
 	 * @return bool
 	 */
 	public static function can_read() {
-		if ( class_exists( '\\SidcraftSyntex\\Settings\\Roles' ) && ! \SidcraftSyntex\Settings\Roles::can_edit() ) {
+		if ( class_exists( '\\SidcraftPageBuilder\\Settings\\Roles' ) && ! \SidcraftPageBuilder\Settings\Roles::can_edit() ) {
 			return false;
 		}
 		return current_user_can( 'edit_posts' ) || current_user_can( 'edit_pages' );
@@ -145,7 +145,7 @@ class ThemeChrome {
 	public static function has( $part ) {
 		$part  = $part === 'footer' ? 'footer' : 'header';
 		$found = self::classic_file( $part ) || ( self::is_block_theme() && self::block_part( $part ) );
-		$found = apply_filters( 'sidcraft-syntex/theme/has_part', $found, $part );
+		$found = apply_filters( 'sidcraft-page-builder/theme/has_part', $found, $part );
 		return (bool) $found;
 	}
 
@@ -156,7 +156,7 @@ class ThemeChrome {
 	 */
 	public static function provides() {
 		$on = self::has( 'header' ) && self::has( 'footer' );
-		return (bool) apply_filters( 'sidcraft-syntex/theme/provides_chrome', $on );
+		return (bool) apply_filters( 'sidcraft-page-builder/theme/provides_chrome', $on );
 	}
 
 	/**
@@ -272,7 +272,7 @@ class ThemeChrome {
 			return $html;
 		}
 		$extra = self::builder_css( $html );
-		$extra = (string) apply_filters( 'sidcraft-syntex/theme/builder_css', $extra, $html );
+		$extra = (string) apply_filters( 'sidcraft-page-builder/theme/builder_css', $extra, $html );
 		$extra = trim( $extra );
 		if ( '' === $extra ) {
 			return $html;
@@ -296,8 +296,8 @@ class ThemeChrome {
 			$tags .= self::elementor_css_tag( $kit, $html );
 		}
 		$tags .= self::elementor_frontend_links( $html );
-		if ( false === strpos( $html, InlineStyle::element_id( 'sidcraft-syntex-builder-css-logo' ) ) && preg_match( '/<img\b/i', $html ) ) {
-			$tags .= InlineStyle::tag( 'sidcraft-syntex-builder-css-logo', self::logo_baseline_css() );
+		if ( false === strpos( $html, InlineStyle::element_id( 'sidcraft-page-builder-builder-css-logo' ) ) && preg_match( '/<img\b/i', $html ) ) {
+			$tags .= InlineStyle::tag( 'sidcraft-page-builder-builder-css-logo', self::logo_baseline_css() );
 		}
 		return $tags;
 	}
@@ -432,14 +432,14 @@ class ThemeChrome {
 	 */
 	private static function elementor_css_tag( $id, $html ) {
 		$id = absint( $id );
-		if ( ! $id || false !== strpos( $html, InlineStyle::element_id( 'sidcraft-syntex-builder-css-' . $id ) ) ) {
+		if ( ! $id || false !== strpos( $html, InlineStyle::element_id( 'sidcraft-page-builder-builder-css-' . $id ) ) ) {
 			return '';
 		}
 		$css = self::elementor_document_css( $id );
 		if ( '' === trim( $css ) ) {
 			return '';
 		}
-		return InlineStyle::tag( 'sidcraft-syntex-builder-css-' . $id, $css );
+		return InlineStyle::tag( 'sidcraft-page-builder-builder-css-' . $id, $css );
 	}
 
 	/**
@@ -504,7 +504,7 @@ class ThemeChrome {
 	 * @return string
 	 */
 	private static function elementor_frontend_links( $html ) {
-		if ( false !== strpos( $html, 'sidcraft-syntex-builder-frontend-' ) ) {
+		if ( false !== strpos( $html, 'sidcraft-page-builder-builder-frontend-' ) ) {
 			return '';
 		}
 		$files = array();
@@ -534,7 +534,7 @@ class ThemeChrome {
 				continue;
 			}
 			$seen[ $file[1] ] = true;
-			$handle           = 'sidcraft-syntex-builder-frontend-' . sanitize_key( str_replace( array( '/', '.' ), '-', $file[1] ) );
+			$handle           = 'sidcraft-page-builder-builder-frontend-' . sanitize_key( str_replace( array( '/', '.' ), '-', $file[1] ) );
 			if ( ! isset( $printer->registered[ $handle ] ) ) {
 				$printer->add( $handle, plugins_url( $file[1], $file[0] ), array(), null );
 			}
@@ -747,7 +747,7 @@ class ThemeChrome {
 			return false;
 		}
 		$text = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( $html ) ) );
-		return \SidcraftSyntex\Utils\Text::length( $text ) > 12;
+		return \SidcraftPageBuilder\Utils\Text::length( $text ) > 12;
 	}
 
 	/**
@@ -897,12 +897,12 @@ class ThemeChrome {
 		// core 'https_local_ssl_verify' filter, as WordPress's own loopback requests do.
 		if ( self::same_site( $url ) ) {
 			$args['sslverify'] = (bool) apply_filters( 'https_local_ssl_verify', false ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core filter.
-			$url               = add_query_arg( array( 'sidcraft_syntex_chrome' => '1', '_' => (string) time() ), $url );
+			$url               = add_query_arg( array( 'sidcraft_page_builder_chrome' => '1', '_' => (string) time() ), $url );
 		}
 		$response = wp_remote_get( $url, $args );
 		if ( function_exists( 'is_wp_error' ) && is_wp_error( $response ) ) {
 			if ( function_exists( 'error_log' ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Sidcraft Syntex: theme-chrome fetch of ' . $url . ' failed: ' . $response->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'Sidcraft Page Builder: theme-chrome fetch of ' . $url . ' failed: ' . $response->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 			return '';
 		}
@@ -966,7 +966,7 @@ class ThemeChrome {
 		}
 		$out = self::safe_html( $assets . $dom->saveHTML( $node ) );
 		if ( strlen( $out ) > self::MAX_HTML ) {
-			$out = \SidcraftSyntex\Utils\Text::cut_bytes( $out, 0, self::MAX_HTML );
+			$out = \SidcraftPageBuilder\Utils\Text::cut_bytes( $out, 0, self::MAX_HTML );
 		}
 		return trim( $out );
 	}
@@ -1035,7 +1035,7 @@ class ThemeChrome {
 			// sites and can otherwise out-rank the genuine footer just by
 			// appearing later in the document. Score by visible content
 			// instead of position so the real, fullest landmark wins.
-			$len = \SidcraftSyntex\Utils\Text::length( trim( preg_replace( '/\s+/', ' ', (string) $el->textContent ) ) );
+			$len = \SidcraftPageBuilder\Utils\Text::length( trim( preg_replace( '/\s+/', ' ', (string) $el->textContent ) ) );
 			if ( $len > $loose_best_len ) {
 				$loose_best     = $el;
 				$loose_best_len = $len;
@@ -1114,7 +1114,7 @@ class ThemeChrome {
 		$html = self::drop_stray_closers( $html );
 		$html = self::isolate( $html );
 		if ( strlen( $html ) > self::MAX_HTML ) {
-			$html = \SidcraftSyntex\Utils\Text::cut_bytes( $html, 0, self::MAX_HTML );
+			$html = \SidcraftPageBuilder\Utils\Text::cut_bytes( $html, 0, self::MAX_HTML );
 		}
 		return trim( $html );
 	}

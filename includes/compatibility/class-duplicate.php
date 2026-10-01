@@ -1,15 +1,15 @@
 <?php
-namespace SidcraftSyntex\Compatibility;
+namespace SidcraftPageBuilder\Compatibility;
 
-use SidcraftSyntex\Document\DocumentManager;
-use SidcraftSyntex\Design\Performance;
+use SidcraftPageBuilder\Document\DocumentManager;
+use SidcraftPageBuilder\Design\Performance;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Copy Sidcraft Syntex document meta when a post is duplicated by another plugin.
+ * Copy Sidcraft Page Builder document meta when a post is duplicated by another plugin.
  */
 class Duplicate {
 	private static $booted = false;
@@ -80,7 +80,7 @@ class Duplicate {
 	}
 
 	/**
-	 * Copy Sidcraft Syntex meta from one post to another and drop caches/locks.
+	 * Copy Sidcraft Page Builder meta from one post to another and drop caches/locks.
 	 *
 	 * @param int $from_id
 	 * @param int $to_id
@@ -118,13 +118,13 @@ class Duplicate {
 		}
 
 		/**
-		 * Fires after Sidcraft Syntex meta has been copied onto a duplicated post.
+		 * Fires after Sidcraft Page Builder meta has been copied onto a duplicated post.
 		 *
 		 * @param int $to_id
 		 * @param int $from_id
 		 * @param int $copied Number of meta values written.
 		 */
-		do_action( 'sidcraft-syntex/document/duplicated', $to_id, $from_id, $copied );
+		do_action( 'sidcraft-page-builder/document/duplicated', $to_id, $from_id, $copied );
 		return $copied > 0;
 	}
 

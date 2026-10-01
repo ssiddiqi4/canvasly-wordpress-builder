@@ -79,7 +79,7 @@ function boot() {
       try {
         return paintNode(n);
       } catch (err) {
-        if (window.console) console.error("[Sidcraft Syntex] unit render failed", n && n.type, err);
+        if (window.console) console.error("[Sidcraft Page Builder] unit render failed", n && n.type, err);
         const title = (app.meta(n && n.type) || {}).title || (n && n.type) || "Unit";
         return (
           '<div class="lb-node lb-node-error" data-id="' +

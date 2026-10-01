@@ -1,55 +1,55 @@
 <?php
-namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftPageBuilder\Units; if(!defined('ABSPATH')) exit;
 /**
  * Image Carousel: repeater of slides (image, caption, link). Legacy comma-separated
  * `ids` plus `custom_urls` lines are migrated on load.
  */
 class Carousel extends Unit {
- public function type(){return 'carousel';} public function title(){return __('Image Carousel', 'sidcraft-syntex');} public function icon(){return "\u{29C9}";} public function category(){return 'media';}
+ public function type(){return 'carousel';} public function title(){return __('Image Carousel', 'sidcraft-page-builder');} public function icon(){return "\u{29C9}";} public function category(){return 'media';}
  public function keywords(){return ['carousel','slider','slideshow','images','gallery'];}
  public function scripts($s=[]){return $this->frontend_scripts();}
  public function defaults(){return ['slides'=>[],'ids'=>'','image_size'=>'large','slides_to_show'=>1,'slides_to_scroll'=>1,'image_stretch'=>false,'navigation'=>'both','link'=>'none','custom_urls'=>'','lightbox'=>true,'caption'=>'none','lazyload'=>true,'autoplay'=>true,'pause_on_hover'=>true,'pause_on_interaction'=>true,'interval'=>5000,'loop'=>true,'effect'=>'slide','speed'=>500,'slide_direction'=>'ltr','height'=>'','image_spacing'=>10,'image_radius'=>'','arrows_size'=>'','arrows_color'=>'','dots_size'=>'','dots_color'=>'','caption_align'=>'center','caption_color'=>''];}
  public function controls(){
-  $car=__('Image Carousel', 'sidcraft-syntex'); $images=__('Images', 'sidcraft-syntex'); $arrows=__('Arrows', 'sidcraft-syntex'); $dots=__('Dots', 'sidcraft-syntex'); $cap=__('Caption', 'sidcraft-syntex');
+  $car=__('Image Carousel', 'sidcraft-page-builder'); $images=__('Images', 'sidcraft-page-builder'); $arrows=__('Arrows', 'sidcraft-page-builder'); $dots=__('Dots', 'sidcraft-page-builder'); $cap=__('Caption', 'sidcraft-page-builder');
   return [
-   'slides'=>$this->ctrl('repeater',__('Slides', 'sidcraft-syntex'),'content',$car,[
+   'slides'=>$this->ctrl('repeater',__('Slides', 'sidcraft-page-builder'),'content',$car,[
     'title_field'=>'{{caption}}',
     'fields'=>[
-     'image_id'=>$this->field('media',__('Image', 'sidcraft-syntex'),['media_types'=>['image','video'],'description'=>__('Choose an image or a video from the Media Library.', 'sidcraft-syntex')]),
-     'image_url'=>$this->field('url',__('Image URL', 'sidcraft-syntex'),['hidden'=>true]),
-     'caption'=>$this->field('text',__('Caption', 'sidcraft-syntex')),
-     'alt'=>$this->field('text',__('Alt Text', 'sidcraft-syntex')),
-     'link'=>$this->field('url',__('Link', 'sidcraft-syntex')),
+     'image_id'=>$this->field('media',__('Image', 'sidcraft-page-builder'),['media_types'=>['image','video'],'description'=>__('Choose an image or a video from the Media Library.', 'sidcraft-page-builder')]),
+     'image_url'=>$this->field('url',__('Image URL', 'sidcraft-page-builder'),['hidden'=>true]),
+     'caption'=>$this->field('text',__('Caption', 'sidcraft-page-builder')),
+     'alt'=>$this->field('text',__('Alt Text', 'sidcraft-page-builder')),
+     'link'=>$this->field('url',__('Link', 'sidcraft-page-builder')),
     ],
    ]),
-   'ids'=>$this->ctrl('gallery',__('Images', 'sidcraft-syntex'),'content',$car,['hidden'=>true]),
-   'custom_urls'=>$this->ctrl('textarea',__('Custom URLs', 'sidcraft-syntex'),'content',$car,['hidden'=>true]),
-   'image_size'=>$this->ctrl('select',__('Image Size', 'sidcraft-syntex'),'content',$car,['options'=>['thumbnail'=>__('Thumbnail', 'sidcraft-syntex'),'medium'=>__('Medium', 'sidcraft-syntex'),'medium_large'=>__('Medium Large', 'sidcraft-syntex'),'large'=>__('Large', 'sidcraft-syntex'),'full'=>__('Full', 'sidcraft-syntex')]]),
-   'slides_to_show'=>$this->ctrl('number',__('Slides to Show', 'sidcraft-syntex'),'content',$car,['range'=>['min'=>1,'max'=>10]]),
-   'slides_to_scroll'=>$this->ctrl('number',__('Slides to Scroll', 'sidcraft-syntex'),'content',$car,['range'=>['min'=>1,'max'=>10]]),
-   'image_stretch'=>$this->ctrl('switch',__('Image Stretch', 'sidcraft-syntex'),'content',$car),
-   'navigation'=>$this->ctrl('select',__('Navigation', 'sidcraft-syntex'),'content',$car,['options'=>['both'=>__('Arrows and Dots', 'sidcraft-syntex'),'arrows'=>__('Arrows', 'sidcraft-syntex'),'dots'=>__('Dots', 'sidcraft-syntex'),'none'=>__('None', 'sidcraft-syntex')]]),
-   'link'=>$this->ctrl('select',__('Link', 'sidcraft-syntex'),'content',$car,['options'=>['none'=>__('None', 'sidcraft-syntex'),'file'=>__('Media File', 'sidcraft-syntex'),'custom'=>__('Custom URL', 'sidcraft-syntex')]]),
-   'lightbox'=>$this->ctrl('switch',__('Lightbox', 'sidcraft-syntex'),'content',$car,['condition'=>['link'=>'file']]),
-   'caption'=>$this->ctrl('select',__('Caption', 'sidcraft-syntex'),'content',$car,['options'=>['none'=>__('None', 'sidcraft-syntex'),'title'=>__('Title', 'sidcraft-syntex'),'caption'=>__('Caption', 'sidcraft-syntex'),'description'=>__('Description', 'sidcraft-syntex')]]),
-   'lazyload'=>$this->ctrl('switch',__('Lazy Load', 'sidcraft-syntex'),'content',$car),
-   'autoplay'=>$this->ctrl('switch',__('Autoplay', 'sidcraft-syntex'),'content',$car),
-   'pause_on_hover'=>$this->ctrl('switch',__('Pause on Hover', 'sidcraft-syntex'),'content',$car),
-   'pause_on_interaction'=>$this->ctrl('switch',__('Pause on Interaction', 'sidcraft-syntex'),'content',$car),
-   'interval'=>$this->ctrl('number',__('Autoplay Speed', 'sidcraft-syntex'),'content',$car,['range'=>['min'=>500,'max'=>15000,'step'=>100]]),
-   'loop'=>$this->ctrl('switch',__('Infinite Loop', 'sidcraft-syntex'),'content',$car),
-   'effect'=>$this->ctrl('select',__('Effect', 'sidcraft-syntex'),'content',$car,['options'=>['slide'=>__('Slide', 'sidcraft-syntex'),'fade'=>__('Fade', 'sidcraft-syntex')]]),
-   'speed'=>$this->ctrl('number',__('Animation Speed', 'sidcraft-syntex'),'content',$car,['range'=>['min'=>100,'max'=>3000,'step'=>50]]),
-   'slide_direction'=>$this->ctrl('select',__('Direction', 'sidcraft-syntex'),'content',$car,['options'=>['ltr'=>__('Left to Right', 'sidcraft-syntex'),'rtl'=>__('Right to Left', 'sidcraft-syntex')]]),
-   'height'=>$this->ctrl('text',__('Height', 'sidcraft-syntex'),'style',$images),
-   'image_spacing'=>$this->ctrl('number',__('Spacing', 'sidcraft-syntex'),'style',$images),
-   'image_radius'=>$this->ctrl('number',__('Border Radius', 'sidcraft-syntex'),'style',$images),
-   'arrows_size'=>$this->ctrl('number',__('Size', 'sidcraft-syntex'),'style',$arrows),
-   'arrows_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$arrows),
-   'dots_size'=>$this->ctrl('number',__('Size', 'sidcraft-syntex'),'style',$dots),
-   'dots_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$dots),
-   'caption_align'=>$this->ctrl('select',__('Alignment', 'sidcraft-syntex'),'style',$cap,['options'=>self::opt_lcr()]),
-   'caption_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$cap),
+   'ids'=>$this->ctrl('gallery',__('Images', 'sidcraft-page-builder'),'content',$car,['hidden'=>true]),
+   'custom_urls'=>$this->ctrl('textarea',__('Custom URLs', 'sidcraft-page-builder'),'content',$car,['hidden'=>true]),
+   'image_size'=>$this->ctrl('select',__('Image Size', 'sidcraft-page-builder'),'content',$car,['options'=>['thumbnail'=>__('Thumbnail', 'sidcraft-page-builder'),'medium'=>__('Medium', 'sidcraft-page-builder'),'medium_large'=>__('Medium Large', 'sidcraft-page-builder'),'large'=>__('Large', 'sidcraft-page-builder'),'full'=>__('Full', 'sidcraft-page-builder')]]),
+   'slides_to_show'=>$this->ctrl('number',__('Slides to Show', 'sidcraft-page-builder'),'content',$car,['range'=>['min'=>1,'max'=>10]]),
+   'slides_to_scroll'=>$this->ctrl('number',__('Slides to Scroll', 'sidcraft-page-builder'),'content',$car,['range'=>['min'=>1,'max'=>10]]),
+   'image_stretch'=>$this->ctrl('switch',__('Image Stretch', 'sidcraft-page-builder'),'content',$car),
+   'navigation'=>$this->ctrl('select',__('Navigation', 'sidcraft-page-builder'),'content',$car,['options'=>['both'=>__('Arrows and Dots', 'sidcraft-page-builder'),'arrows'=>__('Arrows', 'sidcraft-page-builder'),'dots'=>__('Dots', 'sidcraft-page-builder'),'none'=>__('None', 'sidcraft-page-builder')]]),
+   'link'=>$this->ctrl('select',__('Link', 'sidcraft-page-builder'),'content',$car,['options'=>['none'=>__('None', 'sidcraft-page-builder'),'file'=>__('Media File', 'sidcraft-page-builder'),'custom'=>__('Custom URL', 'sidcraft-page-builder')]]),
+   'lightbox'=>$this->ctrl('switch',__('Lightbox', 'sidcraft-page-builder'),'content',$car,['condition'=>['link'=>'file']]),
+   'caption'=>$this->ctrl('select',__('Caption', 'sidcraft-page-builder'),'content',$car,['options'=>['none'=>__('None', 'sidcraft-page-builder'),'title'=>__('Title', 'sidcraft-page-builder'),'caption'=>__('Caption', 'sidcraft-page-builder'),'description'=>__('Description', 'sidcraft-page-builder')]]),
+   'lazyload'=>$this->ctrl('switch',__('Lazy Load', 'sidcraft-page-builder'),'content',$car),
+   'autoplay'=>$this->ctrl('switch',__('Autoplay', 'sidcraft-page-builder'),'content',$car),
+   'pause_on_hover'=>$this->ctrl('switch',__('Pause on Hover', 'sidcraft-page-builder'),'content',$car),
+   'pause_on_interaction'=>$this->ctrl('switch',__('Pause on Interaction', 'sidcraft-page-builder'),'content',$car),
+   'interval'=>$this->ctrl('number',__('Autoplay Speed', 'sidcraft-page-builder'),'content',$car,['range'=>['min'=>500,'max'=>15000,'step'=>100]]),
+   'loop'=>$this->ctrl('switch',__('Infinite Loop', 'sidcraft-page-builder'),'content',$car),
+   'effect'=>$this->ctrl('select',__('Effect', 'sidcraft-page-builder'),'content',$car,['options'=>['slide'=>__('Slide', 'sidcraft-page-builder'),'fade'=>__('Fade', 'sidcraft-page-builder')]]),
+   'speed'=>$this->ctrl('number',__('Animation Speed', 'sidcraft-page-builder'),'content',$car,['range'=>['min'=>100,'max'=>3000,'step'=>50]]),
+   'slide_direction'=>$this->ctrl('select',__('Direction', 'sidcraft-page-builder'),'content',$car,['options'=>['ltr'=>__('Left to Right', 'sidcraft-page-builder'),'rtl'=>__('Right to Left', 'sidcraft-page-builder')]]),
+   'height'=>$this->ctrl('text',__('Height', 'sidcraft-page-builder'),'style',$images),
+   'image_spacing'=>$this->ctrl('number',__('Spacing', 'sidcraft-page-builder'),'style',$images),
+   'image_radius'=>$this->ctrl('number',__('Border Radius', 'sidcraft-page-builder'),'style',$images),
+   'arrows_size'=>$this->ctrl('number',__('Size', 'sidcraft-page-builder'),'style',$arrows),
+   'arrows_color'=>$this->ctrl('color',__('Color', 'sidcraft-page-builder'),'style',$arrows),
+   'dots_size'=>$this->ctrl('number',__('Size', 'sidcraft-page-builder'),'style',$dots),
+   'dots_color'=>$this->ctrl('color',__('Color', 'sidcraft-page-builder'),'style',$dots),
+   'caption_align'=>$this->ctrl('select',__('Alignment', 'sidcraft-page-builder'),'style',$cap,['options'=>self::opt_lcr()]),
+   'caption_color'=>$this->ctrl('color',__('Color', 'sidcraft-page-builder'),'style',$cap),
   ];
  }
  public static function caption_text($id,$mode){
@@ -69,7 +69,7 @@ class Carousel extends Unit {
  }
  public function render($s,$children=''){
   $slides=$this->slides($s);
-  if(!$slides)return '<div class="'.$this->cls($s).' lb-carousel-placeholder">'.esc_html__('Choose images for the carousel', 'sidcraft-syntex').'</div>';
+  if(!$slides)return '<div class="'.$this->cls($s).' lb-carousel-placeholder">'.esc_html__('Choose images for the carousel', 'sidcraft-page-builder').'</div>';
   $show=max(1,min(10,absint($s['slides_to_show']??1)));$scroll=max(1,min($show,absint($s['slides_to_scroll']??1)));
   $nav=in_array($s['navigation']??'both',['both','arrows','dots','none'],true)?$s['navigation']:'both';
   $linkRaw=is_string($s['link']??null)?$s['link']:'none';
@@ -105,14 +105,14 @@ class Carousel extends Unit {
     $lb='';
     if($linkMode==='file'&&!empty($s['lightbox'])){
      $lb=' data-lb-lightbox="1"';
-     if(class_exists('\\SidcraftSyntex\\Settings\\KitSettings'))$lb.=\SidcraftSyntex\Settings\KitSettings::lightbox_data_attrs($id,$alt,$cap,$id?get_the_title($id):'');
+     if(class_exists('\\SidcraftPageBuilder\\Settings\\KitSettings'))$lb.=\SidcraftPageBuilder\Settings\KitSettings::lightbox_data_attrs($id,$alt,$cap,$id?get_the_title($id):'');
     }
     $img='<a class="lb-carousel-link" href="'.esc_url($href).'"'.$lb.'>'.$img.'</a>';
    }
    if($cap!=='')$anyCap=true;
-   $out.='<figure class="lb-carousel-slide'.($effect==='fade'&&$out===''?' is-active':'').'" role="group" aria-roledescription="slide" aria-label="'.esc_attr(sprintf(/* translators: 1: slide number, 2: total slides */__('%1$d of %2$d', 'sidcraft-syntex'),$i+1,$total)).'">'.$img.($cap!==''?'<figcaption class="lb-carousel-caption">'.esc_html($cap).'</figcaption>':'').'</figure>';
+   $out.='<figure class="lb-carousel-slide'.($effect==='fade'&&$out===''?' is-active':'').'" role="group" aria-roledescription="slide" aria-label="'.esc_attr(sprintf(/* translators: 1: slide number, 2: total slides */__('%1$d of %2$d', 'sidcraft-page-builder'),$i+1,$total)).'">'.$img.($cap!==''?'<figcaption class="lb-carousel-caption">'.esc_html($cap).'</figcaption>':'').'</figure>';
   }
-  if($out==='')return '<div class="'.$this->cls($s).' lb-carousel-placeholder">'.esc_html__('Choose images for the carousel', 'sidcraft-syntex').'</div>';
+  if($out==='')return '<div class="'.$this->cls($s).' lb-carousel-placeholder">'.esc_html__('Choose images for the carousel', 'sidcraft-page-builder').'</div>';
   if($anyCap)$classes.=' lb-carousel-has-caption';
   return '<div class="'.esc_attr($classes).'" dir="'.$dir.'" aria-roledescription="carousel"'.$data.$vars.'><div class="lb-carousel-track">'.$out.'</div></div>';
  }

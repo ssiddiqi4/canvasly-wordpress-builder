@@ -1,19 +1,19 @@
 <?php
 /**
- * Cloudflare Turnstile unit (Sidcraft Syntex).
+ * Cloudflare Turnstile unit (Sidcraft Page Builder).
  *
- * Place it next to (or inside the same container as) a Sidcraft Syntex Form: the form's
+ * Place it next to (or inside the same container as) a Sidcraft Page Builder Form: the form's
  * submission then requires a valid Turnstile token (verified server-side with
  * Siteverify). It can also sit alone as a visible "verify you are human" widget.
  *
- * Keys: Sidcraft Syntex → Settings → Integrations → Cloudflare Turnstile.
+ * Keys: Sidcraft Page Builder → Settings → Integrations → Cloudflare Turnstile.
  *
- * @package SidcraftSyntex
+ * @package SidcraftPageBuilder
  */
 
-namespace SidcraftSyntex\Units;
+namespace SidcraftPageBuilder\Units;
 
-use SidcraftSyntex\Integrations\Turnstile as TurnstileService;
+use SidcraftPageBuilder\Integrations\Turnstile as TurnstileService;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,7 +25,7 @@ class Turnstile extends Unit {
 	}
 
 	public function title() {
-		return __( 'Cloudflare Turnstile', 'sidcraft-syntex' );
+		return __( 'Cloudflare Turnstile', 'sidcraft-page-builder' );
 	}
 
 	public function icon() {
@@ -46,23 +46,23 @@ class Turnstile extends Unit {
 			'theme'        => '',
 			'size'         => '',
 			'appearance'   => '',
-			'action'       => 'sidcraft_syntex_form',
+			'action'       => 'sidcraft_page_builder_form',
 			'language'     => 'auto',
 			'align'        => 'flex-start',
 		);
 	}
 
 	public function controls() {
-		$sec = __( 'Turnstile', 'sidcraft-syntex' );
-		$def = array( '' => __( 'Site default', 'sidcraft-syntex' ) );
+		$sec = __( 'Turnstile', 'sidcraft-page-builder' );
+		$def = array( '' => __( 'Site default', 'sidcraft-page-builder' ) );
 		return array(
-			'protect_form' => $this->ctrl( 'switch', __( 'Protect the form in this container', 'sidcraft-syntex' ), 'content', $sec, array( 'description' => __( 'Submissions of a Sidcraft Syntex Form placed in the same container are rejected without a valid Turnstile token.', 'sidcraft-syntex' ) ) ),
-			'theme'        => $this->ctrl( 'select', __( 'Theme', 'sidcraft-syntex' ), 'content', $sec, array( 'options' => $def + array( 'auto' => __( 'Auto', 'sidcraft-syntex' ), 'light' => __( 'Light', 'sidcraft-syntex' ), 'dark' => __( 'Dark', 'sidcraft-syntex' ) ) ) ),
-			'size'         => $this->ctrl( 'select', __( 'Size', 'sidcraft-syntex' ), 'content', $sec, array( 'options' => $def + array( 'normal' => __( 'Normal (300×65)', 'sidcraft-syntex' ), 'flexible' => __( 'Flexible (full width)', 'sidcraft-syntex' ), 'compact' => __( 'Compact (150×140)', 'sidcraft-syntex' ) ) ) ),
-			'appearance'   => $this->ctrl( 'select', __( 'Appearance', 'sidcraft-syntex' ), 'content', $sec, array( 'options' => $def + array( 'always' => __( 'Always visible', 'sidcraft-syntex' ), 'interaction-only' => __( 'Only when interaction is needed', 'sidcraft-syntex' ) ) ) ),
-			'action'       => $this->ctrl( 'text', __( 'Action name', 'sidcraft-syntex' ), 'content', $sec, array( 'description' => __( 'Shown in Cloudflare analytics. Letters, digits, - and _ (max 32).', 'sidcraft-syntex' ) ) ),
-			'language'     => $this->ctrl( 'text', __( 'Language', 'sidcraft-syntex' ), 'content', $sec, array( 'placeholder' => 'auto', 'description' => __( '"auto" or a code such as en, de, fr, es-es.', 'sidcraft-syntex' ) ) ),
-			'align'        => $this->ctrl( 'choose', __( 'Alignment', 'sidcraft-syntex' ), 'style', __( 'Layout', 'sidcraft-syntex' ), array( 'options' => array( 'flex-start' => __( 'Left', 'sidcraft-syntex' ), 'center' => __( 'Center', 'sidcraft-syntex' ), 'flex-end' => __( 'Right', 'sidcraft-syntex' ) ), 'selectors' => array( '{{WRAPPER}} .lb-turnstile-wrap' => 'justify-content: {{VALUE}};' ) ) ),
+			'protect_form' => $this->ctrl( 'switch', __( 'Protect the form in this container', 'sidcraft-page-builder' ), 'content', $sec, array( 'description' => __( 'Submissions of a Sidcraft Page Builder Form placed in the same container are rejected without a valid Turnstile token.', 'sidcraft-page-builder' ) ) ),
+			'theme'        => $this->ctrl( 'select', __( 'Theme', 'sidcraft-page-builder' ), 'content', $sec, array( 'options' => $def + array( 'auto' => __( 'Auto', 'sidcraft-page-builder' ), 'light' => __( 'Light', 'sidcraft-page-builder' ), 'dark' => __( 'Dark', 'sidcraft-page-builder' ) ) ) ),
+			'size'         => $this->ctrl( 'select', __( 'Size', 'sidcraft-page-builder' ), 'content', $sec, array( 'options' => $def + array( 'normal' => __( 'Normal (300×65)', 'sidcraft-page-builder' ), 'flexible' => __( 'Flexible (full width)', 'sidcraft-page-builder' ), 'compact' => __( 'Compact (150×140)', 'sidcraft-page-builder' ) ) ) ),
+			'appearance'   => $this->ctrl( 'select', __( 'Appearance', 'sidcraft-page-builder' ), 'content', $sec, array( 'options' => $def + array( 'always' => __( 'Always visible', 'sidcraft-page-builder' ), 'interaction-only' => __( 'Only when interaction is needed', 'sidcraft-page-builder' ) ) ) ),
+			'action'       => $this->ctrl( 'text', __( 'Action name', 'sidcraft-page-builder' ), 'content', $sec, array( 'description' => __( 'Shown in Cloudflare analytics. Letters, digits, - and _ (max 32).', 'sidcraft-page-builder' ) ) ),
+			'language'     => $this->ctrl( 'text', __( 'Language', 'sidcraft-page-builder' ), 'content', $sec, array( 'placeholder' => 'auto', 'description' => __( '"auto" or a code such as en, de, fr, es-es.', 'sidcraft-page-builder' ) ) ),
+			'align'        => $this->ctrl( 'choose', __( 'Alignment', 'sidcraft-page-builder' ), 'style', __( 'Layout', 'sidcraft-page-builder' ), array( 'options' => array( 'flex-start' => __( 'Left', 'sidcraft-page-builder' ), 'center' => __( 'Center', 'sidcraft-page-builder' ), 'flex-end' => __( 'Right', 'sidcraft-page-builder' ) ), 'selectors' => array( '{{WRAPPER}} .lb-turnstile-wrap' => 'justify-content: {{VALUE}};' ) ) ),
 		);
 	}
 
@@ -76,7 +76,7 @@ class Turnstile extends Unit {
 		$s = array_merge( $this->defaults(), is_array( $settings ) ? $settings : array() );
 		if ( ! class_exists( TurnstileService::class ) || ! TurnstileService::enabled() ) {
 			if ( function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ) ) {
-				return '<div class="' . esc_attr( $this->cls( $s ) ) . ' lb-turnstile-missing"><p>' . esc_html__( 'Cloudflare Turnstile: add the site and secret keys under Sidcraft Syntex → Settings → Integrations.', 'sidcraft-syntex' ) . '</p></div>';
+				return '<div class="' . esc_attr( $this->cls( $s ) ) . ' lb-turnstile-missing"><p>' . esc_html__( 'Cloudflare Turnstile: add the site and secret keys under Sidcraft Page Builder → Settings → Integrations.', 'sidcraft-page-builder' ) . '</p></div>';
 			}
 			return '';
 		}
