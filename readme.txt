@@ -303,6 +303,7 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * Security: Settings screens now read and sanitize only their own form fields instead of handing the whole request to add-ons.
 * Changed: `wp sidcraft-page-builder export` always writes the kit ZIP to wp-content/uploads/sidcraft-page-builder/kits/; the optional argument is now just a file name.
 * Changed: The editor top bar shows icons for Mobile, Tablet and Desktop (and any extra breakpoints) instead of text labels, and the logo mark reads S.
+* Changed: The Sidebar and WordPress Widget units show the real widgets in the editor canvas instead of a label. A sidebar with no widgets prints nothing for visitors and tells editors to add widgets under Appearance > Widgets.
 * Developers: Works with the Sidcraft Builder Pro add-on (renamed from Sidcraft Pro). New `custom_css/*` filters let an add-on provide custom CSS (off unless an add-on enables it), and the `kses/trusted_scripts` filter keeps registered inline scripts. JSON data scripts in rendered pages are kept.
 * Docs: The readme now lists every external service, what it receives and when, and where the editor source and build tools are.
 

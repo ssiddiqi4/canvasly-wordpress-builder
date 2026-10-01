@@ -914,10 +914,14 @@ function installWidgetDepth() {
         case "wordpress_widget": {
           const w = (app.D.widgets || []).find((x) => x.id === s.widget);
           const label = w ? w.name : s.sidebar ? "Sidebar: " + s.sidebar : "";
+          const live = app.widgetPreviewHTML ? app.widgetPreviewHTML("wordpress_widget", s) : "";
+          if (live) return `<div class="lb-wordpress-widget">${live}</div>`;
           return `<div class="lb-wordpress-widget">${s.title ? `<h3 class="lb-wp-widget-title">${app.esc(s.title)}</h3>` : ""}<div class="lb-embed-placeholder">${label ? "WordPress Widget \xB7 " + app.esc(label) : "Choose a WordPress widget"}</div></div>`;
         }
         case "sidebar": {
           const sb = (app.D.sidebars || []).find((x) => x.id === s.sidebar);
+          const live = sb && app.widgetPreviewHTML ? app.widgetPreviewHTML("sidebar", s) : "";
+          if (live) return `<aside class="lb-sidebar">${live}</aside>`;
           return `<aside class="lb-sidebar"><div class="lb-embed-placeholder">${sb ? "Sidebar \xB7 " + app.esc(sb.name) : "Choose an active sidebar"}</div></aside>`;
         }
         case "price_table": {
