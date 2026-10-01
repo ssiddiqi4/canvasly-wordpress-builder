@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Utils;
+namespace SidcraftSyntex\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

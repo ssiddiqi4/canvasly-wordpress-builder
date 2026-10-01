@@ -1,8 +1,8 @@
 <?php
-namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
 /** Testimonial: one or more quotes (repeater) with author image, name, role and optional link. */
 class Testimonial extends Unit {
- public function type(){return 'testimonial';} public function title(){return __('Testimonial', 'canvasly-lite');} public function icon(){return "\u{275D}";} public function category(){return 'basic';}
+ public function type(){return 'testimonial';} public function title(){return __('Testimonial', 'sidcraft-syntex');} public function icon(){return "\u{275D}";} public function category(){return 'basic';}
  public function keywords(){return ['testimonial','quote','review','customer','feedback'];}
  public function defaults(){return [
   'items'=>[[
@@ -11,29 +11,29 @@ class Testimonial extends Unit {
   'image_size'=>'thumbnail','image_position'=>'aside','align'=>'center','name_tag'=>'div','quote_color'=>'','name_color'=>'','role_color'=>'','image_width'=>'','image_radius'=>'',
  ];}
  public function controls(){
-  $tm='Testimonial'; $content=__('Content', 'canvasly-lite'); $image=__('Image', 'canvasly-lite'); $name=__('Name', 'canvasly-lite'); $role=__('Title', 'canvasly-lite');
+  $tm='Testimonial'; $content=__('Content', 'sidcraft-syntex'); $image=__('Image', 'sidcraft-syntex'); $name=__('Name', 'sidcraft-syntex'); $role=__('Title', 'sidcraft-syntex');
   return [
-   'items'=>$this->ctrl('repeater',__('Testimonials', 'canvasly-lite'),'content',$tm,[
+   'items'=>$this->ctrl('repeater',__('Testimonials', 'sidcraft-syntex'),'content',$tm,[
     'title_field'=>'{{author}}','prevent_empty'=>true,
     'fields'=>[
-     'quote'=>$this->field('wysiwyg',__('Content', 'canvasly-lite')),
-     'image_id'=>$this->field('media',__('Image', 'canvasly-lite')),
-     'image_url'=>$this->field('url',__('Image URL', 'canvasly-lite'),['hidden'=>true]),
-     'author'=>$this->field('text',__('Name', 'canvasly-lite')),
-     'role'=>$this->field('text',__('Title', 'canvasly-lite')),
-     'link'=>$this->field('url',__('Link', 'canvasly-lite')),
-     'link_target'=>$this->field('select',__('Link Target', 'canvasly-lite'),['options'=>self::opt_target(),'condition'=>['link!'=>'']]),
+     'quote'=>$this->field('wysiwyg',__('Content', 'sidcraft-syntex')),
+     'image_id'=>$this->field('media',__('Image', 'sidcraft-syntex')),
+     'image_url'=>$this->field('url',__('Image URL', 'sidcraft-syntex'),['hidden'=>true]),
+     'author'=>$this->field('text',__('Name', 'sidcraft-syntex')),
+     'role'=>$this->field('text',__('Title', 'sidcraft-syntex')),
+     'link'=>$this->field('url',__('Link', 'sidcraft-syntex')),
+     'link_target'=>$this->field('select',__('Link Target', 'sidcraft-syntex'),['options'=>self::opt_target(),'condition'=>['link!'=>'']]),
     ],
    ]),
-   'image_size'=>$this->ctrl('select',__('Image Size', 'canvasly-lite'),'content',$tm,['options'=>['thumbnail'=>__('Thumbnail', 'canvasly-lite'),'medium'=>__('Medium', 'canvasly-lite'),'large'=>__('Large', 'canvasly-lite'),'full'=>__('Full', 'canvasly-lite')]]),
-   'image_position'=>$this->ctrl('select',__('Image Position', 'canvasly-lite'),'content',$tm,['options'=>['aside'=>__('Aside', 'canvasly-lite'),'top'=>__('Top', 'canvasly-lite')]]),
-   'align'=>$this->ctrl('select',__('Alignment', 'canvasly-lite'),'content',$tm,['options'=>self::opt_lcr()]),
-   'name_tag'=>$this->ctrl('select',__('Name HTML Tag', 'canvasly-lite'),'content',$tm,['options'=>self::opt_title_tags()]),
-   'quote_color'=>$this->ctrl('color',__('Text Color', 'canvasly-lite'),'style',$content),
-   'image_width'=>$this->ctrl('number',__('Size', 'canvasly-lite'),'style',$image),
-   'image_radius'=>$this->ctrl('number',__('Radius', 'canvasly-lite'),'style',$image),
-   'name_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$name,['selectors'=>['{{WRAPPER}} .lb-testimonial-name,{{WRAPPER}} .lb-testimonial-name a'=>'color: {{VALUE}};']]),
-   'role_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$role),
+   'image_size'=>$this->ctrl('select',__('Image Size', 'sidcraft-syntex'),'content',$tm,['options'=>['thumbnail'=>__('Thumbnail', 'sidcraft-syntex'),'medium'=>__('Medium', 'sidcraft-syntex'),'large'=>__('Large', 'sidcraft-syntex'),'full'=>__('Full', 'sidcraft-syntex')]]),
+   'image_position'=>$this->ctrl('select',__('Image Position', 'sidcraft-syntex'),'content',$tm,['options'=>['aside'=>__('Aside', 'sidcraft-syntex'),'top'=>__('Top', 'sidcraft-syntex')]]),
+   'align'=>$this->ctrl('select',__('Alignment', 'sidcraft-syntex'),'content',$tm,['options'=>self::opt_lcr()]),
+   'name_tag'=>$this->ctrl('select',__('Name HTML Tag', 'sidcraft-syntex'),'content',$tm,['options'=>self::opt_title_tags()]),
+   'quote_color'=>$this->ctrl('color',__('Text Color', 'sidcraft-syntex'),'style',$content),
+   'image_width'=>$this->ctrl('number',__('Size', 'sidcraft-syntex'),'style',$image),
+   'image_radius'=>$this->ctrl('number',__('Radius', 'sidcraft-syntex'),'style',$image),
+   'name_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$name,['selectors'=>['{{WRAPPER}} .lb-testimonial-name,{{WRAPPER}} .lb-testimonial-name a'=>'color: {{VALUE}};']]),
+   'role_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$role),
   ];
  }
  protected function item_html($s,$item){

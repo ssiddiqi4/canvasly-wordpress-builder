@@ -1,8 +1,8 @@
 <?php
-namespace CanvaslyLite\Compatibility;
+namespace SidcraftSyntex\Compatibility;
 
-use CanvaslyLite\Document\DocumentManager;
-use CanvaslyLite\Units\UnitRegistry;
+use SidcraftSyntex\Document\DocumentManager;
+use SidcraftSyntex\Units\UnitRegistry;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * (`wpml-config.xml` + `pll_copy_post_metas`).
  */
 class Multilingual {
-	const DOMAIN = 'canvasly-lite';
-	const GROUP  = 'Canvasly';
+	const DOMAIN = 'sidcraft-syntex';
+	const GROUP  = 'Sidcraft Syntex';
 
 	private static $booted = false;
 
@@ -24,8 +24,8 @@ class Multilingual {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'canvasly-lite/document/after_save', array( self::class, 'on_after_save' ), 50, 2 );
-		add_filter( 'canvasly-lite/unit/settings', array( self::class, 'filter_settings' ), 20, 4 );
+		add_action( 'sidcraft-syntex/document/after_save', array( self::class, 'on_after_save' ), 50, 2 );
+		add_filter( 'sidcraft-syntex/unit/settings', array( self::class, 'filter_settings' ), 20, 4 );
 		add_action( 'icl_make_duplicate', array( self::class, 'on_wpml_duplicate' ), 10, 4 );
 		add_filter( 'pll_copy_post_metas', array( self::class, 'pll_copy_metas' ), 10, 2 );
 		add_filter( 'pll_get_post_types', array( self::class, 'pll_post_types' ), 10, 2 );
@@ -43,7 +43,7 @@ class Multilingual {
 		 *
 		 * @param string[] $types
 		 */
-		$filtered = apply_filters( 'canvasly-lite/multilingual/types', $types );
+		$filtered = apply_filters( 'sidcraft-syntex/multilingual/types', $types );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'sanitize_key', $filtered ) ) ) : $types;
 	}
 
@@ -86,7 +86,7 @@ class Multilingual {
 		 * @param array $doc
 		 * @param int   $post_id
 		 */
-		$filtered = apply_filters( 'canvasly-lite/multilingual/strings', $out, is_array( $doc ) ? $doc : array(), $post_id );
+		$filtered = apply_filters( 'sidcraft-syntex/multilingual/strings', $out, is_array( $doc ) ? $doc : array(), $post_id );
 		return is_array( $filtered ) ? array_values( $filtered ) : $out;
 	}
 
@@ -174,7 +174,7 @@ class Multilingual {
 	}
 
 	/**
-	 * WPML duplicate: copy Canvasly meta onto the new language post.
+	 * WPML duplicate: copy Sidcraft Syntex meta onto the new language post.
 	 *
 	 * @param int    $master_id
 	 * @param string $lang
@@ -202,8 +202,8 @@ class Multilingual {
 			}
 			$keys = array_values( array_diff( $keys, Meta::ephemeral_keys() ) );
 		} else {
-			$keys[] = '_lb_document_data';
-			$keys[] = '_lb_document_version';
+			$keys[] = '_sidsyn_document_data';
+			$keys[] = '_sidsyn_document_version';
 		}
 		return array_values( array_unique( array_map( 'strval', $keys ) ) );
 	}
@@ -216,7 +216,7 @@ class Multilingual {
 	public static function pll_post_types( $types, $is_settings = false ) {
 		unset( $is_settings );
 		$types = is_array( $types ) ? $types : array();
-		$types['lb_template'] = 'lb_template';
+		$types['sidsyn_template'] = 'sidsyn_template';
 		return $types;
 	}
 

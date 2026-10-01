@@ -1,8 +1,8 @@
 <?php
-namespace CanvaslyLite\Design;
+namespace SidcraftSyntex\Design;
 if(!defined('ABSPATH')) exit;
 class GlobalClasses {
- const KEY='canvasly_lite_global_classes';
+ const KEY='sidcraft_syntex_global_classes';
  public static function all(){
   $raw=get_option(self::KEY,[]); if(!is_array($raw))return [];
   $out=[];
@@ -19,17 +19,17 @@ class GlobalClasses {
   return $out;
  }
  public static function save($name,$css,$extends=[],$description=''){
-  if(!current_user_can('canvasly_lite_design'))return new \WP_Error('forbidden',__('You cannot manage global classes.', 'canvasly-lite'),['status'=>403]);
-  $name=sanitize_title($name);if(!$name)return new \WP_Error('invalid',__('Class name required.', 'canvasly-lite'),['status'=>400]);
+  if(!current_user_can('sidcraft_syntex_design'))return new \WP_Error('forbidden',__('You cannot manage global classes.', 'sidcraft-syntex'),['status'=>403]);
+  $name=sanitize_title($name);if(!$name)return new \WP_Error('invalid',__('Class name required.', 'sidcraft-syntex'),['status'=>400]);
   $all=self::all();$existing=$all[$name]??self::normalize([]);
   if(is_array($css))$existing=self::normalize(array_merge($existing,$css));else $existing=self::normalize(['base'=>$css,'extends'=>$extends,'description'=>$description]);
   if(!empty($extends))$existing['extends']=array_values(array_unique(array_filter(array_map('sanitize_title',(array)$extends))));
-  if(self::would_cycle($name,$existing['extends'],$all))return new \WP_Error('class_cycle',__('Class inheritance would create a cycle.', 'canvasly-lite'),['status'=>400]);
+  if(self::would_cycle($name,$existing['extends'],$all))return new \WP_Error('class_cycle',__('Class inheritance would create a cycle.', 'sidcraft-syntex'),['status'=>400]);
   if($description!=='')$existing['description']=sanitize_text_field($description);
   $existing['extends']=array_values(array_diff($existing['extends'],[$name]));
   $all[$name]=$existing;update_option(self::KEY,$all,false);return ['name'=>$name,'data'=>$existing];
  }
- public static function delete($name){if(!current_user_can('canvasly_lite_design'))return false;$all=self::all();unset($all[sanitize_title($name)]);foreach($all as $n=>$d){$d=self::normalize($d);$d['extends']=array_values(array_diff($d['extends'],[sanitize_title($name)]));$all[$n]=$d;}update_option(self::KEY,$all,false);return true;}
+ public static function delete($name){if(!current_user_can('sidcraft_syntex_design'))return false;$all=self::all();unset($all[sanitize_title($name)]);foreach($all as $n=>$d){$d=self::normalize($d);$d['extends']=array_values(array_diff($d['extends'],[sanitize_title($name)]));$all[$n]=$d;}update_option(self::KEY,$all,false);return true;}
  private static function clean($css){$css=is_array($css)?'':(string)$css;return preg_replace('/<[^>]*>|expression\s*\(|javascript\s*:/i','',wp_strip_all_tags($css));}
  private static function would_cycle($name,$parents,$all,$seen=[]){
   $name=sanitize_title($name);if(isset($seen[$name]))return true;$seen[$name]=true;

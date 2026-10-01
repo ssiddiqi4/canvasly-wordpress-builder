@@ -139,7 +139,7 @@ function installHistory() {
   app.isPublishablePost = function isPublishablePost() {
     if (!app.D || !app.D.postId) return false;
     const type = String(app.D.postType || "");
-    if (type === "lb_template" || type === "revision") return false;
+    if (type === "sidsyn_template" || type === "revision") return false;
     return true;
   };
   app.publishTarget = function publishTarget() {

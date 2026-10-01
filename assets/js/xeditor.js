@@ -1,19 +1,19 @@
 /*!
- * Canvasly XEditor — editor module (Canvasly Lite).
+ * Sidcraft Syntex XEditor — editor module (Sidcraft Syntex).
  *
  * Public API (window.XEditor):
  *   XEditor.engine          XEditorEngine   canvas rendering, menu, drops, CSS injection
  *   XEditor.classes         XEditorClassesManager  variables (--xe-var-*) + classes (.xe-class-*)
  *   XEditor.access          XEditorAccess   Pro guard for Loop Architecture
  *
- * Built on the public Lite extension API (window.CanvaslyLite.hooks). No build step.
+ * Built on the public Lite extension API (window.SidcraftSyntex.hooks). No build step.
  */
 (function () {
 	'use strict';
 
 	const W = window;
-	const LB = (W.CanvaslyLite = W.CanvaslyLite || {});
-	const DATA = () => (LB.data && LB.data.xeditor) || (W.CanvaslyLiteData && W.CanvaslyLiteData.xeditor) || {};
+	const LB = (W.SidcraftSyntex = W.SidcraftSyntex || {});
+	const DATA = () => (LB.data && LB.data.xeditor) || (W.SidcraftSyntexData && W.SidcraftSyntexData.xeditor) || {};
 	const t = (s) => (typeof LB.t === 'function' ? LB.t(s) : s);
 	const esc = (v) =>
 		String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -33,9 +33,9 @@
 		static isGuarded(type) {
 			return XEditorAccess.guarded().indexOf(String(type || '')) !== -1;
 		}
-		/** Mirrors CanvaslyPro.isActive(); Pro defines the real one. */
+		/** Mirrors SidcraftSyntexPro.isActive(); Pro defines the real one. */
 		static isProActive() {
-			const pro = W.CanvaslyPro;
+			const pro = W.SidcraftSyntexPro;
 			if (pro && typeof pro.isActive === 'function') {
 				try {
 					return !!pro.isActive();
@@ -64,11 +64,11 @@
 		}
 		static notice() {
 			const a = DATA().access || {};
-			XEditorUI.toast(a.message || t('XEditor Loop is a Canvasly Pro feature.'), a.upgrade || '');
+			XEditorUI.toast(a.message || t('XEditor Loop is a Sidcraft Syntex Pro feature.'), a.upgrade || '');
 		}
 		static lockedHTML(title) {
 			const a = DATA().access || {};
-			return `<div class="xe-locked" data-xe-locked="1"><strong>&#128274; ${esc(title || t('XEditor Loop'))}</strong><span>${esc(a.message || t('Canvasly Pro license required.'))}</span></div>`;
+			return `<div class="xe-locked" data-xe-locked="1"><strong>&#128274; ${esc(title || t('XEditor Loop'))}</strong><span>${esc(a.message || t('Sidcraft Syntex Pro license required.'))}</span></div>`;
 		}
 	}
 
@@ -843,7 +843,7 @@
 		panel(html, node, tab) {
 			if (!node) return html;
 			if (XEditorAccess.usesLoop(node) && !XEditorAccess.isProActive()) {
-				return XEditorAccess.lockedHTML(t('XEditor Loop')) + `<p class="xe-panel-note">${esc(t('Settings are read-only until Canvasly Pro is active. The loop stays saved in this page.'))}</p>`;
+				return XEditorAccess.lockedHTML(t('XEditor Loop')) + `<p class="xe-panel-note">${esc(t('Settings are read-only until Sidcraft Syntex Pro is active. The loop stays saved in this page.'))}</p>`;
 			}
 			if (!isXe(node.type) && tab === 'content') return html;
 			const stack = this.stack((node.settings || {}).xe_classes);
@@ -1128,11 +1128,11 @@
 	 * Boot
 	 * ================================================================== */
 	W.XEditor = { version: DATA().version || '1.0.0', engine: XEditorEngine, access: XEditorAccess, ClassesManager: XEditorClassesManager, get classes() { return XEditorEngine.manager; } };
-	W.CanvaslyPro = W.CanvaslyPro || {};
-	if (typeof W.CanvaslyPro.isActive !== 'function') {
-		// Lite fallback. Canvasly Pro replaces this with its license-backed check.
-		W.CanvaslyPro.isActive = () => {
-			const lic = W.CanvaslyLiteData && W.CanvaslyLiteData.proLicense;
+	W.SidcraftSyntexPro = W.SidcraftSyntexPro || {};
+	if (typeof W.SidcraftSyntexPro.isActive !== 'function') {
+		// Lite fallback. Sidcraft Syntex Pro replaces this with its license-backed check.
+		W.SidcraftSyntexPro.isActive = () => {
+			const lic = W.SidcraftSyntexData && W.SidcraftSyntexData.proLicense;
 			return !!(lic && lic.active);
 		};
 	}

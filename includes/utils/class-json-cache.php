@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Utils;
+namespace SidcraftSyntex\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -13,8 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * a miss or when the file mtime/size change.
  */
 class JsonCache {
-	const GROUP            = 'canvasly_lite_json';
-	const TRANSIENT_PREFIX = 'lb_json_';
+	const GROUP            = 'sidcraft_syntex_json';
+	const TRANSIENT_PREFIX = 'sidsyn_json_';
 	const TRANSIENT_MAX    = 262144;
 
 	/** @var array<string,array> */
@@ -214,7 +214,7 @@ class JsonCache {
 	 * @return string
 	 */
 	private static function cache_key( $path ) {
-		$ver = defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '';
+		$ver = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '';
 		return substr( md5( $ver . '|' . $path ), 0, 32 );
 	}
 

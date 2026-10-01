@@ -1,5 +1,5 @@
 import { app } from "./app.js";
-var CLIPBOARD_STORAGE = "canvasly-lite.clipboard";
+var CLIPBOARD_STORAGE = "sidcraft-syntex.clipboard";
 var CLIPBOARD_SCHEMA = "2.6";
 var BP_NAMES = ["mobile", "mobile_extra", "tablet", "tablet_extra", "laptop", "desktop", "widescreen"];
 var REPEATER_MAP = {

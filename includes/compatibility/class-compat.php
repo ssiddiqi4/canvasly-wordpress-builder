@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Compatibility;
+namespace SidcraftSyntex\Compatibility;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -38,8 +38,8 @@ class Compat {
 		if ( class_exists( ThemeSupport::class ) ) {
 			ThemeSupport::init();
 		}
-		if ( class_exists( '\\CanvaslyLite\\Design\\Collaboration' ) ) {
-			\CanvaslyLite\Design\Collaboration::init();
+		if ( class_exists( '\\SidcraftSyntex\\Design\\Collaboration' ) ) {
+			\SidcraftSyntex\Design\Collaboration::init();
 		}
 	}
 }

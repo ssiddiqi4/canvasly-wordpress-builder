@@ -1,5 +1,5 @@
 /**
- * Gutenberg editor UI for the canvasly-lite/template block.
+ * Gutenberg editor UI for the sidcraft-syntex/template block.
  * No build step: uses wp.element.createElement.
  */
 (function (wp) {
@@ -25,7 +25,7 @@
 	var ServerSideRender = wp.serverSideRender || (wp.components && wp.components.ServerSideRender);
 
 	function optionsFrom(items) {
-		var opts = [{ label: __('Select a template', 'canvasly-lite'), value: 0 }];
+		var opts = [{ label: __('Select a template', 'sidcraft-syntex'), value: 0 }];
 		(items || []).forEach(function (item) {
 			if (!item || !item.id) return;
 			var label = item.title || ('#' + item.id);
@@ -62,14 +62,14 @@
 				return;
 			}
 			var cancelled = false;
-			apiFetch({ path: '/canvasly-lite/v1/templates/picker' })
+			apiFetch({ path: '/sidcraft-syntex/v1/templates/picker' })
 				.then(function (list) {
 					if (!cancelled) setItems(Array.isArray(list) ? list : []);
 				})
 				.catch(function () {
 					if (!cancelled) {
 						setItems([]);
-						setError(__('Could not load templates.', 'canvasly-lite'));
+						setError(__('Could not load templates.', 'sidcraft-syntex'));
 					}
 				});
 			return function () { cancelled = true; };
@@ -77,17 +77,17 @@
 
 		var selected = findItem(items, id);
 		var inspector = InspectorControls ? el(InspectorControls, {},
-			el(PanelBody, { title: __('Template', 'canvasly-lite'), initialOpen: true },
+			el(PanelBody, { title: __('Template', 'sidcraft-syntex'), initialOpen: true },
 				items === null
 					? el(Spinner)
 					: el(SelectControl, {
-						label: __('Saved Template', 'canvasly-lite'),
+						label: __('Saved Template', 'sidcraft-syntex'),
 						value: id,
 						options: optionsFrom(items),
 						onChange: function (value) {
 							setAttributes({ id: parseInt(value, 10) || 0 });
 						},
-						help: __('Choose a saved Canvasly Lite template. Its CSS and scripts load on the frontend.', 'canvasly-lite')
+						help: __('Choose a saved Sidcraft Syntex template. Its CSS and scripts load on the frontend.', 'sidcraft-syntex')
 					})
 			)
 		) : null;
@@ -95,7 +95,7 @@
 		var picker = items === null
 			? el(Spinner)
 			: el(SelectControl, {
-				label: __('Saved Template', 'canvasly-lite'),
+				label: __('Saved Template', 'sidcraft-syntex'),
 				value: id,
 				options: optionsFrom(items),
 				onChange: function (value) {
@@ -108,11 +108,11 @@
 				inspector,
 				el(Placeholder, {
 					icon: 'layout',
-					label: __('Canvasly Lite Template', 'canvasly-lite'),
+					label: __('Sidcraft Syntex Template', 'sidcraft-syntex'),
 					className: 'lb-block-template-placeholder'
 				},
 					error ? el(Notice, { status: 'warning', isDismissible: false }, error) : null,
-					el('p', {}, __('Select a saved template to insert it into this post.', 'canvasly-lite')),
+					el('p', {}, __('Select a saved template to insert it into this post.', 'sidcraft-syntex')),
 					picker
 				)
 			);
@@ -127,13 +127,13 @@
 					selected.shortcode ? el('code', {}, selected.shortcode) : null
 				)
 			)
-			: el('p', { className: 'lb-block-template-placeholder' }, __('Template #%s', 'canvasly-lite').replace('%s', String(id)));
+			: el('p', { className: 'lb-block-template-placeholder' }, __('Template #%s', 'sidcraft-syntex').replace('%s', String(id)));
 
 		var live = ServerSideRender
 			? el('div', { className: 'lb-block-template-live' },
 				Disabled
-					? el(Disabled, {}, el(ServerSideRender, { block: 'canvasly-lite/template', attributes: { id: id } }))
-					: el(ServerSideRender, { block: 'canvasly-lite/template', attributes: { id: id } })
+					? el(Disabled, {}, el(ServerSideRender, { block: 'sidcraft-syntex/template', attributes: { id: id } }))
+					: el(ServerSideRender, { block: 'sidcraft-syntex/template', attributes: { id: id } })
 			)
 			: null;
 
@@ -142,7 +142,7 @@
 		);
 	}
 
-	registerBlockType('canvasly-lite/template', {
+	registerBlockType('sidcraft-syntex/template', {
 		edit: Edit,
 		save: function () { return null; }
 	});

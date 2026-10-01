@@ -1,7 +1,7 @@
 <?php
-namespace CanvaslyLite\Units;
-use CanvaslyLite\Controls\Groups;
-use CanvaslyLite\Utils\Icons;
+namespace SidcraftSyntex\Units;
+use SidcraftSyntex\Controls\Groups;
+use SidcraftSyntex\Utils\Icons;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -21,7 +21,7 @@ class FlipBox extends Unit {
 		return true;
 	}
 	public function title() {
-		return __( 'Flip Box', 'canvasly-lite' );
+		return __( 'Flip Box', 'sidcraft-syntex' );
 	}
 	public function icon() {
 		return "\u{25B1}";
@@ -58,20 +58,20 @@ class FlipBox extends Unit {
 			'front_shape'           => 'circle',
 			'front_image_id'        => 0,
 			'front_image_url'       => '',
-			'front_title'           => __( 'Front', 'canvasly-lite' ),
+			'front_title'           => __( 'Front', 'sidcraft-syntex' ),
 			'front_title_tag'       => 'h3',
-			'front_text'            => __( 'Front content', 'canvasly-lite' ),
+			'front_text'            => __( 'Front content', 'sidcraft-syntex' ),
 			'back_graphic'          => 'none',
 			'back_icon'             => 'star',
 			'back_icon_view'        => 'default',
 			'back_shape'            => 'circle',
 			'back_image_id'         => 0,
 			'back_image_url'        => '',
-			'back_title'            => __( 'Back', 'canvasly-lite' ),
+			'back_title'            => __( 'Back', 'sidcraft-syntex' ),
 			'back_title_tag'        => 'h3',
-			'back_text'             => __( 'Back content', 'canvasly-lite' ),
+			'back_text'             => __( 'Back content', 'sidcraft-syntex' ),
 			'show_button'           => true,
-			'back_button_text'      => __( 'Click Here', 'canvasly-lite' ),
+			'back_button_text'      => __( 'Click Here', 'sidcraft-syntex' ),
 			'back_button_url'       => '#',
 			'back_button_target'    => '_self',
 			'flip_effect'           => 'flip',
@@ -127,80 +127,80 @@ class FlipBox extends Unit {
 	}
 
 	public function controls() {
-		$front    = __( 'Front', 'canvasly-lite' );
-		$back     = __( 'Back', 'canvasly-lite' );
-		$settings = __( 'Settings', 'canvasly-lite' );
-		$s_front  = __( 'Front', 'canvasly-lite' );
-		$s_back   = __( 'Back', 'canvasly-lite' );
-		$s_btn    = __( 'Button', 'canvasly-lite' );
+		$front    = __( 'Front', 'sidcraft-syntex' );
+		$back     = __( 'Back', 'sidcraft-syntex' );
+		$settings = __( 'Settings', 'sidcraft-syntex' );
+		$s_front  = __( 'Front', 'sidcraft-syntex' );
+		$s_back   = __( 'Back', 'sidcraft-syntex' );
+		$s_btn    = __( 'Button', 'sidcraft-syntex' );
 		$graphic  = array(
-			'none'  => __( 'None', 'canvasly-lite' ),
-			'icon'  => __( 'Icon', 'canvasly-lite' ),
-			'image' => __( 'Image', 'canvasly-lite' ),
+			'none'  => __( 'None', 'sidcraft-syntex' ),
+			'icon'  => __( 'Icon', 'sidcraft-syntex' ),
+			'image' => __( 'Image', 'sidcraft-syntex' ),
 		);
 		$view     = array(
-			'default' => __( 'Default', 'canvasly-lite' ),
-			'stacked' => __( 'Stacked', 'canvasly-lite' ),
-			'framed'  => __( 'Framed', 'canvasly-lite' ),
+			'default' => __( 'Default', 'sidcraft-syntex' ),
+			'stacked' => __( 'Stacked', 'sidcraft-syntex' ),
+			'framed'  => __( 'Framed', 'sidcraft-syntex' ),
 		);
 		$shape    = array(
-			'circle'  => __( 'Circle', 'canvasly-lite' ),
-			'rounded' => __( 'Rounded', 'canvasly-lite' ),
-			'square'  => __( 'Square', 'canvasly-lite' ),
+			'circle'  => __( 'Circle', 'sidcraft-syntex' ),
+			'rounded' => __( 'Rounded', 'sidcraft-syntex' ),
+			'square'  => __( 'Square', 'sidcraft-syntex' ),
 		);
 		$view_on  = array( 'stacked', 'framed' );
 		$sizes    = array(
-			'thumbnail'    => __( 'Thumbnail', 'canvasly-lite' ),
-			'medium'       => __( 'Medium', 'canvasly-lite' ),
-			'medium_large' => __( 'Medium Large', 'canvasly-lite' ),
-			'large'        => __( 'Large', 'canvasly-lite' ),
-			'full'         => __( 'Full', 'canvasly-lite' ),
+			'thumbnail'    => __( 'Thumbnail', 'sidcraft-syntex' ),
+			'medium'       => __( 'Medium', 'sidcraft-syntex' ),
+			'medium_large' => __( 'Medium Large', 'sidcraft-syntex' ),
+			'large'        => __( 'Large', 'sidcraft-syntex' ),
+			'full'         => __( 'Full', 'sidcraft-syntex' ),
 		);
 
 		return array(
 			// Content - Front
-			'front_graphic'      => $this->ctrl( 'choose', __( 'Graphic', 'canvasly-lite' ), 'content', $front, array( 'options' => $graphic ) ),
-			'front_icon'         => $this->ctrl( 'icon', __( 'Icon', 'canvasly-lite' ), 'content', $front, array( 'condition' => array( 'front_graphic' => 'icon' ) ) ),
-			'front_icon_view'    => $this->ctrl( 'select', __( 'Icon View', 'canvasly-lite' ), 'content', $front, array( 'options' => $view, 'condition' => array( 'front_graphic' => 'icon' ) ) ),
-			'front_shape'        => $this->ctrl( 'select', __( 'Icon Shape', 'canvasly-lite' ), 'content', $front, array( 'options' => $shape, 'condition' => array( 'front_graphic' => 'icon', 'front_icon_view' => $view_on ) ) ),
-			'front_image_id'     => $this->ctrl( 'media', __( 'Image', 'canvasly-lite' ), 'content', $front, array( 'dynamic' => true, 'condition' => array( 'front_graphic' => 'image' ) ) ),
-			'front_image_url'    => $this->ctrl( 'url', __( 'Image URL', 'canvasly-lite' ), 'content', $front, array( 'hidden' => true, 'dynamic' => true ) ),
-			'front_image_size'   => $this->ctrl( 'select', __( 'Image Size', 'canvasly-lite' ), 'content', $front, array( 'options' => $sizes, 'condition' => array( 'front_graphic' => 'image' ) ) ),
-			'front_title'        => $this->ctrl( 'text', __( 'Title', 'canvasly-lite' ), 'content', $front, array( 'dynamic' => true ) ),
-			'front_title_tag'    => $this->ctrl( 'select', __( 'Title HTML Tag', 'canvasly-lite' ), 'content', $front, array( 'options' => self::opt_title_tags() ) ),
-			'front_text'         => $this->ctrl( 'textarea', __( 'Description', 'canvasly-lite' ), 'content', $front, array( 'dynamic' => true ) ),
+			'front_graphic'      => $this->ctrl( 'choose', __( 'Graphic', 'sidcraft-syntex' ), 'content', $front, array( 'options' => $graphic ) ),
+			'front_icon'         => $this->ctrl( 'icon', __( 'Icon', 'sidcraft-syntex' ), 'content', $front, array( 'condition' => array( 'front_graphic' => 'icon' ) ) ),
+			'front_icon_view'    => $this->ctrl( 'select', __( 'Icon View', 'sidcraft-syntex' ), 'content', $front, array( 'options' => $view, 'condition' => array( 'front_graphic' => 'icon' ) ) ),
+			'front_shape'        => $this->ctrl( 'select', __( 'Icon Shape', 'sidcraft-syntex' ), 'content', $front, array( 'options' => $shape, 'condition' => array( 'front_graphic' => 'icon', 'front_icon_view' => $view_on ) ) ),
+			'front_image_id'     => $this->ctrl( 'media', __( 'Image', 'sidcraft-syntex' ), 'content', $front, array( 'dynamic' => true, 'condition' => array( 'front_graphic' => 'image' ) ) ),
+			'front_image_url'    => $this->ctrl( 'url', __( 'Image URL', 'sidcraft-syntex' ), 'content', $front, array( 'hidden' => true, 'dynamic' => true ) ),
+			'front_image_size'   => $this->ctrl( 'select', __( 'Image Size', 'sidcraft-syntex' ), 'content', $front, array( 'options' => $sizes, 'condition' => array( 'front_graphic' => 'image' ) ) ),
+			'front_title'        => $this->ctrl( 'text', __( 'Title', 'sidcraft-syntex' ), 'content', $front, array( 'dynamic' => true ) ),
+			'front_title_tag'    => $this->ctrl( 'select', __( 'Title HTML Tag', 'sidcraft-syntex' ), 'content', $front, array( 'options' => self::opt_title_tags() ) ),
+			'front_text'         => $this->ctrl( 'textarea', __( 'Description', 'sidcraft-syntex' ), 'content', $front, array( 'dynamic' => true ) ),
 
 			// Content - Back
-			'back_graphic'       => $this->ctrl( 'choose', __( 'Graphic', 'canvasly-lite' ), 'content', $back, array( 'options' => $graphic ) ),
-			'back_icon'          => $this->ctrl( 'icon', __( 'Icon', 'canvasly-lite' ), 'content', $back, array( 'condition' => array( 'back_graphic' => 'icon' ) ) ),
-			'back_icon_view'     => $this->ctrl( 'select', __( 'Icon View', 'canvasly-lite' ), 'content', $back, array( 'options' => $view, 'condition' => array( 'back_graphic' => 'icon' ) ) ),
-			'back_shape'         => $this->ctrl( 'select', __( 'Icon Shape', 'canvasly-lite' ), 'content', $back, array( 'options' => $shape, 'condition' => array( 'back_graphic' => 'icon', 'back_icon_view' => $view_on ) ) ),
-			'back_image_id'      => $this->ctrl( 'media', __( 'Image', 'canvasly-lite' ), 'content', $back, array( 'dynamic' => true, 'condition' => array( 'back_graphic' => 'image' ) ) ),
-			'back_image_url'     => $this->ctrl( 'url', __( 'Image URL', 'canvasly-lite' ), 'content', $back, array( 'hidden' => true, 'dynamic' => true ) ),
-			'back_image_size'    => $this->ctrl( 'select', __( 'Image Size', 'canvasly-lite' ), 'content', $back, array( 'options' => $sizes, 'condition' => array( 'back_graphic' => 'image' ) ) ),
-			'back_title'         => $this->ctrl( 'text', __( 'Title', 'canvasly-lite' ), 'content', $back, array( 'dynamic' => true ) ),
-			'back_title_tag'     => $this->ctrl( 'select', __( 'Title HTML Tag', 'canvasly-lite' ), 'content', $back, array( 'options' => self::opt_title_tags() ) ),
-			'back_text'          => $this->ctrl( 'textarea', __( 'Description', 'canvasly-lite' ), 'content', $back, array( 'dynamic' => true ) ),
-			'show_button'        => $this->ctrl( 'switch', __( 'Show Button', 'canvasly-lite' ), 'content', $back ),
-			'back_button_text'   => $this->ctrl( 'text', __( 'Button Text', 'canvasly-lite' ), 'content', $back, array( 'dynamic' => true, 'condition' => array( 'show_button' => true ) ) ),
-			'back_button_url'    => $this->ctrl( 'url', __( 'Button Link', 'canvasly-lite' ), 'content', $back, array( 'dynamic' => true, 'condition' => array( 'show_button' => true ) ) ),
-			'back_button_target' => $this->ctrl( 'select', __( 'Link Target', 'canvasly-lite' ), 'content', $back, array( 'options' => self::opt_target(), 'condition' => array( 'show_button' => true, 'back_button_url!' => '' ) ) ),
-			'button_background'  => $this->ctrl( 'color', __( 'Button Color', 'canvasly-lite' ), 'content', $back, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-bg: {{VALUE}};' ) ) ),
-			'button_text_color'  => $this->ctrl( 'color', __( 'Button Text Color', 'canvasly-lite' ), 'content', $back, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-color: {{VALUE}};' ) ) ),
+			'back_graphic'       => $this->ctrl( 'choose', __( 'Graphic', 'sidcraft-syntex' ), 'content', $back, array( 'options' => $graphic ) ),
+			'back_icon'          => $this->ctrl( 'icon', __( 'Icon', 'sidcraft-syntex' ), 'content', $back, array( 'condition' => array( 'back_graphic' => 'icon' ) ) ),
+			'back_icon_view'     => $this->ctrl( 'select', __( 'Icon View', 'sidcraft-syntex' ), 'content', $back, array( 'options' => $view, 'condition' => array( 'back_graphic' => 'icon' ) ) ),
+			'back_shape'         => $this->ctrl( 'select', __( 'Icon Shape', 'sidcraft-syntex' ), 'content', $back, array( 'options' => $shape, 'condition' => array( 'back_graphic' => 'icon', 'back_icon_view' => $view_on ) ) ),
+			'back_image_id'      => $this->ctrl( 'media', __( 'Image', 'sidcraft-syntex' ), 'content', $back, array( 'dynamic' => true, 'condition' => array( 'back_graphic' => 'image' ) ) ),
+			'back_image_url'     => $this->ctrl( 'url', __( 'Image URL', 'sidcraft-syntex' ), 'content', $back, array( 'hidden' => true, 'dynamic' => true ) ),
+			'back_image_size'    => $this->ctrl( 'select', __( 'Image Size', 'sidcraft-syntex' ), 'content', $back, array( 'options' => $sizes, 'condition' => array( 'back_graphic' => 'image' ) ) ),
+			'back_title'         => $this->ctrl( 'text', __( 'Title', 'sidcraft-syntex' ), 'content', $back, array( 'dynamic' => true ) ),
+			'back_title_tag'     => $this->ctrl( 'select', __( 'Title HTML Tag', 'sidcraft-syntex' ), 'content', $back, array( 'options' => self::opt_title_tags() ) ),
+			'back_text'          => $this->ctrl( 'textarea', __( 'Description', 'sidcraft-syntex' ), 'content', $back, array( 'dynamic' => true ) ),
+			'show_button'        => $this->ctrl( 'switch', __( 'Show Button', 'sidcraft-syntex' ), 'content', $back ),
+			'back_button_text'   => $this->ctrl( 'text', __( 'Button Text', 'sidcraft-syntex' ), 'content', $back, array( 'dynamic' => true, 'condition' => array( 'show_button' => true ) ) ),
+			'back_button_url'    => $this->ctrl( 'url', __( 'Button Link', 'sidcraft-syntex' ), 'content', $back, array( 'dynamic' => true, 'condition' => array( 'show_button' => true ) ) ),
+			'back_button_target' => $this->ctrl( 'select', __( 'Link Target', 'sidcraft-syntex' ), 'content', $back, array( 'options' => self::opt_target(), 'condition' => array( 'show_button' => true, 'back_button_url!' => '' ) ) ),
+			'button_background'  => $this->ctrl( 'color', __( 'Button Color', 'sidcraft-syntex' ), 'content', $back, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-bg: {{VALUE}};' ) ) ),
+			'button_text_color'  => $this->ctrl( 'color', __( 'Button Text Color', 'sidcraft-syntex' ), 'content', $back, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-color: {{VALUE}};' ) ) ),
 
 			// Content - Settings
 			'flip_effect'        => $this->ctrl(
 				'choose',
-				__( 'Flip Effect', 'canvasly-lite' ),
+				__( 'Flip Effect', 'sidcraft-syntex' ),
 				'content',
 				$settings,
 				array(
 					'options' => array(
-						'flip'  => __( 'Flip', 'canvasly-lite' ),
-						'slide' => __( 'Slide', 'canvasly-lite' ),
-						'push'  => __( 'Push', 'canvasly-lite' ),
-						'zoom'  => __( 'Zoom', 'canvasly-lite' ),
-						'fade'  => __( 'Fade', 'canvasly-lite' ),
+						'flip'  => __( 'Flip', 'sidcraft-syntex' ),
+						'slide' => __( 'Slide', 'sidcraft-syntex' ),
+						'push'  => __( 'Push', 'sidcraft-syntex' ),
+						'zoom'  => __( 'Zoom', 'sidcraft-syntex' ),
+						'fade'  => __( 'Fade', 'sidcraft-syntex' ),
 					),
 					'icons'   => array(
 						'flip'  => "\u{27F3}",
@@ -213,23 +213,23 @@ class FlipBox extends Unit {
 			),
 			'flip_direction'     => $this->ctrl(
 				'choose',
-				__( 'Direction', 'canvasly-lite' ),
+				__( 'Direction', 'sidcraft-syntex' ),
 				'content',
 				$settings,
 				array(
 					'options'   => array(
-						'left'  => __( 'Left', 'canvasly-lite' ),
-						'right' => __( 'Right', 'canvasly-lite' ),
-						'up'    => __( 'Up', 'canvasly-lite' ),
-						'down'  => __( 'Down', 'canvasly-lite' ),
+						'left'  => __( 'Left', 'sidcraft-syntex' ),
+						'right' => __( 'Right', 'sidcraft-syntex' ),
+						'up'    => __( 'Up', 'sidcraft-syntex' ),
+						'down'  => __( 'Down', 'sidcraft-syntex' ),
 					),
 					'condition' => array( 'flip_effect' => array( 'flip', 'slide', 'push' ) ),
 				)
 			),
-			'flip_3d'            => $this->ctrl( 'switch', __( '3D Depth', 'canvasly-lite' ), 'content', $settings, array( 'condition' => array( 'flip_effect' => 'flip' ) ) ),
+			'flip_3d'            => $this->ctrl( 'switch', __( '3D Depth', 'sidcraft-syntex' ), 'content', $settings, array( 'condition' => array( 'flip_effect' => 'flip' ) ) ),
 			'flip_depth'         => $this->ctrl(
 				'slider',
-				__( 'Depth', 'canvasly-lite' ),
+				__( 'Depth', 'sidcraft-syntex' ),
 				'content',
 				$settings,
 				array(
@@ -241,7 +241,7 @@ class FlipBox extends Unit {
 			),
 			'flip_duration'      => $this->ctrl(
 				'slider',
-				__( 'Duration', 'canvasly-lite' ),
+				__( 'Duration', 'sidcraft-syntex' ),
 				'content',
 				$settings,
 				array(
@@ -252,19 +252,19 @@ class FlipBox extends Unit {
 			),
 			'flip_trigger'       => $this->ctrl(
 				'select',
-				__( 'Trigger', 'canvasly-lite' ),
+				__( 'Trigger', 'sidcraft-syntex' ),
 				'content',
 				$settings,
 				array(
 					'options' => array(
-						'hover' => __( 'Hover', 'canvasly-lite' ),
-						'click' => __( 'Click', 'canvasly-lite' ),
+						'hover' => __( 'Hover', 'sidcraft-syntex' ),
+						'click' => __( 'Click', 'sidcraft-syntex' ),
 					),
 				)
 			),
 			'box_height'         => $this->ctrl(
 				'slider',
-				__( 'Height', 'canvasly-lite' ),
+				__( 'Height', 'sidcraft-syntex' ),
 				'content',
 				$settings,
 				array(
@@ -279,10 +279,10 @@ class FlipBox extends Unit {
 			),
 
 			// Style - Front
-			'front_background'   => $this->ctrl( 'background', __( 'Background', 'canvasly-lite' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front' => '{{VALUE}}' ) ) ),
+			'front_background'   => $this->ctrl( 'background', __( 'Background', 'sidcraft-syntex' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front' => '{{VALUE}}' ) ) ),
 			'front_align'        => $this->ctrl(
 				'choose',
-				__( 'Horizontal Align', 'canvasly-lite' ),
+				__( 'Horizontal Align', 'sidcraft-syntex' ),
 				'style',
 				$s_front,
 				array(
@@ -297,14 +297,14 @@ class FlipBox extends Unit {
 			),
 			'front_valign'       => $this->ctrl(
 				'choose',
-				__( 'Vertical Align', 'canvasly-lite' ),
+				__( 'Vertical Align', 'sidcraft-syntex' ),
 				'style',
 				$s_front,
 				array(
 					'options'   => array(
-						'top'    => __( 'Top', 'canvasly-lite' ),
-						'middle' => __( 'Middle', 'canvasly-lite' ),
-						'bottom' => __( 'Bottom', 'canvasly-lite' ),
+						'top'    => __( 'Top', 'sidcraft-syntex' ),
+						'middle' => __( 'Middle', 'sidcraft-syntex' ),
+						'bottom' => __( 'Bottom', 'sidcraft-syntex' ),
 					),
 					'map'       => array(
 						'top'    => 'flex-start',
@@ -314,12 +314,12 @@ class FlipBox extends Unit {
 					'selectors' => array( '{{WRAPPER}} .lb-flip-front' => 'justify-content: {{VALUE}};' ),
 				)
 			),
-			'front_padding'      => $this->ctrl( 'dimensions', __( 'Padding', 'canvasly-lite' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front .lb-flip-content' => 'padding: {{VALUE}};' ) ) ),
-			'front_title_color'  => $this->ctrl( 'color', __( 'Title Color', 'canvasly-lite' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front .lb-flip-title' => 'color: {{VALUE}};' ) ) ),
-			'front_title_typography' => $this->ctrl( 'typography', __( 'Title Typography', 'canvasly-lite' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front .lb-flip-title' => '{{VALUE}}' ) ) ),
+			'front_padding'      => $this->ctrl( 'dimensions', __( 'Padding', 'sidcraft-syntex' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front .lb-flip-content' => 'padding: {{VALUE}};' ) ) ),
+			'front_title_color'  => $this->ctrl( 'color', __( 'Title Color', 'sidcraft-syntex' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front .lb-flip-title' => 'color: {{VALUE}};' ) ) ),
+			'front_title_typography' => $this->ctrl( 'typography', __( 'Title Typography', 'sidcraft-syntex' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front .lb-flip-title' => '{{VALUE}}' ) ) ),
 			'front_title_space'  => $this->ctrl(
 				'slider',
-				__( 'Title Spacing', 'canvasly-lite' ),
+				__( 'Title Spacing', 'sidcraft-syntex' ),
 				'style',
 				$s_front,
 				array(
@@ -328,11 +328,11 @@ class FlipBox extends Unit {
 					'selectors' => array( '{{WRAPPER}} .lb-flip-front' => '--lb-flip-title-space: {{SIZE}}{{UNIT}};' ),
 				)
 			),
-			'front_desc_color'   => $this->ctrl( 'color', __( 'Description Color', 'canvasly-lite' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front .lb-flip-desc' => 'color: {{VALUE}};' ) ) ),
-			'front_desc_typography' => $this->ctrl( 'typography', __( 'Description Typography', 'canvasly-lite' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front .lb-flip-desc' => '{{VALUE}}' ) ) ),
+			'front_desc_color'   => $this->ctrl( 'color', __( 'Description Color', 'sidcraft-syntex' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front .lb-flip-desc' => 'color: {{VALUE}};' ) ) ),
+			'front_desc_typography' => $this->ctrl( 'typography', __( 'Description Typography', 'sidcraft-syntex' ), 'style', $s_front, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-front .lb-flip-desc' => '{{VALUE}}' ) ) ),
 			'front_icon_size'    => $this->ctrl(
 				'slider',
-				__( 'Icon Size', 'canvasly-lite' ),
+				__( 'Icon Size', 'sidcraft-syntex' ),
 				'style',
 				$s_front,
 				array(
@@ -344,7 +344,7 @@ class FlipBox extends Unit {
 			),
 			'front_icon_color'   => $this->ctrl(
 				'color',
-				__( 'Icon Color', 'canvasly-lite' ),
+				__( 'Icon Color', 'sidcraft-syntex' ),
 				'style',
 				$s_front,
 				array(
@@ -354,7 +354,7 @@ class FlipBox extends Unit {
 			),
 			'front_icon_space'   => $this->ctrl(
 				'slider',
-				__( 'Icon Spacing', 'canvasly-lite' ),
+				__( 'Icon Spacing', 'sidcraft-syntex' ),
 				'style',
 				$s_front,
 				array(
@@ -366,7 +366,7 @@ class FlipBox extends Unit {
 			),
 			'front_image_width'  => $this->ctrl(
 				'slider',
-				__( 'Image Width', 'canvasly-lite' ),
+				__( 'Image Width', 'sidcraft-syntex' ),
 				'style',
 				$s_front,
 				array(
@@ -378,7 +378,7 @@ class FlipBox extends Unit {
 			),
 			'front_image_radius' => $this->ctrl(
 				'slider',
-				__( 'Image Radius', 'canvasly-lite' ),
+				__( 'Image Radius', 'sidcraft-syntex' ),
 				'style',
 				$s_front,
 				array(
@@ -390,10 +390,10 @@ class FlipBox extends Unit {
 			),
 
 			// Style - Back
-			'back_background'    => $this->ctrl( 'background', __( 'Background', 'canvasly-lite' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back' => '{{VALUE}}' ) ) ),
+			'back_background'    => $this->ctrl( 'background', __( 'Background', 'sidcraft-syntex' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back' => '{{VALUE}}' ) ) ),
 			'back_align'         => $this->ctrl(
 				'choose',
-				__( 'Horizontal Align', 'canvasly-lite' ),
+				__( 'Horizontal Align', 'sidcraft-syntex' ),
 				'style',
 				$s_back,
 				array(
@@ -408,14 +408,14 @@ class FlipBox extends Unit {
 			),
 			'back_valign'        => $this->ctrl(
 				'choose',
-				__( 'Vertical Align', 'canvasly-lite' ),
+				__( 'Vertical Align', 'sidcraft-syntex' ),
 				'style',
 				$s_back,
 				array(
 					'options'   => array(
-						'top'    => __( 'Top', 'canvasly-lite' ),
-						'middle' => __( 'Middle', 'canvasly-lite' ),
-						'bottom' => __( 'Bottom', 'canvasly-lite' ),
+						'top'    => __( 'Top', 'sidcraft-syntex' ),
+						'middle' => __( 'Middle', 'sidcraft-syntex' ),
+						'bottom' => __( 'Bottom', 'sidcraft-syntex' ),
 					),
 					'map'       => array(
 						'top'    => 'flex-start',
@@ -425,12 +425,12 @@ class FlipBox extends Unit {
 					'selectors' => array( '{{WRAPPER}} .lb-flip-back' => 'justify-content: {{VALUE}};' ),
 				)
 			),
-			'back_padding'       => $this->ctrl( 'dimensions', __( 'Padding', 'canvasly-lite' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back .lb-flip-content' => 'padding: {{VALUE}};' ) ) ),
-			'back_title_color'   => $this->ctrl( 'color', __( 'Title Color', 'canvasly-lite' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back .lb-flip-title' => 'color: {{VALUE}};' ) ) ),
-			'back_title_typography' => $this->ctrl( 'typography', __( 'Title Typography', 'canvasly-lite' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back .lb-flip-title' => '{{VALUE}}' ) ) ),
+			'back_padding'       => $this->ctrl( 'dimensions', __( 'Padding', 'sidcraft-syntex' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back .lb-flip-content' => 'padding: {{VALUE}};' ) ) ),
+			'back_title_color'   => $this->ctrl( 'color', __( 'Title Color', 'sidcraft-syntex' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back .lb-flip-title' => 'color: {{VALUE}};' ) ) ),
+			'back_title_typography' => $this->ctrl( 'typography', __( 'Title Typography', 'sidcraft-syntex' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back .lb-flip-title' => '{{VALUE}}' ) ) ),
 			'back_title_space'   => $this->ctrl(
 				'slider',
-				__( 'Title Spacing', 'canvasly-lite' ),
+				__( 'Title Spacing', 'sidcraft-syntex' ),
 				'style',
 				$s_back,
 				array(
@@ -439,11 +439,11 @@ class FlipBox extends Unit {
 					'selectors' => array( '{{WRAPPER}} .lb-flip-back' => '--lb-flip-title-space: {{SIZE}}{{UNIT}};' ),
 				)
 			),
-			'back_desc_color'    => $this->ctrl( 'color', __( 'Description Color', 'canvasly-lite' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back .lb-flip-desc' => 'color: {{VALUE}};' ) ) ),
-			'back_desc_typography' => $this->ctrl( 'typography', __( 'Description Typography', 'canvasly-lite' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back .lb-flip-desc' => '{{VALUE}}' ) ) ),
+			'back_desc_color'    => $this->ctrl( 'color', __( 'Description Color', 'sidcraft-syntex' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back .lb-flip-desc' => 'color: {{VALUE}};' ) ) ),
+			'back_desc_typography' => $this->ctrl( 'typography', __( 'Description Typography', 'sidcraft-syntex' ), 'style', $s_back, array( 'selectors' => array( '{{WRAPPER}} .lb-flip-back .lb-flip-desc' => '{{VALUE}}' ) ) ),
 			'back_icon_size'     => $this->ctrl(
 				'slider',
-				__( 'Icon Size', 'canvasly-lite' ),
+				__( 'Icon Size', 'sidcraft-syntex' ),
 				'style',
 				$s_back,
 				array(
@@ -455,7 +455,7 @@ class FlipBox extends Unit {
 			),
 			'back_icon_color'    => $this->ctrl(
 				'color',
-				__( 'Icon Color', 'canvasly-lite' ),
+				__( 'Icon Color', 'sidcraft-syntex' ),
 				'style',
 				$s_back,
 				array(
@@ -465,7 +465,7 @@ class FlipBox extends Unit {
 			),
 			'back_icon_space'    => $this->ctrl(
 				'slider',
-				__( 'Icon Spacing', 'canvasly-lite' ),
+				__( 'Icon Spacing', 'sidcraft-syntex' ),
 				'style',
 				$s_back,
 				array(
@@ -477,7 +477,7 @@ class FlipBox extends Unit {
 			),
 			'back_image_width'   => $this->ctrl(
 				'slider',
-				__( 'Image Width', 'canvasly-lite' ),
+				__( 'Image Width', 'sidcraft-syntex' ),
 				'style',
 				$s_back,
 				array(
@@ -489,7 +489,7 @@ class FlipBox extends Unit {
 			),
 			'back_image_radius'  => $this->ctrl(
 				'slider',
-				__( 'Image Radius', 'canvasly-lite' ),
+				__( 'Image Radius', 'sidcraft-syntex' ),
 				'style',
 				$s_back,
 				array(
@@ -501,10 +501,10 @@ class FlipBox extends Unit {
 			),
 
 			// Style - Button
-			'button_typography'  => $this->ctrl( 'typography', __( 'Typography', 'canvasly-lite' ), 'style', $s_btn, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}} .lb-flip-button' => '{{VALUE}}' ) ) ),
-			'button_hover_background' => $this->ctrl( 'color', __( 'Hover Background', 'canvasly-lite' ), 'style', $s_btn, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-hover-bg: {{VALUE}};' ) ) ),
-			'button_hover_color' => $this->ctrl( 'color', __( 'Hover Text Color', 'canvasly-lite' ), 'style', $s_btn, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-hover-color: {{VALUE}};' ) ) ),
-			'button_padding'     => $this->ctrl( 'dimensions', __( 'Padding', 'canvasly-lite' ), 'style', $s_btn, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}} .lb-flip-button' => 'padding: {{VALUE}};' ) ) ),
+			'button_typography'  => $this->ctrl( 'typography', __( 'Typography', 'sidcraft-syntex' ), 'style', $s_btn, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}} .lb-flip-button' => '{{VALUE}}' ) ) ),
+			'button_hover_background' => $this->ctrl( 'color', __( 'Hover Background', 'sidcraft-syntex' ), 'style', $s_btn, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-hover-bg: {{VALUE}};' ) ) ),
+			'button_hover_color' => $this->ctrl( 'color', __( 'Hover Text Color', 'sidcraft-syntex' ), 'style', $s_btn, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}}' => '--lb-flip-btn-hover-color: {{VALUE}};' ) ) ),
+			'button_padding'     => $this->ctrl( 'dimensions', __( 'Padding', 'sidcraft-syntex' ), 'style', $s_btn, array( 'condition' => array( 'show_button' => true ), 'selectors' => array( '{{WRAPPER}} .lb-flip-button' => 'padding: {{VALUE}};' ) ) ),
 		);
 	}
 

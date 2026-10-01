@@ -3,7 +3,7 @@ import { normalizePreferences, applyUiTheme } from "./preferences.js";
 function installState() {
   app.root = document.getElementById("lb-editor");
   if (!app.root) return false;
-  app.D = window.CanvaslyLiteData || {};
+  app.D = window.SidcraftSyntexData || {};
   app.t = function t3(key) {
     const map = app.D.i18n && typeof app.D.i18n === "object" ? app.D.i18n : {};
     let s = Object.prototype.hasOwnProperty.call(map, key) ? String(map[key] ?? "") : String(key);
@@ -21,7 +21,7 @@ function installState() {
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c],
     );
   app.lbDevMode = !!app.D.devMode;
-  if (window.CanvaslyLite) window.CanvaslyLite.devMode = app.lbDevMode;
+  if (window.SidcraftSyntex) window.SidcraftSyntex.devMode = app.lbDevMode;
   app.LB_DYNAMIC_KEYS = { title: 1, excerpt: 1, url: 1, featured_image: 1, author: 1, date: 1 };
   app.lbLooksLikeEval = function lbLooksLikeEval(s) {
     return /\b(?:eval|Function|setTimeout|setInterval)\s*\(|new\s+Function\s*\(|javascript\s*:|vbscript\s*:|<\?php|<\?=|\{\{[\s]*[=#\/]|\{%/i.test(

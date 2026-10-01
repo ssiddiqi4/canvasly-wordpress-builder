@@ -1,12 +1,12 @@
 <?php
-namespace CanvaslyLite\Compatibility;
+namespace SidcraftSyntex\Compatibility;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Purge page-cache plugins when a Canvasly document is saved.
+ * Purge page-cache plugins when a Sidcraft Syntex document is saved.
  */
 class Cache {
 	private static $booted = false;
@@ -16,7 +16,7 @@ class Cache {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'canvasly-lite/document/after_save', array( self::class, 'purge' ), 40, 1 );
+		add_action( 'sidcraft-syntex/document/after_save', array( self::class, 'purge' ), 40, 1 );
 	}
 
 	/**
@@ -80,11 +80,11 @@ class Cache {
 		}
 
 		/**
-		 * Fires after Canvasly has asked cache plugins to drop a post.
+		 * Fires after Sidcraft Syntex has asked cache plugins to drop a post.
 		 *
 		 * @param int $post_id
 		 */
-		do_action( 'canvasly-lite/cache/purge', $post_id );
+		do_action( 'sidcraft-syntex/cache/purge', $post_id );
 		return true;
 	}
 
@@ -110,7 +110,7 @@ class Cache {
 		/**
 		 * Fires after a site-wide cache purge request.
 		 */
-		do_action( 'canvasly-lite/cache/purge_all' );
+		do_action( 'sidcraft-syntex/cache/purge_all' );
 	}
 
 	/**

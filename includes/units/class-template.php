@@ -1,22 +1,22 @@
 <?php
-namespace CanvaslyLite\Units;
+namespace SidcraftSyntex\Units;
 
-use CanvaslyLite\Templates\SavedTemplates;
-use CanvaslyLite\Templates\TemplateEmbed;
+use SidcraftSyntex\Templates\SavedTemplates;
+use SidcraftSyntex\Templates\TemplateEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Template widget: insert a saved Canvasly template into the canvas.
+ * Template widget: insert a saved Sidcraft Syntex template into the canvas.
  */
 class Template extends Unit {
 	public function type() {
 		return 'template';
 	}
 	public function title() {
-		return __( 'Template', 'canvasly-lite' );
+		return __( 'Template', 'sidcraft-syntex' );
 	}
 	public function icon() {
 		return "\u{25A3}";
@@ -35,11 +35,11 @@ class Template extends Unit {
 	}
 
 	public function controls() {
-		$tpl = __( 'Template', 'canvasly-lite' );
+		$tpl = __( 'Template', 'sidcraft-syntex' );
 		return array(
-			'template_id' => $this->ctrl( 'select', __( 'Saved Template', 'canvasly-lite' ), 'content', $tpl, array(
+			'template_id' => $this->ctrl( 'select', __( 'Saved Template', 'sidcraft-syntex' ), 'content', $tpl, array(
 				'options'     => self::template_options(),
-				'description' => __( 'Choose a saved template to embed. CSS and scripts for that template are loaded automatically.', 'canvasly-lite' ),
+				'description' => __( 'Choose a saved template to embed. CSS and scripts for that template are loaded automatically.', 'sidcraft-syntex' ),
 			) ),
 		);
 	}
@@ -47,9 +47,9 @@ class Template extends Unit {
 	public function render( $s, $children = '' ) {
 		$id = absint( $s['template_id'] ?? 0 );
 		if ( ! $id ) {
-			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Select a saved template', 'canvasly-lite' ) . '</div></div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Select a saved template', 'sidcraft-syntex' ) . '</div></div>';
 		}
-		return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Template', 'canvasly-lite' ) . '</div></div>';
+		return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Template', 'sidcraft-syntex' ) . '</div></div>';
 	}
 
 	/**
@@ -67,14 +67,14 @@ class Template extends Unit {
 		$host_id       = preg_replace( '/[^a-zA-Z0-9_-]/', '', (string) ( $node['id'] ?? '' ) );
 		$document_id   = absint( $document_id );
 		if ( ! $template_id ) {
-			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Select a saved template', 'canvasly-lite' ) . '</div></div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Select a saved template', 'sidcraft-syntex' ) . '</div></div>';
 		}
 		$html = '';
 		if ( class_exists( TemplateEmbed::class ) ) {
 			$html = TemplateEmbed::render_inside( $template_id, $host_id, $document_id );
 		}
 		if ( $html === '' ) {
-			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Template not found', 'canvasly-lite' ) . '</div></div>';
+			return '<div class="' . $this->cls( $s ) . ' lb-template-widget"><div class="lb-embed-placeholder">' . esc_html__( 'Template not found', 'sidcraft-syntex' ) . '</div></div>';
 		}
 		return '<div class="' . $this->cls( $s ) . ' lb-template-widget" data-lb-template="' . esc_attr( (string) $template_id ) . '">' . $html . '</div>';
 	}
@@ -91,13 +91,13 @@ class Template extends Unit {
 		if ( class_exists( SavedTemplates::class ) && method_exists( SavedTemplates::class, 'select_options' ) ) {
 			return SavedTemplates::select_options();
 		}
-		$opts = array( '0' => __( 'Select a template', 'canvasly-lite' ) );
+		$opts = array( '0' => __( 'Select a template', 'sidcraft-syntex' ) );
 		if ( ! function_exists( 'get_posts' ) ) {
 			return $opts;
 		}
 		$posts = get_posts(
 			array(
-				'post_type'              => 'lb_template',
+				'post_type'              => 'sidsyn_template',
 				'post_status'            => 'publish',
 				'posts_per_page'         => 100,
 				'orderby'                => 'title',

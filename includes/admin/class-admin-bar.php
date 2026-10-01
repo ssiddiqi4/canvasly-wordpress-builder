@@ -1,15 +1,15 @@
 <?php
-namespace CanvaslyLite\Admin;
+namespace SidcraftSyntex\Admin;
 
-use CanvaslyLite\Document\Documents;
-use CanvaslyLite\Settings\Roles;
+use SidcraftSyntex\Document\Documents;
+use SidcraftSyntex\Settings\Roles;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Admin-bar "Edit with Canvasly" node on the frontend and back end (Roadmap 7.6).
+ * Admin-bar "Edit with Sidcraft Syntex" node on the frontend and back end (Roadmap 7.6).
  *
  * Boots even on native Gutenberg screens, where the rest of the plugin does not.
  */
@@ -21,8 +21,8 @@ class AdminBar {
 			return;
 		}
 		self::$booted = true;
-		if ( ! class_exists( Roles::class, false ) && defined( 'CANVASLY_LITE_PATH' ) ) {
-			$file = CANVASLY_LITE_PATH . 'includes/settings/class-roles.php';
+		if ( ! class_exists( Roles::class, false ) && defined( 'SIDCRAFT_SYNTEX_PATH' ) ) {
+			$file = SIDCRAFT_SYNTEX_PATH . 'includes/settings/class-roles.php';
 			if ( is_readable( $file ) ) {
 				require_once $file;
 			}
@@ -55,7 +55,7 @@ class AdminBar {
 		 *
 		 * @param array $node
 		 */
-		$filtered = apply_filters( 'canvasly-lite/admin_bar/node', $node );
+		$filtered = apply_filters( 'sidcraft-syntex/admin_bar/node', $node );
 		if ( ! is_array( $filtered ) || empty( $filtered['id'] ) ) {
 			return;
 		}
@@ -72,9 +72,9 @@ class AdminBar {
 		if ( ! $ctx ) {
 			return null;
 		}
-		$label = __( 'Edit with Canvasly', 'canvasly-lite' );
+		$label = __( 'Edit with Sidcraft Syntex', 'sidcraft-syntex' );
 		return array(
-			'id'    => 'canvasly-lite-edit',
+			'id'    => 'sidcraft-syntex-edit',
 			'title' => $label,
 			'href'  => $ctx['url'],
 			'meta'  => array(
@@ -122,7 +122,7 @@ class AdminBar {
 		 * @param array $ctx
 		 * @param object $post
 		 */
-		$filtered = apply_filters( 'canvasly-lite/admin_bar/context', $ctx, $post );
+		$filtered = apply_filters( 'sidcraft-syntex/admin_bar/context', $ctx, $post );
 		if ( ! is_array( $filtered ) || empty( $filtered['id'] ) || empty( $filtered['url'] ) ) {
 			return null;
 		}
@@ -148,7 +148,7 @@ class AdminBar {
 		if ( $post_type === '' ) {
 			return false;
 		}
-		$ok = in_array( $post_type, array( 'lb_template', 'lb_component' ), true );
+		$ok = in_array( $post_type, array( 'sidsyn_template', 'sidsyn_component' ), true );
 		if ( ! $ok && class_exists( Documents::class ) ) {
 			$ok = Documents::supports( $post_type );
 		} elseif ( ! $ok ) {
@@ -160,7 +160,7 @@ class AdminBar {
 		 * @param bool   $ok
 		 * @param string $post_type
 		 */
-		return (bool) apply_filters( 'canvasly-lite/admin_bar/supports', $ok, $post_type );
+		return (bool) apply_filters( 'sidcraft-syntex/admin_bar/supports', $ok, $post_type );
 	}
 
 	/**
@@ -170,15 +170,15 @@ class AdminBar {
 	public static function editor_url( $post_id ) {
 		$post_id = absint( $post_id );
 		$url     = function_exists( 'admin_url' )
-			? admin_url( 'admin.php?page=canvasly-lite&post_id=' . $post_id )
-			: 'admin.php?page=canvasly-lite&post_id=' . $post_id;
+			? admin_url( 'admin.php?page=sidcraft-syntex&post_id=' . $post_id )
+			: 'admin.php?page=sidcraft-syntex&post_id=' . $post_id;
 		/**
 		 * Filter the admin-bar editor URL.
 		 *
 		 * @param string $url
 		 * @param int    $post_id
 		 */
-		$filtered = apply_filters( 'canvasly-lite/admin_bar/editor_url', $url, $post_id );
+		$filtered = apply_filters( 'sidcraft-syntex/admin_bar/editor_url', $url, $post_id );
 		return is_string( $filtered ) ? $filtered : $url;
 	}
 
@@ -223,12 +223,12 @@ class AdminBar {
 	 */
 	public static function is_builder_screen() {
 		$page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $page === 'canvasly-lite' ) {
+		if ( $page === 'sidcraft-syntex' ) {
 			return true;
 		}
 		if ( function_exists( 'get_current_screen' ) ) {
 			$screen = get_current_screen();
-			if ( is_object( $screen ) && isset( $screen->id ) && $screen->id === 'toplevel_page_canvasly-lite' ) {
+			if ( is_object( $screen ) && isset( $screen->id ) && $screen->id === 'toplevel_page_sidcraft-syntex' ) {
 				return true;
 			}
 		}

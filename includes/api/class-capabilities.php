@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\API;
+namespace SidcraftSyntex\API;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -34,7 +34,7 @@ class Capabilities {
 		if ( self::can_edit_theme_options() ) {
 			return true;
 		}
-		return self::forbidden( __('You do not have permission to modify layouts.', 'canvasly-lite') );
+		return self::forbidden( __('You do not have permission to modify layouts.', 'sidcraft-syntex') );
 	}
 
 	/**
@@ -50,11 +50,11 @@ class Capabilities {
 			return $gate;
 		}
 		$id = self::request_id( $request );
-		if ( $id && class_exists( '\CanvaslyLite\Document\Documents' ) && ! \CanvaslyLite\Document\Documents::supports_post( $id ) ) {
-			return self::forbidden( __('Canvasly is not enabled for this post type.', 'canvasly-lite') );
+		if ( $id && class_exists( '\SidcraftSyntex\Document\Documents' ) && ! \SidcraftSyntex\Document\Documents::supports_post( $id ) ) {
+			return self::forbidden( __('Sidcraft Syntex is not enabled for this post type.', 'sidcraft-syntex') );
 		}
 		if ( $id && ! current_user_can( 'edit_post', $id ) ) {
-			return self::forbidden( __('You cannot edit this layout document.', 'canvasly-lite') );
+			return self::forbidden( __('You cannot edit this layout document.', 'sidcraft-syntex') );
 		}
 		return true;
 	}
@@ -67,14 +67,14 @@ class Capabilities {
 	 */
 	public static function authorize_layout_mutation( $post_id = 0 ) {
 		if ( ! self::can_edit_theme_options() ) {
-			return self::forbidden( __('You do not have permission to modify layouts.', 'canvasly-lite') );
+			return self::forbidden( __('You do not have permission to modify layouts.', 'sidcraft-syntex') );
 		}
 		$post_id = absint( $post_id );
-		if ( $post_id && class_exists( '\CanvaslyLite\Document\Documents' ) && ! \CanvaslyLite\Document\Documents::supports_post( $post_id ) ) {
-			return self::forbidden( __('Canvasly is not enabled for this post type.', 'canvasly-lite') );
+		if ( $post_id && class_exists( '\SidcraftSyntex\Document\Documents' ) && ! \SidcraftSyntex\Document\Documents::supports_post( $post_id ) ) {
+			return self::forbidden( __('Sidcraft Syntex is not enabled for this post type.', 'sidcraft-syntex') );
 		}
 		if ( $post_id && ! current_user_can( 'edit_post', $post_id ) ) {
-			return self::forbidden( __('You cannot edit this layout document.', 'canvasly-lite') );
+			return self::forbidden( __('You cannot edit this layout document.', 'sidcraft-syntex') );
 		}
 		return true;
 	}

@@ -1,10 +1,10 @@
 <?php
-namespace CanvaslyLite\Design;
+namespace SidcraftSyntex\Design;
 
-use CanvaslyLite\Document\DocumentManager;
-use CanvaslyLite\Document\Documents;
-use CanvaslyLite\Settings\GlobalSettings;
-use CanvaslyLite\Settings\KitSettings;
+use SidcraftSyntex\Document\DocumentManager;
+use SidcraftSyntex\Document\Documents;
+use SidcraftSyntex\Settings\GlobalSettings;
+use SidcraftSyntex\Settings\KitSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -13,16 +13,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * External / inline CSS delivery (Roadmap 6.1).
  *
- * Writes `uploads/canvasly-lite/css/global.css` and `post-{id}.css`. Cache busting
+ * Writes `uploads/sidcraft-syntex/css/global.css` and `post-{id}.css`. Cache busting
  * uses the first 12 characters of an MD5 of the minified CSS as the enqueue `ver`.
  */
 class CssPrint {
 	const METHOD_EXTERNAL = 'external';
 	const METHOD_INLINE   = 'inline';
-	const SUBDIR          = 'canvasly-lite/css';
-	const META_HASH       = '_lb_css_hash';
-	const GLOBAL_HASH     = 'canvasly_lite_global_css_hash';
-	const HANDLE_GLOBAL   = 'canvasly-lite-global';
+	const SUBDIR          = 'sidcraft-syntex/css';
+	const META_HASH       = '_sidsyn_css_hash';
+	const GLOBAL_HASH     = 'sidcraft_syntex_global_css_hash';
+	const HANDLE_GLOBAL   = 'sidcraft-syntex-global';
 	const MAX_REGENERATE  = 500;
 
 	private static $booted            = false;
@@ -36,18 +36,18 @@ class CssPrint {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'canvasly-lite/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'canvasly-lite/document/after_save', array( self::class, 'on_after_save' ), 20, 1 );
+		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-syntex/document/after_save', array( self::class, 'on_after_save' ), 20, 1 );
 		add_action( 'deleted_post', array( self::class, 'on_deleted_post' ) );
-		add_filter( 'canvasly-lite/replace_url/report', array( self::class, 'on_replace_url' ), 10, 2 );
+		add_filter( 'sidcraft-syntex/replace_url/report', array( self::class, 'on_replace_url' ), 10, 2 );
 		foreach ( self::option_keys() as $key ) {
 			add_action( 'update_option_' . $key, array( self::class, 'invalidate_global' ), 20 );
 			add_action( 'add_option_' . $key, array( self::class, 'invalidate_global' ), 20 );
 		}
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
-			add_action( 'canvasly-lite/tools/screen', array( self::class, 'screen' ), 4 );
-			add_action( 'admin_post_lb_css_print', array( self::class, 'handle_method' ) );
-			add_action( 'admin_post_lb_regenerate_css', array( self::class, 'handle_regenerate' ) );
+			add_action( 'sidcraft-syntex/tools/screen', array( self::class, 'screen' ), 4 );
+			add_action( 'admin_post_sidsyn_css_print', array( self::class, 'handle_method' ) );
+			add_action( 'admin_post_sidsyn_regenerate_css', array( self::class, 'handle_regenerate' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
 		}
 	}
@@ -59,11 +59,11 @@ class CssPrint {
 	 */
 	public static function option_keys() {
 		return array(
-			'canvasly_lite_variables',
-			'canvasly_lite_theme_style',
-			'canvasly_lite_kit_settings',
-			'canvasly_lite_global_classes',
-			'canvasly_lite_global_settings',
+			'sidcraft_syntex_variables',
+			'sidcraft_syntex_theme_style',
+			'sidcraft_syntex_kit_settings',
+			'sidcraft_syntex_global_classes',
+			'sidcraft_syntex_global_settings',
 		);
 	}
 
@@ -75,7 +75,7 @@ class CssPrint {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'canvasly-lite/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
 		register_rest_route(
 			$ns,
 			'/css',
@@ -152,7 +152,7 @@ class CssPrint {
 			$raw = (string) ( $g['css_print_method'] ?? '' );
 		}
 		if ( $raw === '' ) {
-			$raw = (string) get_option( 'canvasly_lite_css_print_method', '' );
+			$raw = (string) get_option( 'sidcraft_syntex_css_print_method', '' );
 		}
 		$method = self::sanitize_method( $raw !== '' ? $raw : self::METHOD_EXTERNAL );
 		/**
@@ -160,7 +160,7 @@ class CssPrint {
 		 *
 		 * @param string $method external|inline
 		 */
-		$filtered = apply_filters( 'canvasly-lite/css/print_method', $method );
+		$filtered = apply_filters( 'sidcraft-syntex/css/print_method', $method );
 		return self::sanitize_method( is_string( $filtered ) ? $filtered : $method );
 	}
 
@@ -188,7 +188,7 @@ class CssPrint {
 			$g['css_print_method']  = $method;
 			update_option( GlobalSettings::KEY, $g, false );
 		} else {
-			update_option( 'canvasly_lite_css_print_method', $method, false );
+			update_option( 'sidcraft_syntex_css_print_method', $method, false );
 		}
 		return $method;
 	}
@@ -330,7 +330,7 @@ class CssPrint {
 		 *
 		 * @param string $css
 		 */
-		$filtered = apply_filters( 'canvasly-lite/css/global', $css );
+		$filtered = apply_filters( 'sidcraft-syntex/css/global', $css );
 		return is_string( $filtered ) ? $filtered : $css;
 	}
 
@@ -349,7 +349,7 @@ class CssPrint {
 		if ( class_exists( DocumentManager::class ) && method_exists( DocumentManager::class, 'compiled_css' ) ) {
 			$css = (string) DocumentManager::compiled_css( $id );
 		} else {
-			$css = (string) get_post_meta( $id, '_lb_css_cache', true );
+			$css = (string) get_post_meta( $id, '_sidsyn_css_cache', true );
 		}
 		$css = self::minify( self::resolve_tokens( $css ) );
 		/**
@@ -358,7 +358,7 @@ class CssPrint {
 		 * @param string $css
 		 * @param int    $id
 		 */
-		$filtered = apply_filters( 'canvasly-lite/css/post', $css, $id );
+		$filtered = apply_filters( 'sidcraft-syntex/css/post', $css, $id );
 		return is_string( $filtered ) ? $filtered : $css;
 	}
 
@@ -433,19 +433,19 @@ class CssPrint {
 			self::$enqueued_global = true;
 			return;
 		}
-		wp_enqueue_style( 'canvasly-lite-frontend' );
+		wp_enqueue_style( 'sidcraft-syntex-frontend' );
 		if ( self::is_external() ) {
 			$hash = self::write_global();
 			$src  = self::url( 'global.css' );
 			if ( $hash !== '' && $src !== '' && self::file_exists( 'global.css' ) ) {
-				wp_enqueue_style( self::HANDLE_GLOBAL, $src, array( 'canvasly-lite-frontend' ), $hash );
+				wp_enqueue_style( self::HANDLE_GLOBAL, $src, array( 'sidcraft-syntex-frontend' ), $hash );
 				self::$enqueued_global = true;
 				self::$enqueued_file   = true;
 				return;
 			}
 		}
 		if ( function_exists( 'wp_add_inline_style' ) && ! self::$inlined_global ) {
-			wp_add_inline_style( 'canvasly-lite-frontend', $css );
+			wp_add_inline_style( 'sidcraft-syntex-frontend', $css );
 			self::$inlined_global = true;
 		}
 		self::$enqueued_global = true;
@@ -470,22 +470,22 @@ class CssPrint {
 			self::$enqueued_posts[ $id ] = true;
 			return;
 		}
-		wp_enqueue_style( 'canvasly-lite-frontend' );
+		wp_enqueue_style( 'sidcraft-syntex-frontend' );
 		if ( self::is_external() ) {
 			$hash = self::write_post( $id );
 			$src  = self::url( self::post_filename( $id ) );
 			if ( $hash !== '' && $src !== '' && self::file_exists( self::post_filename( $id ) ) ) {
-				$deps = array( 'canvasly-lite-frontend' );
+				$deps = array( 'sidcraft-syntex-frontend' );
 				if ( self::$enqueued_file ) {
 					$deps[] = self::HANDLE_GLOBAL;
 				}
-				wp_enqueue_style( 'canvasly-lite-post-' . $id, $src, $deps, $hash );
+				wp_enqueue_style( 'sidcraft-syntex-post-' . $id, $src, $deps, $hash );
 				self::$enqueued_posts[ $id ] = true;
 				return;
 			}
 		}
 		if ( function_exists( 'wp_add_inline_style' ) ) {
-			wp_add_inline_style( 'canvasly-lite-frontend', $css );
+			wp_add_inline_style( 'sidcraft-syntex-frontend', $css );
 		}
 		self::$enqueued_posts[ $id ] = true;
 	}
@@ -522,21 +522,21 @@ class CssPrint {
 			$hash = self::write_global();
 			$src  = self::url( 'global.css' );
 			if ( $hash !== '' && $src !== '' && self::file_exists( 'global.css' ) && function_exists( 'wp_enqueue_style' ) ) {
-				wp_enqueue_style( 'canvasly-lite-frontend' );
-				wp_enqueue_style( self::HANDLE_GLOBAL, $src, array( 'canvasly-lite-frontend' ), $hash );
+				wp_enqueue_style( 'sidcraft-syntex-frontend' );
+				wp_enqueue_style( self::HANDLE_GLOBAL, $src, array( 'sidcraft-syntex-frontend' ), $hash );
 				self::$enqueued_global = true;
 				self::$enqueued_file   = true;
 				return;
 			}
 		}
 		if ( function_exists( 'wp_register_style' ) ) {
-			wp_register_style( 'canvasly-lite-frontend', false, array(), defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : null );
+			wp_register_style( 'sidcraft-syntex-frontend', false, array(), defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : null );
 		}
 		if ( function_exists( 'wp_enqueue_style' ) ) {
-			wp_enqueue_style( 'canvasly-lite-frontend' );
+			wp_enqueue_style( 'sidcraft-syntex-frontend' );
 		}
 		if ( function_exists( 'wp_add_inline_style' ) ) {
-			wp_add_inline_style( 'canvasly-lite-frontend', wp_strip_all_tags( $css ) );
+			wp_add_inline_style( 'sidcraft-syntex-frontend', wp_strip_all_tags( $css ) );
 		}
 		self::$inlined_global  = true;
 		self::$enqueued_global = true;
@@ -636,7 +636,7 @@ class CssPrint {
 	}
 
 	/**
-	 * Posts that store a Canvasly document (pages/posts + saved templates).
+	 * Posts that store a Sidcraft Syntex document (pages/posts + saved templates).
 	 *
 	 * @param int $limit
 	 * @return int[]
@@ -648,16 +648,16 @@ class CssPrint {
 		}
 		$types = class_exists( Documents::class ) ? Documents::enabled() : array( 'post', 'page' );
 		$types = is_array( $types ) ? $types : array( 'post', 'page' );
-		$types[] = 'lb_template';
+		$types[] = 'sidsyn_template';
 		$types = array_values( array_unique( array_filter( $types ) ) );
-		$meta  = class_exists( DocumentManager::class ) ? DocumentManager::META : '_lb_document_data';
+		$meta  = class_exists( DocumentManager::class ) ? DocumentManager::META : '_sidsyn_document_data';
 		$q     = new \WP_Query(
 			array(
 				'post_type'              => $types,
 				'post_status'            => 'any',
 				'posts_per_page'         => $limit,
 				'fields'                 => 'ids',
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- CSS regen targets posts that store Canvasly document JSON.
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- CSS regen targets posts that store Sidcraft Syntex document JSON.
 				'meta_key'               => $meta,
 				'no_found_rows'          => true,
 				'update_post_meta_cache' => false,
@@ -679,7 +679,7 @@ class CssPrint {
 		 * @param int[] $ids
 		 * @param int   $limit
 		 */
-		$filtered = apply_filters( 'canvasly-lite/css/document_ids', $ids, $limit );
+		$filtered = apply_filters( 'sidcraft-syntex/css/document_ids', $ids, $limit );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'absint', $filtered ) ) ) : $ids;
 	}
 
@@ -766,23 +766,23 @@ class CssPrint {
 	}
 
 	public static function tools_url() {
-		if ( class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) ) {
-			return \CanvaslyLite\Settings\AdminSettings::tools_or_settings_url();
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
+			return \SidcraftSyntex\Settings\AdminSettings::tools_or_settings_url();
 		}
-		return admin_url( 'admin.php?page=canvasly-lite-tools' );
+		return admin_url( 'admin.php?page=sidcraft-syntex-tools' );
 	}
 
 	public static function handle_method() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can change the CSS print method.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can change the CSS print method.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_css_print' );
+		check_admin_referer( 'sidsyn_css_print' );
 		$method = self::save_method( sanitize_key( wp_unslash( $_POST['css_print_method'] ?? self::METHOD_EXTERNAL ) ) );
 		self::store_notice(
 			'success',
 			$method === self::METHOD_INLINE
-				? __( 'CSS will be printed inline.', 'canvasly-lite' )
-				: __( 'CSS will be printed as external files.', 'canvasly-lite' )
+				? __( 'CSS will be printed inline.', 'sidcraft-syntex' )
+				: __( 'CSS will be printed as external files.', 'sidcraft-syntex' )
 		);
 		wp_safe_redirect( self::tools_url() );
 		exit;
@@ -790,19 +790,19 @@ class CssPrint {
 
 	public static function handle_regenerate() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can regenerate CSS.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can regenerate CSS.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_regenerate_css' );
+		check_admin_referer( 'sidsyn_regenerate_css' );
 		$out = self::regenerate( array( 'scope' => 'all' ) );
 		$ttl = defined( 'MINUTE_IN_SECONDS' ) ? 10 * MINUTE_IN_SECONDS : 600;
 		if ( function_exists( 'set_transient' ) ) {
-			set_transient( 'canvasly_lite_css_report_' . get_current_user_id(), $out, $ttl );
+			set_transient( 'sidcraft_syntex_css_report_' . get_current_user_id(), $out, $ttl );
 		}
 		self::store_notice(
 			(int) ( $out['failed'] ?? 0 ) > 0 ? 'error' : 'success',
 			sprintf(
 				/* translators: 1: files written, 2: posts processed */
-				__( 'Regenerated CSS: %1$d files written across %2$d documents.', 'canvasly-lite' ),
+				__( 'Regenerated CSS: %1$d files written across %2$d documents.', 'sidcraft-syntex' ),
 				(int) ( $out['written'] ?? 0 ),
 				(int) ( $out['posts'] ?? 0 )
 			)
@@ -813,18 +813,18 @@ class CssPrint {
 
 	public static function admin_notice() {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( class_exists( '\\CanvaslyLite\\Settings\\AdminSettings' ) ) {
-			if ( ! \CanvaslyLite\Settings\AdminSettings::is_ops_screen( $screen ) ) {
+		if ( class_exists( '\\SidcraftSyntex\\Settings\\AdminSettings' ) ) {
+			if ( ! \SidcraftSyntex\Settings\AdminSettings::is_ops_screen( $screen ) ) {
 				return;
 			}
-		} elseif ( ! $screen || ( $screen->id ?? '' ) !== 'canvasly-lite_page_canvasly-lite-tools' ) {
+		} elseif ( ! $screen || ( $screen->id ?? '' ) !== 'sidcraft-syntex_page_sidcraft-syntex-tools' ) {
 			return;
 		}
-		$n = get_transient( 'canvasly_lite_css_notice_' . get_current_user_id() );
+		$n = get_transient( 'sidcraft_syntex_css_notice_' . get_current_user_id() );
 		if ( ! is_array( $n ) ) {
 			return;
 		}
-		delete_transient( 'canvasly_lite_css_notice_' . get_current_user_id() );
+		delete_transient( 'sidcraft_syntex_css_notice_' . get_current_user_id() );
 		$class = ( $n['type'] ?? '' ) === 'success' ? 'notice-success' : 'notice-error';
 		echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible"><p>' . esc_html( (string) ( $n['message'] ?? '' ) ) . '</p></div>';
 	}
@@ -834,34 +834,34 @@ class CssPrint {
 			return;
 		}
 		$method = self::method();
-		$report = function_exists( 'get_transient' ) ? get_transient( 'canvasly_lite_css_report_' . get_current_user_id() ) : null;
+		$report = function_exists( 'get_transient' ) ? get_transient( 'sidcraft_syntex_css_report_' . get_current_user_id() ) : null;
 
-		echo '<hr><h2>' . esc_html__( 'CSS print method', 'canvasly-lite' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'External files are written to uploads/canvasly-lite/css (global.css and post-{id}.css) with a content-hash query string for cache busting. Inline keeps compiled CSS in the document. Both paths minify CSS.', 'canvasly-lite' ) . '</p>';
+		echo '<hr><h2>' . esc_html__( 'CSS print method', 'sidcraft-syntex' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'External files are written to uploads/sidcraft-syntex/css (global.css and post-{id}.css) with a content-hash query string for cache busting. Inline keeps compiled CSS in the document. Both paths minify CSS.', 'sidcraft-syntex' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		wp_nonce_field( 'lb_css_print' );
-		echo '<input type="hidden" name="action" value="lb_css_print">';
-		echo '<table class="form-table"><tbody><tr><th>' . esc_html__( 'Print method', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="radio" name="css_print_method" value="external"' . ( $method === self::METHOD_EXTERNAL ? ' checked' : '' ) . '> ' . esc_html__( 'External files', 'canvasly-lite' ) . '</label><br>';
-		echo '<label><input type="radio" name="css_print_method" value="inline"' . ( $method === self::METHOD_INLINE ? ' checked' : '' ) . '> ' . esc_html__( 'Internal embedding', 'canvasly-lite' ) . '</label>';
+		wp_nonce_field( 'sidsyn_css_print' );
+		echo '<input type="hidden" name="action" value="sidsyn_css_print">';
+		echo '<table class="form-table"><tbody><tr><th>' . esc_html__( 'Print method', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="radio" name="css_print_method" value="external"' . ( $method === self::METHOD_EXTERNAL ? ' checked' : '' ) . '> ' . esc_html__( 'External files', 'sidcraft-syntex' ) . '</label><br>';
+		echo '<label><input type="radio" name="css_print_method" value="inline"' . ( $method === self::METHOD_INLINE ? ' checked' : '' ) . '> ' . esc_html__( 'Internal embedding', 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr></tbody></table>';
-		echo '<p><button class="button" type="submit">' . esc_html__( 'Save print method', 'canvasly-lite' ) . '</button></p>';
+		echo '<p><button class="button" type="submit">' . esc_html__( 'Save print method', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form>';
 
-		echo '<h2>' . esc_html__( 'Regenerate CSS', 'canvasly-lite' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Rebuild the global stylesheet and every document CSS file. Use this after a migration, a breakpoint change, or if styles look stale.', 'canvasly-lite' ) . '</p>';
+		echo '<h2>' . esc_html__( 'Regenerate CSS', 'sidcraft-syntex' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Rebuild the global stylesheet and every document CSS file. Use this after a migration, a breakpoint change, or if styles look stale.', 'sidcraft-syntex' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		wp_nonce_field( 'lb_regenerate_css' );
-		echo '<input type="hidden" name="action" value="lb_regenerate_css">';
-		echo '<p><button class="button button-primary" type="submit">' . esc_html__( 'Regenerate CSS', 'canvasly-lite' ) . '</button></p>';
+		wp_nonce_field( 'sidsyn_regenerate_css' );
+		echo '<input type="hidden" name="action" value="sidsyn_regenerate_css">';
+		echo '<p><button class="button button-primary" type="submit">' . esc_html__( 'Regenerate CSS', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form>';
 
 		if ( is_array( $report ) ) {
-			echo '<p><strong>' . esc_html__( 'Last regeneration', 'canvasly-lite' ) . '</strong> ';
+			echo '<p><strong>' . esc_html__( 'Last regeneration', 'sidcraft-syntex' ) . '</strong> ';
 			echo esc_html(
 				sprintf(
 					/* translators: 1: files written, 2: documents, 3: failures */
-					__( '%1$d files written, %2$d documents, %3$d failed.', 'canvasly-lite' ),
+					__( '%1$d files written, %2$d documents, %3$d failed.', 'sidcraft-syntex' ),
 					(int) ( $report['written'] ?? 0 ),
 					(int) ( $report['posts'] ?? 0 ),
 					(int) ( $report['failed'] ?? 0 )
@@ -880,7 +880,7 @@ class CssPrint {
 			return;
 		}
 		set_transient(
-			'canvasly_lite_css_notice_' . get_current_user_id(),
+			'sidcraft_syntex_css_notice_' . get_current_user_id(),
 			array(
 				'type'    => $type === 'success' ? 'success' : 'error',
 				'message' => $message,
@@ -911,7 +911,7 @@ class CssPrint {
 		 * @param array $report
 		 * @param array $args
 		 */
-		$filtered = apply_filters( 'canvasly-lite/css/regenerate', $report, $args );
+		$filtered = apply_filters( 'sidcraft-syntex/css/regenerate', $report, $args );
 		return is_array( $filtered ) ? $filtered : $report;
 	}
 

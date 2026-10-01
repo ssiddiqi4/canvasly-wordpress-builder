@@ -1,55 +1,55 @@
 <?php
-namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
 /**
  * Image Carousel: repeater of slides (image, caption, link). Legacy comma-separated
  * `ids` plus `custom_urls` lines are migrated on load.
  */
 class Carousel extends Unit {
- public function type(){return 'carousel';} public function title(){return __('Image Carousel', 'canvasly-lite');} public function icon(){return "\u{29C9}";} public function category(){return 'media';}
+ public function type(){return 'carousel';} public function title(){return __('Image Carousel', 'sidcraft-syntex');} public function icon(){return "\u{29C9}";} public function category(){return 'media';}
  public function keywords(){return ['carousel','slider','slideshow','images','gallery'];}
  public function scripts($s=[]){return $this->frontend_scripts();}
  public function defaults(){return ['slides'=>[],'ids'=>'','image_size'=>'large','slides_to_show'=>1,'slides_to_scroll'=>1,'image_stretch'=>false,'navigation'=>'both','link'=>'none','custom_urls'=>'','lightbox'=>true,'caption'=>'none','lazyload'=>true,'autoplay'=>true,'pause_on_hover'=>true,'pause_on_interaction'=>true,'interval'=>5000,'loop'=>true,'effect'=>'slide','speed'=>500,'slide_direction'=>'ltr','height'=>'','image_spacing'=>10,'image_radius'=>'','arrows_size'=>'','arrows_color'=>'','dots_size'=>'','dots_color'=>'','caption_align'=>'center','caption_color'=>''];}
  public function controls(){
-  $car=__('Image Carousel', 'canvasly-lite'); $images=__('Images', 'canvasly-lite'); $arrows=__('Arrows', 'canvasly-lite'); $dots=__('Dots', 'canvasly-lite'); $cap=__('Caption', 'canvasly-lite');
+  $car=__('Image Carousel', 'sidcraft-syntex'); $images=__('Images', 'sidcraft-syntex'); $arrows=__('Arrows', 'sidcraft-syntex'); $dots=__('Dots', 'sidcraft-syntex'); $cap=__('Caption', 'sidcraft-syntex');
   return [
-   'slides'=>$this->ctrl('repeater',__('Slides', 'canvasly-lite'),'content',$car,[
+   'slides'=>$this->ctrl('repeater',__('Slides', 'sidcraft-syntex'),'content',$car,[
     'title_field'=>'{{caption}}',
     'fields'=>[
-     'image_id'=>$this->field('media',__('Image', 'canvasly-lite'),['media_types'=>['image','video'],'description'=>__('Choose an image or a video from the Media Library.', 'canvasly-lite')]),
-     'image_url'=>$this->field('url',__('Image URL', 'canvasly-lite'),['hidden'=>true]),
-     'caption'=>$this->field('text',__('Caption', 'canvasly-lite')),
-     'alt'=>$this->field('text',__('Alt Text', 'canvasly-lite')),
-     'link'=>$this->field('url',__('Link', 'canvasly-lite')),
+     'image_id'=>$this->field('media',__('Image', 'sidcraft-syntex'),['media_types'=>['image','video'],'description'=>__('Choose an image or a video from the Media Library.', 'sidcraft-syntex')]),
+     'image_url'=>$this->field('url',__('Image URL', 'sidcraft-syntex'),['hidden'=>true]),
+     'caption'=>$this->field('text',__('Caption', 'sidcraft-syntex')),
+     'alt'=>$this->field('text',__('Alt Text', 'sidcraft-syntex')),
+     'link'=>$this->field('url',__('Link', 'sidcraft-syntex')),
     ],
    ]),
-   'ids'=>$this->ctrl('gallery',__('Images', 'canvasly-lite'),'content',$car,['hidden'=>true]),
-   'custom_urls'=>$this->ctrl('textarea',__('Custom URLs', 'canvasly-lite'),'content',$car,['hidden'=>true]),
-   'image_size'=>$this->ctrl('select',__('Image Size', 'canvasly-lite'),'content',$car,['options'=>['thumbnail'=>__('Thumbnail', 'canvasly-lite'),'medium'=>__('Medium', 'canvasly-lite'),'medium_large'=>__('Medium Large', 'canvasly-lite'),'large'=>__('Large', 'canvasly-lite'),'full'=>__('Full', 'canvasly-lite')]]),
-   'slides_to_show'=>$this->ctrl('number',__('Slides to Show', 'canvasly-lite'),'content',$car,['range'=>['min'=>1,'max'=>10]]),
-   'slides_to_scroll'=>$this->ctrl('number',__('Slides to Scroll', 'canvasly-lite'),'content',$car,['range'=>['min'=>1,'max'=>10]]),
-   'image_stretch'=>$this->ctrl('switch',__('Image Stretch', 'canvasly-lite'),'content',$car),
-   'navigation'=>$this->ctrl('select',__('Navigation', 'canvasly-lite'),'content',$car,['options'=>['both'=>__('Arrows and Dots', 'canvasly-lite'),'arrows'=>__('Arrows', 'canvasly-lite'),'dots'=>__('Dots', 'canvasly-lite'),'none'=>__('None', 'canvasly-lite')]]),
-   'link'=>$this->ctrl('select',__('Link', 'canvasly-lite'),'content',$car,['options'=>['none'=>__('None', 'canvasly-lite'),'file'=>__('Media File', 'canvasly-lite'),'custom'=>__('Custom URL', 'canvasly-lite')]]),
-   'lightbox'=>$this->ctrl('switch',__('Lightbox', 'canvasly-lite'),'content',$car,['condition'=>['link'=>'file']]),
-   'caption'=>$this->ctrl('select',__('Caption', 'canvasly-lite'),'content',$car,['options'=>['none'=>__('None', 'canvasly-lite'),'title'=>__('Title', 'canvasly-lite'),'caption'=>__('Caption', 'canvasly-lite'),'description'=>__('Description', 'canvasly-lite')]]),
-   'lazyload'=>$this->ctrl('switch',__('Lazy Load', 'canvasly-lite'),'content',$car),
-   'autoplay'=>$this->ctrl('switch',__('Autoplay', 'canvasly-lite'),'content',$car),
-   'pause_on_hover'=>$this->ctrl('switch',__('Pause on Hover', 'canvasly-lite'),'content',$car),
-   'pause_on_interaction'=>$this->ctrl('switch',__('Pause on Interaction', 'canvasly-lite'),'content',$car),
-   'interval'=>$this->ctrl('number',__('Autoplay Speed', 'canvasly-lite'),'content',$car,['range'=>['min'=>500,'max'=>15000,'step'=>100]]),
-   'loop'=>$this->ctrl('switch',__('Infinite Loop', 'canvasly-lite'),'content',$car),
-   'effect'=>$this->ctrl('select',__('Effect', 'canvasly-lite'),'content',$car,['options'=>['slide'=>__('Slide', 'canvasly-lite'),'fade'=>__('Fade', 'canvasly-lite')]]),
-   'speed'=>$this->ctrl('number',__('Animation Speed', 'canvasly-lite'),'content',$car,['range'=>['min'=>100,'max'=>3000,'step'=>50]]),
-   'slide_direction'=>$this->ctrl('select',__('Direction', 'canvasly-lite'),'content',$car,['options'=>['ltr'=>__('Left to Right', 'canvasly-lite'),'rtl'=>__('Right to Left', 'canvasly-lite')]]),
-   'height'=>$this->ctrl('text',__('Height', 'canvasly-lite'),'style',$images),
-   'image_spacing'=>$this->ctrl('number',__('Spacing', 'canvasly-lite'),'style',$images),
-   'image_radius'=>$this->ctrl('number',__('Border Radius', 'canvasly-lite'),'style',$images),
-   'arrows_size'=>$this->ctrl('number',__('Size', 'canvasly-lite'),'style',$arrows),
-   'arrows_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$arrows),
-   'dots_size'=>$this->ctrl('number',__('Size', 'canvasly-lite'),'style',$dots),
-   'dots_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$dots),
-   'caption_align'=>$this->ctrl('select',__('Alignment', 'canvasly-lite'),'style',$cap,['options'=>self::opt_lcr()]),
-   'caption_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$cap),
+   'ids'=>$this->ctrl('gallery',__('Images', 'sidcraft-syntex'),'content',$car,['hidden'=>true]),
+   'custom_urls'=>$this->ctrl('textarea',__('Custom URLs', 'sidcraft-syntex'),'content',$car,['hidden'=>true]),
+   'image_size'=>$this->ctrl('select',__('Image Size', 'sidcraft-syntex'),'content',$car,['options'=>['thumbnail'=>__('Thumbnail', 'sidcraft-syntex'),'medium'=>__('Medium', 'sidcraft-syntex'),'medium_large'=>__('Medium Large', 'sidcraft-syntex'),'large'=>__('Large', 'sidcraft-syntex'),'full'=>__('Full', 'sidcraft-syntex')]]),
+   'slides_to_show'=>$this->ctrl('number',__('Slides to Show', 'sidcraft-syntex'),'content',$car,['range'=>['min'=>1,'max'=>10]]),
+   'slides_to_scroll'=>$this->ctrl('number',__('Slides to Scroll', 'sidcraft-syntex'),'content',$car,['range'=>['min'=>1,'max'=>10]]),
+   'image_stretch'=>$this->ctrl('switch',__('Image Stretch', 'sidcraft-syntex'),'content',$car),
+   'navigation'=>$this->ctrl('select',__('Navigation', 'sidcraft-syntex'),'content',$car,['options'=>['both'=>__('Arrows and Dots', 'sidcraft-syntex'),'arrows'=>__('Arrows', 'sidcraft-syntex'),'dots'=>__('Dots', 'sidcraft-syntex'),'none'=>__('None', 'sidcraft-syntex')]]),
+   'link'=>$this->ctrl('select',__('Link', 'sidcraft-syntex'),'content',$car,['options'=>['none'=>__('None', 'sidcraft-syntex'),'file'=>__('Media File', 'sidcraft-syntex'),'custom'=>__('Custom URL', 'sidcraft-syntex')]]),
+   'lightbox'=>$this->ctrl('switch',__('Lightbox', 'sidcraft-syntex'),'content',$car,['condition'=>['link'=>'file']]),
+   'caption'=>$this->ctrl('select',__('Caption', 'sidcraft-syntex'),'content',$car,['options'=>['none'=>__('None', 'sidcraft-syntex'),'title'=>__('Title', 'sidcraft-syntex'),'caption'=>__('Caption', 'sidcraft-syntex'),'description'=>__('Description', 'sidcraft-syntex')]]),
+   'lazyload'=>$this->ctrl('switch',__('Lazy Load', 'sidcraft-syntex'),'content',$car),
+   'autoplay'=>$this->ctrl('switch',__('Autoplay', 'sidcraft-syntex'),'content',$car),
+   'pause_on_hover'=>$this->ctrl('switch',__('Pause on Hover', 'sidcraft-syntex'),'content',$car),
+   'pause_on_interaction'=>$this->ctrl('switch',__('Pause on Interaction', 'sidcraft-syntex'),'content',$car),
+   'interval'=>$this->ctrl('number',__('Autoplay Speed', 'sidcraft-syntex'),'content',$car,['range'=>['min'=>500,'max'=>15000,'step'=>100]]),
+   'loop'=>$this->ctrl('switch',__('Infinite Loop', 'sidcraft-syntex'),'content',$car),
+   'effect'=>$this->ctrl('select',__('Effect', 'sidcraft-syntex'),'content',$car,['options'=>['slide'=>__('Slide', 'sidcraft-syntex'),'fade'=>__('Fade', 'sidcraft-syntex')]]),
+   'speed'=>$this->ctrl('number',__('Animation Speed', 'sidcraft-syntex'),'content',$car,['range'=>['min'=>100,'max'=>3000,'step'=>50]]),
+   'slide_direction'=>$this->ctrl('select',__('Direction', 'sidcraft-syntex'),'content',$car,['options'=>['ltr'=>__('Left to Right', 'sidcraft-syntex'),'rtl'=>__('Right to Left', 'sidcraft-syntex')]]),
+   'height'=>$this->ctrl('text',__('Height', 'sidcraft-syntex'),'style',$images),
+   'image_spacing'=>$this->ctrl('number',__('Spacing', 'sidcraft-syntex'),'style',$images),
+   'image_radius'=>$this->ctrl('number',__('Border Radius', 'sidcraft-syntex'),'style',$images),
+   'arrows_size'=>$this->ctrl('number',__('Size', 'sidcraft-syntex'),'style',$arrows),
+   'arrows_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$arrows),
+   'dots_size'=>$this->ctrl('number',__('Size', 'sidcraft-syntex'),'style',$dots),
+   'dots_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$dots),
+   'caption_align'=>$this->ctrl('select',__('Alignment', 'sidcraft-syntex'),'style',$cap,['options'=>self::opt_lcr()]),
+   'caption_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$cap),
   ];
  }
  public static function caption_text($id,$mode){
@@ -69,7 +69,7 @@ class Carousel extends Unit {
  }
  public function render($s,$children=''){
   $slides=$this->slides($s);
-  if(!$slides)return '<div class="'.$this->cls($s).' lb-carousel-placeholder">'.esc_html__('Choose images for the carousel', 'canvasly-lite').'</div>';
+  if(!$slides)return '<div class="'.$this->cls($s).' lb-carousel-placeholder">'.esc_html__('Choose images for the carousel', 'sidcraft-syntex').'</div>';
   $show=max(1,min(10,absint($s['slides_to_show']??1)));$scroll=max(1,min($show,absint($s['slides_to_scroll']??1)));
   $nav=in_array($s['navigation']??'both',['both','arrows','dots','none'],true)?$s['navigation']:'both';
   $linkRaw=is_string($s['link']??null)?$s['link']:'none';
@@ -105,14 +105,14 @@ class Carousel extends Unit {
     $lb='';
     if($linkMode==='file'&&!empty($s['lightbox'])){
      $lb=' data-lb-lightbox="1"';
-     if(class_exists('\\CanvaslyLite\\Settings\\KitSettings'))$lb.=\CanvaslyLite\Settings\KitSettings::lightbox_data_attrs($id,$alt,$cap,$id?get_the_title($id):'');
+     if(class_exists('\\SidcraftSyntex\\Settings\\KitSettings'))$lb.=\SidcraftSyntex\Settings\KitSettings::lightbox_data_attrs($id,$alt,$cap,$id?get_the_title($id):'');
     }
     $img='<a class="lb-carousel-link" href="'.esc_url($href).'"'.$lb.'>'.$img.'</a>';
    }
    if($cap!=='')$anyCap=true;
-   $out.='<figure class="lb-carousel-slide'.($effect==='fade'&&$out===''?' is-active':'').'" role="group" aria-roledescription="slide" aria-label="'.esc_attr(sprintf(/* translators: 1: slide number, 2: total slides */__('%1$d of %2$d', 'canvasly-lite'),$i+1,$total)).'">'.$img.($cap!==''?'<figcaption class="lb-carousel-caption">'.esc_html($cap).'</figcaption>':'').'</figure>';
+   $out.='<figure class="lb-carousel-slide'.($effect==='fade'&&$out===''?' is-active':'').'" role="group" aria-roledescription="slide" aria-label="'.esc_attr(sprintf(/* translators: 1: slide number, 2: total slides */__('%1$d of %2$d', 'sidcraft-syntex'),$i+1,$total)).'">'.$img.($cap!==''?'<figcaption class="lb-carousel-caption">'.esc_html($cap).'</figcaption>':'').'</figure>';
   }
-  if($out==='')return '<div class="'.$this->cls($s).' lb-carousel-placeholder">'.esc_html__('Choose images for the carousel', 'canvasly-lite').'</div>';
+  if($out==='')return '<div class="'.$this->cls($s).' lb-carousel-placeholder">'.esc_html__('Choose images for the carousel', 'sidcraft-syntex').'</div>';
   if($anyCap)$classes.=' lb-carousel-has-caption';
   return '<div class="'.esc_attr($classes).'" dir="'.$dir.'" aria-roledescription="carousel"'.$data.$vars.'><div class="lb-carousel-track">'.$out.'</div></div>';
  }

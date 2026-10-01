@@ -1,7 +1,7 @@
 <?php
-namespace CanvaslyLite\Design;
+namespace SidcraftSyntex\Design;
 
-use CanvaslyLite\Utils\JsonCache;
+use SidcraftSyntex\Utils\JsonCache;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -23,16 +23,16 @@ class Components {
 			return null;
 		}
 		$id  = absint( $p->ID );
-		$raw = get_post_meta( $id, '_lb_component_data', true );
+		$raw = get_post_meta( $id, '_sidsyn_component_data', true );
 		$d   = class_exists( JsonCache::class ) ? JsonCache::decode( $raw, array() ) : ( is_string( $raw ) ? json_decode( $raw, true ) : $raw );
-		$key = (string) get_post_meta( $id, '_lb_component_key', true );
+		$key = (string) get_post_meta( $id, '_sidsyn_component_key', true );
 		return array(
 			'id'       => $id,
 			'title'    => $p->post_title,
 			'key'      => $key !== '' ? $key : self::key_for_title( $p->post_title ),
 			'document' => is_array( $d ) ? $d : array(),
-			'version'  => (int) get_post_meta( $id, '_lb_component_version', true ),
-			'exposed'  => self::normalize_exposed( get_post_meta( $id, '_lb_component_exposed', true ) ),
+			'version'  => (int) get_post_meta( $id, '_sidsyn_component_version', true ),
+			'exposed'  => self::normalize_exposed( get_post_meta( $id, '_sidsyn_component_exposed', true ) ),
 		);
 	}
 
@@ -76,13 +76,13 @@ class Components {
 		$q = new \WP_Query(
 			self::query_flags(
 				array(
-					'post_type'      => 'lb_component',
+					'post_type'      => 'sidsyn_component',
 					'post_status'    => 'publish',
 					'posts_per_page' => 1,
 					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Lookup of a single published component by its unique key.
 					'meta_query'     => array(
 						array(
-							'key'   => '_lb_component_key',
+							'key'   => '_sidsyn_component_key',
 							'value' => $key,
 						),
 					),
@@ -102,7 +102,7 @@ class Components {
 		$q   = new \WP_Query(
 			self::query_flags(
 				array(
-					'post_type'      => 'lb_component',
+					'post_type'      => 'sidsyn_component',
 					'post_status'    => 'publish',
 					'posts_per_page' => 200,
 					'orderby'        => 'title',
@@ -126,7 +126,7 @@ class Components {
 			return null;
 		}
 		$p = get_post( $id );
-		if ( ! $p || ( $p->post_type ?? '' ) !== 'lb_component' || ( $p->post_status ?? '' ) !== 'publish' ) {
+		if ( ! $p || ( $p->post_type ?? '' ) !== 'sidsyn_component' || ( $p->post_status ?? '' ) !== 'publish' ) {
 			return null;
 		}
 		return self::hydrate( $p );
@@ -134,11 +134,11 @@ class Components {
 
 	public static function save( $title, $document, $exposed = array(), $id = 0, $key = '' ) {
 		if ( ! current_user_can( 'edit_pages' ) ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot manage components.', 'canvasly-lite' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot manage components.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
 		}
 		$title = sanitize_text_field( $title );
 		if ( ! $title ) {
-			return new \WP_Error( 'invalid', __( 'Component title required.', 'canvasly-lite' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid', __( 'Component title required.', 'sidcraft-syntex' ), array( 'status' => 400 ) );
 		}
 		$id  = absint( $id );
 		$key = sanitize_key( $key ?: self::key_for_title( $title ) );
@@ -148,19 +148,19 @@ class Components {
 				$id = (int) $existing['id'];
 			}
 		}
-		if ( $id && get_post_type( $id ) === 'lb_component' ) {
+		if ( $id && get_post_type( $id ) === 'sidsyn_component' ) {
 			wp_update_post( array( 'ID' => $id, 'post_title' => $title ) );
 		} else {
-			$id = wp_insert_post( array( 'post_type' => 'lb_component', 'post_status' => 'publish', 'post_title' => $title ) );
+			$id = wp_insert_post( array( 'post_type' => 'sidsyn_component', 'post_status' => 'publish', 'post_title' => $title ) );
 			if ( is_wp_error( $id ) ) {
 				return $id;
 			}
 		}
-		$version = (int) get_post_meta( $id, '_lb_component_version', true ) + 1;
-		update_post_meta( $id, '_lb_component_key', $key );
-		update_post_meta( $id, '_lb_component_data', wp_json_encode( $document ) );
-		update_post_meta( $id, '_lb_component_exposed', self::normalize_exposed( $exposed ) );
-		update_post_meta( $id, '_lb_component_version', $version );
+		$version = (int) get_post_meta( $id, '_sidsyn_component_version', true ) + 1;
+		update_post_meta( $id, '_sidsyn_component_key', $key );
+		update_post_meta( $id, '_sidsyn_component_data', wp_json_encode( $document ) );
+		update_post_meta( $id, '_sidsyn_component_exposed', self::normalize_exposed( $exposed ) );
+		update_post_meta( $id, '_sidsyn_component_version', $version );
 		return $id;
 	}
 
@@ -169,7 +169,7 @@ class Components {
 		if ( ! $c ) {
 			return false;
 		}
-		update_post_meta( $id, '_lb_component_propagated_at', current_time( 'mysql' ) );
+		update_post_meta( $id, '_sidsyn_component_propagated_at', current_time( 'mysql' ) );
 		return true;
 	}
 
@@ -188,7 +188,7 @@ class Components {
 		return self::save( $c['title'] . ' Copy', $c['document'], $c['exposed'] );
 	}
 
-	public static function apply_overrides($document,$overrides,$exposed=[]){$d=$document;$map=[];foreach(self::normalize_exposed($exposed) as $x)$map[$x['name']]=$x;$apply=function(&$nodes)use(&$apply,$overrides,$map){foreach($nodes as &$node){$path='';if(!empty($node['_lb_component_path']))$path=$node['_lb_component_path'];if(!empty($node['children']))$apply($node['children']);}unset($node);};
+	public static function apply_overrides($document,$overrides,$exposed=[]){$d=$document;$map=[];foreach(self::normalize_exposed($exposed) as $x)$map[$x['name']]=$x;$apply=function(&$nodes)use(&$apply,$overrides,$map){foreach($nodes as &$node){$path='';if(!empty($node['_sidsyn_component_path']))$path=$node['_sidsyn_component_path'];if(!empty($node['children']))$apply($node['children']);}unset($node);};
   // New exposed mapping is resolved against paths from the saved component document.
   foreach($map as $name=>$x){if(!array_key_exists($name,(array)$overrides)||empty($x['path'])||empty($x['setting']))continue;$parts=array_values(array_filter(explode('/',$x['path']),'strlen'));$ref=&$d['root'];$node=null;foreach($parts as $part){$idx=(int)$part;if(!isset($ref[$idx])){$node=null;break;}$node=&$ref[$idx];$ref=&$node['children'];}if(is_array($node))$node['settings'][$x['setting']]=is_array($overrides[$name])?$overrides[$name]:sanitize_text_field((string)$overrides[$name]);}
   // Backward-compatible path => settings overrides.

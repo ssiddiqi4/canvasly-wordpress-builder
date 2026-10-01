@@ -1,23 +1,23 @@
 <?php
-namespace CanvaslyLite\Editor;
-use CanvaslyLite\Units\UnitRegistry;
-use CanvaslyLite\Controls\Controls;
-use CanvaslyLite\Controls\Code;
-use CanvaslyLite\Document\DocumentManager;
-use CanvaslyLite\Document\Documents;
-use CanvaslyLite\Document\DevMode;
-use CanvaslyLite\Design\IconLibrary;
-use CanvaslyLite\Design\GlobalClasses;
-use CanvaslyLite\Design\Variables;
-use CanvaslyLite\Design\ThemeStyle;
-use CanvaslyLite\Design\Favorites;
-use CanvaslyLite\Design\SiteNavigation;
+namespace SidcraftSyntex\Editor;
+use SidcraftSyntex\Units\UnitRegistry;
+use SidcraftSyntex\Controls\Controls;
+use SidcraftSyntex\Controls\Code;
+use SidcraftSyntex\Document\DocumentManager;
+use SidcraftSyntex\Document\Documents;
+use SidcraftSyntex\Document\DevMode;
+use SidcraftSyntex\Design\IconLibrary;
+use SidcraftSyntex\Design\GlobalClasses;
+use SidcraftSyntex\Design\Variables;
+use SidcraftSyntex\Design\ThemeStyle;
+use SidcraftSyntex\Design\Favorites;
+use SidcraftSyntex\Design\SiteNavigation;
 if(!defined('ABSPATH'))exit;
 class Editor {
  public static function enqueue($hook_suffix=''){
-  $ok=class_exists('\\CanvaslyLite\\Admin\\AdminContext')?\CanvaslyLite\Admin\AdminContext::is_editor_page($hook_suffix):($hook_suffix==='toplevel_page_canvasly-lite');
+  $ok=class_exists('\\SidcraftSyntex\\Admin\\AdminContext')?\SidcraftSyntex\Admin\AdminContext::is_editor_page($hook_suffix):($hook_suffix==='toplevel_page_sidcraft-syntex');
   if(!$ok)return;
-  if(class_exists('\\CanvaslyLite\\Settings\\AdminSettings')&&\CanvaslyLite\Settings\AdminSettings::is_editor_iframe_shell())return;
+  if(class_exists('\\SidcraftSyntex\\Settings\\AdminSettings')&&\SidcraftSyntex\Settings\AdminSettings::is_editor_iframe_shell())return;
   add_filter('user_can_richedit','__return_true',99);
   wp_enqueue_media();
   if(!class_exists('_WP_Editors',false)) require_once ABSPATH.WPINC.'/class-wp-editor.php';
@@ -28,9 +28,9 @@ class Editor {
   wp_enqueue_script('quicktags');
   wp_enqueue_script('wplink');
   add_action('admin_print_footer_scripts',[self::class,'print_tinymce'],50);
-  $editor_css=CANVASLY_LITE_PATH.'assets/css/editor.css';
-  $editor_js=CANVASLY_LITE_PATH.'assets/js/editor.js';
-  $asset_version=CANVASLY_LITE_VERSION.'-'.(file_exists($editor_js)?filemtime($editor_js):time());
+  $editor_css=SIDCRAFT_SYNTEX_PATH.'assets/css/editor.css';
+  $editor_js=SIDCRAFT_SYNTEX_PATH.'assets/js/editor.js';
+  $asset_version=SIDCRAFT_SYNTEX_VERSION.'-'.(file_exists($editor_js)?filemtime($editor_js):time());
   // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only editor screen query var.
   $post_id=isset($_GET['post_id'])?absint(wp_unslash($_GET['post_id'])):0;
   // phpcs:enable WordPress.Security.NonceVerification.Recommended
@@ -38,23 +38,23 @@ class Editor {
   $editor_deps=['jquery','heartbeat','wp-tinymce','editor','quicktags'];
   $style_deps=[];
   if(!class_exists(Code::class,false)){
-   $code_file=CANVASLY_LITE_PATH.'includes/controls/class-code.php';
+   $code_file=SIDCRAFT_SYNTEX_PATH.'includes/controls/class-code.php';
    if(is_readable($code_file)) require_once $code_file;
   }
   if(class_exists(Code::class))$code_editor=Code::enqueue();
   if($code_editor){$editor_deps[]='code-editor';$style_deps[]='code-editor';}
-  wp_enqueue_style('canvasly-lite-editor',CANVASLY_LITE_URL.'assets/css/editor.css',$style_deps,$asset_version);
-  wp_style_add_data('canvasly-lite-editor','rtl','replace');
-  wp_enqueue_script('canvasly-lite-editor',CANVASLY_LITE_URL.'assets/js/editor.js',$editor_deps,$asset_version,true);
+  wp_enqueue_style('sidcraft-syntex-editor',SIDCRAFT_SYNTEX_URL.'assets/css/editor.css',$style_deps,$asset_version);
+  wp_style_add_data('sidcraft-syntex-editor','rtl','replace');
+  wp_enqueue_script('sidcraft-syntex-editor',SIDCRAFT_SYNTEX_URL.'assets/js/editor.js',$editor_deps,$asset_version,true);
   /**
    * Fires after the core editor assets are enqueued. Add-ons enqueue their editor scripts here with
-   * 'canvasly-lite-editor' as a dependency so `window.CanvaslyLite` exists when they run.
+   * 'sidcraft-syntex-editor' as a dependency so `window.SidcraftSyntex` exists when they run.
    * @param int $post_id
    */
-  do_action('canvasly-lite/editor/enqueue',$post_id);
+  do_action('sidcraft-syntex/editor/enqueue',$post_id);
   $data=[
    'wpRest'=>esc_url_raw(rest_url('wp/v2')),
-   'api'=>esc_url_raw(rest_url('canvasly-lite/v1')),
+   'api'=>esc_url_raw(rest_url('sidcraft-syntex/v1')),
    'nonce'=>wp_create_nonce('wp_rest'),
    'units'=>self::unit_data(),
    'postId'=>$post_id,
@@ -63,69 +63,69 @@ class Editor {
    'permalink'=>$post_id?esc_url_raw(get_permalink($post_id)):'',
    'postTitle'=>$post_id?(get_the_title($post_id)?:''):'',
    'adminUrl'=>admin_url(),
-   'globals'=>\CanvaslyLite\Settings\GlobalSettings::get(),
+   'globals'=>\SidcraftSyntex\Settings\GlobalSettings::get(),
    'icons'=>IconLibrary::all(),
-   'iconLibraryUrl'=>CANVASLY_LITE_URL.'assets/data/fontawesome-free-icons.json',
-   'googleFontsUrl'=>CANVASLY_LITE_URL.'assets/data/google-fonts.json',
+   'iconLibraryUrl'=>SIDCRAFT_SYNTEX_URL.'assets/data/fontawesome-free-icons.json',
+   'googleFontsUrl'=>SIDCRAFT_SYNTEX_URL.'assets/data/google-fonts.json',
    'googleFonts'=>self::google_fonts(),
-   'fontDisplay'=>class_exists('\\CanvaslyLite\\Design\\Fonts')?\CanvaslyLite\Design\Fonts::display():'swap',
-   'googleFontsLocal'=>class_exists('\\CanvaslyLite\\Design\\Fonts')?\CanvaslyLite\Design\Fonts::is_local():false,
+   'fontDisplay'=>class_exists('\\SidcraftSyntex\\Design\\Fonts')?\SidcraftSyntex\Design\Fonts::display():'swap',
+   'googleFontsLocal'=>class_exists('\\SidcraftSyntex\\Design\\Fonts')?\SidcraftSyntex\Design\Fonts::is_local():false,
    'classes'=>GlobalClasses::all(),
    'variables'=>Variables::all(),
    'themeStyle'=>class_exists(ThemeStyle::class)?ThemeStyle::all():[],
-   'kitSettings'=>class_exists('\\CanvaslyLite\\Settings\\KitSettings')?\CanvaslyLite\Settings\KitSettings::all():[],
-   'designCss'=>Variables::css().(class_exists(ThemeStyle::class)?ThemeStyle::css():'').(class_exists('\\CanvaslyLite\\Settings\\KitSettings')?\CanvaslyLite\Settings\KitSettings::css():'').GlobalClasses::css().(class_exists('\\CanvaslyLite\\Design\\Interactions')?\CanvaslyLite\Design\Interactions::css():''),
-   'designSystem'=>\CanvaslyLite\Design\DesignSystem::export(),
+   'kitSettings'=>class_exists('\\SidcraftSyntex\\Settings\\KitSettings')?\SidcraftSyntex\Settings\KitSettings::all():[],
+   'designCss'=>Variables::css().(class_exists(ThemeStyle::class)?ThemeStyle::css():'').(class_exists('\\SidcraftSyntex\\Settings\\KitSettings')?\SidcraftSyntex\Settings\KitSettings::css():'').GlobalClasses::css().(class_exists('\\SidcraftSyntex\\Design\\Interactions')?\SidcraftSyntex\Design\Interactions::css():''),
+   'designSystem'=>\SidcraftSyntex\Design\DesignSystem::export(),
    'favorites'=>Favorites::all(),
-   'preferences'=>class_exists('\\CanvaslyLite\\Settings\\UserPreferences')?\CanvaslyLite\Settings\UserPreferences::get():[],
+   'preferences'=>class_exists('\\SidcraftSyntex\\Settings\\UserPreferences')?\SidcraftSyntex\Settings\UserPreferences::get():[],
    'navigation'=>SiteNavigation::pages(),
-   'breakpoints'=>\CanvaslyLite\Settings\Breakpoints::all(),
+   'breakpoints'=>\SidcraftSyntex\Settings\Breakpoints::all(),
    'sidebars'=>self::sidebars(),
    'widgets'=>self::widgets(),
-   'menus'=>class_exists('\\CanvaslyLite\\Units\\MenuAnchor')?\CanvaslyLite\Units\MenuAnchor::catalog():[],
-   'editorCss'=>add_query_arg('v',rawurlencode((string)$asset_version),(string)CANVASLY_LITE_URL.'assets/css/editor'.(function_exists('is_rtl')&&is_rtl()?'-rtl':'').'.css'),
-   'frontendCss'=>add_query_arg('v',rawurlencode(CANVASLY_LITE_VERSION.'-'.(file_exists(CANVASLY_LITE_PATH.'assets/css/frontend.css')?filemtime(CANVASLY_LITE_PATH.'assets/css/frontend.css'):time())),(string)CANVASLY_LITE_URL.'assets/css/frontend'.(function_exists('is_rtl')&&is_rtl()?'-rtl':'').'.css'),
-   'atomicTypes'=>\CanvaslyLite\Design\Atomic::types(),
-   'assetManifest'=>\CanvaslyLite\Design\Performance::manifest(),
+   'menus'=>class_exists('\\SidcraftSyntex\\Units\\MenuAnchor')?\SidcraftSyntex\Units\MenuAnchor::catalog():[],
+   'editorCss'=>add_query_arg('v',rawurlencode((string)$asset_version),(string)SIDCRAFT_SYNTEX_URL.'assets/css/editor'.(function_exists('is_rtl')&&is_rtl()?'-rtl':'').'.css'),
+   'frontendCss'=>add_query_arg('v',rawurlencode(SIDCRAFT_SYNTEX_VERSION.'-'.(file_exists(SIDCRAFT_SYNTEX_PATH.'assets/css/frontend.css')?filemtime(SIDCRAFT_SYNTEX_PATH.'assets/css/frontend.css'):time())),(string)SIDCRAFT_SYNTEX_URL.'assets/css/frontend'.(function_exists('is_rtl')&&is_rtl()?'-rtl':'').'.css'),
+   'atomicTypes'=>\SidcraftSyntex\Design\Atomic::types(),
+   'assetManifest'=>\SidcraftSyntex\Design\Performance::manifest(),
    'tinymceBaseUrl'=>includes_url('js/tinymce'),
    'tinymceSkinUrl'=>includes_url('js/tinymce/skins/lightgray/skin.min.css'),
    'controlTypes'=>class_exists(Controls::class)?Controls::instance()->export():[],
    'codeEditor'=>is_array($code_editor)?$code_editor:[],
-   'version'=>CANVASLY_LITE_VERSION,
-   'googleMapsEmbed'=>class_exists('\\CanvaslyLite\\Settings\\AdminSettings')&&\CanvaslyLite\Settings\AdminSettings::maps_embed_enabled(),
-   'googleMapsKey'=>(class_exists('\\CanvaslyLite\\Settings\\AdminSettings')&&\CanvaslyLite\Settings\AdminSettings::maps_embed_enabled())?\CanvaslyLite\Settings\AdminSettings::google_maps_api_key():'',
+   'version'=>SIDCRAFT_SYNTEX_VERSION,
+   'googleMapsEmbed'=>class_exists('\\SidcraftSyntex\\Settings\\AdminSettings')&&\SidcraftSyntex\Settings\AdminSettings::maps_embed_enabled(),
+   'googleMapsKey'=>(class_exists('\\SidcraftSyntex\\Settings\\AdminSettings')&&\SidcraftSyntex\Settings\AdminSettings::maps_embed_enabled())?\SidcraftSyntex\Settings\AdminSettings::google_maps_api_key():'',
    'schema'=>DocumentManager::SCHEMA,
    'devMode'=>class_exists(DevMode::class)?DevMode::enabled():false,
    'dynamic'=>class_exists(DevMode::class)?DevMode::canvas_dynamic_map($post_id):[],
-   'dynamicTags'=>(class_exists('\\CanvaslyLite\\Dynamic\\Tags')&&class_exists('\\CanvaslyLite\\Dynamic\\Tag'))?\CanvaslyLite\Dynamic\Tags::ready()->export($post_id):['tags'=>[],'groups'=>[],'categories'=>[],'previews'=>[]],
-   'interactions'=>class_exists('\\CanvaslyLite\\Design\\Interactions')?\CanvaslyLite\Design\Interactions::export():['presets'=>[],'groups'=>[],'triggers'=>[],'kinds'=>[],'easings'=>[]],
-   'i18n'=>class_exists('\CanvaslyLite\I18n\I18n')?\CanvaslyLite\I18n\I18n::editor_strings():[],
+   'dynamicTags'=>(class_exists('\\SidcraftSyntex\\Dynamic\\Tags')&&class_exists('\\SidcraftSyntex\\Dynamic\\Tag'))?\SidcraftSyntex\Dynamic\Tags::ready()->export($post_id):['tags'=>[],'groups'=>[],'categories'=>[],'previews'=>[]],
+   'interactions'=>class_exists('\\SidcraftSyntex\\Design\\Interactions')?\SidcraftSyntex\Design\Interactions::export():['presets'=>[],'groups'=>[],'triggers'=>[],'kinds'=>[],'easings'=>[]],
+   'i18n'=>class_exists('\SidcraftSyntex\I18n\I18n')?\SidcraftSyntex\I18n\I18n::editor_strings():[],
    'isRtl'=>function_exists('is_rtl')&&is_rtl(),
    'postType'=>$post_id?(string)get_post_type($post_id):'',
    'postStatus'=>$post_id?(string)get_post_status($post_id):'',
    'canPublish'=>$post_id?self::can_publish($post_id):false,
-   'templateTypes'=>class_exists('\\CanvaslyLite\\Templates\\SavedTemplates')?\CanvaslyLite\Templates\SavedTemplates::types():[],
-   'templateCategories'=>class_exists('\\CanvaslyLite\\Templates\\SavedTemplates')?\CanvaslyLite\Templates\SavedTemplates::category_names():[],
-   'templateType'=>$post_id&&function_exists('get_post_type')&&get_post_type($post_id)==='lb_template'?sanitize_key((string)get_post_meta($post_id,'_lb_template_type',true)?:'page'):'',
-   'themeChrome'=>class_exists('\\CanvaslyLite\\Templates\\ThemeChrome')?\CanvaslyLite\Templates\ThemeChrome::export():['header'=>false,'footer'=>false,'inherit'=>false],
-   'caps'=>class_exists('\\CanvaslyLite\\Settings\\Roles')?\CanvaslyLite\Settings\Roles::editor_caps():['edit'=>current_user_can('canvasly_lite_edit'),'design'=>current_user_can('canvasly_lite_design'),'contentOnly'=>false,'access'=>'full'],
+   'templateTypes'=>class_exists('\\SidcraftSyntex\\Templates\\SavedTemplates')?\SidcraftSyntex\Templates\SavedTemplates::types():[],
+   'templateCategories'=>class_exists('\\SidcraftSyntex\\Templates\\SavedTemplates')?\SidcraftSyntex\Templates\SavedTemplates::category_names():[],
+   'templateType'=>$post_id&&function_exists('get_post_type')&&get_post_type($post_id)==='sidsyn_template'?sanitize_key((string)get_post_meta($post_id,'_sidsyn_template_type',true)?:'page'):'',
+   'themeChrome'=>class_exists('\\SidcraftSyntex\\Templates\\ThemeChrome')?\SidcraftSyntex\Templates\ThemeChrome::export():['header'=>false,'footer'=>false,'inherit'=>false],
+   'caps'=>class_exists('\\SidcraftSyntex\\Settings\\Roles')?\SidcraftSyntex\Settings\Roles::editor_caps():['edit'=>current_user_can('sidcraft_syntex_edit'),'design'=>current_user_can('sidcraft_syntex_design'),'contentOnly'=>false,'access'=>'full'],
   ];
-  if($post_id&&class_exists('\\CanvaslyLite\\Design\\Collaboration')){
-   $lock=\CanvaslyLite\Design\Collaboration::heartbeat($post_id);
+  if($post_id&&class_exists('\\SidcraftSyntex\\Design\\Collaboration')){
+   $lock=\SidcraftSyntex\Design\Collaboration::heartbeat($post_id);
    $data['lock']=is_array($lock)?$lock:['locked'=>false];
-   $data['postLock']=\CanvaslyLite\Design\Collaboration::token($post_id);
+   $data['postLock']=\SidcraftSyntex\Design\Collaboration::token($post_id);
    $data['heartbeat']=true;
   }else{
    $data['lock']=['locked'=>false];
    $data['postLock']='';
    $data['heartbeat']=false;
   }
-  if(class_exists('\\CanvaslyLite\\Settings\\UnitsManager')){
-   $data['caps']['units']=\CanvaslyLite\Settings\UnitsManager::allowed_types();
+  if(class_exists('\\SidcraftSyntex\\Settings\\UnitsManager')){
+   $data['caps']['units']=\SidcraftSyntex\Settings\UnitsManager::allowed_types();
   }
-  /** Filter the data passed to the editor as `window.CanvaslyLiteData`. @param array $data @param int $post_id */
-  $filtered=apply_filters('canvasly-lite/editor/localize_data',$data,$post_id);
-  wp_localize_script('canvasly-lite-editor','CanvaslyLiteData',is_array($filtered)?$filtered:$data);
+  /** Filter the data passed to the editor as `window.SidcraftSyntexData`. @param array $data @param int $post_id */
+  $filtered=apply_filters('sidcraft-syntex/editor/localize_data',$data,$post_id);
+  wp_localize_script('sidcraft-syntex-editor','SidcraftSyntexData',is_array($filtered)?$filtered:$data);
  }
  /**
   * Whether the current user may publish this document from the editor.
@@ -138,7 +138,7 @@ class Editor {
   $post_id=absint($post_id);
   if(!$post_id)return false;
   $type=(string)get_post_type($post_id);
-  if($type===''||$type==='lb_template'||$type==='revision')return false;
+  if($type===''||$type==='sidsyn_template'||$type==='revision')return false;
   if(current_user_can('publish_post',$post_id))return true;
   $obj=function_exists('get_post_type_object')?get_post_type_object($type):null;
   $cap=$obj&&isset($obj->cap->publish_posts)?(string)$obj->cap->publish_posts:($type==='page'?'publish_pages':'publish_posts');
@@ -150,7 +150,7 @@ class Editor {
   \_WP_Editors::print_tinymce_scripts();
  }
  /**
-  * Replace the WordPress admin favicon with the Canvasly C mark.
+  * Replace the WordPress admin favicon with the Sidcraft Syntex C mark.
   * WordPress prints its default W logo after `admin_head`, so icon links are
   * rewritten on DOMContentLoaded as well as immediately.
   */
@@ -164,24 +164,24 @@ class Editor {
   unset($hook_suffix);
   $url=self::favicon_url();
   if($url==='')return;
-  $ver=defined('CANVASLY_LITE_VERSION')?CANVASLY_LITE_VERSION:'0';
-  wp_register_script('canvasly-lite-admin-favicon',CANVASLY_LITE_URL.'assets/js/admin-favicon.js',array(),$ver,true);
-  wp_enqueue_script('canvasly-lite-admin-favicon');
-  wp_add_inline_script('canvasly-lite-admin-favicon','window.canvaslyLiteAdminIcon='.wp_json_encode($url).';','before');
+  $ver=defined('SIDCRAFT_SYNTEX_VERSION')?SIDCRAFT_SYNTEX_VERSION:'0';
+  wp_register_script('sidcraft-syntex-admin-favicon',SIDCRAFT_SYNTEX_URL.'assets/js/admin-favicon.js',array(),$ver,true);
+  wp_enqueue_script('sidcraft-syntex-admin-favicon');
+  wp_add_inline_script('sidcraft-syntex-admin-favicon','window.sidcraftSyntexAdminIcon='.wp_json_encode($url).';','before');
  }
  private static function favicon_url(){
   global $plugin_page;
   $page=is_string($plugin_page)?$plugin_page:'';
   if($page===''&&isset($_GET['page']))$page=sanitize_key(wp_unslash($_GET['page'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin page slug.
-  if($page!=='canvasly-lite'&&strpos($page,'canvasly-lite-')!==0)return '';
-  $file=CANVASLY_LITE_PATH.'assets/images/lb-icon.svg';
-  $url=CANVASLY_LITE_URL.'assets/images/lb-icon.svg';
-  if(is_readable($file))$url=add_query_arg('v',rawurlencode(CANVASLY_LITE_VERSION.'.'.(string)filemtime($file)),(string)$url);
+  if($page!=='sidcraft-syntex'&&strpos($page,'sidcraft-syntex-')!==0)return '';
+  $file=SIDCRAFT_SYNTEX_PATH.'assets/images/lb-icon.svg';
+  $url=SIDCRAFT_SYNTEX_URL.'assets/images/lb-icon.svg';
+  if(is_readable($file))$url=add_query_arg('v',rawurlencode(SIDCRAFT_SYNTEX_VERSION.'.'.(string)filemtime($file)),(string)$url);
   return (string)$url;
  }
  private static function google_fonts(){
-  $file=CANVASLY_LITE_PATH.'assets/data/google-fonts.json';
-  $data=class_exists('\\CanvaslyLite\\Utils\\JsonCache')?\CanvaslyLite\Utils\JsonCache::read($file):array();
+  $file=SIDCRAFT_SYNTEX_PATH.'assets/data/google-fonts.json';
+  $data=class_exists('\\SidcraftSyntex\\Utils\\JsonCache')?\SidcraftSyntex\Utils\JsonCache::read($file):array();
   $fonts=$data?array_values(array_filter($data,'is_string')):[];
   /**
    * Font names shown in the typography control. Google families are the default.
@@ -189,70 +189,70 @@ class Editor {
    *
    * @param string[] $fonts
    */
-  $filtered=apply_filters('canvasly-lite/fonts/families',$fonts);
+  $filtered=apply_filters('sidcraft-syntex/fonts/families',$fonts);
   if(!is_array($filtered))return $fonts;
   $out=[];
   foreach($filtered as $name){ if(is_string($name)&&$name!=='')$out[]=$name; }
   return $out;
  }
- private static function widgets(){$out=[];foreach(\CanvaslyLite\Units\WordPressWidget::registry() as $base=>$w)$out[]=['id'=>$base,'name'=>$w['name']];usort($out,function($a,$b){return strcasecmp($a['name'],$b['name']);});return $out;}
+ private static function widgets(){$out=[];foreach(\SidcraftSyntex\Units\WordPressWidget::registry() as $base=>$w)$out[]=['id'=>$base,'name'=>$w['name']];usort($out,function($a,$b){return strcasecmp($a['name'],$b['name']);});return $out;}
  private static function sidebars(){global $wp_registered_sidebars;$out=[];foreach((array)$wp_registered_sidebars as $id=>$sb)$out[]=['id'=>$id,'name'=>$sb['name']??$id];return $out;}
  private static function unit_source($e){
   if(is_object($e)&&method_exists($e,'source')){
    $slug=sanitize_key((string)$e->source());
    if($slug!=='') return $slug;
   }
-  if(class_exists('\\CanvaslyLite\\Settings\\UnitsManager')) return \CanvaslyLite\Settings\UnitsManager::source_slug($e);
+  if(class_exists('\\SidcraftSyntex\\Settings\\UnitsManager')) return \SidcraftSyntex\Settings\UnitsManager::source_slug($e);
   return 'lite';
  }
  private static function unit_data(){$out=[];foreach(UnitRegistry::instance()->all() as $e)$out[]=['type'=>$e->type(),'title'=>$e->title(),'icon'=>$e->icon(),'category'=>$e->category(),'source'=>self::unit_source($e),'controls'=>$e->all_controls(),'defaults'=>$e->get_defaults(),'children'=>$e->supports_children(),'slots'=>$e->supports_slots(),'slot_source'=>$e->slot_source(),'keywords'=>$e->keywords(),'schema'=>$e->uses_schema(),'uses_button'=>$e->uses_button()];return $out;}
  public static function screen(){
-  if(class_exists('\\CanvaslyLite\\Settings\\Roles')&&!\CanvaslyLite\Settings\Roles::can_edit()){
-   wp_die(esc_html__('You do not have permission to use Canvasly.', 'canvasly-lite'));
+  if(class_exists('\\SidcraftSyntex\\Settings\\Roles')&&!\SidcraftSyntex\Settings\Roles::can_edit()){
+   wp_die(esc_html__('You do not have permission to use Sidcraft Syntex.', 'sidcraft-syntex'));
   }
-  if(class_exists('\\CanvaslyLite\\Settings\\AdminSettings')&&\CanvaslyLite\Settings\AdminSettings::is_editor_iframe_shell()){
-   if(class_exists('\\CanvaslyLite\\Ops\\SafeMode'))\CanvaslyLite\Ops\SafeMode::print_banner();
-   $src=function_exists('add_query_arg')?add_query_arg('lb_iframe','1'):'';
+  if(class_exists('\\SidcraftSyntex\\Settings\\AdminSettings')&&\SidcraftSyntex\Settings\AdminSettings::is_editor_iframe_shell()){
+   if(class_exists('\\SidcraftSyntex\\Ops\\SafeMode'))\SidcraftSyntex\Ops\SafeMode::print_banner();
+   $src=function_exists('add_query_arg')?add_query_arg('sidsyn_iframe','1'):'';
    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only editor screen query var.
    $iframe_post=isset($_GET['post_id'])?absint(wp_unslash($_GET['post_id'])):0;
    /** Filter the editor shell iframe URL. @param string $src @param int $iframe_post */
-   $src=apply_filters('canvasly-lite/editor/iframe_src',$src,$iframe_post);
-   echo '<iframe class="lb-editor-frame" src="'.esc_url($src).'" title="'.esc_attr__('Canvasly editor', 'canvasly-lite').'"></iframe>';
+   $src=apply_filters('sidcraft-syntex/editor/iframe_src',$src,$iframe_post);
+   echo '<iframe class="lb-editor-frame" src="'.esc_url($src).'" title="'.esc_attr__('Sidcraft Syntex editor', 'sidcraft-syntex').'"></iframe>';
    return;
   }
-  if(class_exists('\\CanvaslyLite\\Ops\\SafeMode'))\CanvaslyLite\Ops\SafeMode::print_banner();
+  if(class_exists('\\SidcraftSyntex\\Ops\\SafeMode'))\SidcraftSyntex\Ops\SafeMode::print_banner();
   // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only editor screen query vars.
   $post_id=isset($_GET['post_id'])?absint(wp_unslash($_GET['post_id'])):0;
   if(!$post_id){
     $requested_type=isset($_GET['post_type'])?sanitize_key(wp_unslash($_GET['post_type'])):'';
     if($requested_type==='' && !empty($_GET['new_page']))$requested_type='page';
-    $is_template=$requested_type==='lb_template'&&class_exists('\\CanvaslyLite\\Templates\\SavedTemplates');
+    $is_template=$requested_type==='sidsyn_template'&&class_exists('\\SidcraftSyntex\\Templates\\SavedTemplates');
     if(!$is_template){
      if($requested_type==='' || !Documents::supports($requested_type))$requested_type=Documents::fallback();
-     if($requested_type==='' || !Documents::supports($requested_type))wp_die(esc_html__('No post types are enabled for Canvasly.', 'canvasly-lite'));
+     if($requested_type==='' || !Documents::supports($requested_type))wp_die(esc_html__('No post types are enabled for Sidcraft Syntex.', 'sidcraft-syntex'));
     }
     $post_type=$requested_type;
-    if($is_template){if(!current_user_can('edit_pages'))wp_die(esc_html__('You do not have permission to use Canvasly.', 'canvasly-lite'));}
-    elseif(!current_user_can(Documents::edit_cap($post_type)))wp_die(esc_html__('You do not have permission to use Canvasly.', 'canvasly-lite'));
+    if($is_template){if(!current_user_can('edit_pages'))wp_die(esc_html__('You do not have permission to use Sidcraft Syntex.', 'sidcraft-syntex'));}
+    elseif(!current_user_can(Documents::edit_cap($post_type)))wp_die(esc_html__('You do not have permission to use Sidcraft Syntex.', 'sidcraft-syntex'));
     if($is_template){
-     $post_id=\CanvaslyLite\Templates\SavedTemplates::create_blank();
-     if(is_wp_error($post_id)||!$post_id)wp_die(esc_html__('WordPress could not create the draft.', 'canvasly-lite'));
+     $post_id=\SidcraftSyntex\Templates\SavedTemplates::create_blank();
+     if(is_wp_error($post_id)||!$post_id)wp_die(esc_html__('WordPress could not create the draft.', 'sidcraft-syntex'));
     } else {
      $obj=function_exists('get_post_type_object')?get_post_type_object($post_type):null;
      $singular=$obj&&!empty($obj->labels->singular_name)?$obj->labels->singular_name:$post_type;
-     if('page'===$post_type)$title=!empty($_GET['new_page'])?__('Canvasly Page', 'canvasly-lite'):__('Canvasly Draft', 'canvasly-lite');
-     elseif('post'===$post_type)$title=__('Canvasly Post', 'canvasly-lite');
-     else $title=sprintf(/* translators: %s: post type singular name */__('Canvasly %s', 'canvasly-lite'),$singular);
+     if('page'===$post_type)$title=!empty($_GET['new_page'])?__('Sidcraft Syntex Page', 'sidcraft-syntex'):__('Sidcraft Syntex Draft', 'sidcraft-syntex');
+     elseif('post'===$post_type)$title=__('Sidcraft Syntex Post', 'sidcraft-syntex');
+     else $title=sprintf(/* translators: %s: post type singular name */__('Sidcraft Syntex %s', 'sidcraft-syntex'),$singular);
      $post_id=wp_insert_post(['post_title'=>$title,'post_status'=>'draft','post_type'=>$post_type],true);
-     if(is_wp_error($post_id)||!$post_id)wp_die(esc_html__('WordPress could not create the draft.', 'canvasly-lite'));
+     if(is_wp_error($post_id)||!$post_id)wp_die(esc_html__('WordPress could not create the draft.', 'sidcraft-syntex'));
     }
   }
   // phpcs:enable WordPress.Security.NonceVerification.Recommended
   $post=get_post($post_id);
-  $is_template=$post&&$post->post_type==='lb_template'&&class_exists('\\CanvaslyLite\\Templates\\SavedTemplates');
-  if(!$post || (!$is_template && !Documents::supports($post->post_type)))wp_die(esc_html__('Canvasly is not enabled for this post type.', 'canvasly-lite'));
-  if($is_template){if(!current_user_can('edit_post',$post_id)&&!current_user_can('edit_pages'))wp_die(esc_html__('You do not have permission to edit this content.', 'canvasly-lite'));}
-  elseif(!current_user_can('edit_post',$post_id))wp_die(esc_html__('You do not have permission to edit this content.', 'canvasly-lite'));
+  $is_template=$post&&$post->post_type==='sidsyn_template'&&class_exists('\\SidcraftSyntex\\Templates\\SavedTemplates');
+  if(!$post || (!$is_template && !Documents::supports($post->post_type)))wp_die(esc_html__('Sidcraft Syntex is not enabled for this post type.', 'sidcraft-syntex'));
+  if($is_template){if(!current_user_can('edit_post',$post_id)&&!current_user_can('edit_pages'))wp_die(esc_html__('You do not have permission to edit this content.', 'sidcraft-syntex'));}
+  elseif(!current_user_can('edit_post',$post_id))wp_die(esc_html__('You do not have permission to edit this content.', 'sidcraft-syntex'));
   $doc=DocumentManager::for_editor($post_id);
   if(class_exists(DevMode::class))$doc=DevMode::sanitize_document($doc);
   $doc_json=wp_json_encode($doc);
@@ -260,10 +260,10 @@ class Editor {
   /* Keep the payload out of an HTML attribute. Converted pages are large enough
    * that a truncated attribute parses as nothing and the canvas opens empty. */
   $doc_json=str_replace(array('<',"\u{2028}","\u{2029}"),array('\u003c','\u2028','\u2029'),$doc_json);
-  echo '<div id="lb-editor-shell" class="lb-admin lb-fullscreen'.(class_exists('\\CanvaslyLite\\Settings\\Roles')&&\CanvaslyLite\Settings\Roles::is_content_only()?' lb-content-only':'').'"'.(function_exists('is_rtl')&&is_rtl()?' dir="rtl"':'').'><div id="lb-editor" data-post-id="'.esc_attr($post_id).'" data-lb-has-document="1"></div></div>';
+  echo '<div id="lb-editor-shell" class="lb-admin lb-fullscreen'.(class_exists('\\SidcraftSyntex\\Settings\\Roles')&&\SidcraftSyntex\Settings\Roles::is_content_only()?' lb-content-only':'').'"'.(function_exists('is_rtl')&&is_rtl()?' dir="rtl"':'').'><div id="lb-editor" data-post-id="'.esc_attr($post_id).'" data-lb-has-document="1"></div></div>';
   wp_print_inline_script_tag($doc_json,array('type'=>'application/json','id'=>'lb-editor-document'));
   echo '<div id="lb-tinymce-boot-wrap" class="lb-tinymce-boot-wrap" hidden>';
-  wp_editor('<p></p>','lb_tinymce_boot',[
+  wp_editor('<p></p>','sidsyn_tinymce_boot',[
    'textarea_rows'=>2,
    'media_buttons'=>true,
    'drag_drop_upload'=>true,

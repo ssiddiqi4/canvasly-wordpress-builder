@@ -13,20 +13,20 @@
  * local value. Among classes, the manager's `order` decides priority (a later
  * class in the stylesheet wins), which the editor exposes as drag-to-reorder.
  *
- * @package CanvaslyLite
+ * @package SidcraftSyntex
  */
 
-namespace CanvaslyLite\XEditor;
+namespace SidcraftSyntex\XEditor;
 
-use CanvaslyLite\Settings\Breakpoints;
+use SidcraftSyntex\Settings\Breakpoints;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 class XEditorClassesManager {
-	const OPTION     = 'canvasly_xeditor_design';
-	const CSS_OPTION = 'canvasly_xeditor_css';
+	const OPTION     = 'sidcraft_syntex_xeditor_design';
+	const CSS_OPTION = 'sidcraft_syntex_xeditor_css';
 	const VAR_PREFIX = '--xe-var-';
 	const CLS_PREFIX = 'xe-class-';
 	const STATES     = array( 'base', 'hover', 'focus', 'active', 'focus_visible' );
@@ -79,7 +79,7 @@ class XEditorClassesManager {
 		}
 		self::$memo = $clean;
 		if ( function_exists( 'do_action' ) ) {
-			do_action( 'canvasly-lite/xeditor/design_saved', $clean );
+			do_action( 'sidcraft-syntex/xeditor/design_saved', $clean );
 		}
 		return $clean;
 	}
@@ -410,7 +410,7 @@ class XEditorClassesManager {
 			}
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$css = (string) apply_filters( 'canvasly-lite/xeditor/css', $css, $design );
+			$css = (string) apply_filters( 'sidcraft-syntex/xeditor/css', $css, $design );
 		}
 		return $css;
 	}

@@ -1,12 +1,12 @@
 <?php
-namespace CanvaslyLite\Cli;
+namespace SidcraftSyntex\Cli;
 
-use CanvaslyLite\Compatibility\Cache;
-use CanvaslyLite\Convert\Converter;
-use CanvaslyLite\Design\CssPrint;
-use CanvaslyLite\Design\Kit;
-use CanvaslyLite\Design\Optimize;
-use CanvaslyLite\Tools\ReplaceUrl;
+use SidcraftSyntex\Compatibility\Cache;
+use SidcraftSyntex\Convert\Converter;
+use SidcraftSyntex\Design\CssPrint;
+use SidcraftSyntex\Design\Kit;
+use SidcraftSyntex\Design\Optimize;
+use SidcraftSyntex\Tools\ReplaceUrl;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -42,13 +42,13 @@ class Cli {
 			return;
 		}
 		self::$registered = true;
-		\WP_CLI::add_command( 'canvasly-lite', Command::class );
+		\WP_CLI::add_command( 'sidcraft-syntex', Command::class );
 		/**
-		 * Fires after the `wp canvasly-lite` command is registered.
+		 * Fires after the `wp sidcraft-syntex` command is registered.
 		 *
 		 * Add-ons can attach extra subcommands with WP_CLI::add_command().
 		 */
-		do_action( 'canvasly-lite/cli/register' );
+		do_action( 'sidcraft-syntex/cli/register' );
 	}
 
 	/**
@@ -76,7 +76,7 @@ class Cli {
 	 */
 	public static function regenerate_css( $args = array() ) {
 		if ( ! class_exists( CssPrint::class ) ) {
-			return new \WP_Error( 'unavailable', __( 'CSS regeneration is not available.', 'canvasly-lite' ) );
+			return new \WP_Error( 'unavailable', __( 'CSS regeneration is not available.', 'sidcraft-syntex' ) );
 		}
 		$args  = is_array( $args ) ? $args : array();
 		$scope = function_exists( 'sanitize_key' ) ? sanitize_key( (string) ( $args['scope'] ?? 'all' ) ) : (string) ( $args['scope'] ?? 'all' );
@@ -96,7 +96,7 @@ class Cli {
 		if ( $scope === 'post' && empty( $params['id'] ) && empty( $params['ids'] ) ) {
 			return new \WP_Error(
 				'missing_id',
-				__( 'Pass --id=<post_id> when scope is post.', 'canvasly-lite' )
+				__( 'Pass --id=<post_id> when scope is post.', 'sidcraft-syntex' )
 			);
 		}
 		$report = CssPrint::regenerate( $params );
@@ -106,7 +106,7 @@ class Cli {
 		 * @param array $report
 		 * @param array $params
 		 */
-		$filtered = apply_filters( 'canvasly-lite/cli/regenerate_css', $report, $params );
+		$filtered = apply_filters( 'sidcraft-syntex/cli/regenerate_css', $report, $params );
 		return is_array( $filtered ) ? $filtered : $report;
 	}
 
@@ -151,7 +151,7 @@ class Cli {
 		 * @param array $report
 		 * @param array $args
 		 */
-		$filtered = apply_filters( 'canvasly-lite/cli/flush_cache', $report, $args );
+		$filtered = apply_filters( 'sidcraft-syntex/cli/flush_cache', $report, $args );
 		return is_array( $filtered ) ? $filtered : $report;
 	}
 
@@ -163,7 +163,7 @@ class Cli {
 	 */
 	public static function replace_url( $from, $to, $args = array() ) {
 		if ( ! class_exists( ReplaceUrl::class ) ) {
-			return new \WP_Error( 'unavailable', __( 'Replace URL is not available.', 'canvasly-lite' ) );
+			return new \WP_Error( 'unavailable', __( 'Replace URL is not available.', 'sidcraft-syntex' ) );
 		}
 		$args = is_array( $args ) ? $args : array();
 		$out  = ReplaceUrl::replace(
@@ -179,7 +179,7 @@ class Cli {
 		 * @param string          $to
 		 * @param array           $args
 		 */
-		return apply_filters( 'canvasly-lite/cli/replace_url', $out, $from, $to, $args );
+		return apply_filters( 'sidcraft-syntex/cli/replace_url', $out, $from, $to, $args );
 	}
 
 	/**
@@ -189,12 +189,12 @@ class Cli {
 	 */
 	public static function import( $path, $args = array() ) {
 		if ( ! class_exists( Kit::class ) ) {
-			return new \WP_Error( 'unavailable', __( 'Kit import is not available.', 'canvasly-lite' ) );
+			return new \WP_Error( 'unavailable', __( 'Kit import is not available.', 'sidcraft-syntex' ) );
 		}
 		$args = is_array( $args ) ? $args : array();
 		$path = self::resolve_path( $path );
 		if ( $path === '' || ! is_readable( $path ) ) {
-			return new \WP_Error( 'invalid_kit', __( 'The kit file could not be read.', 'canvasly-lite' ) );
+			return new \WP_Error( 'invalid_kit', __( 'The kit file could not be read.', 'sidcraft-syntex' ) );
 		}
 		$mode = function_exists( 'sanitize_key' ) ? sanitize_key( (string) ( $args['mode'] ?? 'merge' ) ) : (string) ( $args['mode'] ?? 'merge' );
 		if ( ! in_array( $mode, array( 'merge', 'replace' ), true ) ) {
@@ -209,7 +209,7 @@ class Cli {
 		 * @param string          $path
 		 * @param array           $args
 		 */
-		return apply_filters( 'canvasly-lite/cli/import', $result, $path, $args );
+		return apply_filters( 'sidcraft-syntex/cli/import', $result, $path, $args );
 	}
 
 	/**
@@ -221,14 +221,14 @@ class Cli {
 	 */
 	public static function export( $dest = '', $args = array() ) {
 		if ( ! class_exists( Kit::class ) ) {
-			return new \WP_Error( 'unavailable', __( 'Kit export is not available.', 'canvasly-lite' ) );
+			return new \WP_Error( 'unavailable', __( 'Kit export is not available.', 'sidcraft-syntex' ) );
 		}
 		$args  = is_array( $args ) ? $args : array();
 		$built = Kit::write_zip( $args );
 		if ( is_wp_error( $built ) ) {
 			return $built;
 		}
-		$filename = (string) ( $built['filename'] ?? 'canvasly-lite-kit.zip' );
+		$filename = (string) ( $built['filename'] ?? 'sidcraft-syntex-kit.zip' );
 		$dest     = trim( (string) $dest );
 		if ( $dest === '' ) {
 			$cwd  = function_exists( 'getcwd' ) ? getcwd() : '';
@@ -242,12 +242,12 @@ class Cli {
 		$dir = dirname( $dest );
 		if ( $dir !== '' && $dir !== '.' && ! is_dir( $dir ) ) {
 			Kit::discard_export( $built );
-			return new \WP_Error( 'export_dir', __( 'The export directory does not exist.', 'canvasly-lite' ) );
+			return new \WP_Error( 'export_dir', __( 'The export directory does not exist.', 'sidcraft-syntex' ) );
 		}
 		$copied = @copy( $built['path'], $dest );
 		Kit::discard_export( $built );
 		if ( ! $copied || ! file_exists( $dest ) ) {
-			return new \WP_Error( 'export_write', __( 'Could not write the kit ZIP.', 'canvasly-lite' ) );
+			return new \WP_Error( 'export_write', __( 'Could not write the kit ZIP.', 'sidcraft-syntex' ) );
 		}
 		$out = array(
 			'path'     => $dest,
@@ -261,7 +261,7 @@ class Cli {
 		 * @param array $out
 		 * @param array $args
 		 */
-		$filtered = apply_filters( 'canvasly-lite/cli/export', $out, $args );
+		$filtered = apply_filters( 'sidcraft-syntex/cli/export', $out, $args );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 
@@ -277,7 +277,7 @@ class Cli {
 	 */
 	public static function convert( $args = array() ) {
 		if ( ! class_exists( Converter::class ) ) {
-			return new \WP_Error( 'unavailable', __( 'The converter is not available.', 'canvasly-lite' ) );
+			return new \WP_Error( 'unavailable', __( 'The converter is not available.', 'sidcraft-syntex' ) );
 		}
 		$args = is_array( $args ) ? $args : array();
 		$ids  = self::ids_from( $args['ids'] ?? array() );
@@ -302,7 +302,7 @@ class Cli {
 		 * @param int[] $ids
 		 * @param array $args
 		 */
-		$filtered = apply_filters( 'canvasly-lite/cli/convert', $report, $ids, $args );
+		$filtered = apply_filters( 'sidcraft-syntex/cli/convert', $report, $ids, $args );
 		return is_array( $filtered ) ? $filtered : $report;
 	}
 

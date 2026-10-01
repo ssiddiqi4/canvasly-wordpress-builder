@@ -1,12 +1,12 @@
 <?php
-namespace CanvaslyLite\Settings;
+namespace SidcraftSyntex\Settings;
 
-use CanvaslyLite\Design\CssPrint;
-use CanvaslyLite\Design\Fonts;
-use CanvaslyLite\Design\Kit;
-use CanvaslyLite\Design\Optimize;
-use CanvaslyLite\Document\Documents;
-use CanvaslyLite\Tools\ReplaceUrl;
+use SidcraftSyntex\Design\CssPrint;
+use SidcraftSyntex\Design\Fonts;
+use SidcraftSyntex\Design\Kit;
+use SidcraftSyntex\Design\Optimize;
+use SidcraftSyntex\Document\Documents;
+use SidcraftSyntex\Tools\ReplaceUrl;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -17,14 +17,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * General, Integrations, Advanced, Performance, Tools and Features all read/write
  * through sanitize() / save() with a manage_options capability check. Overlapping
- * keys live on `canvasly_lite_global_settings` so existing CSS/fonts/optimize
+ * keys live on `sidcraft_syntex_global_settings` so existing CSS/fonts/optimize
  * helpers keep working.
  */
 class AdminSettings {
-	const PAGE       = 'canvasly-lite-settings';
-	const NONCE      = 'lb_admin_settings';
+	const PAGE       = 'sidcraft-syntex-settings';
+	const NONCE      = 'sidsyn_admin_settings';
 	const CAPABILITY = 'manage_options';
-	const SAFE_META  = 'canvasly_lite_safe_mode';
+	const SAFE_META  = 'sidcraft_syntex_safe_mode';
 	const SECRET_MASK = '********';
 
 	/**
@@ -50,8 +50,8 @@ class AdminSettings {
 	}
 
 	public static function init() {
-		add_action( 'canvasly-lite/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'canvasly-lite/frontend/enqueue', array( self::class, 'register_frontend' ) );
+		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-syntex/frontend/enqueue', array( self::class, 'register_frontend' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_menu', array( self::class, 'menu' ), 12 );
 			add_action( 'admin_init', array( self::class, 'maybe_save' ) );
@@ -62,9 +62,9 @@ class AdminSettings {
 
 	public static function menu() {
 		add_submenu_page(
-			'canvasly-lite',
-			__( 'Settings', 'canvasly-lite' ),
-			__( 'Settings', 'canvasly-lite' ),
+			'sidcraft-syntex',
+			__( 'Settings', 'sidcraft-syntex' ),
+			__( 'Settings', 'sidcraft-syntex' ),
 			self::CAPABILITY,
 			self::PAGE,
 			array( self::class, 'screen' )
@@ -88,7 +88,7 @@ class AdminSettings {
 		}
 		return new \WP_Error(
 			'forbidden',
-			__( 'Only administrators can manage Canvasly settings.', 'canvasly-lite' ),
+			__( 'Only administrators can manage Sidcraft Syntex settings.', 'sidcraft-syntex' ),
 			array( 'status' => 403 )
 		);
 	}
@@ -97,36 +97,36 @@ class AdminSettings {
 	 * @param string $hook_suffix
 	 */
 	public static function enqueue( $hook_suffix = '' ) {
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) ) {
-			if ( ! \CanvaslyLite\Admin\AdminContext::is_plugin_page( $hook_suffix ) ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) ) {
+			if ( ! \SidcraftSyntex\Admin\AdminContext::is_plugin_page( $hook_suffix ) ) {
 				return;
 			}
 		} else {
 			$settings = is_string( $hook_suffix ) && strpos( $hook_suffix, self::PAGE ) !== false;
-			$tools    = is_string( $hook_suffix ) && strpos( $hook_suffix, 'canvasly-lite-tools' ) !== false;
-			$roles    = is_string( $hook_suffix ) && strpos( $hook_suffix, 'canvasly-lite-roles' ) !== false;
-			$units = is_string( $hook_suffix ) && strpos( $hook_suffix, 'canvasly-lite-units' ) !== false;
-			$sysinfo  = is_string( $hook_suffix ) && strpos( $hook_suffix, 'canvasly-lite-system-info' ) !== false;
-			$editor   = $hook_suffix === 'toplevel_page_canvasly-lite';
+			$tools    = is_string( $hook_suffix ) && strpos( $hook_suffix, 'sidcraft-syntex-tools' ) !== false;
+			$roles    = is_string( $hook_suffix ) && strpos( $hook_suffix, 'sidcraft-syntex-roles' ) !== false;
+			$units = is_string( $hook_suffix ) && strpos( $hook_suffix, 'sidcraft-syntex-units' ) !== false;
+			$sysinfo  = is_string( $hook_suffix ) && strpos( $hook_suffix, 'sidcraft-syntex-system-info' ) !== false;
+			$editor   = $hook_suffix === 'toplevel_page_sidcraft-syntex';
 			if ( ! $settings && ! $tools && ! $roles && ! $units && ! $sysinfo && ! $editor ) {
 				return;
 			}
 		}
-		$file = CANVASLY_LITE_PATH . 'assets/css/admin-settings.css';
-		$ver  = defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '0';
+		$file = SIDCRAFT_SYNTEX_PATH . 'assets/css/admin-settings.css';
+		$ver  = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0';
 		if ( is_readable( $file ) ) {
 			$ver .= '-' . (string) filemtime( $file );
 		}
 		wp_enqueue_style(
-			'canvasly-lite-admin-settings',
-			CANVASLY_LITE_URL . 'assets/css/admin-settings.css',
+			'sidcraft-syntex-admin-settings',
+			SIDCRAFT_SYNTEX_URL . 'assets/css/admin-settings.css',
 			array(),
 			$ver
 		);
 		if ( self::is_editor_iframe() || self::is_editor_iframe_shell() ) {
 			wp_enqueue_style(
-				'canvasly-lite-editor-iframe',
-				CANVASLY_LITE_URL . 'assets/css/editor-iframe.css',
+				'sidcraft-syntex-editor-iframe',
+				SIDCRAFT_SYNTEX_URL . 'assets/css/editor-iframe.css',
 				array(),
 				$ver
 			);
@@ -154,10 +154,10 @@ class AdminSettings {
 		if ( ! function_exists( 'wp_enqueue_style' ) ) {
 			return;
 		}
-		$ver = defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '0';
+		$ver = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0';
 		wp_enqueue_style(
-			'canvasly-lite-editor-iframe',
-			CANVASLY_LITE_URL . 'assets/css/editor-iframe.css',
+			'sidcraft-syntex-editor-iframe',
+			SIDCRAFT_SYNTEX_URL . 'assets/css/editor-iframe.css',
 			array(),
 			$ver
 		);
@@ -172,11 +172,11 @@ class AdminSettings {
 		if ( self::editor_loader_mode() !== 'iframe' ) {
 			return false;
 		}
-		if ( ! empty( $_GET['lb_iframe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET['sidsyn_iframe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return $page === 'canvasly-lite';
+		return $page === 'sidcraft-syntex';
 	}
 
 	/**
@@ -185,11 +185,11 @@ class AdminSettings {
 	 * @return bool
 	 */
 	public static function is_editor_iframe() {
-		if ( empty( $_GET['lb_iframe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( empty( $_GET['sidsyn_iframe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return $page === 'canvasly-lite';
+		return $page === 'sidcraft-syntex';
 	}
 
 	/**
@@ -197,12 +197,12 @@ class AdminSettings {
 	 */
 	public static function tabs() {
 		return array(
-			'general'      => __( 'General', 'canvasly-lite' ),
-			'integrations' => __( 'Integrations', 'canvasly-lite' ),
-			'advanced'     => __( 'Advanced', 'canvasly-lite' ),
-			'performance'  => __( 'Performance', 'canvasly-lite' ),
-			'tools'        => __( 'Tools', 'canvasly-lite' ),
-			'features'     => __( 'Features', 'canvasly-lite' ),
+			'general'      => __( 'General', 'sidcraft-syntex' ),
+			'integrations' => __( 'Integrations', 'sidcraft-syntex' ),
+			'advanced'     => __( 'Advanced', 'sidcraft-syntex' ),
+			'performance'  => __( 'Performance', 'sidcraft-syntex' ),
+			'tools'        => __( 'Tools', 'sidcraft-syntex' ),
+			'features'     => __( 'Features', 'sidcraft-syntex' ),
 		);
 	}
 
@@ -236,10 +236,10 @@ class AdminSettings {
 	public static function action_return_url() {
 		// phpcs:disable WordPress.Security.NonceVerification -- Return-tab is a display hint; mutating tools verify their own nonce first.
 		$tab = '';
-		if ( ! empty( $_POST['lb_settings_tab'] ) ) {
-			$tab = sanitize_key( wp_unslash( $_POST['lb_settings_tab'] ) );
-		} elseif ( ! empty( $_GET['lb_settings_tab'] ) ) {
-			$tab = sanitize_key( wp_unslash( $_GET['lb_settings_tab'] ) );
+		if ( ! empty( $_POST['sidsyn_settings_tab'] ) ) {
+			$tab = sanitize_key( wp_unslash( $_POST['sidsyn_settings_tab'] ) );
+		} elseif ( ! empty( $_GET['sidsyn_settings_tab'] ) ) {
+			$tab = sanitize_key( wp_unslash( $_GET['sidsyn_settings_tab'] ) );
 		}
 		// phpcs:enable WordPress.Security.NonceVerification
 		if ( $tab !== '' && isset( self::tabs()[ $tab ] ) ) {
@@ -257,7 +257,7 @@ class AdminSettings {
 		if ( $url !== '' ) {
 			return $url;
 		}
-		return admin_url( 'admin.php?page=canvasly-lite-tools' );
+		return admin_url( 'admin.php?page=sidcraft-syntex-tools' );
 	}
 
 	/**
@@ -269,7 +269,7 @@ class AdminSettings {
 			$screen = get_current_screen();
 		}
 		$id = is_object( $screen ) ? (string) ( $screen->id ?? '' ) : '';
-		return $id === 'canvasly-lite_page_canvasly-lite-tools' || $id === 'canvasly-lite_page_' . self::PAGE;
+		return $id === 'sidcraft-syntex_page_sidcraft-syntex-tools' || $id === 'sidcraft-syntex_page_' . self::PAGE;
 	}
 
 	/**
@@ -285,7 +285,7 @@ class AdminSettings {
 		 *
 		 * @param array $d
 		 */
-		$filtered = apply_filters( 'canvasly-lite/settings', $d );
+		$filtered = apply_filters( 'sidcraft-syntex/settings', $d );
 		return is_array( $filtered ) ? self::sanitize( $filtered, $d, false ) : $d;
 	}
 
@@ -407,7 +407,7 @@ class AdminSettings {
 		 * @param array $out
 		 * @param array $raw
 		 */
-		$filtered = apply_filters( 'canvasly-lite/settings/sanitize', $out, $raw );
+		$filtered = apply_filters( 'sidcraft-syntex/settings/sanitize', $out, $raw );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 
@@ -455,7 +455,7 @@ class AdminSettings {
 		if ( ! self::can_manage() ) {
 			return new \WP_Error(
 				'forbidden',
-				__( 'Only administrators can manage Canvasly settings.', 'canvasly-lite' ),
+				__( 'Only administrators can manage Sidcraft Syntex settings.', 'sidcraft-syntex' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -500,32 +500,32 @@ class AdminSettings {
 		 * @param array $saved
 		 * @param array $raw
 		 */
-		do_action( 'canvasly-lite/settings/after_save', $saved, is_array( $raw ) ? $raw : array() );
+		do_action( 'sidcraft-syntex/settings/after_save', $saved, is_array( $raw ) ? $raw : array() );
 		return $saved;
 	}
 
 	public static function maybe_save() {
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) && ! \CanvaslyLite\Admin\AdminContext::is_plugin_page() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::is_plugin_page() ) {
 			return;
 		}
-		if ( empty( $_POST['lb_save_settings'] ) ) {
+		if ( empty( $_POST['sidsyn_save_settings'] ) ) {
 			return;
 		}
 		if ( ! self::can_manage() ) {
 			return;
 		}
 		check_admin_referer( self::NONCE );
-		$tab  = isset( $_POST['lb_settings_tab'] ) ? sanitize_key( wp_unslash( $_POST['lb_settings_tab'] ) ) : self::current_tab();
+		$tab  = isset( $_POST['sidsyn_settings_tab'] ) ? sanitize_key( wp_unslash( $_POST['sidsyn_settings_tab'] ) ) : self::current_tab();
 		$raw  = self::from_post( $tab );
 		$save = self::save( $raw, true );
 		if ( $tab === 'integrations' && ! is_wp_error( $save ) ) {
 			/** Save extra integration fields (Cloudflare Turnstile, add-ons). @param array $post Unslashed $_POST. */
-			do_action( 'canvasly-lite/settings/save_integrations', wp_unslash( $_POST ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check_admin_referer() above.
+			do_action( 'sidcraft-syntex/settings/save_integrations', wp_unslash( $_POST ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check_admin_referer() above.
 		}
 		if ( is_wp_error( $save ) ) {
-			add_settings_error( 'canvasly_lite_settings', 'forbidden', $save->get_error_message(), 'error' );
+			add_settings_error( 'sidcraft_syntex_settings', 'forbidden', $save->get_error_message(), 'error' );
 		} else {
-			add_settings_error( 'canvasly_lite_settings', 'saved', __( 'Settings saved.', 'canvasly-lite' ), 'updated' );
+			add_settings_error( 'sidcraft_syntex_settings', 'saved', __( 'Settings saved.', 'sidcraft-syntex' ), 'updated' );
 		}
 	}
 
@@ -578,7 +578,7 @@ class AdminSettings {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'canvasly-lite/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
 		register_rest_route(
 			$ns,
 			'/settings',
@@ -637,7 +637,7 @@ class AdminSettings {
 		} else {
 			$url = add_query_arg( 'render', 'explicit', $url );
 		}
-		$version = defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '1.0.0';
+		$version = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '1.0.0';
 		wp_register_script( 'google-recaptcha', $url, array(), $version, true );
 	}
 
@@ -725,8 +725,8 @@ class AdminSettings {
 	 * @param int  $user_id
 	 */
 	public static function save_safe_mode( $on, $user_id = 0 ) {
-		if ( class_exists( '\\CanvaslyLite\\Ops\\SafeMode' ) ) {
-			\CanvaslyLite\Ops\SafeMode::set( (bool) $on, $user_id );
+		if ( class_exists( '\\SidcraftSyntex\\Ops\\SafeMode' ) ) {
+			\SidcraftSyntex\Ops\SafeMode::set( (bool) $on, $user_id );
 			return;
 		}
 		$user_id = $user_id ? absint( $user_id ) : ( function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0 );
@@ -752,14 +752,14 @@ class AdminSettings {
 			$params = $req;
 		}
 		/**
-		 * Extra spam checks for Canvasly form submissions (Cloudflare Turnstile, add-ons).
+		 * Extra spam checks for Sidcraft Syntex form submissions (Cloudflare Turnstile, add-ons).
 		 * Return a WP_Error to reject the submission.
 		 *
 		 * @param true|\WP_Error $ok
 		 * @param array          $params Request parameters.
 		 * @param mixed          $req
 		 */
-		$extra = function_exists( 'apply_filters' ) ? apply_filters( 'canvasly-lite/form/verify', true, $params, $req ) : true;
+		$extra = function_exists( 'apply_filters' ) ? apply_filters( 'sidcraft-syntex/form/verify', true, $params, $req ) : true;
 		if ( is_wp_error( $extra ) ) {
 			return $extra;
 		}
@@ -770,7 +770,7 @@ class AdminSettings {
 		if ( ! self::verify_recaptcha( $token ) ) {
 			return new \WP_Error(
 				'recaptcha',
-				__( 'reCAPTCHA verification failed. Please try again.', 'canvasly-lite' ),
+				__( 'reCAPTCHA verification failed. Please try again.', 'sidcraft-syntex' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -790,7 +790,7 @@ class AdminSettings {
 		if ( $token === '' ) {
 			return false;
 		}
-		$pre = apply_filters( 'canvasly-lite/recaptcha/verify', null, $token, $secret );
+		$pre = apply_filters( 'sidcraft-syntex/recaptcha/verify', null, $token, $secret );
 		if ( $pre !== null ) {
 			return (bool) $pre;
 		}
@@ -817,13 +817,13 @@ class AdminSettings {
 
 	public static function screen() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can manage Canvasly settings.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can manage Sidcraft Syntex settings.', 'sidcraft-syntex' ) );
 		}
 		$tab = self::current_tab();
 		$d   = self::get();
 		echo '<div class="wrap lb-settings-wrap">';
-		echo '<h1>' . esc_html__( 'Canvasly Settings', 'canvasly-lite' ) . '</h1>';
-		settings_errors( 'canvasly_lite_settings' );
+		echo '<h1>' . esc_html__( 'Sidcraft Syntex Settings', 'sidcraft-syntex' ) . '</h1>';
+		settings_errors( 'sidcraft_syntex_settings' );
 		echo '<nav class="nav-tab-wrapper lb-settings-tabs">';
 		foreach ( self::tabs() as $id => $label ) {
 			echo '<a class="nav-tab' . ( $tab === $id ? ' nav-tab-active' : '' ) . '" href="' . esc_url( self::url( $id ) ) . '">' . esc_html( $label ) . '</a>';
@@ -834,7 +834,7 @@ class AdminSettings {
 		} else {
 			echo '<form method="post" action="' . esc_url( self::url( $tab ) ) . '">';
 			wp_nonce_field( self::NONCE );
-			echo '<input type="hidden" name="lb_settings_tab" value="' . esc_attr( $tab ) . '">';
+			echo '<input type="hidden" name="sidsyn_settings_tab" value="' . esc_attr( $tab ) . '">';
 			if ( $tab === 'general' ) {
 				self::render_general( $d );
 			} elseif ( $tab === 'integrations' ) {
@@ -846,7 +846,7 @@ class AdminSettings {
 			} elseif ( $tab === 'features' ) {
 				self::render_features( $d );
 			}
-			echo '<p class="submit"><button type="submit" class="button button-primary" name="lb_save_settings" value="1">' . esc_html__( 'Save Changes', 'canvasly-lite' ) . '</button></p>';
+			echo '<p class="submit"><button type="submit" class="button button-primary" name="sidsyn_save_settings" value="1">' . esc_html__( 'Save Changes', 'sidcraft-syntex' ) . '</button></p>';
 			echo '</form>';
 			if ( $tab === 'performance' ) {
 				self::render_performance_actions();
@@ -862,25 +862,25 @@ class AdminSettings {
 	 * @param array $d
 	 */
 	public static function render_general( $d ) {
-		echo '<p class="description">' . esc_html__( 'Choose which public post types Canvasly can edit, and whether the theme should keep its own default colors and fonts.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Choose which public post types Sidcraft Syntex can edit, and whether the theme should keep its own default colors and fonts.', 'sidcraft-syntex' ) . '</p>';
 		echo '<table class="form-table" role="presentation"><tbody>';
-		echo '<tr><th>' . esc_html__( 'Post Types', 'canvasly-lite' ) . '</th><td>';
+		echo '<tr><th>' . esc_html__( 'Post Types', 'sidcraft-syntex' ) . '</th><td>';
 		$enabled   = class_exists( Documents::class ) ? Documents::enabled() : (array) ( $d['post_types'] ?? array( 'post', 'page' ) );
-		$available = class_exists( Documents::class ) ? Documents::available() : array( 'post' => __( 'Posts', 'canvasly-lite' ), 'page' => __( 'Pages', 'canvasly-lite' ) );
+		$available = class_exists( Documents::class ) ? Documents::available() : array( 'post' => __( 'Posts', 'sidcraft-syntex' ), 'page' => __( 'Pages', 'sidcraft-syntex' ) );
 		echo '<fieldset>';
 		foreach ( $available as $slug => $label ) {
 			echo '<label class="lb-settings-check"><input type="checkbox" name="post_types[]" value="' . esc_attr( $slug ) . '"' . ( in_array( $slug, $enabled, true ) ? ' checked' : '' ) . '> ' . esc_html( $label ) . ' <code>' . esc_html( $slug ) . '</code></label>';
 		}
 		echo '</fieldset>';
-		echo '<p class="description">' . esc_html__( 'Posts and Pages are enabled by default. Any public custom post type can be added.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Posts and Pages are enabled by default. Any public custom post type can be added.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Default Colors', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="disable_default_colors" value="1"' . ( ! empty( $d['disable_default_colors'] ) ? ' checked' : '' ) . '> ' . esc_html__( 'Disable default colors', 'canvasly-lite' ) . '</label>';
-		echo '<p class="description">' . esc_html__( 'Let the theme control colors. Canvasly global color tokens and Theme Style colors will not be printed.', 'canvasly-lite' ) . '</p>';
+		echo '<tr><th>' . esc_html__( 'Default Colors', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="disable_default_colors" value="1"' . ( ! empty( $d['disable_default_colors'] ) ? ' checked' : '' ) . '> ' . esc_html__( 'Disable default colors', 'sidcraft-syntex' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'Let the theme control colors. Sidcraft Syntex global color tokens and Theme Style colors will not be printed.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Default Fonts', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="disable_default_fonts" value="1"' . ( ! empty( $d['disable_default_fonts'] ) ? ' checked' : '' ) . '> ' . esc_html__( 'Disable default fonts', 'canvasly-lite' ) . '</label>';
-		echo '<p class="description">' . esc_html__( 'Let the theme control typography. Global heading/body fonts and Theme Style font-family rules will not be printed.', 'canvasly-lite' ) . '</p>';
+		echo '<tr><th>' . esc_html__( 'Default Fonts', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="disable_default_fonts" value="1"' . ( ! empty( $d['disable_default_fonts'] ) ? ' checked' : '' ) . '> ' . esc_html__( 'Disable default fonts', 'sidcraft-syntex' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'Let the theme control typography. Global heading/body fonts and Theme Style font-family rules will not be printed.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr></tbody></table>';
 	}
 
@@ -888,31 +888,31 @@ class AdminSettings {
 	 * @param array $d
 	 */
 	public static function render_integrations( $d ) {
-		echo '<p class="description">' . esc_html__( 'API keys used by Google Maps and Form reCAPTCHA. Secret keys are never sent to the browser.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'API keys used by Google Maps and Form reCAPTCHA. Secret keys are never sent to the browser.', 'sidcraft-syntex' ) . '</p>';
 		echo '<table class="form-table" role="presentation"><tbody>';
-		echo '<tr><th><label for="lb-maps-key">' . esc_html__( 'Google Maps API key', 'canvasly-lite' ) . '</label></th><td>';
+		echo '<tr><th><label for="lb-maps-key">' . esc_html__( 'Google Maps API key', 'sidcraft-syntex' ) . '</label></th><td>';
 		echo '<input class="regular-text code" id="lb-maps-key" name="google_maps_api_key" type="text" value="' . esc_attr( (string) ( $d['google_maps_api_key'] ?? '' ) ) . '" autocomplete="off">';
-		echo '<p class="description">' . esc_html__( 'Used by the Google Maps widget with the Maps Embed API when the matching Features toggle is active. Leave empty to use the public iframe embed.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Used by the Google Maps widget with the Maps Embed API when the matching Features toggle is active. Leave empty to use the public iframe embed.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'reCAPTCHA type', 'canvasly-lite' ) . '</th><td>';
+		echo '<tr><th>' . esc_html__( 'reCAPTCHA type', 'sidcraft-syntex' ) . '</th><td>';
 		$type = ( $d['recaptcha_type'] ?? 'v2' ) === 'v3' ? 'v3' : 'v2';
-		echo '<label><input type="radio" name="recaptcha_type" value="v2"' . ( $type === 'v2' ? ' checked' : '' ) . '> ' . esc_html__( 'v2 checkbox', 'canvasly-lite' ) . '</label><br>';
-		echo '<label><input type="radio" name="recaptcha_type" value="v3"' . ( $type === 'v3' ? ' checked' : '' ) . '> ' . esc_html__( 'v3 invisible', 'canvasly-lite' ) . '</label>';
+		echo '<label><input type="radio" name="recaptcha_type" value="v2"' . ( $type === 'v2' ? ' checked' : '' ) . '> ' . esc_html__( 'v2 checkbox', 'sidcraft-syntex' ) . '</label><br>';
+		echo '<label><input type="radio" name="recaptcha_type" value="v3"' . ( $type === 'v3' ? ' checked' : '' ) . '> ' . esc_html__( 'v3 invisible', 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr>';
-		echo '<tr><th><label for="lb-recaptcha-site">' . esc_html__( 'reCAPTCHA site key', 'canvasly-lite' ) . '</label></th><td>';
+		echo '<tr><th><label for="lb-recaptcha-site">' . esc_html__( 'reCAPTCHA site key', 'sidcraft-syntex' ) . '</label></th><td>';
 		echo '<input class="regular-text code" id="lb-recaptcha-site" name="recaptcha_site_key" type="text" value="' . esc_attr( (string) ( $d['recaptcha_site_key'] ?? '' ) ) . '" autocomplete="off">';
 		echo '</td></tr>';
-		echo '<tr><th><label for="lb-recaptcha-secret">' . esc_html__( 'reCAPTCHA secret key', 'canvasly-lite' ) . '</label></th><td>';
+		echo '<tr><th><label for="lb-recaptcha-secret">' . esc_html__( 'reCAPTCHA secret key', 'sidcraft-syntex' ) . '</label></th><td>';
 		$secret = (string) ( $d['recaptcha_secret_key'] ?? '' );
 		echo '<input class="regular-text code" id="lb-recaptcha-secret" name="recaptcha_secret_key" type="password" value="' . esc_attr( $secret !== '' ? self::SECRET_MASK : '' ) . '" autocomplete="new-password">';
-		echo '<p class="description">' . esc_html__( 'Leave the masked value unchanged to keep the stored secret. Enable Form reCAPTCHA under Features, then set both keys.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Leave the masked value unchanged to keep the stored secret. Enable Form reCAPTCHA under Features, then set both keys.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr></tbody></table>';
 		/**
 		 * Extra integration sections inside the Integrations form (Cloudflare Turnstile, add-ons).
 		 *
 		 * @param array $d Global settings.
 		 */
-		do_action( 'canvasly-lite/settings/integrations', $d );
+		do_action( 'sidcraft-syntex/settings/integrations', $d );
 	}
 
 	/**
@@ -922,35 +922,35 @@ class AdminSettings {
 		$method  = ( $d['css_print_method'] ?? 'external' ) === 'inline' ? 'inline' : 'external';
 		$display = (string) ( $d['font_display'] ?? 'swap' );
 		$labels  = array(
-			'auto'     => __( 'Auto', 'canvasly-lite' ),
-			'block'    => __( 'Block', 'canvasly-lite' ),
-			'swap'     => __( 'Swap (recommended)', 'canvasly-lite' ),
-			'fallback' => __( 'Fallback', 'canvasly-lite' ),
-			'optional' => __( 'Optional', 'canvasly-lite' ),
+			'auto'     => __( 'Auto', 'sidcraft-syntex' ),
+			'block'    => __( 'Block', 'sidcraft-syntex' ),
+			'swap'     => __( 'Swap (recommended)', 'sidcraft-syntex' ),
+			'fallback' => __( 'Fallback', 'sidcraft-syntex' ),
+			'optional' => __( 'Optional', 'sidcraft-syntex' ),
 		);
 		$loader  = ( $d['editor_loader_mode'] ?? 'default' ) === 'iframe' ? 'iframe' : 'default';
-		echo '<p class="description">' . esc_html__( 'How Canvasly delivers CSS and fonts, and how the editor is loaded in wp-admin.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'How Sidcraft Syntex delivers CSS and fonts, and how the editor is loaded in wp-admin.', 'sidcraft-syntex' ) . '</p>';
 		echo '<table class="form-table" role="presentation"><tbody>';
-		echo '<tr><th>' . esc_html__( 'CSS print method', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="radio" name="css_print_method" value="external"' . ( $method === 'external' ? ' checked' : '' ) . '> ' . esc_html__( 'External files', 'canvasly-lite' ) . '</label><br>';
-		echo '<label><input type="radio" name="css_print_method" value="inline"' . ( $method === 'inline' ? ' checked' : '' ) . '> ' . esc_html__( 'Internal embedding', 'canvasly-lite' ) . '</label>';
-		echo '<p class="description">' . esc_html__( 'External files are written to uploads/canvasly-lite/css with hash-based cache busting. Inline embeds the same minified CSS.', 'canvasly-lite' ) . '</p>';
+		echo '<tr><th>' . esc_html__( 'CSS print method', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="radio" name="css_print_method" value="external"' . ( $method === 'external' ? ' checked' : '' ) . '> ' . esc_html__( 'External files', 'sidcraft-syntex' ) . '</label><br>';
+		echo '<label><input type="radio" name="css_print_method" value="inline"' . ( $method === 'inline' ? ' checked' : '' ) . '> ' . esc_html__( 'Internal embedding', 'sidcraft-syntex' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'External files are written to uploads/sidcraft-syntex/css with hash-based cache busting. Inline embeds the same minified CSS.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr>';
-		echo '<tr><th><label for="lb-font-display">' . esc_html__( 'font-display', 'canvasly-lite' ) . '</label></th><td>';
+		echo '<tr><th><label for="lb-font-display">' . esc_html__( 'font-display', 'sidcraft-syntex' ) . '</label></th><td>';
 		echo '<select id="lb-font-display" name="font_display">';
 		foreach ( $labels as $k => $label ) {
 			echo '<option value="' . esc_attr( $k ) . '"' . ( $display === $k ? ' selected' : '' ) . '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'How text renders while a webfont loads. Swap is recommended.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'How text renders while a webfont loads. Swap is recommended.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Self-host Google Fonts', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="google_fonts_local" value="1"' . ( ! empty( $d['google_fonts_local'] ) ? ' checked' : '' ) . '> ' . esc_html__( 'Download used Google Fonts to this site and serve them locally.', 'canvasly-lite' ) . '</label>';
+		echo '<tr><th>' . esc_html__( 'Self-host Google Fonts', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="google_fonts_local" value="1"' . ( ! empty( $d['google_fonts_local'] ) ? ' checked' : '' ) . '> ' . esc_html__( 'Download used Google Fonts to this site and serve them locally.', 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Editor loader', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="radio" name="editor_loader_mode" value="default"' . ( $loader === 'default' ? ' checked' : '' ) . '> ' . esc_html__( 'Default', 'canvasly-lite' ) . '</label><br>';
-		echo '<label><input type="radio" name="editor_loader_mode" value="iframe"' . ( $loader === 'iframe' ? ' checked' : '' ) . '> ' . esc_html__( 'Iframe', 'canvasly-lite' ) . '</label>';
-		echo '<p class="description">' . esc_html__( 'Iframe mode loads the editor in an isolated frame so other admin CSS and scripts are less likely to conflict. Use this if the editor fails to open.', 'canvasly-lite' ) . '</p>';
+		echo '<tr><th>' . esc_html__( 'Editor loader', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="radio" name="editor_loader_mode" value="default"' . ( $loader === 'default' ? ' checked' : '' ) . '> ' . esc_html__( 'Default', 'sidcraft-syntex' ) . '</label><br>';
+		echo '<label><input type="radio" name="editor_loader_mode" value="iframe"' . ( $loader === 'iframe' ? ' checked' : '' ) . '> ' . esc_html__( 'Iframe', 'sidcraft-syntex' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'Iframe mode loads the editor in an isolated frame so other admin CSS and scripts are less likely to conflict. Use this if the editor fails to open.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr></tbody></table>';
 	}
 
@@ -958,13 +958,13 @@ class AdminSettings {
 		if ( ! class_exists( Fonts::class ) || ! Fonts::can_manage() ) {
 			return;
 		}
-		echo '<hr><h2>' . esc_html__( 'Download Google Fonts', 'canvasly-lite' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Fetch the font files currently used on this site into uploads/canvasly-lite/fonts. Enables self-hosting if it is not already on.', 'canvasly-lite' ) . '</p>';
+		echo '<hr><h2>' . esc_html__( 'Download Google Fonts', 'sidcraft-syntex' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Fetch the font files currently used on this site into uploads/sidcraft-syntex/fonts. Enables self-hosting if it is not already on.', 'sidcraft-syntex' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		wp_nonce_field( 'lb_fonts_download' );
-		echo '<input type="hidden" name="action" value="lb_fonts_download">';
+		wp_nonce_field( 'sidsyn_fonts_download' );
+		echo '<input type="hidden" name="action" value="sidsyn_fonts_download">';
 		self::echo_return_tab( 'advanced' );
-		echo '<p><button class="button" type="submit">' . esc_html__( 'Download Google Fonts', 'canvasly-lite' ) . '</button></p>';
+		echo '<p><button class="button" type="submit">' . esc_html__( 'Download Google Fonts', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form>';
 	}
 
@@ -977,19 +977,19 @@ class AdminSettings {
 		$hours = max( 1, (int) round( $ttl / ( defined( 'HOUR_IN_SECONDS' ) ? HOUR_IN_SECONDS : 3600 ) ) );
 		$lazy  = ! isset( $d['lazy_load'] ) || ! empty( $d['lazy_load'] );
 		$mark  = ! empty( $d['optimized_markup'] );
-		echo '<p class="description">' . esc_html__( 'Fragment cache stores rendered HTML for units that do not use dynamic tags. Lazy load defers background images below the first one and sets fetchpriority on the first image. Optimized markup removes the extra node wrapper when the widget already has a single root.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Fragment cache stores rendered HTML for units that do not use dynamic tags. Lazy load defers background images below the first one and sets fetchpriority on the first image. Optimized markup removes the extra node wrapper when the widget already has a single root.', 'sidcraft-syntex' ) . '</p>';
 		echo '<table class="form-table" role="presentation"><tbody>';
-		echo '<tr><th>' . esc_html__( 'Unit cache', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="unit_cache" value="1"' . ( $cache ? ' checked' : '' ) . '> ' . esc_html__( 'Cache HTML fragments for non-dynamic units.', 'canvasly-lite' ) . '</label>';
+		echo '<tr><th>' . esc_html__( 'Unit cache', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="unit_cache" value="1"' . ( $cache ? ' checked' : '' ) . '> ' . esc_html__( 'Cache HTML fragments for non-dynamic units.', 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr>';
-		echo '<tr><th><label for="lb-cache-ttl">' . esc_html__( 'Cache TTL (hours)', 'canvasly-lite' ) . '</label></th><td>';
+		echo '<tr><th><label for="lb-cache-ttl">' . esc_html__( 'Cache TTL (hours)', 'sidcraft-syntex' ) . '</label></th><td>';
 		echo '<input id="lb-cache-ttl" type="number" min="1" max="168" name="unit_cache_ttl" value="' . esc_attr( (string) $hours ) . '">';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Lazy load', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="lazy_load" value="1"' . ( $lazy ? ' checked' : '' ) . '> ' . esc_html__( 'Lazy-load background images below the first one, fetchpriority=high on the first image, loading=lazy after.', 'canvasly-lite' ) . '</label>';
+		echo '<tr><th>' . esc_html__( 'Lazy load', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="lazy_load" value="1"' . ( $lazy ? ' checked' : '' ) . '> ' . esc_html__( 'Lazy-load background images below the first one, fetchpriority=high on the first image, loading=lazy after.', 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Optimized markup', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="optimized_markup" value="1"' . ( $mark ? ' checked' : '' ) . '> ' . esc_html__( 'Remove the extra node wrapper on simple widgets when safe.', 'canvasly-lite' ) . '</label>';
+		echo '<tr><th>' . esc_html__( 'Optimized markup', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="optimized_markup" value="1"' . ( $mark ? ' checked' : '' ) . '> ' . esc_html__( 'Remove the extra node wrapper on simple widgets when safe.', 'sidcraft-syntex' ) . '</label>';
 		echo '</td></tr></tbody></table>';
 	}
 
@@ -998,10 +998,10 @@ class AdminSettings {
 			return;
 		}
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		wp_nonce_field( 'lb_optimize_flush' );
-		echo '<input type="hidden" name="action" value="lb_optimize_flush">';
+		wp_nonce_field( 'sidsyn_optimize_flush' );
+		echo '<input type="hidden" name="action" value="sidsyn_optimize_flush">';
 		self::echo_return_tab( 'performance' );
-		echo '<p><button class="button" type="submit">' . esc_html__( 'Flush unit cache', 'canvasly-lite' ) . '</button></p>';
+		echo '<p><button class="button" type="submit">' . esc_html__( 'Flush unit cache', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form>';
 	}
 
@@ -1009,24 +1009,24 @@ class AdminSettings {
 	 * @param array $d
 	 */
 	public static function render_tools( $d ) {
-		echo '<p class="description">' . esc_html__( "Operational tools. Regenerating CSS, replacing URLs and kit import/export use the same handlers as Canvasly \u{2192} Tools.", 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( "Operational tools. Regenerating CSS, replacing URLs and kit import/export use the same handlers as Sidcraft Syntex \u{2192} Tools.", 'sidcraft-syntex' ) . '</p>';
 
 		if ( class_exists( CssPrint::class ) && CssPrint::can_manage() ) {
-			$report = function_exists( 'get_transient' ) ? get_transient( 'canvasly_lite_css_report_' . get_current_user_id() ) : null;
-			echo '<h2>' . esc_html__( 'Regenerate CSS', 'canvasly-lite' ) . '</h2>';
-			echo '<p class="description">' . esc_html__( 'Rebuild the global stylesheet and every document CSS file. Use this after a migration, a breakpoint change, or if styles look stale.', 'canvasly-lite' ) . '</p>';
+			$report = function_exists( 'get_transient' ) ? get_transient( 'sidcraft_syntex_css_report_' . get_current_user_id() ) : null;
+			echo '<h2>' . esc_html__( 'Regenerate CSS', 'sidcraft-syntex' ) . '</h2>';
+			echo '<p class="description">' . esc_html__( 'Rebuild the global stylesheet and every document CSS file. Use this after a migration, a breakpoint change, or if styles look stale.', 'sidcraft-syntex' ) . '</p>';
 			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-			wp_nonce_field( 'lb_regenerate_css' );
-			echo '<input type="hidden" name="action" value="lb_regenerate_css">';
+			wp_nonce_field( 'sidsyn_regenerate_css' );
+			echo '<input type="hidden" name="action" value="sidsyn_regenerate_css">';
 			self::echo_return_tab( 'tools' );
-			echo '<p><button class="button button-primary" type="submit">' . esc_html__( 'Regenerate CSS', 'canvasly-lite' ) . '</button></p>';
+			echo '<p><button class="button button-primary" type="submit">' . esc_html__( 'Regenerate CSS', 'sidcraft-syntex' ) . '</button></p>';
 			echo '</form>';
 			if ( is_array( $report ) ) {
-				echo '<p><strong>' . esc_html__( 'Last regeneration', 'canvasly-lite' ) . '</strong> ';
+				echo '<p><strong>' . esc_html__( 'Last regeneration', 'sidcraft-syntex' ) . '</strong> ';
 				echo esc_html(
 					sprintf(
 						/* translators: 1: files written, 2: documents, 3: failures */
-						__( '%1$d files written, %2$d documents, %3$d failed.', 'canvasly-lite' ),
+						__( '%1$d files written, %2$d documents, %3$d failed.', 'sidcraft-syntex' ),
 						(int) ( $report['written'] ?? 0 ),
 						(int) ( $report['posts'] ?? 0 ),
 						(int) ( $report['failed'] ?? 0 )
@@ -1039,21 +1039,21 @@ class AdminSettings {
 		if ( class_exists( ReplaceUrl::class ) && ReplaceUrl::can_manage() ) {
 			echo '<hr>';
 			$report = function_exists( 'get_transient' ) ? get_transient( ReplaceUrl::REPORT . '_' . get_current_user_id() ) : null;
-			echo '<h2>' . esc_html__( 'Replace URL', 'canvasly-lite' ) . '</h2>';
-			echo '<p class="description">' . esc_html__( "Rewrite a site URL inside Canvasly documents and compiled CSS. The change cannot be undone \u{2014} run a dry run first.", 'canvasly-lite' ) . '</p>';
+			echo '<h2>' . esc_html__( 'Replace URL', 'sidcraft-syntex' ) . '</h2>';
+			echo '<p class="description">' . esc_html__( "Rewrite a site URL inside Sidcraft Syntex documents and compiled CSS. The change cannot be undone \u{2014} run a dry run first.", 'sidcraft-syntex' ) . '</p>';
 			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-			wp_nonce_field( 'lb_replace_url' );
-			echo '<input type="hidden" name="action" value="lb_replace_url">';
+			wp_nonce_field( 'sidsyn_replace_url' );
+			echo '<input type="hidden" name="action" value="sidsyn_replace_url">';
 			self::echo_return_tab( 'tools' );
 			echo '<table class="form-table"><tbody>';
-			echo '<tr><th><label for="lb-replace-from">' . esc_html__( 'Old URL', 'canvasly-lite' ) . '</label></th><td>';
+			echo '<tr><th><label for="lb-replace-from">' . esc_html__( 'Old URL', 'sidcraft-syntex' ) . '</label></th><td>';
 			echo '<input class="regular-text code" id="lb-replace-from" name="from" type="url" required placeholder="https://staging.example.com">';
 			echo '</td></tr>';
-			echo '<tr><th><label for="lb-replace-to">' . esc_html__( 'New URL', 'canvasly-lite' ) . '</label></th><td>';
+			echo '<tr><th><label for="lb-replace-to">' . esc_html__( 'New URL', 'sidcraft-syntex' ) . '</label></th><td>';
 			echo '<input class="regular-text code" id="lb-replace-to" name="to" type="url" required placeholder="https://www.example.com">';
 			echo '</td></tr></tbody></table>';
-			echo '<p><button class="button" type="submit" name="mode" value="preview">' . esc_html__( 'Dry run', 'canvasly-lite' ) . '</button> ';
-			echo '<button class="button button-primary" type="submit" name="mode" value="run">' . esc_html__( 'Replace URL', 'canvasly-lite' ) . '</button></p>';
+			echo '<p><button class="button" type="submit" name="mode" value="preview">' . esc_html__( 'Dry run', 'sidcraft-syntex' ) . '</button> ';
+			echo '<button class="button button-primary" type="submit" name="mode" value="run">' . esc_html__( 'Replace URL', 'sidcraft-syntex' ) . '</button></p>';
 			echo '</form>';
 			if ( is_array( $report ) && method_exists( ReplaceUrl::class, 'render_report' ) ) {
 				ReplaceUrl::render_report( $report );
@@ -1065,55 +1065,55 @@ class AdminSettings {
 			Kit::render_forms();
 		}
 
-		echo '<hr><h2>' . esc_html__( 'Maintenance mode', 'canvasly-lite' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Show a coming-soon or maintenance document to visitors. Roles listed below still see the live site. Maintenance uses HTTP 503; coming soon stays 200.', 'canvasly-lite' ) . '</p>';
+		echo '<hr><h2>' . esc_html__( 'Maintenance mode', 'sidcraft-syntex' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Show a coming-soon or maintenance document to visitors. Roles listed below still see the live site. Maintenance uses HTTP 503; coming soon stays 200.', 'sidcraft-syntex' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( self::url( 'tools' ) ) . '">';
 		wp_nonce_field( self::NONCE );
-		echo '<input type="hidden" name="lb_settings_tab" value="tools">';
+		echo '<input type="hidden" name="sidsyn_settings_tab" value="tools">';
 		$mode = (string) ( $d['maintenance_mode'] ?? 'off' );
 		echo '<table class="form-table" role="presentation"><tbody>';
-		echo '<tr><th>' . esc_html__( 'Mode', 'canvasly-lite' ) . '</th><td>';
-		foreach ( array( 'off' => __( 'Disabled', 'canvasly-lite' ), 'coming_soon' => __( 'Coming soon', 'canvasly-lite' ), 'maintenance' => __( 'Maintenance', 'canvasly-lite' ) ) as $k => $label ) {
+		echo '<tr><th>' . esc_html__( 'Mode', 'sidcraft-syntex' ) . '</th><td>';
+		foreach ( array( 'off' => __( 'Disabled', 'sidcraft-syntex' ), 'coming_soon' => __( 'Coming soon', 'sidcraft-syntex' ), 'maintenance' => __( 'Maintenance', 'sidcraft-syntex' ) ) as $k => $label ) {
 			echo '<label class="lb-settings-check"><input type="radio" name="maintenance_mode" value="' . esc_attr( $k ) . '"' . ( $mode === $k ? ' checked' : '' ) . '> ' . esc_html( $label ) . '</label>';
 		}
 		echo '</td></tr>';
-		echo '<tr><th><label for="lb-maint-tpl">' . esc_html__( 'Template', 'canvasly-lite' ) . '</label></th><td>';
+		echo '<tr><th><label for="lb-maint-tpl">' . esc_html__( 'Template', 'sidcraft-syntex' ) . '</label></th><td>';
 		echo '<select id="lb-maint-tpl" name="maintenance_template">';
-		echo '<option value="0">' . esc_html__( "\u{2014} None \u{2014}", 'canvasly-lite' ) . '</option>';
+		echo '<option value="0">' . esc_html__( "\u{2014} None \u{2014}", 'sidcraft-syntex' ) . '</option>';
 		foreach ( self::template_choices() as $id => $title ) {
 			echo '<option value="' . esc_attr( (string) $id ) . '"' . ( absint( $d['maintenance_template'] ?? 0 ) === (int) $id ? ' selected' : '' ) . '>' . esc_html( $title ) . '</option>';
 		}
 		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'A saved Canvasly template shown to visitors while the mode is on. Leave empty for a built-in fallback page.', 'canvasly-lite' ) . '</p>';
-		if ( class_exists( '\\CanvaslyLite\\Ops\\Maintenance' ) ) {
-			echo '<p><a class="button" href="' . esc_url( \CanvaslyLite\Ops\Maintenance::preview_url() ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Preview', 'canvasly-lite' ) . '</a></p>';
+		echo '<p class="description">' . esc_html__( 'A saved Sidcraft Syntex template shown to visitors while the mode is on. Leave empty for a built-in fallback page.', 'sidcraft-syntex' ) . '</p>';
+		if ( class_exists( '\\SidcraftSyntex\\Ops\\Maintenance' ) ) {
+			echo '<p><a class="button" href="' . esc_url( \SidcraftSyntex\Ops\Maintenance::preview_url() ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Preview', 'sidcraft-syntex' ) . '</a></p>';
 		}
 		echo '</td></tr>';
-		echo '<tr><th>' . esc_html__( 'Exclude roles', 'canvasly-lite' ) . '</th><td><fieldset>';
+		echo '<tr><th>' . esc_html__( 'Exclude roles', 'sidcraft-syntex' ) . '</th><td><fieldset>';
 		$selected = is_array( $d['maintenance_exclude_roles'] ?? null ) ? $d['maintenance_exclude_roles'] : array( 'administrator' );
 		foreach ( self::role_choices() as $slug => $label ) {
 			echo '<label class="lb-settings-check"><input type="checkbox" name="maintenance_exclude_roles[]" value="' . esc_attr( $slug ) . '"' . ( in_array( $slug, $selected, true ) ? ' checked' : '' ) . '> ' . esc_html( $label ) . '</label>';
 		}
 		echo '</fieldset></td></tr>';
-		echo '<tr><th>' . esc_html__( 'Safe mode', 'canvasly-lite' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="safe_mode" value="1"' . ( self::safe_mode() ? ' checked' : '' ) . '> ' . esc_html__( 'Load the editor in Safe Mode for my account', 'canvasly-lite' ) . '</label>';
-		echo '<p class="description">' . esc_html__( 'Safe Mode is stored per user. It loads the editor without other plugins and the theme, so you can recover a broken session.', 'canvasly-lite' ) . '</p>';
+		echo '<tr><th>' . esc_html__( 'Safe mode', 'sidcraft-syntex' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="safe_mode" value="1"' . ( self::safe_mode() ? ' checked' : '' ) . '> ' . esc_html__( 'Load the editor in Safe Mode for my account', 'sidcraft-syntex' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'Safe Mode is stored per user. It loads the editor without other plugins and the theme, so you can recover a broken session.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr>';
-		echo '<tr><th><label for="lb-rollback-keep">' . esc_html__( 'Rollback versions to keep', 'canvasly-lite' ) . '</label></th><td>';
+		echo '<tr><th><label for="lb-rollback-keep">' . esc_html__( 'Rollback versions to keep', 'sidcraft-syntex' ) . '</label></th><td>';
 		echo '<input id="lb-rollback-keep" type="number" min="1" max="10" name="rollback_keep" value="' . esc_attr( (string) ( $d['rollback_keep'] ?? 3 ) ) . '">';
-		echo '<p class="description">' . esc_html__( 'How many previous plugin ZIPs to retain under uploads/canvasly-lite/rollback.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'How many previous plugin ZIPs to retain under uploads/sidcraft-syntex/rollback.', 'sidcraft-syntex' ) . '</p>';
 		echo '</td></tr></tbody></table>';
-		echo '<p class="submit"><button type="submit" class="button button-primary" name="lb_save_settings" value="1">' . esc_html__( 'Save tool settings', 'canvasly-lite' ) . '</button></p>';
+		echo '<p class="submit"><button type="submit" class="button button-primary" name="sidsyn_save_settings" value="1">' . esc_html__( 'Save tool settings', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form>';
 
-		if ( class_exists( '\\CanvaslyLite\\Ops\\Rollback' ) ) {
-			\CanvaslyLite\Ops\Rollback::tools_screen();
+		if ( class_exists( '\\SidcraftSyntex\\Ops\\Rollback' ) ) {
+			\SidcraftSyntex\Ops\Rollback::tools_screen();
 		}
-		if ( class_exists( '\\CanvaslyLite\\Ops\\SystemInfo' ) ) {
-			\CanvaslyLite\Ops\SystemInfo::tools_screen();
+		if ( class_exists( '\\SidcraftSyntex\\Ops\\SystemInfo' ) ) {
+			\SidcraftSyntex\Ops\SystemInfo::tools_screen();
 		}
-		if ( class_exists( '\\CanvaslyLite\\Upgrade\\Upgrades' ) ) {
-			\CanvaslyLite\Upgrade\Upgrades::tools_screen();
+		if ( class_exists( '\\SidcraftSyntex\\Upgrade\\Upgrades' ) ) {
+			\SidcraftSyntex\Upgrade\Upgrades::tools_screen();
 		}
 	}
 
@@ -1122,15 +1122,15 @@ class AdminSettings {
 	 */
 	public static function render_features( $d ) {
 		$rows = class_exists( Experiments::class ) ? Experiments::all( $d['experiments'] ?? array() ) : array();
-		echo '<p class="description">' . esc_html__( 'Experiments ship with an alpha, beta or stable flag. Stable features default on; alpha and beta default off until you activate them.', 'canvasly-lite' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Experiments ship with an alpha, beta or stable flag. Stable features default on; alpha and beta default off until you activate them.', 'sidcraft-syntex' ) . '</p>';
 		if ( ! $rows ) {
-			echo '<p>' . esc_html__( 'No experiments are registered.', 'canvasly-lite' ) . '</p>';
+			echo '<p>' . esc_html__( 'No experiments are registered.', 'sidcraft-syntex' ) . '</p>';
 			return;
 		}
 		echo '<table class="widefat striped lb-experiments"><thead><tr>';
-		echo '<th>' . esc_html__( 'Feature', 'canvasly-lite' ) . '</th>';
-		echo '<th>' . esc_html__( 'Status', 'canvasly-lite' ) . '</th>';
-		echo '<th>' . esc_html__( 'State', 'canvasly-lite' ) . '</th>';
+		echo '<th>' . esc_html__( 'Feature', 'sidcraft-syntex' ) . '</th>';
+		echo '<th>' . esc_html__( 'Status', 'sidcraft-syntex' ) . '</th>';
+		echo '<th>' . esc_html__( 'State', 'sidcraft-syntex' ) . '</th>';
 		echo '</tr></thead><tbody>';
 		foreach ( $rows as $row ) {
 			$id     = $row['id'];
@@ -1144,8 +1144,8 @@ class AdminSettings {
 			echo '</td>';
 			echo '<td><span class="lb-exp-badge lb-exp-' . esc_attr( $status ) . '">' . esc_html( Experiments::status_label( $status ) ) . '</span></td>';
 			echo '<td><select name="experiments[' . esc_attr( $id ) . ']">';
-			echo '<option value="active"' . ( $state === 'active' ? ' selected' : '' ) . '>' . esc_html__( 'Active', 'canvasly-lite' ) . '</option>';
-			echo '<option value="inactive"' . ( $state === 'inactive' ? ' selected' : '' ) . '>' . esc_html__( 'Inactive', 'canvasly-lite' ) . '</option>';
+			echo '<option value="active"' . ( $state === 'active' ? ' selected' : '' ) . '>' . esc_html__( 'Active', 'sidcraft-syntex' ) . '</option>';
+			echo '<option value="inactive"' . ( $state === 'inactive' ? ' selected' : '' ) . '>' . esc_html__( 'Inactive', 'sidcraft-syntex' ) . '</option>';
 			echo '</select></td>';
 			echo '</tr>';
 		}
@@ -1160,7 +1160,7 @@ class AdminSettings {
 		if ( $tab === '' ) {
 			return;
 		}
-		echo '<input type="hidden" name="lb_settings_tab" value="' . esc_attr( $tab ) . '">';
+		echo '<input type="hidden" name="sidsyn_settings_tab" value="' . esc_attr( $tab ) . '">';
 	}
 
 	/**
@@ -1172,7 +1172,7 @@ class AdminSettings {
 		}
 		$posts = get_posts(
 			array(
-				'post_type'      => 'lb_template',
+				'post_type'      => 'sidsyn_template',
 				'post_status'    => array( 'publish', 'draft', 'private' ),
 				'posts_per_page' => 80,
 				'orderby'        => 'title',
@@ -1207,11 +1207,11 @@ class AdminSettings {
 			}
 		}
 		return array(
-			'administrator' => __( 'Administrator', 'canvasly-lite' ),
-			'editor'        => __( 'Editor', 'canvasly-lite' ),
-			'author'        => __( 'Author', 'canvasly-lite' ),
-			'contributor'   => __( 'Contributor', 'canvasly-lite' ),
-			'subscriber'    => __( 'Subscriber', 'canvasly-lite' ),
+			'administrator' => __( 'Administrator', 'sidcraft-syntex' ),
+			'editor'        => __( 'Editor', 'sidcraft-syntex' ),
+			'author'        => __( 'Author', 'sidcraft-syntex' ),
+			'contributor'   => __( 'Contributor', 'sidcraft-syntex' ),
+			'subscriber'    => __( 'Subscriber', 'sidcraft-syntex' ),
 		);
 	}
 
@@ -1219,9 +1219,9 @@ class AdminSettings {
 	 * @return array<int,array{name:string,size:int}>
 	 */
 	public static function rollback_versions() {
-		if ( class_exists( '\\CanvaslyLite\\Ops\\Rollback' ) ) {
+		if ( class_exists( '\\SidcraftSyntex\\Ops\\Rollback' ) ) {
 			$list = array();
-			foreach ( \CanvaslyLite\Ops\Rollback::versions() as $row ) {
+			foreach ( \SidcraftSyntex\Ops\Rollback::versions() as $row ) {
 				$list[] = array(
 					'name' => (string) ( $row['name'] ?? '' ),
 					'size' => (int) ( $row['size'] ?? 0 ),
@@ -1258,7 +1258,7 @@ class AdminSettings {
 		if ( ! empty( $up['error'] ) || empty( $up['basedir'] ) ) {
 			return '';
 		}
-		return trailingslashit( $up['basedir'] ) . 'canvasly-lite/rollback';
+		return trailingslashit( $up['basedir'] ) . 'sidcraft-syntex/rollback';
 	}
 
 	/**

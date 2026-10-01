@@ -1,7 +1,7 @@
 <?php
-namespace CanvaslyLite\Ops;
+namespace SidcraftSyntex\Ops;
 
-use CanvaslyLite\Settings\AdminSettings;
+use SidcraftSyntex\Settings\AdminSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -15,29 +15,29 @@ if ( ! defined( 'ABSPATH' ) ) {
  * rest of the site stays unchanged.
  */
 class SafeMode {
-	const COOKIE    = 'lb_safe_mode';
-	const TOKEN     = 'canvasly_lite_safe_mode_token';
-	const BOOT      = 'canvasly_lite_safe_mode_boot';
-	const MU_FILE   = 'canvasly-lite-safe-mode.php';
-	const NOTICE    = 'canvasly_lite_safe_mode_notice';
+	const COOKIE    = 'sidsyn_safe_mode';
+	const TOKEN     = 'sidcraft_syntex_safe_mode_token';
+	const BOOT      = 'sidcraft_syntex_safe_mode_boot';
+	const MU_FILE   = 'sidcraft-syntex-safe-mode.php';
+	const NOTICE    = 'sidcraft_syntex_safe_mode_notice';
 	const THEME     = 'lb-safe';
 
 	public static function init() {
 		self::load_loader();
 		add_action( 'init', array( self::class, 'refresh_cookie' ), 1 );
 		add_action( 'init', array( self::class, 'maybe_reinstall' ), 2 );
-		add_action( 'admin_post_lb_safe_mode_exit', array( self::class, 'handle_exit' ) );
-		add_action( 'admin_post_lb_safe_mode_enter', array( self::class, 'handle_enter' ) );
+		add_action( 'admin_post_sidsyn_safe_mode_exit', array( self::class, 'handle_exit' ) );
+		add_action( 'admin_post_sidsyn_safe_mode_enter', array( self::class, 'handle_enter' ) );
 		add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
 		add_action( 'admin_bar_menu', array( self::class, 'admin_bar' ), 81 );
-		add_action( 'canvasly-lite/tools/screen', array( self::class, 'tools_screen' ), 22 );
-		add_action( 'canvasly-lite/rest/register_routes', array( self::class, 'routes' ) );
-		add_filter( 'canvasly-lite/editor/localize_data', array( self::class, 'localize' ), 10, 2 );
+		add_action( 'sidcraft-syntex/tools/screen', array( self::class, 'tools_screen' ), 22 );
+		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
+		add_filter( 'sidcraft-syntex/editor/localize_data', array( self::class, 'localize' ), 10, 2 );
 		add_filter( 'admin_body_class', array( self::class, 'admin_body_class' ) );
 	}
 
 	public static function load_loader() {
-		$file = CANVASLY_LITE_PATH . 'includes/ops/safe-mode-loader.php';
+		$file = SIDCRAFT_SYNTEX_PATH . 'includes/ops/safe-mode-loader.php';
 		if ( is_readable( $file ) ) {
 			require_once $file;
 		}
@@ -69,7 +69,7 @@ class SafeMode {
 	 */
 	public static function active() {
 		self::load_loader();
-		return function_exists( 'canvasly_lite_safe_mode_applies' ) && canvasly_lite_safe_mode_applies();
+		return function_exists( 'sidcraft_syntex_safe_mode_applies' ) && sidcraft_syntex_safe_mode_applies();
 	}
 
 	/**
@@ -80,9 +80,9 @@ class SafeMode {
 	public static function set( $on, $user_id = 0 ) {
 		$user_id = $user_id ? absint( $user_id ) : ( function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0 );
 		if ( ! $user_id ) {
-			return new \WP_Error( 'no_user', __( 'Safe Mode needs a logged-in user.', 'canvasly-lite' ) );
+			return new \WP_Error( 'no_user', __( 'Safe Mode needs a logged-in user.', 'sidcraft-syntex' ) );
 		}
-		$meta = class_exists( AdminSettings::class ) ? AdminSettings::SAFE_META : 'canvasly_lite_safe_mode';
+		$meta = class_exists( AdminSettings::class ) ? AdminSettings::SAFE_META : 'sidcraft_syntex_safe_mode';
 		if ( $on ) {
 			update_user_meta( $user_id, $meta, '1' );
 			$token = self::token_for( $user_id, true );
@@ -136,7 +136,7 @@ class SafeMode {
 	}
 
 	public static function maybe_reinstall() {
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) && ! \CanvaslyLite\Admin\AdminContext::allows_background() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::allows_background() ) {
 			return;
 		}
 		if ( ! self::enabled() || ! self::can_manage() ) {
@@ -199,14 +199,14 @@ class SafeMode {
 	 * @return array
 	 */
 	public static function boot_payload() {
-		$plugin = function_exists( 'plugin_basename' ) && defined( 'CANVASLY_LITE_FILE' )
-			? plugin_basename( CANVASLY_LITE_FILE )
-			: 'canvasly-lite/canvasly-lite.php';
+		$plugin = function_exists( 'plugin_basename' ) && defined( 'SIDCRAFT_SYNTEX_FILE' )
+			? plugin_basename( SIDCRAFT_SYNTEX_FILE )
+			: 'sidcraft-syntex/sidcraft-syntex.php';
 		return array(
 			'plugin'     => $plugin,
 			'theme'      => self::THEME,
-			'theme_root' => CANVASLY_LITE_PATH . 'includes/ops/themes',
-			'loader'     => CANVASLY_LITE_PATH . 'includes/ops/safe-mode-loader.php',
+			'theme_root' => SIDCRAFT_SYNTEX_PATH . 'includes/ops/themes',
+			'loader'     => SIDCRAFT_SYNTEX_PATH . 'includes/ops/safe-mode-loader.php',
 		);
 	}
 
@@ -219,7 +219,7 @@ class SafeMode {
 		if ( $dir === '' ) {
 			return new \WP_Error(
 				'safe_mode_mu',
-				__( 'Could not locate the must-use plugins directory.', 'canvasly-lite' )
+				__( 'Could not locate the must-use plugins directory.', 'sidcraft-syntex' )
 			);
 		}
 		if ( ! is_dir( $dir ) ) {
@@ -229,10 +229,10 @@ class SafeMode {
 				wp_mkdir_p( $dir );
 			}
 		}
-		$src  = CANVASLY_LITE_PATH . 'includes/ops/mu-plugin.php';
+		$src  = SIDCRAFT_SYNTEX_PATH . 'includes/ops/mu-plugin.php';
 		$dest = self::mu_path();
 		if ( ! is_readable( $src ) ) {
-			return new \WP_Error( 'safe_mode_mu', __( 'The Safe Mode loader file is missing.', 'canvasly-lite' ) );
+			return new \WP_Error( 'safe_mode_mu', __( 'The Safe Mode loader file is missing.', 'sidcraft-syntex' ) );
 		}
 		if ( function_exists( 'copy' ) && @copy( $src, $dest ) ) {
 			return true;
@@ -241,7 +241,7 @@ class SafeMode {
 		if ( $data === false || file_put_contents( $dest, $data ) === false ) {
 			return new \WP_Error(
 				'safe_mode_mu',
-				__( 'Could not write the Safe Mode must-use plugin. Allow writes to wp-content/mu-plugins.', 'canvasly-lite' )
+				__( 'Could not write the Safe Mode must-use plugin. Allow writes to wp-content/mu-plugins.', 'sidcraft-syntex' )
 			);
 		}
 		return true;
@@ -294,7 +294,7 @@ class SafeMode {
 		$users = get_users(
 			array(
 				// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Detect whether any user has Safe Mode enabled.
-				'meta_key'   => class_exists( AdminSettings::class ) ? AdminSettings::SAFE_META : 'canvasly_lite_safe_mode',
+				'meta_key'   => class_exists( AdminSettings::class ) ? AdminSettings::SAFE_META : 'sidcraft_syntex_safe_mode',
 				'meta_value' => '1',
 				// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				'number'     => 1,
@@ -308,33 +308,33 @@ class SafeMode {
 	 * @return string
 	 */
 	public static function exit_url() {
-		return wp_nonce_url( admin_url( 'admin-post.php?action=lb_safe_mode_exit' ), 'lb_safe_mode_exit' );
+		return wp_nonce_url( admin_url( 'admin-post.php?action=sidsyn_safe_mode_exit' ), 'sidsyn_safe_mode_exit' );
 	}
 
 	/**
 	 * @return string
 	 */
 	public static function enter_url() {
-		return wp_nonce_url( admin_url( 'admin-post.php?action=lb_safe_mode_enter' ), 'lb_safe_mode_enter' );
+		return wp_nonce_url( admin_url( 'admin-post.php?action=sidsyn_safe_mode_enter' ), 'sidsyn_safe_mode_enter' );
 	}
 
 	public static function handle_exit() {
-		check_admin_referer( 'lb_safe_mode_exit' );
+		check_admin_referer( 'sidsyn_safe_mode_exit' );
 		self::set( false );
-		self::store_notice( 'updated', __( 'Safe Mode is off. Other plugins and the theme will load again on the next request.', 'canvasly-lite' ) );
+		self::store_notice( 'updated', __( 'Safe Mode is off. Other plugins and the theme will load again on the next request.', 'sidcraft-syntex' ) );
 		self::redirect_back();
 	}
 
 	public static function handle_enter() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can enable Safe Mode.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can enable Safe Mode.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_safe_mode_enter' );
+		check_admin_referer( 'sidsyn_safe_mode_enter' );
 		$result = self::set( true );
 		if ( is_wp_error( $result ) ) {
 			self::store_notice( 'error', $result->get_error_message() );
 		} else {
-			self::store_notice( 'updated', __( 'Safe Mode is on for your account. Reload the editor to load it without other plugins or the theme.', 'canvasly-lite' ) );
+			self::store_notice( 'updated', __( 'Safe Mode is on for your account. Reload the editor to load it without other plugins or the theme.', 'sidcraft-syntex' ) );
 		}
 		self::redirect_back();
 	}
@@ -342,7 +342,7 @@ class SafeMode {
 	private static function redirect_back() {
 		$ref = wp_get_referer();
 		if ( ! $ref ) {
-			$ref = class_exists( AdminSettings::class ) ? AdminSettings::url( 'tools' ) : admin_url( 'admin.php?page=canvasly-lite-tools' );
+			$ref = class_exists( AdminSettings::class ) ? AdminSettings::url( 'tools' ) : admin_url( 'admin.php?page=sidcraft-syntex-tools' );
 		}
 		wp_safe_redirect( $ref );
 		exit;
@@ -385,12 +385,12 @@ class SafeMode {
 		}
 		$bar->add_node(
 			array(
-				'id'    => 'canvasly-lite-safe-mode',
-				'title' => __( 'Safe Mode is on', 'canvasly-lite' ),
+				'id'    => 'sidcraft-syntex-safe-mode',
+				'title' => __( 'Safe Mode is on', 'sidcraft-syntex' ),
 				'href'  => self::exit_url(),
 				'meta'  => array(
 					'class' => 'lb-ab-safe-mode',
-					'title' => __( 'Exit Safe Mode', 'canvasly-lite' ),
+					'title' => __( 'Exit Safe Mode', 'sidcraft-syntex' ),
 				),
 			)
 		);
@@ -402,15 +402,15 @@ class SafeMode {
 		}
 		$active = self::active() || self::mu_installed();
 		echo '<div class="lb-safe-mode-banner" role="status">';
-		echo '<strong>' . esc_html__( 'Safe Mode', 'canvasly-lite' ) . '</strong> ';
+		echo '<strong>' . esc_html__( 'Safe Mode', 'sidcraft-syntex' ) . '</strong> ';
 		if ( $active && self::mu_installed() ) {
-			echo esc_html__( 'Other plugins and the theme are disabled for this editor session.', 'canvasly-lite' );
+			echo esc_html__( 'Other plugins and the theme are disabled for this editor session.', 'sidcraft-syntex' );
 		} elseif ( ! self::mu_installed() ) {
-			echo esc_html__( 'Safe Mode is flagged on your account, but the must-use plugin could not be written. Check writes to wp-content/mu-plugins.', 'canvasly-lite' );
+			echo esc_html__( 'Safe Mode is flagged on your account, but the must-use plugin could not be written. Check writes to wp-content/mu-plugins.', 'sidcraft-syntex' );
 		} else {
-			echo esc_html__( 'Safe Mode is on for your account. Reload the editor to isolate it from other plugins and the theme.', 'canvasly-lite' );
+			echo esc_html__( 'Safe Mode is on for your account. Reload the editor to isolate it from other plugins and the theme.', 'sidcraft-syntex' );
 		}
-		echo ' <a class="button button-small" href="' . esc_url( self::exit_url() ) . '">' . esc_html__( 'Exit Safe Mode', 'canvasly-lite' ) . '</a>';
+		echo ' <a class="button button-small" href="' . esc_url( self::exit_url() ) . '">' . esc_html__( 'Exit Safe Mode', 'sidcraft-syntex' ) . '</a>';
 		echo '</div>';
 	}
 
@@ -418,16 +418,16 @@ class SafeMode {
 		if ( ! self::can_manage() ) {
 			return;
 		}
-		echo '<hr><h2>' . esc_html__( 'Safe Mode', 'canvasly-lite' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Load the Canvasly editor without other plugins and with a minimal theme, so a conflict cannot take the editor down. Safe Mode is stored per user.', 'canvasly-lite' ) . '</p>';
+		echo '<hr><h2>' . esc_html__( 'Safe Mode', 'sidcraft-syntex' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Load the Sidcraft Syntex editor without other plugins and with a minimal theme, so a conflict cannot take the editor down. Safe Mode is stored per user.', 'sidcraft-syntex' ) . '</p>';
 		if ( self::enabled() ) {
-			echo '<p><span class="lb-ops-status lb-ops-on">' . esc_html__( 'On for your account', 'canvasly-lite' ) . '</span></p>';
+			echo '<p><span class="lb-ops-status lb-ops-on">' . esc_html__( 'On for your account', 'sidcraft-syntex' ) . '</span></p>';
 			if ( ! self::mu_installed() ) {
-				echo '<p class="notice notice-warning inline"><span>' . esc_html__( 'The must-use plugin is not installed, so other plugins still load. Allow writes to wp-content/mu-plugins.', 'canvasly-lite' ) . '</span></p>';
+				echo '<p class="notice notice-warning inline"><span>' . esc_html__( 'The must-use plugin is not installed, so other plugins still load. Allow writes to wp-content/mu-plugins.', 'sidcraft-syntex' ) . '</span></p>';
 			}
-			echo '<p><a class="button" href="' . esc_url( self::exit_url() ) . '">' . esc_html__( 'Exit Safe Mode', 'canvasly-lite' ) . '</a></p>';
+			echo '<p><a class="button" href="' . esc_url( self::exit_url() ) . '">' . esc_html__( 'Exit Safe Mode', 'sidcraft-syntex' ) . '</a></p>';
 		} else {
-			echo '<p><a class="button" href="' . esc_url( self::enter_url() ) . '">' . esc_html__( 'Enter Safe Mode', 'canvasly-lite' ) . '</a></p>';
+			echo '<p><a class="button" href="' . esc_url( self::enter_url() ) . '">' . esc_html__( 'Enter Safe Mode', 'sidcraft-syntex' ) . '</a></p>';
 		}
 	}
 
@@ -435,7 +435,7 @@ class SafeMode {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'canvasly-lite/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
 		register_rest_route(
 			$ns,
 			'/safe-mode',
@@ -480,7 +480,7 @@ class SafeMode {
 	}
 
 	public static function admin_notice() {
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) && ! \CanvaslyLite\Admin\AdminContext::is_plugin_page() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::is_plugin_page() ) {
 			return;
 		}
 		$key  = self::NOTICE . '_' . get_current_user_id();

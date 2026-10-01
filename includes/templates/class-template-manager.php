@@ -1,3 +1,3 @@
 <?php
-namespace CanvaslyLite\Templates;
+namespace SidcraftSyntex\Templates;
 class TemplateManager { public static function init(){} }

@@ -13,7 +13,7 @@ var PREF_DEFAULTS = {
 };
 var EYEDROPPER_SVG =
   '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12.8 1.2a2.2 2.2 0 0 1 0 3.1L11.6 5.5l2 2-1.4 1.4-2-2-3.6 3.6.9.9-6.6 3.2 3.2-6.6.9.9 3.6-3.6-2-2 1.4-1.4 2 2 1.2-1.2a2.2 2.2 0 0 1 3.1 0z"/></svg>';
-var LOCAL_KEY = "canvasly-lite.preferences";
+var LOCAL_KEY = "sidcraft-syntex.preferences";
 function clampInt(v, min, max, fallback) {
   const n = Number(v);
   const x = Number.isFinite(n) ? n : fallback;

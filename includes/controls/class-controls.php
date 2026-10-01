@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Controls;
+namespace SidcraftSyntex\Controls;
 if(!defined('ABSPATH')) exit;
 /**
  * Control-type registry.
@@ -14,10 +14,10 @@ if(!defined('ABSPATH')) exit;
  *   $css_handler callable( mixed $value, string $selector, string $key, array $settings, array $node ): string
  *                returns full CSS rules (selector included) or ''. Optional.
  *   $args        ['label' => string, 'default' => mixed, 'editor' => array]  - 'editor' is passed to
- *                CanvaslyLiteData.controlTypes[type].editor so the JS renderer can read options.
+ *                SidcraftSyntexData.controlTypes[type].editor so the JS renderer can read options.
  *
  * Fire order: Plugin::register_units() boots this registry on `init`, which fires
- * `canvasly-lite/controls/register` before `canvasly-lite/units/register`.
+ * `sidcraft-syntex/controls/register` before `sidcraft-syntex/units/register`.
  */
 class Controls {
  const BUILTIN=['text','textarea','wysiwyg','url','number','slider','color','switch','select','choose','icon','media','gallery','spacing','dimensions','box_shadow','gradient','repeater','url_map','number_map','typography','border','background','text_shadow','css_filter','transform','transition','gaps','code','font'];
@@ -32,7 +32,7 @@ class Controls {
  public function boot(){
   if($this->booted) return $this;
   $this->booted=true;
-  do_action('canvasly-lite/controls/register',$this);
+  do_action('sidcraft-syntex/controls/register',$this);
   return $this;
  }
  public function register($type,$sanitizer=null,$css_handler=null,array $args=[]){

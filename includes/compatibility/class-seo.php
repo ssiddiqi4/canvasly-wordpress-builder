@@ -1,15 +1,15 @@
 <?php
-namespace CanvaslyLite\Compatibility;
+namespace SidcraftSyntex\Compatibility;
 
-use CanvaslyLite\Document\DocumentManager;
-use CanvaslyLite\Rendering\FrontendRenderer;
+use SidcraftSyntex\Document\DocumentManager;
+use SidcraftSyntex\Rendering\FrontendRenderer;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Expose rendered Canvasly HTML to Yoast SEO and Rank Math analysis.
+ * Expose rendered Sidcraft Syntex HTML to Yoast SEO and Rank Math analysis.
  */
 class Seo {
 	private static $booted    = false;
@@ -49,7 +49,7 @@ class Seo {
 		 * @param int    $id
 		 * @param string $content Original post_content.
 		 */
-		$filtered = apply_filters( 'canvasly-lite/seo/content', $html, $id, (string) $content );
+		$filtered = apply_filters( 'sidcraft-syntex/seo/content', $html, $id, (string) $content );
 		return is_string( $filtered ) ? $filtered : $html;
 	}
 
@@ -103,7 +103,7 @@ class Seo {
 		if ( ! $post_id || self::$rendering ) {
 			return '';
 		}
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) && \CanvaslyLite\Admin\AdminContext::is_autosave() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && \SidcraftSyntex\Admin\AdminContext::is_autosave() ) {
 			return '';
 		}
 		if ( isset( self::$html[ $post_id ] ) ) {
@@ -159,7 +159,7 @@ class Seo {
 		 * @param string[] $urls
 		 * @param int      $post_id
 		 */
-		$filtered = apply_filters( 'canvasly-lite/seo/images', array_values( array_unique( $urls ) ), $post_id );
+		$filtered = apply_filters( 'sidcraft-syntex/seo/images', array_values( array_unique( $urls ) ), $post_id );
 		return is_array( $filtered ) ? array_values( array_filter( array_map( 'strval', $filtered ) ) ) : array_values( array_unique( $urls ) );
 	}
 

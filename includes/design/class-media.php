@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Design;
+namespace SidcraftSyntex\Design;
 if(!defined('ABSPATH')) exit;
 class Media {
  public static function attachment($id,$size='full'){

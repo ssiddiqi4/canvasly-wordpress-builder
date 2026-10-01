@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Document;
+namespace SidcraftSyntex\Document;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -25,8 +25,8 @@ class DevMode {
 	 * @return bool
 	 */
 	public static function enabled() {
-		if ( defined( 'CANVASLY_LITE_DEV_MODE' ) ) {
-			$on = (bool) CANVASLY_LITE_DEV_MODE;
+		if ( defined( 'SIDCRAFT_SYNTEX_DEV_MODE' ) ) {
+			$on = (bool) SIDCRAFT_SYNTEX_DEV_MODE;
 		} else {
 			$on = ( defined( 'WP_DEBUG' ) && WP_DEBUG );
 			if ( ! $on && function_exists( 'wp_get_environment_type' ) ) {
@@ -34,7 +34,7 @@ class DevMode {
 			}
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'canvasly-lite/dev-mode/enabled', $on );
+			$filtered = apply_filters( 'sidcraft-syntex/dev-mode/enabled', $on );
 			if ( is_bool( $filtered ) || is_int( $filtered ) || is_string( $filtered ) ) {
 				$on = (bool) $filtered;
 			}
@@ -152,7 +152,7 @@ class DevMode {
 	 * Post excerpt without running `the_content`.
 	 *
 	 * WordPress `get_the_excerpt()` falls back to `wp_trim_excerpt()`, which
-	 * applies `the_content`. On a Canvasly page that re-enters the frontend
+	 * applies `the_content`. On a Sidcraft Syntex page that re-enters the frontend
 	 * renderer and exhausts memory while compiling CSS.
 	 *
 	 * @param int $post_id
@@ -472,7 +472,7 @@ class DevMode {
 			$out['date']   = (string) get_post_field( 'post_date', $post_id );
 		}
 		// Never apply `the_content` here: this map is built from inside that filter
-		// while compiling CSS / rendering a Canvasly document.
+		// while compiling CSS / rendering a Sidcraft Syntex document.
 		if ( ! $for_canvas && ! self::enabled() && function_exists( 'get_post_field' ) ) {
 			$out['content'] = self::sanitize_html( (string) get_post_field( 'post_content', $post_id ) );
 		}

@@ -1,14 +1,14 @@
 <?php
 /**
- * Registry passed to `canvasly-lite/icons/register`.
+ * Registry passed to `sidcraft-syntex/icons/register`.
  *
  * Add-ons call register() with an icon array (`id`, `title`, `svg`). The same
  * SVG allow-list as IconLibrary::save() is applied here.
  *
- * @package CanvaslyLite
+ * @package SidcraftSyntex
  */
 
-namespace CanvaslyLite\Design;
+namespace SidcraftSyntex\Design;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

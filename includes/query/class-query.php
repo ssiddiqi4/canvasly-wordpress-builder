@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Query;
+namespace SidcraftSyntex\Query;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -28,7 +28,7 @@ class Query {
 			$result = self::run_posts( $settings, $page, $context_post_id );
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'canvasly-lite/query/results', $result, $settings, $page, $context_post_id );
+			$filtered = apply_filters( 'sidcraft-syntex/query/results', $result, $settings, $page, $context_post_id );
 			if ( is_array( $filtered ) ) {
 				$result = $filtered;
 			}
@@ -44,7 +44,7 @@ class Query {
 	/** Query arg used for this loop's numbered pagination. */
 	public static function page_key( $node_id ) {
 		$id = preg_replace( '/[^a-zA-Z0-9_-]/', '', (string) $node_id );
-		return $id !== '' ? 'lb_page_' . $id : 'lb_page';
+		return $id !== '' ? 'sidsyn_page_' . $id : 'sidsyn_page';
 	}
 
 	/** Current page from the request for a loop node. */
@@ -116,7 +116,7 @@ class Query {
 		$args = self::apply_request_tax( $args, $settings );
 
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'canvasly-lite/query/args', $args, $settings, $page, $context_post_id );
+			$filtered = apply_filters( 'sidcraft-syntex/query/args', $args, $settings, $page, $context_post_id );
 			if ( is_array( $filtered ) ) {
 				$args = $filtered;
 			}
@@ -160,7 +160,7 @@ class Query {
 			$args['exclude'] = $exclude;
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'canvasly-lite/query/term_args', $args, $settings );
+			$filtered = apply_filters( 'sidcraft-syntex/query/term_args', $args, $settings );
 			if ( is_array( $filtered ) ) {
 				$args = $filtered;
 			}
@@ -173,7 +173,7 @@ class Query {
 	 *
 	 * The loop REST route sets this from `taxonomy` and `terms`. It is not a
 	 * WP_Query argument. `posts_args()` turns it into `tax_query` before
-	 * `canvasly-lite/query/args` runs, so add-ons still see one query.
+	 * `sidcraft-syntex/query/args` runs, so add-ons still see one query.
 	 *
 	 * @param array  $settings
 	 * @param mixed  $taxonomy
@@ -186,8 +186,8 @@ class Query {
 		if ( '' === $taxonomy || '' === $terms ) {
 			return $settings;
 		}
-		$settings['lb_request_taxonomy'] = $taxonomy;
-		$settings['lb_request_terms']    = $terms;
+		$settings['sidsyn_request_taxonomy'] = $taxonomy;
+		$settings['sidsyn_request_terms']    = $terms;
 		return $settings;
 	}
 
@@ -287,8 +287,8 @@ class Query {
 	 * @return array
 	 */
 	private static function apply_request_tax( array $args, array $settings ) {
-		$tax = sanitize_key( (string) ( $settings['lb_request_taxonomy'] ?? '' ) );
-		$raw = trim( (string) ( $settings['lb_request_terms'] ?? '' ) );
+		$tax = sanitize_key( (string) ( $settings['sidsyn_request_taxonomy'] ?? '' ) );
+		$raw = trim( (string) ( $settings['sidsyn_request_terms'] ?? '' ) );
 		if ( '' === $tax || '' === $raw ) {
 			return $args;
 		}
@@ -503,8 +503,8 @@ class Query {
 		if ( $type === '' || $type === 'any' ) {
 			return $type === 'any' ? 'any' : 'post';
 		}
-		if ( class_exists( '\\CanvaslyLite\\Document\\Documents' ) ) {
-			$excluded = \CanvaslyLite\Document\Documents::excluded();
+		if ( class_exists( '\\SidcraftSyntex\\Document\\Documents' ) ) {
+			$excluded = \SidcraftSyntex\Document\Documents::excluded();
 			if ( in_array( $type, $excluded, true ) ) {
 				return 'post';
 			}

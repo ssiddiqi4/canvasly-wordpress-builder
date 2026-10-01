@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Units;
+namespace SidcraftSyntex\Units;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -36,7 +36,7 @@ class MenuAnchor extends Unit {
 	}
 
 	public function title() {
-		return __( 'Menu Anchor', 'canvasly-lite' );
+		return __( 'Menu Anchor', 'sidcraft-syntex' );
 	}
 
 	public function icon() {
@@ -47,9 +47,9 @@ class MenuAnchor extends Unit {
 		return array( 'menu', 'anchor', 'navigation', 'nav', 'header' );
 	}
 
-	const STYLE_HANDLE  = 'canvasly-lite-menu-anchor';
-	const SCRIPT_HANDLE = 'canvasly-lite-menu-anchor';
-	const SHORTCODE     = 'canvasly_anchor';
+	const STYLE_HANDLE  = 'sidcraft-syntex-menu-anchor';
+	const SCRIPT_HANDLE = 'sidcraft-syntex-menu-anchor';
+	const SHORTCODE     = 'sidcraft_syntex_anchor';
 
 	/**
 	 * Shortcode, menu injection, and asset registration.
@@ -71,17 +71,17 @@ class MenuAnchor extends Unit {
 	}
 
 	public function controls() {
-		$section = __( 'Menu Anchor', 'canvasly-lite' );
+		$section = __( 'Menu Anchor', 'sidcraft-syntex' );
 		return array(
 			'menu'   => 'select',
 			'anchor' => $this->ctrl(
 				'text',
-				__( 'Anchor ID', 'canvasly-lite' ),
+				__( 'Anchor ID', 'sidcraft-syntex' ),
 				'content',
 				$section,
 				array(
 					'placeholder' => 'contact-us',
-					'description' => __( 'Drop this just above the section. Then set a menu item, button, or text link to # plus this ID, for example #contact-us.', 'canvasly-lite' ),
+					'description' => __( 'Drop this just above the section. Then set a menu item, button, or text link to # plus this ID, for example #contact-us.', 'sidcraft-syntex' ),
 				)
 			),
 		);
@@ -267,7 +267,7 @@ class MenuAnchor extends Unit {
 	}
 
 	/**
-	 * Append anchor links supplied by `canvasly-lite/menu_anchor/links`.
+	 * Append anchor links supplied by `sidcraft-syntex/menu_anchor/links`.
 	 *
 	 * Each item is `[ 'id' => 'contact-us', 'label' => 'Contact' ]`.
 	 *
@@ -276,7 +276,7 @@ class MenuAnchor extends Unit {
 	 * @return string
 	 */
 	public static function filter_nav_items( $items, $args ) {
-		$links = apply_filters( 'canvasly-lite/menu_anchor/links', array(), $args );
+		$links = apply_filters( 'sidcraft-syntex/menu_anchor/links', array(), $args );
 		if ( ! is_array( $links ) || ! $links ) {
 			return $items;
 		}
@@ -300,7 +300,7 @@ class MenuAnchor extends Unit {
 	}
 
 	/**
-	 * [canvasly_anchor id="contact-us"]...[/canvasly_anchor]
+	 * [sidcraft_syntex_anchor id="contact-us"]...[/sidcraft_syntex_anchor]
 	 *
 	 * @param array|string $atts
 	 * @param string|null  $content
@@ -335,15 +335,15 @@ class MenuAnchor extends Unit {
 	 * @return void
 	 */
 	public static function register_assets() {
-		if ( ! defined( 'CANVASLY_LITE_PATH' ) || ! defined( 'CANVASLY_LITE_URL' ) || ! function_exists( 'wp_register_style' ) ) {
+		if ( ! defined( 'SIDCRAFT_SYNTEX_PATH' ) || ! defined( 'SIDCRAFT_SYNTEX_URL' ) || ! function_exists( 'wp_register_style' ) ) {
 			return;
 		}
-		$css = CANVASLY_LITE_PATH . 'assets/css/menu-anchor.css';
-		$js  = CANVASLY_LITE_PATH . 'assets/js/menu-anchor.js';
-		$ver = defined( 'CANVASLY_LITE_VERSION' ) ? (string) CANVASLY_LITE_VERSION : '1';
-		wp_register_style( self::STYLE_HANDLE, CANVASLY_LITE_URL . 'assets/css/menu-anchor.css', array(), $ver . '-' . ( file_exists( $css ) ? filemtime( $css ) : $ver ) );
+		$css = SIDCRAFT_SYNTEX_PATH . 'assets/css/menu-anchor.css';
+		$js  = SIDCRAFT_SYNTEX_PATH . 'assets/js/menu-anchor.js';
+		$ver = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? (string) SIDCRAFT_SYNTEX_VERSION : '1';
+		wp_register_style( self::STYLE_HANDLE, SIDCRAFT_SYNTEX_URL . 'assets/css/menu-anchor.css', array(), $ver . '-' . ( file_exists( $css ) ? filemtime( $css ) : $ver ) );
 		if ( function_exists( 'wp_register_script' ) ) {
-			wp_register_script( self::SCRIPT_HANDLE, CANVASLY_LITE_URL . 'assets/js/menu-anchor.js', array(), $ver . '-' . ( file_exists( $js ) ? filemtime( $js ) : $ver ), true );
+			wp_register_script( self::SCRIPT_HANDLE, SIDCRAFT_SYNTEX_URL . 'assets/js/menu-anchor.js', array(), $ver . '-' . ( file_exists( $js ) ? filemtime( $js ) : $ver ), true );
 		}
 	}
 
@@ -355,7 +355,7 @@ class MenuAnchor extends Unit {
 	 */
 	public static function enqueue_discovered() {
 		self::register_assets();
-		$links = apply_filters( 'canvasly-lite/menu_anchor/links', array(), null );
+		$links = apply_filters( 'sidcraft-syntex/menu_anchor/links', array(), null );
 		if ( is_array( $links ) && $links ) {
 			self::enqueue();
 			return;
@@ -565,7 +565,7 @@ class MenuAnchor extends Unit {
 				$id    = $seq;
 				$label = (string) ( $attrs['label'] ?? ( $attrs['title'] ?? '' ) );
 				if ( 'core/home-link' === $name && $label === '' ) {
-					$label = __( 'Home', 'canvasly-lite' );
+					$label = __( 'Home', 'sidcraft-syntex' );
 				}
 				$items[] = array(
 					'id'     => $id,

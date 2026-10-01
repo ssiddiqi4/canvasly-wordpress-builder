@@ -1,9 +1,9 @@
 <?php
-namespace CanvaslyLite\Ops;
+namespace SidcraftSyntex\Ops;
 
-use CanvaslyLite\Design\Kit;
-use CanvaslyLite\Settings\AdminSettings;
-use CanvaslyLite\Settings\GlobalSettings;
+use SidcraftSyntex\Design\Kit;
+use SidcraftSyntex\Settings\AdminSettings;
+use SidcraftSyntex\Settings\GlobalSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,20 +12,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Snapshot the current plugin as a ZIP and restore a previous version (Roadmap 7.3).
  *
- * Archives live in uploads/canvasly-lite/rollback. A snapshot is taken automatically
- * before a WordPress plugin update of Canvasly, and can be taken manually.
+ * Archives live in uploads/sidcraft-syntex/rollback. A snapshot is taken automatically
+ * before a WordPress plugin update of Sidcraft Syntex, and can be taken manually.
  */
 class Rollback {
-	const NOTICE = 'canvasly_lite_rollback_notice';
+	const NOTICE = 'sidcraft_syntex_rollback_notice';
 
 	public static function init() {
-		add_action( 'canvasly-lite/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
 		add_filter( 'upgrader_pre_install', array( self::class, 'on_pre_install' ), 10, 2 );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
-			add_action( 'admin_post_lb_rollback', array( self::class, 'handle_restore' ) );
-			add_action( 'admin_post_lb_rollback_snapshot', array( self::class, 'handle_snapshot' ) );
+			add_action( 'admin_post_sidsyn_rollback', array( self::class, 'handle_restore' ) );
+			add_action( 'admin_post_sidsyn_rollback_snapshot', array( self::class, 'handle_snapshot' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
-			add_action( 'canvasly-lite/tools/screen', array( self::class, 'tools_screen' ), 23 );
+			add_action( 'sidcraft-syntex/tools/screen', array( self::class, 'tools_screen' ), 23 );
 		}
 	}
 
@@ -41,7 +41,7 @@ class Rollback {
 		if ( $dir === '' && function_exists( 'wp_upload_dir' ) ) {
 			$up = wp_upload_dir();
 			if ( empty( $up['error'] ) && ! empty( $up['basedir'] ) ) {
-				$dir = trailingslashit( $up['basedir'] ) . 'canvasly-lite/rollback';
+				$dir = trailingslashit( $up['basedir'] ) . 'sidcraft-syntex/rollback';
 			}
 		}
 		/**
@@ -49,7 +49,7 @@ class Rollback {
 		 *
 		 * @param string $dir
 		 */
-		$filtered = apply_filters( 'canvasly-lite/rollback/dir', $dir );
+		$filtered = apply_filters( 'sidcraft-syntex/rollback/dir', $dir );
 		return is_string( $filtered ) && $filtered !== '' ? untrailingslashit( $filtered ) : untrailingslashit( $dir );
 	}
 
@@ -74,7 +74,7 @@ class Rollback {
 		if ( ! is_array( $files ) ) {
 			return array();
 		}
-		$current = defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '';
+		$current = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '';
 		$out     = array();
 		foreach ( $files as $file ) {
 			if ( ! is_file( $file ) ) {
@@ -105,7 +105,7 @@ class Rollback {
 	 */
 	public static function parse_name( $name ) {
 		$name = (string) $name;
-		if ( preg_match( '/^canvasly-lite-(.+)-(\d{8}-\d{6})\.zip$/', $name, $m ) ) {
+		if ( preg_match( '/^sidcraft-syntex-(.+)-(\d{8}-\d{6})\.zip$/', $name, $m ) ) {
 			$ts = \DateTime::createFromFormat( 'Ymd-His', $m[2], new \DateTimeZone( 'UTC' ) );
 			return array(
 				'version' => (string) $m[1],
@@ -129,33 +129,33 @@ class Rollback {
 		$args    = is_array( $args ) ? $args : array();
 		$source  = isset( $args['source'] ) && is_string( $args['source'] ) && $args['source'] !== ''
 			? untrailingslashit( $args['source'] )
-			: untrailingslashit( CANVASLY_LITE_PATH );
+			: untrailingslashit( SIDCRAFT_SYNTEX_PATH );
 		$version = isset( $args['version'] ) && is_string( $args['version'] ) && $args['version'] !== ''
 			? self::sanitize_version( $args['version'] )
-			: self::sanitize_version( defined( 'CANVASLY_LITE_VERSION' ) ? CANVASLY_LITE_VERSION : '0' );
+			: self::sanitize_version( defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : '0' );
 		if ( $source === '' || ! is_dir( $source ) ) {
-			return new \WP_Error( 'rollback_source', __( 'The plugin directory could not be read.', 'canvasly-lite' ) );
+			return new \WP_Error( 'rollback_source', __( 'The plugin directory could not be read.', 'sidcraft-syntex' ) );
 		}
 		$dir = self::dir();
 		if ( $dir === '' ) {
-			return new \WP_Error( 'rollback_dir', __( 'The rollback directory is not available.', 'canvasly-lite' ) );
+			return new \WP_Error( 'rollback_dir', __( 'The rollback directory is not available.', 'sidcraft-syntex' ) );
 		}
 		if ( ! is_dir( $dir ) ) {
 			wp_mkdir_p( $dir );
 		}
 		if ( ! is_dir( $dir ) || ! wp_is_writable( $dir ) ) {
-			return new \WP_Error( 'rollback_dir', __( 'The rollback directory is not writable.', 'canvasly-lite' ) );
+			return new \WP_Error( 'rollback_dir', __( 'The rollback directory is not writable.', 'sidcraft-syntex' ) );
 		}
 		$stamp = gmdate( 'Ymd-His' );
-		$name  = 'canvasly-lite-' . $version . '-' . $stamp . '.zip';
+		$name  = 'sidcraft-syntex-' . $version . '-' . $stamp . '.zip';
 		$path  = $dir . '/' . $name;
 		$slug  = basename( $source );
 		if ( $slug === '' || $slug === '.' || $slug === '..' ) {
-			$slug = 'canvasly-lite';
+			$slug = 'sidcraft-syntex';
 		}
 		$entries = self::collect_entries( $source, $slug );
 		if ( ! $entries ) {
-			return new \WP_Error( 'rollback_empty', __( 'Nothing was found to archive.', 'canvasly-lite' ) );
+			return new \WP_Error( 'rollback_empty', __( 'Nothing was found to archive.', 'sidcraft-syntex' ) );
 		}
 		$written = self::zip_write( $path, $entries );
 		if ( is_wp_error( $written ) ) {
@@ -168,7 +168,7 @@ class Rollback {
 		 * @param string $path
 		 * @param string $version
 		 */
-		do_action( 'canvasly-lite/rollback/snapshot', $path, $version );
+		do_action( 'sidcraft-syntex/rollback/snapshot', $path, $version );
 		return array(
 			'file'    => $path,
 			'name'    => $name,
@@ -192,7 +192,7 @@ class Rollback {
 		foreach ( $drop as $row ) {
 			$path = (string) ( $row['path'] ?? '' );
 			if ( $path !== '' && is_file( $path ) && self::is_inside_dir( $path, self::dir() ) ) {
-				if ( \CanvaslyLite\Utils\Filesystem::delete_file( $path ) ) {
+				if ( \SidcraftSyntex\Utils\Filesystem::delete_file( $path ) ) {
 					$gone++;
 				}
 			}
@@ -216,9 +216,9 @@ class Rollback {
 		}
 		$dest = isset( $args['dest'] ) && is_string( $args['dest'] ) && $args['dest'] !== ''
 			? untrailingslashit( $args['dest'] )
-			: untrailingslashit( CANVASLY_LITE_PATH );
+			: untrailingslashit( SIDCRAFT_SYNTEX_PATH );
 		if ( $dest === '' || ! is_dir( $dest ) ) {
-			return new \WP_Error( 'rollback_dest', __( 'The plugin directory could not be written.', 'canvasly-lite' ) );
+			return new \WP_Error( 'rollback_dest', __( 'The plugin directory could not be written.', 'sidcraft-syntex' ) );
 		}
 		if ( ! array_key_exists( 'snapshot', $args ) || $args['snapshot'] ) {
 			$snap = self::snapshot( array( 'source' => $dest ) );
@@ -242,7 +242,7 @@ class Rollback {
 		 * @param string $file
 		 * @param string $dest
 		 */
-		do_action( 'canvasly-lite/rollback/restore', $file, $dest );
+		do_action( 'sidcraft-syntex/rollback/restore', $file, $dest );
 		return array(
 			'restored' => basename( $file ),
 			'version'  => $parsed['version'],
@@ -273,17 +273,17 @@ class Rollback {
 	 * @return bool
 	 */
 	public static function is_self( $plugin ) {
-		$self = function_exists( 'plugin_basename' ) && defined( 'CANVASLY_LITE_FILE' )
-			? plugin_basename( CANVASLY_LITE_FILE )
-			: 'canvasly-lite/canvasly-lite.php';
-		return $plugin === $self || basename( (string) $plugin ) === 'canvasly-lite.php';
+		$self = function_exists( 'plugin_basename' ) && defined( 'SIDCRAFT_SYNTEX_FILE' )
+			? plugin_basename( SIDCRAFT_SYNTEX_FILE )
+			: 'sidcraft-syntex/sidcraft-syntex.php';
+		return $plugin === $self || basename( (string) $plugin ) === 'sidcraft-syntex.php';
 	}
 
 	public static function handle_restore() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can roll back Canvasly.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can roll back Sidcraft Syntex.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_rollback' );
+		check_admin_referer( 'sidsyn_rollback' );
 		$name   = isset( $_POST['zip'] ) ? sanitize_file_name( wp_unslash( $_POST['zip'] ) ) : '';
 		$result = self::restore( $name );
 		if ( is_wp_error( $result ) ) {
@@ -293,7 +293,7 @@ class Rollback {
 				'updated',
 				sprintf(
 					/* translators: %s: plugin version */
-					__( 'Canvasly was restored to version %s. Reload this page.', 'canvasly-lite' ),
+					__( 'Sidcraft Syntex was restored to version %s. Reload this page.', 'sidcraft-syntex' ),
 					$result['version'] !== '' ? $result['version'] : $result['restored']
 				)
 			);
@@ -303,9 +303,9 @@ class Rollback {
 
 	public static function handle_snapshot() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can roll back Canvasly.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can roll back Sidcraft Syntex.', 'sidcraft-syntex' ) );
 		}
-		check_admin_referer( 'lb_rollback_snapshot' );
+		check_admin_referer( 'sidsyn_rollback_snapshot' );
 		$result = self::snapshot();
 		if ( is_wp_error( $result ) ) {
 			self::store_notice( 'error', $result->get_error_message() );
@@ -314,7 +314,7 @@ class Rollback {
 				'updated',
 				sprintf(
 					/* translators: %s: zip file name */
-					__( 'Stored current version as %s.', 'canvasly-lite' ),
+					__( 'Stored current version as %s.', 'sidcraft-syntex' ),
 					$result['name']
 				)
 			);
@@ -326,25 +326,25 @@ class Rollback {
 		if ( ! self::can_manage() ) {
 			return;
 		}
-		echo '<hr><h2>' . esc_html__( 'Version rollback', 'canvasly-lite' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Store a ZIP of the current plugin and restore a previous version. A snapshot is also taken automatically before WordPress updates Canvasly.', 'canvasly-lite' ) . '</p>';
+		echo '<hr><h2>' . esc_html__( 'Version rollback', 'sidcraft-syntex' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Store a ZIP of the current plugin and restore a previous version. A snapshot is also taken automatically before WordPress updates Sidcraft Syntex.', 'sidcraft-syntex' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-bottom:12px">';
-		wp_nonce_field( 'lb_rollback_snapshot' );
-		echo '<input type="hidden" name="action" value="lb_rollback_snapshot">';
+		wp_nonce_field( 'sidsyn_rollback_snapshot' );
+		echo '<input type="hidden" name="action" value="sidsyn_rollback_snapshot">';
 		if ( class_exists( AdminSettings::class ) ) {
 			AdminSettings::echo_return_tab( 'tools' );
 		}
-		echo '<p><button class="button" type="submit">' . esc_html__( 'Store current version', 'canvasly-lite' ) . '</button></p>';
+		echo '<p><button class="button" type="submit">' . esc_html__( 'Store current version', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form>';
 		$list = self::versions();
 		if ( ! $list ) {
-			echo '<p>' . esc_html__( 'No stored plugin versions yet.', 'canvasly-lite' ) . '</p>';
+			echo '<p>' . esc_html__( 'No stored plugin versions yet.', 'sidcraft-syntex' ) . '</p>';
 			return;
 		}
 		echo '<table class="widefat striped lb-ops-table"><thead><tr>';
-		echo '<th>' . esc_html__( 'Version', 'canvasly-lite' ) . '</th>';
-		echo '<th>' . esc_html__( 'Stored', 'canvasly-lite' ) . '</th>';
-		echo '<th>' . esc_html__( 'Size', 'canvasly-lite' ) . '</th>';
+		echo '<th>' . esc_html__( 'Version', 'sidcraft-syntex' ) . '</th>';
+		echo '<th>' . esc_html__( 'Stored', 'sidcraft-syntex' ) . '</th>';
+		echo '<th>' . esc_html__( 'Size', 'sidcraft-syntex' ) . '</th>';
 		echo '<th></th></tr></thead><tbody>';
 		foreach ( $list as $row ) {
 			$when = ! empty( $row['time'] ) && function_exists( 'wp_date' )
@@ -353,20 +353,20 @@ class Rollback {
 			echo '<tr>';
 			echo '<td><code>' . esc_html( $row['version'] !== '' ? $row['version'] : $row['name'] ) . '</code>';
 			if ( ! empty( $row['current'] ) ) {
-				echo ' <span class="lb-ops-status">' . esc_html__( 'current', 'canvasly-lite' ) . '</span>';
+				echo ' <span class="lb-ops-status">' . esc_html__( 'current', 'sidcraft-syntex' ) . '</span>';
 			}
 			echo '</td>';
 			echo '<td>' . esc_html( (string) $when ) . '</td>';
 			echo '<td>' . esc_html( function_exists( 'size_format' ) ? (string) size_format( (int) $row['size'] ) : (string) $row['size'] ) . '</td>';
 			echo '<td>';
-			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="return confirm(' . esc_attr( wp_json_encode( __( 'Replace the installed plugin with this stored version?', 'canvasly-lite' ) ) ) . ');">';
-			wp_nonce_field( 'lb_rollback' );
-			echo '<input type="hidden" name="action" value="lb_rollback">';
+			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="return confirm(' . esc_attr( wp_json_encode( __( 'Replace the installed plugin with this stored version?', 'sidcraft-syntex' ) ) ) . ');">';
+			wp_nonce_field( 'sidsyn_rollback' );
+			echo '<input type="hidden" name="action" value="sidsyn_rollback">';
 			echo '<input type="hidden" name="zip" value="' . esc_attr( $row['name'] ) . '">';
 			if ( class_exists( AdminSettings::class ) ) {
 				AdminSettings::echo_return_tab( 'tools' );
 			}
-			echo '<button class="button" type="submit">' . esc_html__( 'Restore', 'canvasly-lite' ) . '</button>';
+			echo '<button class="button" type="submit">' . esc_html__( 'Restore', 'sidcraft-syntex' ) . '</button>';
 			echo '</form>';
 			echo '</td></tr>';
 		}
@@ -377,7 +377,7 @@ class Rollback {
 	 * @param string $namespace
 	 */
 	public static function routes( $namespace ) {
-		$ns = $namespace !== '' ? $namespace : 'canvasly-lite/v1';
+		$ns = $namespace !== '' ? $namespace : 'sidcraft-syntex/v1';
 		register_rest_route(
 			$ns,
 			'/rollback',
@@ -436,7 +436,7 @@ class Rollback {
 	}
 
 	public static function admin_notice() {
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) && ! \CanvaslyLite\Admin\AdminContext::is_plugin_page() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::is_plugin_page() ) {
 			return;
 		}
 		$key  = self::NOTICE . '_' . get_current_user_id();
@@ -465,12 +465,12 @@ class Rollback {
 	public static function resolve_zip( $name ) {
 		$name = basename( str_replace( '\\', '/', (string) $name ) );
 		if ( $name === '' || strtolower( substr( $name, -4 ) ) !== '.zip' || strpos( $name, '..' ) !== false ) {
-			return new \WP_Error( 'rollback_zip', __( 'That rollback archive was not found.', 'canvasly-lite' ) );
+			return new \WP_Error( 'rollback_zip', __( 'That rollback archive was not found.', 'sidcraft-syntex' ) );
 		}
 		$dir  = self::dir();
 		$path = $dir . '/' . $name;
 		if ( ! is_readable( $path ) || ! self::is_inside_dir( $path, $dir ) ) {
-			return new \WP_Error( 'rollback_zip', __( 'That rollback archive was not found.', 'canvasly-lite' ) );
+			return new \WP_Error( 'rollback_zip', __( 'That rollback archive was not found.', 'sidcraft-syntex' ) );
 		}
 		return $path;
 	}
@@ -533,14 +533,14 @@ class Rollback {
 		if ( class_exists( Kit::class ) && method_exists( Kit::class, 'zip_write' ) ) {
 			$ok = Kit::zip_write( $path, $entries );
 			if ( is_wp_error( $ok ) ) {
-				return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'canvasly-lite' ) );
+				return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'sidcraft-syntex' ) );
 			}
 			return true;
 		}
 		if ( class_exists( '\ZipArchive' ) ) {
 			$zip = new \ZipArchive();
 			if ( $zip->open( $path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE ) !== true ) {
-				return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'canvasly-lite' ) );
+				return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'sidcraft-syntex' ) );
 			}
 			foreach ( $entries as $entry ) {
 				$name = (string) ( $entry['name'] ?? '' );
@@ -585,7 +585,7 @@ class Rollback {
 		}
 		$eocd = pack( 'VvvvvVVv', 0x06054b50, 0, 0, count( $records ), count( $records ), strlen( $central ), $offset, 0 );
 		if ( file_put_contents( $path, $body . $central . $eocd ) === false ) {
-			return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'canvasly-lite' ) );
+			return new \WP_Error( 'zip_create', __( 'Could not create the rollback ZIP.', 'sidcraft-syntex' ) );
 		}
 		return true;
 	}
@@ -604,7 +604,7 @@ class Rollback {
 			wp_mkdir_p( $tmp );
 		}
 		if ( ! is_dir( $tmp ) ) {
-			return new \WP_Error( 'rollback_tmp', __( 'Could not create a temporary folder for the rollback.', 'canvasly-lite' ) );
+			return new \WP_Error( 'rollback_tmp', __( 'Could not create a temporary folder for the rollback.', 'sidcraft-syntex' ) );
 		}
 		$ok = self::zip_extract( $zip, $tmp );
 		if ( is_wp_error( $ok ) ) {
@@ -614,7 +614,7 @@ class Rollback {
 		$root = self::find_plugin_root( $tmp );
 		if ( $root === '' ) {
 			self::rmdir_tree( $tmp );
-			return new \WP_Error( 'rollback_plugin', __( 'The archive does not contain a Canvasly plugin.', 'canvasly-lite' ) );
+			return new \WP_Error( 'rollback_plugin', __( 'The archive does not contain a Sidcraft Syntex plugin.', 'sidcraft-syntex' ) );
 		}
 		return array(
 			'tmp'  => $tmp,
@@ -632,7 +632,7 @@ class Rollback {
 		if ( class_exists( '\ZipArchive' ) ) {
 			$za = new \ZipArchive();
 			if ( $za->open( $zip ) !== true ) {
-				return new \WP_Error( 'rollback_zip', __( 'The rollback archive could not be opened.', 'canvasly-lite' ) );
+				return new \WP_Error( 'rollback_zip', __( 'The rollback archive could not be opened.', 'sidcraft-syntex' ) );
 			}
 			for ( $i = 0; $i < $za->numFiles; $i++ ) {
 				$name = $za->getNameIndex( $i );
@@ -707,7 +707,7 @@ class Rollback {
 	public static function zip_read_stored( $path ) {
 		$bin = is_readable( $path ) ? file_get_contents( $path ) : false;
 		if ( $bin === false ) {
-			return new \WP_Error( 'rollback_zip', __( 'The rollback archive could not be opened.', 'canvasly-lite' ) );
+			return new \WP_Error( 'rollback_zip', __( 'The rollback archive could not be opened.', 'sidcraft-syntex' ) );
 		}
 		$out    = array();
 		$offset = 0;
@@ -746,18 +746,18 @@ class Rollback {
 		if ( is_wp_error( $extracted ) ) {
 			return $extracted;
 		}
-		$file = $extracted['root'] . '/canvasly-lite.php';
+		$file = $extracted['root'] . '/sidcraft-syntex.php';
 		$data = is_readable( $file ) ? (string) file_get_contents( $file ) : '';
 		self::rmdir_tree( $extracted['tmp'] );
-		if ( $data === '' || stripos( $data, 'Plugin Name:' ) === false || stripos( $data, 'Canvasly' ) === false ) {
-			return new \WP_Error( 'rollback_plugin', __( 'The archive does not contain a Canvasly plugin.', 'canvasly-lite' ) );
+		if ( $data === '' || stripos( $data, 'Plugin Name:' ) === false || stripos( $data, 'Sidcraft Syntex' ) === false ) {
+			return new \WP_Error( 'rollback_plugin', __( 'The archive does not contain a Sidcraft Syntex plugin.', 'sidcraft-syntex' ) );
 		}
 		$version = '';
 		if ( preg_match( '/^\s*\*\s*Version:\s*(.+)$/mi', $data, $m ) ) {
 			$version = trim( $m[1] );
 		}
 		return array(
-			'name'    => 'Canvasly',
+			'name'    => 'Sidcraft Syntex',
 			'version' => $version,
 		);
 	}
@@ -768,7 +768,7 @@ class Rollback {
 	 */
 	public static function find_plugin_root( $dir ) {
 		$dir = untrailingslashit( $dir );
-		if ( self::is_plugin_file( $dir . '/canvasly-lite.php' ) ) {
+		if ( self::is_plugin_file( $dir . '/sidcraft-syntex.php' ) ) {
 			return $dir;
 		}
 		$items = @scandir( $dir );
@@ -780,7 +780,7 @@ class Rollback {
 				continue;
 			}
 			$path = $dir . '/' . $item;
-			if ( is_dir( $path ) && self::is_plugin_file( $path . '/canvasly-lite.php' ) ) {
+			if ( is_dir( $path ) && self::is_plugin_file( $path . '/sidcraft-syntex.php' ) ) {
 				return $path;
 			}
 		}
@@ -796,7 +796,7 @@ class Rollback {
 			return false;
 		}
 		$head = (string) file_get_contents( $file, false, null, 0, 8192 );
-		return stripos( $head, 'Plugin Name:' ) !== false && stripos( $head, 'Canvasly' ) !== false;
+		return stripos( $head, 'Plugin Name:' ) !== false && stripos( $head, 'Sidcraft Syntex' ) !== false;
 	}
 
 	/**
@@ -808,7 +808,7 @@ class Rollback {
 		$from = untrailingslashit( $from );
 		$to   = untrailingslashit( $to );
 		if ( ! is_dir( $from ) || ! is_dir( $to ) ) {
-			return new \WP_Error( 'rollback_copy', __( 'Could not copy plugin files.', 'canvasly-lite' ) );
+			return new \WP_Error( 'rollback_copy', __( 'Could not copy plugin files.', 'sidcraft-syntex' ) );
 		}
 		$iter = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator( $from, \FilesystemIterator::SKIP_DOTS ),
@@ -832,7 +832,7 @@ class Rollback {
 				wp_mkdir_p( $dir );
 			}
 			if ( ! @copy( $file->getPathname(), $dest ) ) {
-				return new \WP_Error( 'rollback_copy', __( 'Could not copy plugin files.', 'canvasly-lite' ) );
+				return new \WP_Error( 'rollback_copy', __( 'Could not copy plugin files.', 'sidcraft-syntex' ) );
 			}
 		}
 		return true;
@@ -842,14 +842,14 @@ class Rollback {
 	 * @param string $dir
 	 */
 	public static function rmdir_tree( $dir ) {
-		\CanvaslyLite\Utils\Filesystem::rmdir_tree( $dir );
+		\SidcraftSyntex\Utils\Filesystem::rmdir_tree( $dir );
 	}
 
 	private static function redirect_back() {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Callers verify their action nonce before redirecting.
 		$tab = '';
-		if ( ! empty( $_POST['lb_settings_tab'] ) ) {
-			$tab = sanitize_key( wp_unslash( $_POST['lb_settings_tab'] ) );
+		if ( ! empty( $_POST['sidsyn_settings_tab'] ) ) {
+			$tab = sanitize_key( wp_unslash( $_POST['sidsyn_settings_tab'] ) );
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 		if ( $tab !== '' && class_exists( AdminSettings::class ) ) {
@@ -857,7 +857,7 @@ class Rollback {
 			exit;
 		}
 		$ref = wp_get_referer();
-		wp_safe_redirect( $ref ? $ref : admin_url( 'admin.php?page=canvasly-lite-tools' ) );
+		wp_safe_redirect( $ref ? $ref : admin_url( 'admin.php?page=sidcraft-syntex-tools' ) );
 		exit;
 	}
 

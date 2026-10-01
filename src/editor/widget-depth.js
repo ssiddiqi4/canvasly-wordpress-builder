@@ -283,7 +283,7 @@ function installWidgetDepth() {
     function wpMediaBase() {
       const rest = String(app.D.wpRest || "").replace(/\/$/, "");
       if (rest) return rest;
-      return String(app.D.api || "").replace(/canvasly-lite\/v1\/?$/, "wp/v2");
+      return String(app.D.api || "").replace(/sidcraft-syntex\/v1\/?$/, "wp/v2");
     }
     function fetchRestAtt(id) {
       return fetch(wpMediaBase() + "/media/" + id + "?context=edit", { headers: { "X-WP-Nonce": app.D.nonce } })
@@ -1390,7 +1390,7 @@ function installWidgetDepth() {
         lb28OldRefresh();
         setTimeout(bindControls, 0);
       };
-    window.CanvaslyLite1228 = { attCache, migrate, OPTIONS, attImg, captionOf };
+    window.SidcraftSyntex1228 = { attCache, migrate, OPTIONS, attImg, captionOf };
   })();
   (function () {
     const lb30OldStyle = app.styleInline;
@@ -1530,7 +1530,7 @@ function installWidgetDepth() {
     setTimeout(app.render, 0);
   })();
   (function () {
-    const api = () => window.CanvaslyLite1228 || {};
+    const api = () => window.SidcraftSyntex1228 || {};
     function groupsOf(s) {
       if ((s.mode || "single") === "multiple" && Array.isArray(s.collections) && s.collections.length) {
         return s.collections.map((c, i) => ({
@@ -4175,7 +4175,7 @@ function installWidgetDepth() {
     const prevMarkup = app.canvasMarkup;
     if (typeof prevMarkup === "function") {
       app.canvasMarkup = function () {
-        if (window.CanvaslyLite) window.CanvaslyLite.editorDevice = app.device || "desktop";
+        if (window.SidcraftSyntex) window.SidcraftSyntex.editorDevice = app.device || "desktop";
         return prevMarkup.apply(this, arguments);
       };
     }

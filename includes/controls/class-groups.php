@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Controls;
+namespace SidcraftSyntex\Controls;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -37,7 +37,7 @@ class Groups {
 			null,
 			array( 'label' => 'Gradient' )
 		);
-		add_filter( 'canvasly-lite/unit/render_html', array( self::class, 'inject_layers' ), 10, 4 );
+		add_filter( 'sidcraft-syntex/unit/render_html', array( self::class, 'inject_layers' ), 10, 4 );
 	}
 
 	public static function handles( $type ) {
@@ -198,8 +198,8 @@ class Groups {
 		if ( $v === '' ) {
 			return '';
 		}
-		if ( class_exists( '\\CanvaslyLite\\Design\\Variables' ) ) {
-			return \CanvaslyLite\Design\Variables::sanitize_color_value( $v );
+		if ( class_exists( '\\SidcraftSyntex\\Design\\Variables' ) ) {
+			return \SidcraftSyntex\Design\Variables::sanitize_color_value( $v );
 		}
 		if ( preg_match( '/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$/', $v ) ) {
 			return $v;

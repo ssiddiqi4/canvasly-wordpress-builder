@@ -1,10 +1,10 @@
 (function () {
 	'use strict';
 	try {
-		var cfg = window.canvaslyLiteNativeEditor || {};
+		var cfg = window.sidcraftSyntexNativeEditor || {};
 		var builderBase = cfg.url || '';
 		var fixedId = parseInt(cfg.postId, 10) || 0;
-		var label = cfg.label || 'Edit with Canvasly';
+		var label = cfg.label || 'Edit with Sidcraft Syntex';
 		var saving = false;
 
 		function currentId() {

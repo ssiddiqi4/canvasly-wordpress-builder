@@ -1,12 +1,12 @@
 <?php
-namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
 /**
  * Gallery: a single image set, or several named collections with a filter bar.
  * Layouts: justified rows, equal grid, and masonry columns - plus order,
  * spacing, file/attachment links, lightbox, captions and hover animation.
  */
 class Gallery extends Unit {
- public function type(){return 'gallery';} public function title(){return __('Gallery', 'canvasly-lite');} public function icon(){return "\u{25A6}";} public function category(){return 'media';}
+ public function type(){return 'gallery';} public function title(){return __('Gallery', 'sidcraft-syntex');} public function icon(){return "\u{25A6}";} public function category(){return 'media';}
  public function keywords(){return ['gallery','images','grid','photos','lightbox','filter','albums','collections','justified','masonry'];}
  public function scripts($s=[]){return $this->frontend_scripts();}
  public function defaults(){return ['mode'=>'single','ids'=>'','collections'=>[],'media_urls'=>[],'media_ratios'=>[],'order_by'=>'default','show_all'=>true,'all_label'=>'All','columns'=>4,'gap'=>10,'gallery_layout'=>'justified','image_ratio'=>'1:1','row_height'=>220,'last_row'=>'auto','lazy_load'=>true,'link'=>'file','size'=>'medium','lightbox'=>true,'caption'=>'none','image_radius'=>'','hover_animation'=>'','caption_align'=>'center','caption_color'=>'','caption_size'=>''];}
@@ -89,7 +89,7 @@ class Gallery extends Unit {
    $lb='';
    if($light){
     $lb=' data-lb-lightbox="1"';
-    if(class_exists('\\CanvaslyLite\\Settings\\KitSettings'))$lb.=\CanvaslyLite\Settings\KitSettings::lightbox_data_attrs($id,$alt,$cap,$id?get_the_title($id):'');
+    if(class_exists('\\SidcraftSyntex\\Settings\\KitSettings'))$lb.=\SidcraftSyntex\Settings\KitSettings::lightbox_data_attrs($id,$alt,$cap,$id?get_the_title($id):'');
    }
    return '<a'.$extra.' href="'.esc_url(wp_get_attachment_image_url($id,'full')).'"'.$lb.'><figure>'.$inner.'</figure></a>';
   }
@@ -117,7 +117,7 @@ class Gallery extends Unit {
   }
   if(!$any){
    $ph='';
-   for($i=0;$i<$cols;$i++)$ph.='<div class="lb-gallery-placeholder">'.esc_html__('Choose images', 'canvasly-lite').'</div>';
+   for($i=0;$i<$cols;$i++)$ph.='<div class="lb-gallery-placeholder">'.esc_html__('Choose images', 'sidcraft-syntex').'</div>';
    return '<div class="'.$this->cls($s).' lb-gallery lb-gallery-empty is-grid" style="display:grid;grid-template-columns:repeat('.$cols.',minmax(0,1fr));gap:'.max(0,absint($this->scalar($s['gap']??10,10))).'px">'.$ph.'</div>';
   }
   $nav='';

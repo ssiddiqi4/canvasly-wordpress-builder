@@ -1,6 +1,6 @@
 import { app } from "./app.js";
 function installHooks() {
-  const LB = (window.CanvaslyLite = window.CanvaslyLite || {});
+  const LB = (window.SidcraftSyntex = window.SidcraftSyntex || {});
   app.LB = LB;
   if (!LB.hooks) {
     const store = { actions: {}, filters: {} };
@@ -27,7 +27,8 @@ function installHooks() {
     };
     const has = (kind) => (name) => !!(store[kind][name] && store[kind][name].length);
     const report = (kind, name, e) => {
-      if (window.console && console.error) console.error("[Canvasly] " + kind + ' "' + name + '" callback failed:', e);
+      if (window.console && console.error)
+        console.error("[Sidcraft Syntex] " + kind + ' "' + name + '" callback failed:', e);
     };
     LB.hooks = {
       addAction: add("actions"),

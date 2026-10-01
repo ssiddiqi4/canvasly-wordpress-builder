@@ -1,11 +1,11 @@
 <?php
-namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
 /**
  * Icon List: repeater of text / icon / url with a traditional (stacked) or inline layout.
  * Legacy "Text|icon|url" rows are migrated on load.
  */
 class IconList extends Unit {
- public function type(){return 'icon_list';} public function title(){return __('Icon List', 'canvasly-lite');} public function icon(){return "\u{2630}";} public function category(){return 'basic';}
+ public function type(){return 'icon_list';} public function title(){return __('Icon List', 'sidcraft-syntex');} public function icon(){return "\u{2630}";} public function category(){return 'basic';}
  public function keywords(){return ['icon list','list','bullets','features','checklist'];}
  public function defaults(){return [
   'items'=>[
@@ -16,32 +16,32 @@ class IconList extends Unit {
   'icon'=>'check','list_layout'=>'traditional','link_target'=>'_self','space_between'=>8,'icon_align'=>'left','divider'=>false,'divider_style'=>'solid','divider_weight'=>1,'divider_color'=>'#dddddd','divider_width'=>'100%','icon_size'=>16,'icon_color'=>'#222222','icon_hover_color'=>'','text_color'=>'','text_hover_color'=>'','text_indent'=>8,
  ];}
  public function controls(){
-  $list=__('Icon List', 'canvasly-lite'); $style=__('List', 'canvasly-lite'); $div=__('Divider', 'canvasly-lite');
+  $list=__('Icon List', 'sidcraft-syntex'); $style=__('List', 'sidcraft-syntex'); $div=__('Divider', 'sidcraft-syntex');
   return [
-   'items'=>$this->ctrl('repeater',__('Items', 'canvasly-lite'),'content',$list,[
+   'items'=>$this->ctrl('repeater',__('Items', 'sidcraft-syntex'),'content',$list,[
     'title_field'=>'{{text}}','prevent_empty'=>true,
     'fields'=>[
-     'text'=>$this->field('wysiwyg',__('Text', 'canvasly-lite'),['dynamic'=>true]),
-     'icon'=>$this->field('icon',__('Icon', 'canvasly-lite')),
-     'url'=>$this->field('url',__('Link', 'canvasly-lite'),['dynamic'=>true]),
+     'text'=>$this->field('wysiwyg',__('Text', 'sidcraft-syntex'),['dynamic'=>true]),
+     'icon'=>$this->field('icon',__('Icon', 'sidcraft-syntex')),
+     'url'=>$this->field('url',__('Link', 'sidcraft-syntex'),['dynamic'=>true]),
     ],
    ]),
-   'icon'=>$this->ctrl('icon',__('Default Icon', 'canvasly-lite'),'content',$list),
-   'list_layout'=>$this->ctrl('select',__('Layout', 'canvasly-lite'),'content',$list,['options'=>['traditional'=>__('Traditional', 'canvasly-lite'),'inline'=>__('Inline', 'canvasly-lite')]]),
-   'link_target'=>$this->ctrl('select',__('Link Target', 'canvasly-lite'),'content',$list,['options'=>self::opt_target()]),
-   'icon_align'=>$this->ctrl('select',__('Alignment', 'canvasly-lite'),'content',$list,['options'=>self::opt_lcr()]),
-   'divider'=>$this->ctrl('switch',__('Divider', 'canvasly-lite'),'content',$list),
-   'space_between'=>$this->ctrl('number',__('Space Between', 'canvasly-lite'),'style',$style),
-   'icon_size'=>$this->ctrl('number',__('Icon Size', 'canvasly-lite'),'style',$style),
-   'icon_color'=>$this->ctrl('color',__('Icon Color', 'canvasly-lite'),'style',$style),
-   'icon_hover_color'=>$this->ctrl('color',__('Icon Hover', 'canvasly-lite'),'style',$style),
-   'text_color'=>$this->ctrl('color',__('Text Color', 'canvasly-lite'),'style',$style,['selectors'=>['{{WRAPPER}} .lb-icon-list-text,{{WRAPPER}} .lb-icon-list-item>a'=>'color: {{VALUE}};']]),
-   'text_hover_color'=>$this->ctrl('color',__('Text Hover', 'canvasly-lite'),'style',$style,['selectors'=>['{{WRAPPER}} .lb-icon-list-item:hover .lb-icon-list-text,{{WRAPPER}} .lb-icon-list-item>a:hover'=>'color: {{VALUE}};']]),
-   'text_indent'=>$this->ctrl('number',__('Text Indent', 'canvasly-lite'),'style',$style),
-   'divider_style'=>$this->ctrl('select',__('Style', 'canvasly-lite'),'style',$div,['options'=>['solid'=>__('Solid', 'canvasly-lite'),'double'=>__('Double', 'canvasly-lite'),'dotted'=>__('Dotted', 'canvasly-lite'),'dashed'=>__('Dashed', 'canvasly-lite')],'condition'=>['divider'=>true]]),
-   'divider_weight'=>$this->ctrl('number',__('Weight', 'canvasly-lite'),'style',$div,['condition'=>['divider'=>true]]),
-   'divider_color'=>$this->ctrl('color',__('Color', 'canvasly-lite'),'style',$div,['condition'=>['divider'=>true]]),
-   'divider_width'=>$this->ctrl('text',__('Width', 'canvasly-lite'),'style',$div,['condition'=>['divider'=>true]]),
+   'icon'=>$this->ctrl('icon',__('Default Icon', 'sidcraft-syntex'),'content',$list),
+   'list_layout'=>$this->ctrl('select',__('Layout', 'sidcraft-syntex'),'content',$list,['options'=>['traditional'=>__('Traditional', 'sidcraft-syntex'),'inline'=>__('Inline', 'sidcraft-syntex')]]),
+   'link_target'=>$this->ctrl('select',__('Link Target', 'sidcraft-syntex'),'content',$list,['options'=>self::opt_target()]),
+   'icon_align'=>$this->ctrl('select',__('Alignment', 'sidcraft-syntex'),'content',$list,['options'=>self::opt_lcr()]),
+   'divider'=>$this->ctrl('switch',__('Divider', 'sidcraft-syntex'),'content',$list),
+   'space_between'=>$this->ctrl('number',__('Space Between', 'sidcraft-syntex'),'style',$style),
+   'icon_size'=>$this->ctrl('number',__('Icon Size', 'sidcraft-syntex'),'style',$style),
+   'icon_color'=>$this->ctrl('color',__('Icon Color', 'sidcraft-syntex'),'style',$style),
+   'icon_hover_color'=>$this->ctrl('color',__('Icon Hover', 'sidcraft-syntex'),'style',$style),
+   'text_color'=>$this->ctrl('color',__('Text Color', 'sidcraft-syntex'),'style',$style,['selectors'=>['{{WRAPPER}} .lb-icon-list-text,{{WRAPPER}} .lb-icon-list-item>a'=>'color: {{VALUE}};']]),
+   'text_hover_color'=>$this->ctrl('color',__('Text Hover', 'sidcraft-syntex'),'style',$style,['selectors'=>['{{WRAPPER}} .lb-icon-list-item:hover .lb-icon-list-text,{{WRAPPER}} .lb-icon-list-item>a:hover'=>'color: {{VALUE}};']]),
+   'text_indent'=>$this->ctrl('number',__('Text Indent', 'sidcraft-syntex'),'style',$style),
+   'divider_style'=>$this->ctrl('select',__('Style', 'sidcraft-syntex'),'style',$div,['options'=>['solid'=>__('Solid', 'sidcraft-syntex'),'double'=>__('Double', 'sidcraft-syntex'),'dotted'=>__('Dotted', 'sidcraft-syntex'),'dashed'=>__('Dashed', 'sidcraft-syntex')],'condition'=>['divider'=>true]]),
+   'divider_weight'=>$this->ctrl('number',__('Weight', 'sidcraft-syntex'),'style',$div,['condition'=>['divider'=>true]]),
+   'divider_color'=>$this->ctrl('color',__('Color', 'sidcraft-syntex'),'style',$div,['condition'=>['divider'=>true]]),
+   'divider_width'=>$this->ctrl('text',__('Width', 'sidcraft-syntex'),'style',$div,['condition'=>['divider'=>true]]),
   ];
  }
  public function render($s,$children=''){
@@ -53,7 +53,7 @@ class IconList extends Unit {
   $out='<ul class="'.$this->cls($s).' lb-icon-list lb-icon-list-'.$layout.' lb-icon-list-align-'.$align.(!empty($s['divider'])?' lb-icon-list-divided':'').'"'.$vars.'>';
   foreach($this->repeater_items($s['items']??'',['text','icon','url']) as $row){
    $text=(string)($row['text']??$row[0]??''); $icon=trim((string)($row['icon']??$row[1]??''))!==''?(string)($row['icon']??$row[1]):($s['icon']??'check'); $url=(string)($row['url']??$row[2]??'');
-   $inner='<span class="lb-icon-list-icon" aria-hidden="true">'.\CanvaslyLite\Utils\Icons::svg($icon).'</span><span class="lb-icon-list-text">'.wp_kses_post($text).'</span>';
+   $inner='<span class="lb-icon-list-icon" aria-hidden="true">'.\SidcraftSyntex\Utils\Icons::svg($icon).'</span><span class="lb-icon-list-text">'.wp_kses_post($text).'</span>';
    $out.='<li class="lb-icon-list-item">'.($url!==''?'<a href="'.esc_attr(self::link_href($url)).'"'.$t.'>'.$inner.'</a>':$inner).'</li>';
   }
   return $out.'</ul>';

@@ -1,9 +1,9 @@
 <?php
-namespace CanvaslyLite\Templates;
+namespace SidcraftSyntex\Templates;
 
-use CanvaslyLite\Document\DocumentManager;
-use CanvaslyLite\Rendering\FrontendRenderer;
-use CanvaslyLite\Utils\Style;
+use SidcraftSyntex\Document\DocumentManager;
+use SidcraftSyntex\Rendering\FrontendRenderer;
+use SidcraftSyntex\Utils\Style;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -31,7 +31,7 @@ class TemplateEmbed {
 		if ( class_exists( SavedTemplates::class ) ) {
 			return SavedTemplates::is_template( $id );
 		}
-		return function_exists( 'get_post_type' ) && get_post_type( $id ) === 'lb_template';
+		return function_exists( 'get_post_type' ) && get_post_type( $id ) === 'sidsyn_template';
 	}
 
 	/**
@@ -47,7 +47,7 @@ class TemplateEmbed {
 			$doc = SavedTemplates::get_document( $id );
 			return is_array( $doc ) ? $doc : null;
 		}
-		$raw = get_post_meta( $id, '_lb_template_data', true );
+		$raw = get_post_meta( $id, '_sidsyn_template_data', true );
 		$doc = is_string( $raw ) ? json_decode( $raw, true ) : $raw;
 		if ( ! is_array( $doc ) ) {
 			return null;
@@ -95,7 +95,7 @@ class TemplateEmbed {
 		}
 		$query = new \WP_Query(
 			array(
-				'post_type'              => 'lb_template',
+				'post_type'              => 'sidsyn_template',
 				'title'                  => $title,
 				'post_status'            => 'any',
 				'posts_per_page'         => 1,
@@ -200,7 +200,7 @@ class TemplateEmbed {
 			}
 			$css = self::scope_css( self::document_css( $id ), '#' . $wrap_id );
 			if ( $css !== '' && function_exists( 'wp_add_inline_style' ) ) {
-				wp_add_inline_style( 'canvasly-lite-frontend', $css );
+				wp_add_inline_style( 'sidcraft-syntex-frontend', $css );
 			}
 			$class = 'lb-template-embed';
 			$extra = trim( (string) ( $args['class'] ?? '' ) );
@@ -287,7 +287,7 @@ class TemplateEmbed {
 	}
 
 	/**
-	 * Shortcode `[canvasly_lite_template id="" title=""]`.
+	 * Shortcode `[sidcraft_syntex_template id="" title=""]`.
 	 *
 	 * @param array $atts
 	 * @return string
@@ -300,7 +300,7 @@ class TemplateEmbed {
 					'title' => '',
 				),
 				is_array( $atts ) ? $atts : array(),
-				'canvasly_lite_template'
+				'sidcraft_syntex_template'
 			)
 			: ( is_array( $atts ) ? $atts : array() );
 		$id = absint( $atts['id'] ?? 0 );
@@ -350,7 +350,7 @@ class TemplateEmbed {
 			return;
 		}
 		if ( function_exists( 'wp_enqueue_style' ) ) {
-			wp_enqueue_style( 'canvasly-lite-frontend' );
+			wp_enqueue_style( 'sidcraft-syntex-frontend' );
 		}
 	}
 }

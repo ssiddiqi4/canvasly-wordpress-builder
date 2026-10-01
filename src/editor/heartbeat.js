@@ -1,6 +1,6 @@
 import { app } from "./app.js";
 function lockFromPayload(data) {
-  const lb = data && data["canvasly-lite-lock"];
+  const lb = data && data["sidcraft-syntex-lock"];
   const wp2 = data && data["wp-refresh-post-lock"];
   const out = lb && typeof lb === "object" ? { ...lb } : {};
   if (wp2 && wp2.new_lock) out.lock = wp2.new_lock;
@@ -127,12 +127,12 @@ function installHeartbeat() {
   const $ = window.jQuery;
   const hasHb = !!(window.wp && wp.heartbeat && $ && typeof $.fn === "object");
   if (hasHb && app.D.postId) {
-    $(document).on("heartbeat-send.canvasly-lite", function (_e, data) {
+    $(document).on("heartbeat-send.sidcraft-syntex", function (_e, data) {
       if (!data || !app.D.postId) return;
-      data["canvasly-lite-lock"] = { post_id: app.D.postId, takeover: !!app.lockTakeover };
+      data["sidcraft-syntex-lock"] = { post_id: app.D.postId, takeover: !!app.lockTakeover };
       data["wp-refresh-post-lock"] = { post_id: app.D.postId, lock: app.lockToken };
     });
-    $(document).on("heartbeat-tick.canvasly-lite", function (_e, data) {
+    $(document).on("heartbeat-tick.sidcraft-syntex", function (_e, data) {
       const lock = lockFromPayload(data || {});
       if (lock && (lock.locked || lock.lock || Object.keys(lock).length)) app.applyLockState(lock);
       if (lock && !lock.locked) app.lockTakeover = false;

@@ -228,7 +228,7 @@ function installKitSettings() {
 				<p class="lb-muted">${app.t("Used when a page does not set its own content width.")}</p>
 				${textField("layout.widgets_space", app.t("Widgets Space"), d.layout.widgets_space, "20px")}
 				${textField("layout.page_title_selector", app.t("Page Title Selector"), d.layout.page_title_selector, ".entry-title")}
-				<p class="lb-muted">${app.t("Hides matching theme title units on Canvasly pages.")}</p>
+				<p class="lb-muted">${app.t("Hides matching theme title units on Sidcraft Syntex pages.")}</p>
 				${field(app.t("Default Template"), `<select data-kit-path="layout.default_template">${tplOpts}</select>`)}
 			</div>
 			<div class="lb-ss-section"><h4>${app.t("Site Identity")}</h4>

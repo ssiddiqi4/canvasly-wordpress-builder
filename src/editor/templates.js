@@ -187,7 +187,7 @@ function installTemplates() {
    <button type="button" class="lb-rte-close" aria-label="${app.t("Close")}">\xD7</button>
   </div>
   <div class="lb-rte-body">
-   <p class="lb-rte-intro">Edit this content in the visual editor. Changes apply to the Canvasly unit when you click <strong>Save Content</strong>.</p>
+   <p class="lb-rte-intro">Edit this content in the visual editor. Changes apply to the Sidcraft Syntex unit when you click <strong>Save Content</strong>.</p>
    <div class="lb-rte-tools"><button type="button" class="lb-btn" data-rte-media>Add Media</button></div>
    <div class="lb-rte-bar" role="toolbar" aria-label="Formatting">
     <button type="button" data-cmd="formatBlock" data-val="p" title="Paragraph">P</button>
@@ -951,7 +951,7 @@ function installTemplates() {
           const d = await r.json();
           const a = document.createElement("a");
           a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-          a.download = "canvasly-lite-design-system-v2.json";
+          a.download = "sidcraft-syntex-design-system-v2.json";
           a.click();
           URL.revokeObjectURL(a.href);
         });
@@ -1153,7 +1153,7 @@ function installTemplates() {
             d = await r.json(),
             a = document.createElement("a");
           a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-          a.download = "canvasly-lite-design-system-2.1.json";
+          a.download = "sidcraft-syntex-design-system-2.1.json";
           a.click();
           setTimeout(() => URL.revokeObjectURL(a.href), 1e3);
         });

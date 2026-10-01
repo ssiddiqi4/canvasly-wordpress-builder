@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Controls;
+namespace SidcraftSyntex\Controls;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -24,7 +24,7 @@ class Code {
 			array( self::class, 'sanitize' ),
 			null,
 			array(
-				'label'  => __( 'Code', 'canvasly-lite' ),
+				'label'  => __( 'Code', 'sidcraft-syntex' ),
 				'editor' => array( 'languages' => self::LANGUAGES ),
 			)
 		);

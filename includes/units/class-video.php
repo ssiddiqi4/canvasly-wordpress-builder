@@ -1,12 +1,12 @@
 <?php
-namespace CanvaslyLite\Units; if(!defined('ABSPATH')) exit;
+namespace SidcraftSyntex\Units; if(!defined('ABSPATH')) exit;
 /**
  * Video: YouTube, Vimeo, Dailymotion, VideoPress and self-hosted sources with
  * start/end offsets, playback options, privacy mode, lazy loading, an image
  * overlay with a play icon, a lightbox mode and a fixed aspect ratio box.
  */
 class Video extends Unit {
- public function type(){return 'video';} public function title(){return __('Video', 'canvasly-lite');} public function icon(){return "\u{25B6}";} public function category(){return 'media';}
+ public function type(){return 'video';} public function title(){return __('Video', 'sidcraft-syntex');} public function icon(){return "\u{25B6}";} public function category(){return 'media';}
  public function keywords(){return ['video','player','embed','oembed','youtube','vimeo','dailymotion','videopress','mp4','lightbox'];}
  public function scripts($s=[]){
   $s=is_array($s)?$s:[];
@@ -101,14 +101,14 @@ class Video extends Unit {
   return '<iframe class="lb-video-media" src="'.esc_url($src).'" title="Video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"'.$lazy.'></iframe>';
  }
  public function render($s,$children=''){
-  if(empty($s['url']))return '<div class="'.$this->cls($s).' lb-video-placeholder">'.esc_html__('Add a video URL', 'canvasly-lite').'</div>';
+  if(empty($s['url']))return '<div class="'.$this->cls($s).' lb-video-placeholder">'.esc_html__('Add a video URL', 'sidcraft-syntex').'</div>';
   $source=self::detect_source($s['url'],$s['source']??'youtube');
   $ratio=self::ratio_value($s['aspect_ratio']??'16:9');
   $hosted=$source==='hosted';
   $embed=$hosted?'':self::embed_url($s);
   $oembed='';
-  if(!$hosted&&!$embed&&class_exists('\\CanvaslyLite\\Embed\\OEmbed'))$oembed=\CanvaslyLite\Embed\OEmbed::html((string)($s['url']??''));
-  if(!$hosted&&!$embed&&$oembed==='')return '<div class="'.$this->cls($s).' lb-video-placeholder">'.esc_html__('This video URL could not be recognised', 'canvasly-lite').'</div>';
+  if(!$hosted&&!$embed&&class_exists('\\SidcraftSyntex\\Embed\\OEmbed'))$oembed=\SidcraftSyntex\Embed\OEmbed::html((string)($s['url']??''));
+  if(!$hosted&&!$embed&&$oembed==='')return '<div class="'.$this->cls($s).' lb-video-placeholder">'.esc_html__('This video URL could not be recognised', 'sidcraft-syntex').'</div>';
   $overlay=$this->media_url($s['overlay_image_id']??0,$s['overlay_image_url']??'','large');
   $use_overlay=!empty($s['show_overlay'])&&$overlay&&$oembed==='';
   $lightbox=!empty($s['lightbox'])&&$oembed==='';
@@ -124,7 +124,7 @@ class Video extends Unit {
    if($hosted)$data.=' data-lb-video-attrs="'.esc_attr(trim((!empty($s['controls'])?'controls ':'').(!empty($s['loop'])?'loop ':'').(!empty($s['mute'])?'muted ':''))).'"';
    $out.='<div class="lb-video-frame lb-video-overlay"'.($use_overlay?' style="background-image:url('.esc_url($overlay).')"':'').$data.'>';
    if(!$use_overlay)$out.=$hosted?$this->hosted_tag($s):$this->iframe($embed,$s);
-   if(!empty($s['show_play_icon'])||!$use_overlay&&$lightbox)$out.='<button type="button" class="lb-video-play" aria-label="Play video">'.\CanvaslyLite\Utils\Icons::svg($s['play_icon']??'play').'</button>';
+   if(!empty($s['show_play_icon'])||!$use_overlay&&$lightbox)$out.='<button type="button" class="lb-video-play" aria-label="Play video">'.\SidcraftSyntex\Utils\Icons::svg($s['play_icon']??'play').'</button>';
    $out.='</div>';
   } else {
    $out.='<div class="lb-video-frame">'.($hosted?$this->hosted_tag($s):$this->iframe($embed,$s)).'</div>';

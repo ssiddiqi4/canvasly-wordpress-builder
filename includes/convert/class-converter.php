@@ -1,9 +1,9 @@
 <?php
-namespace CanvaslyLite\Convert;
+namespace SidcraftSyntex\Convert;
 
-use CanvaslyLite\Document\DocumentManager;
-use CanvaslyLite\Document\Documents;
-use CanvaslyLite\Templates\SavedTemplates;
+use SidcraftSyntex\Document\DocumentManager;
+use SidcraftSyntex\Document\Documents;
+use SidcraftSyntex\Templates\SavedTemplates;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Convert stored third-party builder JSON (`_elementor_data`) into a
- * Canvasly document. Layout sections/columns become containers; widgets
+ * Sidcraft Syntex document. Layout sections/columns become containers; widgets
  * are mapped through {@see Map}; responsive suffixes become breakpoint keys;
  * global color binds become `{{var:colors.*}}`.
  */
@@ -21,8 +21,8 @@ class Converter {
 	const SOURCE_PAGE_SETTINGS  = '_elementor_page_settings';
 	const SOURCE_TEMPLATE_TYPE  = '_elementor_template_type';
 	const SOURCE_LIBRARY_TYPE   = 'elementor_library';
-	const CONVERTED_META        = '_lb_converted_from';
-	const CONVERTED_AT          = '_lb_converted_at';
+	const CONVERTED_META        = '_sidsyn_converted_from';
+	const CONVERTED_AT          = '_sidsyn_converted_at';
 
 	/** @var array */
 	private $report = array();
@@ -100,7 +100,7 @@ class Converter {
 		if ( self::$decode_warning !== '' ) {
 			return;
 		}
-		self::$decode_warning = __( 'Stored layout JSON had a syntax error and was repaired before conversion. Review the converted page for missing or altered text.', 'canvasly-lite' );
+		self::$decode_warning = __( 'Stored layout JSON had a syntax error and was repaired before conversion. Review the converted page for missing or altered text.', 'sidcraft-syntex' );
 	}
 
 	/**
@@ -514,21 +514,21 @@ class Converter {
 	private static function hint_at( $raw, $offset ) {
 		$offset  = max( 0, (int) $offset );
 		$start   = max( 0, $offset - 24 );
-		$snippet = \CanvaslyLite\Utils\Text::cut_bytes( $raw, $start, 56 );
+		$snippet = \SidcraftSyntex\Utils\Text::cut_bytes( $raw, $start, 56 );
 		if ( function_exists( 'mb_convert_encoding' ) ) {
 			$snippet = @mb_convert_encoding( $snippet, 'UTF-8', 'UTF-8' );
 		}
 		$snippet = preg_replace( '/[\x00-\x1F\x7F]/', '?', (string) $snippet );
 		return sprintf(
 			/* translators: 1: 1-based byte offset, 2: nearby characters */
-			__( 'Problem near byte %1$d: %2$s', 'canvasly-lite' ),
+			__( 'Problem near byte %1$d: %2$s', 'sidcraft-syntex' ),
 			$offset + 1,
 			$snippet
 		);
 	}
 
 	/**
-	 * Convert a source unit list into a Canvasly document.
+	 * Convert a source unit list into a Sidcraft Syntex document.
 	 *
 	 * @param mixed $units
 	 * @param array $page_settings
@@ -559,7 +559,7 @@ class Converter {
 			'root'     => $root,
 			'settings' => $settings,
 		);
-		$filtered = apply_filters( 'canvasly-lite/convert/document', $doc, $this->report );
+		$filtered = apply_filters( 'sidcraft-syntex/convert/document', $doc, $this->report );
 		if ( is_array( $filtered ) ) {
 			$doc = $filtered;
 		}
@@ -646,7 +646,7 @@ class Converter {
 		$this->report['layout']++;
 		$this->report['nodes']++;
 		$this->report['mapped']++;
-		$filtered = apply_filters( 'canvasly-lite/convert/node', $node, $el, $kind );
+		$filtered = apply_filters( 'sidcraft-syntex/convert/node', $node, $el, $kind );
 		return is_array( $filtered ) ? $filtered : $node;
 	}
 
@@ -799,15 +799,15 @@ class Converter {
 				$this->report['nodes']++;
 				$this->report['warnings'][] = sprintf(
 					/* translators: %s: source widget type slug */
-					__( 'Widget converted as plain text (best effort): %s', 'canvasly-lite' ),
+					__( 'Widget converted as plain text (best effort): %s', 'sidcraft-syntex' ),
 					$src_type !== '' ? $src_type : 'widget'
 				);
-				$filtered = apply_filters( 'canvasly-lite/convert/node', $node, $el, 'widget' );
+				$filtered = apply_filters( 'sidcraft-syntex/convert/node', $node, $el, 'widget' );
 				return is_array( $filtered ) ? $filtered : $node;
 			}
 			$this->note_unmapped( $src_type !== '' ? $src_type : 'widget' );
 			$node = $this->placeholder_html( $src_type !== '' ? $src_type : 'widget', $el );
-			$filtered = apply_filters( 'canvasly-lite/convert/node', $node, $el, 'widget' );
+			$filtered = apply_filters( 'sidcraft-syntex/convert/node', $node, $el, 'widget' );
 			return is_array( $filtered ) ? $filtered : $node;
 		}
 
@@ -840,7 +840,7 @@ class Converter {
 		}
 		$this->report['mapped']++;
 		$this->report['nodes']++;
-		$filtered = apply_filters( 'canvasly-lite/convert/node', $node, $el, 'widget' );
+		$filtered = apply_filters( 'sidcraft-syntex/convert/node', $node, $el, 'widget' );
 		return is_array( $filtered ) ? $filtered : $node;
 	}
 
@@ -1717,7 +1717,7 @@ class Converter {
 		$label = sanitize_text_field( (string) $type );
 		$html  = '<p class="lb-convert-unmapped">' . sprintf(
 			/* translators: %s: source widget type slug */
-			esc_html__( 'This widget could not be converted (%s).', 'canvasly-lite' ),
+			esc_html__( 'This widget could not be converted (%s).', 'sidcraft-syntex' ),
 			esc_html( $label )
 		) . '</p>';
 		$node  = array(
@@ -1740,7 +1740,7 @@ class Converter {
 		$this->report['unmapped'][ $type ]++;
 		$this->report['warnings'][] = sprintf(
 			/* translators: %s: source widget type slug */
-			__( 'Unmapped widget: %s', 'canvasly-lite' ),
+			__( 'Unmapped widget: %s', 'sidcraft-syntex' ),
 			$type
 		);
 	}
@@ -1810,13 +1810,13 @@ class Converter {
 	public static function source_diagnostic( $post_id ) {
 		$raw = get_post_meta( absint( $post_id ), self::SOURCE_META, true );
 		if ( is_array( $raw ) ) {
-			return empty( $raw ) ? __( 'Stored value is an empty array.', 'canvasly-lite' ) : '';
+			return empty( $raw ) ? __( 'Stored value is an empty array.', 'sidcraft-syntex' ) : '';
 		}
 		if ( ! is_string( $raw ) || $raw === '' ) {
-			return __( 'No _elementor_data meta value is stored on this post (empty or missing).', 'canvasly-lite' );
+			return __( 'No _elementor_data meta value is stored on this post (empty or missing).', 'sidcraft-syntex' );
 		}
 		$len     = function_exists( 'mb_strlen' ) ? mb_strlen( $raw, '8bit' ) : strlen( $raw );
-		$excerpt = \CanvaslyLite\Utils\Text::cut_bytes( $raw, 0, 60 );
+		$excerpt = \SidcraftSyntex\Utils\Text::cut_bytes( $raw, 0, 60 );
 		if ( function_exists( 'mb_convert_encoding' ) ) {
 			$excerpt = @mb_convert_encoding( $excerpt, 'UTF-8', 'UTF-8' );
 		}
@@ -1827,7 +1827,7 @@ class Converter {
 		if ( $parsed && is_array( $direct ) && empty( $direct ) ) {
 			return sprintf(
 				/* translators: 1: byte length, 2: first characters of the stored value */
-				__( 'Stored value (%1$d bytes) parsed fine as JSON but decoded to an empty layout. First characters: %2$s', 'canvasly-lite' ),
+				__( 'Stored value (%1$d bytes) parsed fine as JSON but decoded to an empty layout. First characters: %2$s', 'sidcraft-syntex' ),
 				$len,
 				$excerpt
 			);
@@ -1841,7 +1841,7 @@ class Converter {
 				if ( json_last_error() === JSON_ERROR_NONE ) {
 					return sprintf(
 						/* translators: 1: byte length, 2: first characters of the stored value */
-						__( 'Stored value (%1$d bytes) parsed fine as JSON after removing slashes, but decoded to an empty layout. First characters: %2$s', 'canvasly-lite' ),
+						__( 'Stored value (%1$d bytes) parsed fine as JSON after removing slashes, but decoded to an empty layout. First characters: %2$s', 'sidcraft-syntex' ),
 						$len,
 						$excerpt
 					);
@@ -1863,7 +1863,7 @@ class Converter {
 		$hint = self::json_problem_hint( $raw );
 		return sprintf(
 			/* translators: 1: byte length, 2: JSON parser error, 3: first characters of the stored value, 4: optional problem location */
-			__( 'Stored value is %1$d bytes but failed to parse as JSON (%2$s). First characters: %3$s%4$s', 'canvasly-lite' ),
+			__( 'Stored value is %1$d bytes but failed to parse as JSON (%2$s). First characters: %3$s%4$s', 'sidcraft-syntex' ),
 			$len,
 			$json_err,
 			$excerpt,
@@ -1910,7 +1910,7 @@ class Converter {
 			if ( ! $post ) {
 				continue;
 			}
-			$has_lb = (string) get_post_meta( $id, class_exists( DocumentManager::class ) ? DocumentManager::META : '_lb_document_data', true ) !== '';
+			$has_lb = (string) get_post_meta( $id, class_exists( DocumentManager::class ) ? DocumentManager::META : '_sidsyn_document_data', true ) !== '';
 			$out[]  = array(
 				'id'         => $id,
 				'title'      => function_exists( 'get_the_title' ) ? get_the_title( $id ) : (string) ( $post->post_title ?? '' ),
@@ -1918,10 +1918,10 @@ class Converter {
 				'status'     => (string) ( $post->post_status ?? '' ),
 				'has_loom'   => $has_lb,
 				'converted'  => (string) get_post_meta( $id, self::CONVERTED_META, true ) !== '',
-				'edit_url'   => function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=canvasly-lite&post_id=' . $id ) : '',
+				'edit_url'   => function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=sidcraft-syntex&post_id=' . $id ) : '',
 			);
 		}
-		$filtered = apply_filters( 'canvasly-lite/convert/candidates', $out, $args );
+		$filtered = apply_filters( 'sidcraft-syntex/convert/candidates', $out, $args );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 
@@ -1939,7 +1939,7 @@ class Converter {
 		$force   = ! empty( $args['force'] );
 		$post    = function_exists( 'get_post' ) ? get_post( $post_id ) : null;
 		if ( $post_id && function_exists( 'current_user_can' ) && ! current_user_can( 'edit_post', $post_id ) && ! current_user_can( 'manage_options' ) ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot convert this document.', 'canvasly-lite' ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot convert this document.', 'sidcraft-syntex' ) );
 		}
 		self::consume_decode_warning();
 		$source = self::source_data( $post_id );
@@ -1949,12 +1949,12 @@ class Converter {
 			return new \WP_Error(
 				'no_source',
 				$why !== ''
-					? __( 'No convertible layout data was found on this post.', 'canvasly-lite' ) . ' ' . $why
-					: __( 'No convertible layout data was found on this post.', 'canvasly-lite' )
+					? __( 'No convertible layout data was found on this post.', 'sidcraft-syntex' ) . ' ' . $why
+					: __( 'No convertible layout data was found on this post.', 'sidcraft-syntex' )
 			);
 		}
-		$lb_key = class_exists( DocumentManager::class ) ? DocumentManager::META : '_lb_document_data';
-		$has_lb = (string) get_post_meta( $post_id, $lb_key, true ) !== ''
+		$sidsyn_key = class_exists( DocumentManager::class ) ? DocumentManager::META : '_sidsyn_document_data';
+		$has_lb = (string) get_post_meta( $post_id, $sidsyn_key, true ) !== ''
 			|| (string) get_post_meta( $post_id, self::CONVERTED_META, true ) !== '';
 		if ( $has_lb && ! $force && ! $dry ) {
 			self::consume_decode_warning();
@@ -2002,9 +2002,9 @@ class Converter {
 			} else {
 				$json = wp_json_encode( $doc );
 				if ( class_exists( DocumentManager::class ) && method_exists( DocumentManager::class, 'write_json_meta' ) ) {
-					DocumentManager::write_json_meta( $post_id, $lb_key, $json );
+					DocumentManager::write_json_meta( $post_id, $sidsyn_key, $json );
 				} else {
-					update_post_meta( $post_id, $lb_key, function_exists( 'wp_slash' ) ? wp_slash( $json ) : $json );
+					update_post_meta( $post_id, $sidsyn_key, function_exists( 'wp_slash' ) ? wp_slash( $json ) : $json );
 				}
 			}
 			update_post_meta( $post_id, self::CONVERTED_META, 'document' );
@@ -2030,7 +2030,7 @@ class Converter {
 		$src_type = (string) get_post_meta( $post->ID, self::SOURCE_TEMPLATE_TYPE, true );
 		$map      = Map::library_types();
 		$type     = $map[ $src_type ] ?? 'section';
-		$title    = $post->post_title !== '' ? $post->post_title : __( 'Converted template', 'canvasly-lite' );
+		$title    = $post->post_title !== '' ? $post->post_title : __( 'Converted template', 'sidcraft-syntex' );
 		$key      = 'converted-' . $post->ID;
 		if ( method_exists( SavedTemplates::class, 'create' ) ) {
 			return SavedTemplates::create(
@@ -2044,7 +2044,7 @@ class Converter {
 		}
 		$id = wp_insert_post(
 			array(
-				'post_type'   => 'lb_template',
+				'post_type'   => 'sidsyn_template',
 				'post_status' => 'publish',
 				'post_title'  => $title,
 			),
@@ -2053,9 +2053,9 @@ class Converter {
 		if ( is_wp_error( $id ) ) {
 			return $id;
 		}
-		update_post_meta( $id, '_lb_template_data', wp_json_encode( $doc ) );
-		update_post_meta( $id, '_lb_template_type', $type );
-		update_post_meta( $id, '_lb_template_key', $key );
+		update_post_meta( $id, '_sidsyn_template_data', wp_json_encode( $doc ) );
+		update_post_meta( $id, '_sidsyn_template_type', $type );
+		update_post_meta( $id, '_sidsyn_template_key', $key );
 		if ( class_exists( DocumentManager::class ) ) {
 			DocumentManager::save( $id, $doc );
 		}
@@ -2136,7 +2136,7 @@ class Converter {
 		}
 		$agg['warnings'] = array_values( array_unique( $agg['warnings'] ) );
 		$agg['items']    = $items;
-		$filtered        = apply_filters( 'canvasly-lite/convert/report', $agg, $ids, $args );
+		$filtered        = apply_filters( 'sidcraft-syntex/convert/report', $agg, $ids, $args );
 		return is_array( $filtered ) ? $filtered : $agg;
 	}
 

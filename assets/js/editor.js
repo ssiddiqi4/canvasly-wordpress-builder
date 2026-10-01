@@ -1,4 +1,4 @@
-/* Canvasly Lite editor bundle. Source: src/editor/. Rebuild with `npm run build`. */
+/* Sidcraft Syntex editor bundle. Source: src/editor/. Rebuild with `npm run build`. */
 (() => {
   // src/editor/rest-url-fix.js
   (function lbRestUrlFix() {
@@ -24,7 +24,7 @@
 
   // src/editor/hooks.js
   function installHooks() {
-    const LB = window.CanvaslyLite = window.CanvaslyLite || {};
+    const LB = window.SidcraftSyntex = window.SidcraftSyntex || {};
     app.LB = LB;
     if (!LB.hooks) {
       const store = { actions: {}, filters: {} };
@@ -51,7 +51,8 @@
       };
       const has = (kind) => (name) => !!(store[kind][name] && store[kind][name].length);
       const report = (kind, name, e) => {
-        if (window.console && console.error) console.error("[Canvasly] " + kind + ' "' + name + '" callback failed:', e);
+        if (window.console && console.error)
+          console.error("[Sidcraft Syntex] " + kind + ' "' + name + '" callback failed:', e);
       };
       LB.hooks = {
         addAction: add("actions"),
@@ -122,7 +123,7 @@
     confirm_delete: true
   };
   var EYEDROPPER_SVG = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12.8 1.2a2.2 2.2 0 0 1 0 3.1L11.6 5.5l2 2-1.4 1.4-2-2-3.6 3.6.9.9-6.6 3.2 3.2-6.6.9.9 3.6-3.6-2-2 1.4-1.4 2 2 1.2-1.2a2.2 2.2 0 0 1 3.1 0z"/></svg>';
-  var LOCAL_KEY = "canvasly-lite.preferences";
+  var LOCAL_KEY = "sidcraft-syntex.preferences";
   function clampInt(v, min, max, fallback) {
     const n = Number(v);
     const x = Number.isFinite(n) ? n : fallback;
@@ -671,7 +672,7 @@
   function installState() {
     app.root = document.getElementById("lb-editor");
     if (!app.root) return false;
-    app.D = window.CanvaslyLiteData || {};
+    app.D = window.SidcraftSyntexData || {};
     app.t = function t3(key) {
       const map = app.D.i18n && typeof app.D.i18n === "object" ? app.D.i18n : {};
       let s = Object.prototype.hasOwnProperty.call(map, key) ? String(map[key] ?? "") : String(key);
@@ -688,7 +689,7 @@
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]
     );
     app.lbDevMode = !!app.D.devMode;
-    if (window.CanvaslyLite) window.CanvaslyLite.devMode = app.lbDevMode;
+    if (window.SidcraftSyntex) window.SidcraftSyntex.devMode = app.lbDevMode;
     app.LB_DYNAMIC_KEYS = { title: 1, excerpt: 1, url: 1, featured_image: 1, author: 1, date: 1 };
     app.lbLooksLikeEval = function lbLooksLikeEval(s) {
       return /\b(?:eval|Function|setTimeout|setInterval)\s*\(|new\s+Function\s*\(|javascript\s*:|vbscript\s*:|<\?php|<\?=|\{\{[\s]*[=#\/]|\{%/i.test(
@@ -1877,7 +1878,7 @@
     app.isPublishablePost = function isPublishablePost() {
       if (!app.D || !app.D.postId) return false;
       const type = String(app.D.postType || "");
-      if (type === "lb_template" || type === "revision") return false;
+      if (type === "sidsyn_template" || type === "revision") return false;
       return true;
     };
     app.publishTarget = function publishTarget() {
@@ -2318,7 +2319,7 @@
       s = s || {};
       const map = s.media_urls && typeof s.media_urls === "object" ? s.media_urls : {};
       if (map[id] || map[String(id)]) return map[id] || map[String(id)];
-      const hit = (typeof window !== "undefined" && window.CanvaslyLite1228 && window.CanvaslyLite1228.attCache || {})[parseInt(id, 10)];
+      const hit = (typeof window !== "undefined" && window.SidcraftSyntex1228 && window.SidcraftSyntex1228.attCache || {})[parseInt(id, 10)];
       if (hit)
         return hit.sizes && (hit.sizes.medium && hit.sizes.medium.url || hit.sizes.large && hit.sizes.large.url || hit.sizes.thumbnail && hit.sizes.thumbnail.url) || hit.url || "";
       return "";
@@ -2327,7 +2328,7 @@
       const map = s && s.media_ratios && typeof s.media_ratios === "object" ? s.media_ratios : {};
       let r = parseFloat(map[id] || map[String(id)] || 0);
       if (r > 0.05 && r < 20) return r;
-      const hit = (typeof window !== "undefined" && window.CanvaslyLite1228 && window.CanvaslyLite1228.attCache || {})[parseInt(id, 10)];
+      const hit = (typeof window !== "undefined" && window.SidcraftSyntex1228 && window.SidcraftSyntex1228.attCache || {})[parseInt(id, 10)];
       if (hit) {
         const w = hit.width || hit.sizes && (hit.sizes.full && hit.sizes.full.width || hit.sizes.large && hit.sizes.large.width);
         const h = hit.height || hit.sizes && (hit.sizes.full && hit.sizes.full.height || hit.sizes.large && hit.sizes.large.height);
@@ -2906,7 +2907,7 @@
         const pid = "lb-tp-" + String(n.id || "x").replace(/[^a-zA-Z0-9_-]/g, "");
         const guide = s.show_path ? "" : ' stroke="none"';
         const speed = Math.max(5, app.lbTextPathSeconds(s.speed));
-        return `<div class="lb-text-path lb-text-path-${kind}" data-lb-speed="${speed}" style="${st};--lb-speed:${speed}s"><svg viewBox="0 0 1000 160" overflow="visible" role="img"><path id="${pid}" class="lb-text-path-guide" d="${d}" fill="none"${guide}></path><text visibility="hidden" style="${st}"><textPath href="#${pid}" startOffset="0">${app.esc(s.text || "Canvasly")}</textPath></text></svg></div>`;
+        return `<div class="lb-text-path lb-text-path-${kind}" data-lb-speed="${speed}" style="${st};--lb-speed:${speed}s"><svg viewBox="0 0 1000 160" overflow="visible" role="img"><path id="${pid}" class="lb-text-path-guide" d="${d}" fill="none"${guide}></path><text visibility="hidden" style="${st}"><textPath href="#${pid}" startOffset="0">${app.esc(s.text || "Sidcraft Syntex")}</textPath></text></svg></div>`;
       }
       if (n.type === "code") return `<pre class="lb-code"><code>${app.esc(s.code || "")}</code></pre>`;
       if (n.type === "price_table")
@@ -3732,7 +3733,7 @@
         return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>★ " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map(
           (e) => (() => {
             const locked = app.proUnitLocked(e);
-            const hint = locked ? app.t("Canvasly Pro license required") : app.t("Double-click to add");
+            const hint = locked ? app.t("Sidcraft Syntex Pro license required") : app.t("Double-click to add");
             return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "□")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></button>`;
           })()
         ).join("")}</div></div>`;
@@ -3760,7 +3761,7 @@
     app.openIconLibrary = function openIconLibrary() {
       const icons = app.D.icons || [];
       app.showModal(
-        app.t("Canvasly Icon Manager"),
+        app.t("Sidcraft Syntex Icon Manager"),
         `<input class="lb-modal-search" id="lb-icon-search" placeholder="${app.t("Search icons…")}"><div class="lb-form-row"><input id="lb-icon-id" placeholder="${app.t("ID")}"><input id="lb-icon-title" placeholder="${app.t("Title")}"><input id="lb-icon-category" placeholder="${app.t("Category")}" value="Custom"><textarea id="lb-icon-svg" rows="2" placeholder="<svg viewBox=...>...</svg>"></textarea><button class="lb-btn primary" id="lb-icon-add">${app.t("Add SVG")}</button></div><div class="lb-icon-grid">${icons.map((i) => `<button class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" title="${app.esc(i.title)}"><span>${i.svg}</span><small>${app.esc(i.title)}</small></button>`).join("")}</div>`,
         () => {
           app.$("#lb-icon-search")?.addEventListener("input", (e) => {
@@ -3873,7 +3874,7 @@
         const d = await r.json();
         const a = document.createElement("a");
         a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-        a.download = "canvasly-lite-design-system.json";
+        a.download = "sidcraft-syntex-design-system.json";
         a.click();
         URL.revokeObjectURL(a.href);
       });
@@ -4900,7 +4901,7 @@
     };
     app.addNewPage = async function addNewPage() {
       const input = document.getElementById("lb-new-page-title");
-      const title = (input?.value || "").trim() || "Canvasly Page";
+      const title = (input?.value || "").trim() || "Sidcraft Syntex Page";
       const button = document.getElementById("lb-create-page");
       if (button) {
         button.disabled = true;
@@ -4914,7 +4915,7 @@
         });
         const data = await r.json().catch(() => ({}));
         if (!r.ok || !data.id) throw new Error(data?.message || "WordPress could not create the page.");
-        window.location.href = data.url || `${app.D.adminUrl}admin.php?page=canvasly-lite&post_id=${data.id}`;
+        window.location.href = data.url || `${app.D.adminUrl}admin.php?page=sidcraft-syntex&post_id=${data.id}`;
       } catch (e) {
         const msg = document.getElementById("lb-new-page-error");
         if (msg) msg.textContent = e?.message || "Could not create the page.";
@@ -4934,7 +4935,7 @@
             app.openPageSettings();
           });
           document.getElementById("lb-open-add-page")?.addEventListener("click", () => {
-            const body = `<p>Create a new WordPress Page and open it directly in Canvasly. This avoids leaving the Canvasly workspace.</p><label class="lb-control"><span>Page title</span><input id="lb-new-page-title" value="Canvasly Page" autofocus></label><div id="lb-new-page-error" class="lb-tinymce-error" aria-live="polite"></div><div class="lb-tinymce-actions"><button type="button" class="lb-btn" data-close-modal>Cancel</button><button type="button" class="lb-btn primary" id="lb-create-page">${app.t("Add Page")}</button></div>`;
+            const body = `<p>Create a new WordPress Page and open it directly in Sidcraft Syntex. This avoids leaving the Sidcraft Syntex workspace.</p><label class="lb-control"><span>Page title</span><input id="lb-new-page-title" value="Sidcraft Syntex Page" autofocus></label><div id="lb-new-page-error" class="lb-tinymce-error" aria-live="polite"></div><div class="lb-tinymce-actions"><button type="button" class="lb-btn" data-close-modal>Cancel</button><button type="button" class="lb-btn primary" id="lb-create-page">${app.t("Add Page")}</button></div>`;
             app.showModal(app.t("Add New Page"), body, () => {
               document.getElementById("lb-create-page")?.addEventListener("click", app.addNewPage);
               document.getElementById("lb-new-page-title")?.addEventListener("keydown", (e) => {
@@ -4966,7 +4967,7 @@
       document.querySelectorAll(".lb-modal-backdrop [data-nav-id]").forEach(
         (b) => b.onclick = () => {
           const n = (app.D.navigation || []).find((x) => String(x.id) === String(b.dataset.navId));
-          if (n?.id) window.open(`${app.D.adminUrl}admin.php?page=canvasly-lite&post_id=${n.id}`, "_blank");
+          if (n?.id) window.open(`${app.D.adminUrl}admin.php?page=sidcraft-syntex&post_id=${n.id}`, "_blank");
         }
       );
     };
@@ -5130,16 +5131,16 @@
       app.menuOpen = true;
       const items = [
         ["site-settings", app.t("Site Settings"), app.t("Adjust page and site-wide editor settings.")],
-        ["theme-builder", app.t("Theme Builder"), app.t("Open Canvasly theme-building tools.")],
+        ["theme-builder", app.t("Theme Builder"), app.t("Open Sidcraft Syntex theme-building tools.")],
         ["notes", app.t("Notes"), app.t("Keep private notes for this page.")],
         ["preferences", app.t("User Preferences"), app.t("Configure editor preferences.")],
-        ["shortcuts", app.t("Keyboard Shortcuts"), app.t("View Canvasly keyboard shortcuts.")],
+        ["shortcuts", app.t("Keyboard Shortcuts"), app.t("View Sidcraft Syntex keyboard shortcuts.")],
         ["help", app.t("Help Center"), app.t("View help and editor guidance.")],
-        ["account", app.t("My Canvasly"), app.t("Canvasly account and product information.")],
+        ["account", app.t("My Sidcraft Syntex"), app.t("Sidcraft Syntex account and product information.")],
         ["exit", app.t("Exit to WordPress Dashboard"), app.t("Return to the WordPress dashboard.")]
       ];
-      const html = `<div class="lb-main-menu" role="menu" aria-label="${app.t("Canvasly menu")}">
-   <div class="lb-main-menu-head"><strong>Canvasly</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">×</button></div>
+      const html = `<div class="lb-main-menu" role="menu" aria-label="${app.t("Sidcraft Syntex menu")}">
+   <div class="lb-main-menu-head"><strong>Sidcraft Syntex</strong><button type="button" data-menu-close aria-label="${app.t("Close menu")}">×</button></div>
    ${items.map((it, i) => `<button type="button" class="lb-main-menu-item ${it[0] === "exit" ? "is-exit" : ""}" data-main-menu="${it[0]}" role="menuitem"><span class="lb-menu-mark lb-menu-${it[0]}" aria-hidden="true">${i === 0 ? "⚙" : i === 1 ? "▤" : i === 2 ? "▢" : i === 3 ? "◉" : i === 4 ? "⌨" : i === 5 ? "?" : i === 6 ? "◎" : "↪"}</span><span><b>${app.esc(it[1])}</b><small>${app.esc(it[2])}</small></span></button>`).join("")}
  </div>`;
       app.root.insertAdjacentHTML("beforeend", html);
@@ -5160,7 +5161,7 @@
       if (action === "theme-builder") {
         app.showMenuDialog(
           app.t("Theme Builder"),
-          '<p>Theme Builder is the Canvasly workspace for site templates such as headers, footers, single posts, archives and other theme areas.</p><p class="lb-menu-note">The full Theme Builder is planned for the Pro module. Your current page remains open.</p>'
+          '<p>Theme Builder is the Sidcraft Syntex workspace for site templates such as headers, footers, single posts, archives and other theme areas.</p><p class="lb-menu-note">The full Theme Builder is planned for the Pro module. Your current page remains open.</p>'
         );
         return;
       }
@@ -5199,14 +5200,14 @@
       if (action === "help") {
         app.showMenuDialog(
           app.t("Help Center"),
-          '<div class="lb-help"><p><strong>Getting started</strong></p><p>Choose a unit from the left panel, drag it onto the canvas, then edit its settings in the right panel.</p><p>Use the device controls for responsive editing. Use Navigator to select nested units.</p><p class="lb-menu-note">Canvasly help documentation can be connected here as the documentation library grows.</p></div>'
+          '<div class="lb-help"><p><strong>Getting started</strong></p><p>Choose a unit from the left panel, drag it onto the canvas, then edit its settings in the right panel.</p><p>Use the device controls for responsive editing. Use Navigator to select nested units.</p><p class="lb-menu-note">Sidcraft Syntex help documentation can be connected here as the documentation library grows.</p></div>'
         );
         return;
       }
       if (action === "account") {
         app.showMenuDialog(
-          app.t("My Canvasly"),
-          '<p><strong>Canvasly account</strong></p><p>Account, licensing and product services will be available here when the Canvasly account service is enabled.</p><p class="lb-menu-note">Core editing does not require an account.</p>'
+          app.t("My Sidcraft Syntex"),
+          '<p><strong>Sidcraft Syntex account</strong></p><p>Account, licensing and product services will be available here when the Sidcraft Syntex account service is enabled.</p><p class="lb-menu-note">Core editing does not require an account.</p>'
         );
         return;
       }
@@ -5267,11 +5268,11 @@
       app.closeContextMenu();
       if (app.lbPaintCanvas()) return;
       const both = app.leftHidden && app.rightHidden;
-      app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">↶</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">↷</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftHidden ? 0 : app.leftWidth}px;--lb-right-width:${app.rightHidden ? 0 : app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "›" : "‹"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units…")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">×</button></div><div class="lb-categories">${app.unitCategories().map(
+      app.root.innerHTML = `<header class="lb-top"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Sidcraft Syntex menu")}"><span class="lb-brand-mark" aria-hidden="true">C</span><span class="lb-brand-text">Sidcraft Syntex</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><div class="lb-history"><button class="lb-btn" id="lb-undo" title="${app.t("Undo")}">↶</button><button class="lb-btn" id="lb-redo" title="${app.t("Redo")}">↷</button></div>${app.deviceSwitcherHTML()}<span id="lb-status" class="lb-status">${app.dirty ? "Unsaved changes" : "Saved"}</span><button class="lb-btn" id="lb-navigation">${app.t("Site")}</button><button class="lb-btn" id="lb-page-settings">${app.t("Page")}</button><button class="lb-btn" id="lb-revisions">${app.t("History")}</button><button class="lb-btn" id="lb-icon-library">${app.t("Icons")}</button><button class="lb-btn" id="lb-class-manager">${app.t("Classes")}</button><button class="lb-btn" id="lb-component-library">${app.t("Components")}</button><button class="lb-btn" id="lb-variable-manager">${app.t("Variables")}</button><button class="lb-btn" id="lb-template-save">${app.t("Save Template")}</button><button class="lb-btn" id="lb-template-load">${app.t("Templates")}</button><button class="lb-btn" id="lb-component-save">${app.t("Save Component")}</button><button class="lb-btn" id="lb-preview">${app.t("Preview")}</button><button class="lb-btn primary" id="lb-save">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button></header><div class="lb-work ${both ? "lb-panels-hidden" : ""}" style="--lb-left-width:${app.leftHidden ? 0 : app.leftWidth}px;--lb-right-width:${app.rightHidden ? 0 : app.rightWidth}px"><aside class="lb-panel left ${app.leftHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Units")}</span><button class="lb-panel-toggle" data-panel-toggle="left">${app.leftHidden ? "›" : "‹"}</button></div><div class="lb-unit-tools"><input id="lb-unit-search" type="search" value="${app.esc(app.unitSearch)}" placeholder="${app.t("Search units…")}" aria-label="${app.t("Search units")}"><button class="lb-search-clear" id="lb-search-clear">×</button></div><div class="lb-categories">${app.unitCategories().map(
         (c) => `<button data-cat="${c}" class="${app.category === c ? "active" : ""}">${app.unitCategoryLabel(c)}</button>`
       ).join(
         ""
-      )}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Canvasly isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "‹" : "›"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
+      )}</div><div class="lb-units">${app.unitPanel()}</div><div class="lb-panel-resizer lb-resize-left" data-resize="left"></div></aside><main class="lb-canvas-wrap"><div class="lb-canvas-device ${app.device}"><iframe id="lb-editor-frame" class="lb-editor-frame" title="${app.t("Sidcraft Syntex isolated canvas")}" sandbox="allow-same-origin allow-scripts"></iframe></div></main><aside class="lb-panel right ${app.rightHidden ? "is-collapsed" : ""}"><div class="lb-panel-title"><span>${app.t("Navigator / Settings")}</span><button class="lb-panel-toggle" data-panel-toggle="right">${app.rightHidden ? "‹" : "›"}</button></div><div class="lb-tabs"><button data-tab="navigator" class="${app.activeTab === "navigator" ? "active" : ""}">${app.t("Navigator")}</button><button data-tab="settings" class="${app.activeTab === "settings" ? "active" : ""}">${app.t("Settings")}</button></div><section class="lb-tab-content ${app.activeTab === "navigator" ? "visible" : ""} lb-navigator">${app.structureHTML()}</section><section class="lb-tab-content ${app.activeTab === "settings" ? "visible" : ""} lb-settings">${app.settingsHTML()}</section><div class="lb-panel-resizer lb-resize-right" data-resize="right"></div></aside></div>`;
       app.bind();
       const frame = document.getElementById("lb-editor-frame");
       if (frame) {
@@ -5285,7 +5286,7 @@
         try {
           frame.srcdoc = app.frameHTML();
         } catch (err) {
-          if (window.console) console.error("[Canvasly] canvas render failed", err);
+          if (window.console) console.error("[Sidcraft Syntex] canvas render failed", err);
           frame.srcdoc = '<!doctype html><html><body style="margin:24px;font:14px/1.4 system-ui,sans-serif;color:#1d2327">The canvas could not be drawn. Reload the editor. If this page was just converted, open it again after saving.</body></html>';
         }
         setTimeout(() => {
@@ -6498,7 +6499,7 @@
           }), d = await r.json();
           const blob = new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }), a = document.createElement("a");
           a.href = URL.createObjectURL(blob);
-          a.download = `canvasly-lite-${app.D.postId || "document"}.json`;
+          a.download = `sidcraft-syntex-${app.D.postId || "document"}.json`;
           a.click();
           URL.revokeObjectURL(a.href);
         } catch (e) {
@@ -6548,7 +6549,7 @@
             app.selected = null;
             app.render();
           } catch (x) {
-            alert(app.t("Invalid Canvasly document."));
+            alert(app.t("Invalid Sidcraft Syntex document."));
           }
         };
         rd.readAsText(f);
@@ -6774,7 +6775,7 @@
           const r = await fetch(`${app.D.api}/design-system`, { headers: { "X-WP-Nonce": app.D.nonce } }), d = await r.json();
           const a = document.createElement("a");
           a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-          a.download = "canvasly-lite-design-system.json";
+          a.download = "sidcraft-syntex-design-system.json";
           a.click();
         });
         app.root.querySelector("#lb-ds-import")?.addEventListener("click", () => app.root.querySelector("#lb-ds-file")?.click());
@@ -6826,7 +6827,7 @@
             }), d = await r.json();
             const a = document.createElement("a");
             a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-            a.download = `canvasly-lite-template-${b.dataset.tplExport}.json`;
+            a.download = `sidcraft-syntex-template-${b.dataset.tplExport}.json`;
             a.click();
           }
         );
@@ -7027,7 +7028,7 @@
       app.lb101EnsureIcons().then(() => {
         const families = ["all", "solid", "regular", "brands"];
         const body = `<div class="lb-icon-library-toolbar"><input class="lb-modal-search" id="lb101-icon-search" placeholder="${app.t("Search icons…")}"><select id="lb101-icon-family"><option value="all">All</option><option value="solid">Solid</option><option value="regular">Regular</option><option value="brands">Brands</option></select></div><div class="lb-icon-library-count" id="lb101-icon-count"></div><div class="lb-icon-grid lb-icon-grid-large" id="lb101-icon-grid">${app.lb101Icons.map((i) => `<button type="button" class="lb-icon-choice" data-icon-id="${app.esc(i.id)}" data-family="${app.esc(i.family || "custom")}" title="${app.esc(i.title)}">${app.lb101IconSvg(i.id)}<small>${app.esc(i.title)}</small></button>`).join("")}</div>`;
-        app.showModal(app.t("Canvasly Icon Library"), body, () => {
+        app.showModal(app.t("Sidcraft Syntex Icon Library"), body, () => {
           const filter = () => {
             const q = (app.$("#lb101-icon-search")?.value || "").toLowerCase();
             const fam = app.$("#lb101-icon-family")?.value || "all";
@@ -7378,7 +7379,7 @@
    <button type="button" class="lb-rte-close" aria-label="${app.t("Close")}">×</button>
   </div>
   <div class="lb-rte-body">
-   <p class="lb-rte-intro">Edit this content in the visual editor. Changes apply to the Canvasly unit when you click <strong>Save Content</strong>.</p>
+   <p class="lb-rte-intro">Edit this content in the visual editor. Changes apply to the Sidcraft Syntex unit when you click <strong>Save Content</strong>.</p>
    <div class="lb-rte-tools"><button type="button" class="lb-btn" data-rte-media>Add Media</button></div>
    <div class="lb-rte-bar" role="toolbar" aria-label="Formatting">
     <button type="button" data-cmd="formatBlock" data-val="p" title="Paragraph">P</button>
@@ -8053,7 +8054,7 @@
             const d = await r.json();
             const a = document.createElement("a");
             a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-            a.download = "canvasly-lite-design-system-v2.json";
+            a.download = "sidcraft-syntex-design-system-v2.json";
             a.click();
             URL.revokeObjectURL(a.href);
           });
@@ -8229,7 +8230,7 @@
           app.$("#lb111-export")?.addEventListener("click", async () => {
             const r = await fetch(`${app.D.api}/design-system/export`, { headers: { "X-WP-Nonce": app.D.nonce } }), d = await r.json(), a = document.createElement("a");
             a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-            a.download = "canvasly-lite-design-system-2.1.json";
+            a.download = "sidcraft-syntex-design-system-2.1.json";
             a.click();
             setTimeout(() => URL.revokeObjectURL(a.href), 1e3);
           });
@@ -11925,7 +11926,7 @@
       fetch(`${app.D.api}/document/${app.D.postId}/export`, { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => r.json()).then((d) => {
         const a = document.createElement("a");
         a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: "application/json" }));
-        a.download = `canvasly-lite-${app.D.postId || "document"}.json`;
+        a.download = `sidcraft-syntex-${app.D.postId || "document"}.json`;
         a.click();
         setTimeout(() => URL.revokeObjectURL(a.href), 1e3);
       }).catch(() => alert(app.t("Export failed.")));
@@ -11947,7 +11948,7 @@
             app.selected = null;
             app.render();
           } catch (e) {
-            alert(app.t("Invalid Canvasly document."));
+            alert(app.t("Invalid Sidcraft Syntex document."));
           }
         };
         rd.readAsText(f);
@@ -12022,7 +12023,7 @@
         if (app.applyCanvasWidth) app.applyCanvasWidth();
         return;
       }
-      top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Canvasly menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Canvasly</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">↶</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">↷</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">☷</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">⋮</button></div>`;
+      top.innerHTML = `<div class="lb24-top-left"><button type="button" class="lb-brand-button" id="lb-main-menu-button" aria-haspopup="true" aria-expanded="false" title="${app.t("Sidcraft Syntex menu")}"><span class="lb-brand-mark">C</span><span class="lb-brand-text">Sidcraft Syntex</span><small>Core ${app.esc(app.D && app.D.version || "")}</small></button><button class="lb24-icon-btn" id="lb-add" title="${app.t("Add Unit")}">+</button><button class="lb24-icon-btn" id="lb-undo" title="${app.t("Undo (Ctrl/Cmd+Z)")}">↶</button><button class="lb24-icon-btn" id="lb-redo" title="${app.t("Redo (Ctrl/Cmd+Shift+Z)")}">↷</button></div><div class="lb24-top-center"><button class="lb24-page-btn" id="lb-page-settings" title="${app.t("Page Settings")}" aria-label="${app.t("Page Settings")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.15 7.15 0 00-1.63-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.86 14.52a.5.5 0 00-.12.64l1.92 3.32c.14.23.41.32.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.19.1.46.01.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></button><div class="lb24-page-title" title="${app.t("Page Settings")}">${app.esc(title)}</div>${app.deviceSwitcherHTML()}</div><div class="lb24-top-right"><span id="lb-status" class="lb-status">${app.dirty ? "Unsaved" : "Saved"}</span><button class="lb24-icon-btn" id="lb-structure" title="${app.t("Structure / Navigator (Ctrl/Cmd+I)")}">☷</button><button class="lb24-icon-btn" id="lb-preview" title="${app.t("Preview page")}" aria-label="${app.t("Preview page")}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 5C5 5 1.73 11.11 1.73 12S5 19 12 19s10.27-6.11 10.27-7S19 5 12 5zm0 12c-5.05 0-8.27-4.18-8.27-5S6.95 7 12 7s8.27 4.18 8.27 5-3.22 5-8.27 5zm0-8a3 3 0 100 6 3 3 0 000-6zm0 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></button><button class="lb24-save" id="lb-save" title="${app.t("Save (Ctrl/Cmd+S)")}">${typeof app.saveButtonLabel === "function" ? app.saveButtonLabel() : app.t("Save")}</button><button class="lb24-more" id="lb-more" title="${app.t("More editor tools")}">⋮</button></div>`;
       app.$("#lb-main-menu-button").onclick = (e) => {
         e.stopPropagation();
         app.openMainMenu();
@@ -12230,7 +12231,7 @@
               update: (v) => app.update(w.dataset.lbKey, v)
             });
           } catch (e) {
-            console.error('[Canvasly] control "' + w.dataset.lbControl + '" bind failed:', e);
+            console.error('[Sidcraft Syntex] control "' + w.dataset.lbControl + '" bind failed:', e);
           }
         });
       };
@@ -12276,7 +12277,7 @@
           try {
             inner = String(def.render(ctx) ?? "");
           } catch (e) {
-            console.error('[Canvasly] control "' + type + '" render failed:', e);
+            console.error('[Sidcraft Syntex] control "' + type + '" render failed:', e);
           }
           html = `<div class="lb-ext-control" data-lb-control="${app.esc(type)}" data-lb-key="${app.esc(k)}">${inner}</div>`;
         } else html = lbExtOldControl(k, t3, v, label);
@@ -12296,7 +12297,7 @@
             node: app.LB.getNode()
           });
         } catch (err) {
-          console.error('[Canvasly] control "' + wrap.dataset.lbControl + '" read failed:', err);
+          console.error('[Sidcraft Syntex] control "' + wrap.dataset.lbControl + '" read failed:', err);
           return;
         }
         if (v !== void 0) app.update(wrap.dataset.lbKey, v);
@@ -12686,7 +12687,7 @@
       function wpMediaBase() {
         const rest = String(app.D.wpRest || "").replace(/\/$/, "");
         if (rest) return rest;
-        return String(app.D.api || "").replace(/canvasly-lite\/v1\/?$/, "wp/v2");
+        return String(app.D.api || "").replace(/sidcraft-syntex\/v1\/?$/, "wp/v2");
       }
       function fetchRestAtt(id) {
         return fetch(wpMediaBase() + "/media/" + id + "?context=edit", { headers: { "X-WP-Nonce": app.D.nonce } }).then((r) => {
@@ -13579,7 +13580,7 @@
           lb28OldRefresh();
           setTimeout(bindControls, 0);
         };
-      window.CanvaslyLite1228 = { attCache, migrate, OPTIONS, attImg, captionOf };
+      window.SidcraftSyntex1228 = { attCache, migrate, OPTIONS, attImg, captionOf };
     })();
     (function() {
       const lb30OldStyle = app.styleInline;
@@ -13701,7 +13702,7 @@
       setTimeout(app.render, 0);
     })();
     (function() {
-      const api = () => window.CanvaslyLite1228 || {};
+      const api = () => window.SidcraftSyntex1228 || {};
       function groupsOf(s) {
         if ((s.mode || "single") === "multiple" && Array.isArray(s.collections) && s.collections.length) {
           return s.collections.map((c, i) => ({
@@ -16174,7 +16175,7 @@
       const prevMarkup = app.canvasMarkup;
       if (typeof prevMarkup === "function") {
         app.canvasMarkup = function() {
-          if (window.CanvaslyLite) window.CanvaslyLite.editorDevice = app.device || "desktop";
+          if (window.SidcraftSyntex) window.SidcraftSyntex.editorDevice = app.device || "desktop";
           return prevMarkup.apply(this, arguments);
         };
       }
@@ -18293,7 +18294,7 @@
 				<p class="lb-muted">${app.t("Used when a page does not set its own content width.")}</p>
 				${textField("layout.widgets_space", app.t("Widgets Space"), d.layout.widgets_space, "20px")}
 				${textField("layout.page_title_selector", app.t("Page Title Selector"), d.layout.page_title_selector, ".entry-title")}
-				<p class="lb-muted">${app.t("Hides matching theme title units on Canvasly pages.")}</p>
+				<p class="lb-muted">${app.t("Hides matching theme title units on Sidcraft Syntex pages.")}</p>
 				${field(app.t("Default Template"), `<select data-kit-path="layout.default_template">${tplOpts}</select>`)}
 			</div>
 			<div class="lb-ss-section"><h4>${app.t("Site Identity")}</h4>
@@ -18506,7 +18507,7 @@
 <label class="lb-kit-check"><input type="checkbox" id="lb-kit-ex-templates" checked> ${app.t("Saved templates")}</label>
 <label class="lb-kit-check"><input type="checkbox" id="lb-kit-ex-media" checked> ${app.t("Media files")}</label>
 <label class="lb-kit-check"><input type="checkbox" id="lb-kit-ex-content"> ${app.t("Selected pages and posts")}</label>
-<div class="lb-kit-pages">${rows || '<p class="lb-muted">' + app.t("No Canvasly pages were found.") + "</p>"}</div>
+<div class="lb-kit-pages">${rows || '<p class="lb-muted">' + app.t("No Sidcraft Syntex pages were found.") + "</p>"}</div>
 <button type="button" class="lb-btn primary" id="lb-kit-export">${app.t("Download Kit ZIP")}</button>
 </div>
 <div class="lb-ss-section">
@@ -18551,7 +18552,7 @@
         if (!r.ok || !d.url) throw new Error(d.message || app.t("Could not export kit."));
         const a = document.createElement("a");
         a.href = d.url;
-        a.download = d.filename || "canvasly-lite-kit.zip";
+        a.download = d.filename || "sidcraft-syntex-kit.zip";
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -19597,7 +19598,7 @@
           }
           return inst;
         } catch (e) {
-          console.error("[Canvasly] code editor failed:", e);
+          console.error("[Sidcraft Syntex] code editor failed:", e);
         }
       }
       if (!ta.__lbFallback) {
@@ -19675,8 +19676,8 @@
   }
 
   // src/editor/shortcuts.js
-  var SHORTCUT_STORAGE = "canvasly-lite.shortcuts";
-  var FINDER_RECENT_STORAGE = "canvasly-lite.finder.recent";
+  var SHORTCUT_STORAGE = "sidcraft-syntex.shortcuts";
+  var FINDER_RECENT_STORAGE = "sidcraft-syntex.finder.recent";
   function isMacPlatform(ua) {
     const src = String(
       ua || (typeof navigator !== "undefined" ? navigator.userAgentData && navigator.userAgentData.platform || navigator.platform || navigator.userAgent : "") || ""
@@ -20179,7 +20180,7 @@
     function openPage(id) {
       if (String(id) === String(app.D.postId)) return;
       if (app.dirty && !window.confirm(app.t("You have unsaved changes. Leave the editor?"))) return;
-      window.location.href = `${app.D.adminUrl}admin.php?page=canvasly-lite&post_id=${id}`;
+      window.location.href = `${app.D.adminUrl}admin.php?page=sidcraft-syntex&post_id=${id}`;
     }
     app.collectFinderItems = function collectFinderItems(query) {
       const q = String(query || "");
@@ -20508,7 +20509,7 @@
       try {
         item.run && item.run();
       } catch (e) {
-        if (window.console && console.error) console.error("[Canvasly] finder action failed:", e);
+        if (window.console && console.error) console.error("[Sidcraft Syntex] finder action failed:", e);
       }
       hooks().doAction("editor/finder/run", item, app.LB);
     };
@@ -20577,7 +20578,7 @@
   }
 
   // src/editor/clipboard.js
-  var CLIPBOARD_STORAGE = "canvasly-lite.clipboard";
+  var CLIPBOARD_STORAGE = "sidcraft-syntex.clipboard";
   var CLIPBOARD_SCHEMA = "2.6";
   var BP_NAMES = ["mobile", "mobile_extra", "tablet", "tablet_extra", "laptop", "desktop", "widescreen"];
   var REPEATER_MAP = {
@@ -22799,7 +22800,7 @@
     app.downloadTemplateJson = function downloadTemplateJson(data, filename) {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
-      a.download = filename || "canvasly-lite-template.json";
+      a.download = filename || "sidcraft-syntex-template.json";
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1e3);
     };
@@ -22808,7 +22809,7 @@
         const r = await fetch(`${app.D.api}/templates/${id}/export`, { headers: { "X-WP-Nonce": app.D.nonce } });
         if (!r.ok) throw new Error();
         const d = await r.json();
-        app.downloadTemplateJson(d, `canvasly-lite-template-${id}.json`);
+        app.downloadTemplateJson(d, `sidcraft-syntex-template-${id}.json`);
       } catch (e) {
         alert(app.t("Could not export template."));
       }
@@ -23121,7 +23122,7 @@
 
   // src/editor/heartbeat.js
   function lockFromPayload(data) {
-    const lb = data && data["canvasly-lite-lock"];
+    const lb = data && data["sidcraft-syntex-lock"];
     const wp2 = data && data["wp-refresh-post-lock"];
     const out = lb && typeof lb === "object" ? { ...lb } : {};
     if (wp2 && wp2.new_lock) out.lock = wp2.new_lock;
@@ -23238,12 +23239,12 @@
     const $ = window.jQuery;
     const hasHb = !!(window.wp && wp.heartbeat && $ && typeof $.fn === "object");
     if (hasHb && app.D.postId) {
-      $(document).on("heartbeat-send.canvasly-lite", function(_e, data) {
+      $(document).on("heartbeat-send.sidcraft-syntex", function(_e, data) {
         if (!data || !app.D.postId) return;
-        data["canvasly-lite-lock"] = { post_id: app.D.postId, takeover: !!app.lockTakeover };
+        data["sidcraft-syntex-lock"] = { post_id: app.D.postId, takeover: !!app.lockTakeover };
         data["wp-refresh-post-lock"] = { post_id: app.D.postId, lock: app.lockToken };
       });
-      $(document).on("heartbeat-tick.canvasly-lite", function(_e, data) {
+      $(document).on("heartbeat-tick.sidcraft-syntex", function(_e, data) {
         const lock = lockFromPayload(data || {});
         if (lock && (lock.locked || lock.lock || Object.keys(lock).length)) app.applyLockState(lock);
         if (lock && !lock.locked) app.lockTakeover = false;
@@ -23904,7 +23905,7 @@
       try {
         initAll(app.frameDoc());
       } catch (err) {
-        if (window.console) console.error("[Canvasly] carousel preview", err);
+        if (window.console) console.error("[Sidcraft Syntex] carousel preview", err);
       }
       return out;
     };
@@ -24427,7 +24428,7 @@
         try {
           return paintNode(n);
         } catch (err) {
-          if (window.console) console.error("[Canvasly] unit render failed", n && n.type, err);
+          if (window.console) console.error("[Sidcraft Syntex] unit render failed", n && n.type, err);
           const title = (app.meta(n && n.type) || {}).title || n && n.type || "Unit";
           return '<div class="lb-node lb-node-error" data-id="' + app.esc(n && n.id || "") + '" data-type="' + app.esc(n && n.type || "") + '"><div class="lb-embed-placeholder">' + app.esc(title) + "</div></div>";
         }

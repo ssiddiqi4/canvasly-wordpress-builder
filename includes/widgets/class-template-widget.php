@@ -1,23 +1,23 @@
 <?php
-namespace CanvaslyLite\Widgets;
+namespace SidcraftSyntex\Widgets;
 
-use CanvaslyLite\Templates\SavedTemplates;
-use CanvaslyLite\Templates\TemplateEmbed;
+use SidcraftSyntex\Templates\SavedTemplates;
+use SidcraftSyntex\Templates\TemplateEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Classic WordPress sidebar widget that embeds a saved Canvasly template.
+ * Classic WordPress sidebar widget that embeds a saved Sidcraft Syntex template.
  */
 class TemplateWidget extends \WP_Widget {
 	public function __construct() {
 		parent::__construct(
-			'canvasly_lite_template',
-			__( 'Canvasly Template', 'canvasly-lite' ),
+			'sidcraft_syntex_template',
+			__( 'Sidcraft Syntex Template', 'sidcraft-syntex' ),
 			array(
-				'description' => __( 'Display a saved Canvasly template.', 'canvasly-lite' ),
+				'description' => __( 'Display a saved Sidcraft Syntex template.', 'sidcraft-syntex' ),
 			)
 		);
 	}
@@ -54,10 +54,10 @@ class TemplateWidget extends \WP_Widget {
 		$current  = absint( $instance['template_id'] ?? 0 );
 		$opts     = class_exists( SavedTemplates::class ) && method_exists( SavedTemplates::class, 'select_options' )
 			? SavedTemplates::select_options()
-			: array( '0' => __( 'Select a template', 'canvasly-lite' ) );
-		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Title', 'canvasly-lite' ) . '</label>';
+			: array( '0' => __( 'Select a template', 'sidcraft-syntex' ) );
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Title', 'sidcraft-syntex' ) . '</label>';
 		echo '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" type="text" value="' . esc_attr( $title ) . '"></p>';
-		echo '<p><label for="' . esc_attr( $this->get_field_id( 'template_id' ) ) . '">' . esc_html__( 'Saved Template', 'canvasly-lite' ) . '</label>';
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'template_id' ) ) . '">' . esc_html__( 'Saved Template', 'sidcraft-syntex' ) . '</label>';
 		echo '<select class="widefat" id="' . esc_attr( $this->get_field_id( 'template_id' ) ) . '" name="' . esc_attr( $this->get_field_name( 'template_id' ) ) . '">';
 		foreach ( $opts as $value => $label ) {
 			echo '<option value="' . esc_attr( (string) $value ) . '"' . selected( $current, absint( $value ), false ) . '>' . esc_html( (string) $label ) . '</option>';

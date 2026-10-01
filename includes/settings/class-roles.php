@@ -1,5 +1,5 @@
 <?php
-namespace CanvaslyLite\Settings;
+namespace SidcraftSyntex\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -8,23 +8,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Role Manager (Roadmap 7.2).
  *
- * Maps each WordPress role to Canvasly access: none, content-only (Style/Advanced
- * hidden), or full. Grants `canvasly_lite_edit` / `canvasly_lite_design` so design-system
+ * Maps each WordPress role to Sidcraft Syntex access: none, content-only (Style/Advanced
+ * hidden), or full. Grants `sidcraft_syntex_edit` / `sidcraft_syntex_design` so design-system
  * saves are not tied to `manage_options`.
  */
 class Roles {
-	const OPTION     = 'canvasly_lite_role_access';
-	const PAGE       = 'canvasly-lite-roles';
-	const NONCE      = 'lb_role_manager';
-	const CAP_EDIT   = 'canvasly_lite_edit';
-	const CAP_DESIGN = 'canvasly_lite_design';
+	const OPTION     = 'sidcraft_syntex_role_access';
+	const PAGE       = 'sidcraft-syntex-roles';
+	const NONCE      = 'sidsyn_role_manager';
+	const CAP_EDIT   = 'sidcraft_syntex_edit';
+	const CAP_DESIGN = 'sidcraft_syntex_design';
 	const NONE       = 'none';
 	const CONTENT    = 'content';
 	const FULL       = 'full';
 
 	public static function init() {
 		self::maybe_sync();
-		add_action( 'canvasly-lite/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft-syntex/rest/register_routes', array( self::class, 'routes' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_menu', array( self::class, 'menu' ), 11 );
 			add_action( 'admin_init', array( self::class, 'maybe_save' ) );
@@ -33,9 +33,9 @@ class Roles {
 
 	public static function menu() {
 		add_submenu_page(
-			'canvasly-lite',
-			__( 'Role Manager', 'canvasly-lite' ),
-			__( 'Role Manager', 'canvasly-lite' ),
+			'sidcraft-syntex',
+			__( 'Role Manager', 'sidcraft-syntex' ),
+			__( 'Role Manager', 'sidcraft-syntex' ),
 			'manage_options',
 			self::PAGE,
 			array( self::class, 'screen' )
@@ -104,7 +104,7 @@ class Roles {
 		 * @param string   $best
 		 * @param string[] $roles
 		 */
-		$filtered = apply_filters( 'canvasly-lite/roles/current_access', $best, $roles );
+		$filtered = apply_filters( 'sidcraft-syntex/roles/current_access', $best, $roles );
 		return self::sanitize_access( $filtered );
 	}
 
@@ -147,7 +147,7 @@ class Roles {
 		 *
 		 * @param array<string,string> $out
 		 */
-		$filtered = apply_filters( 'canvasly-lite/roles/access', $out );
+		$filtered = apply_filters( 'sidcraft-syntex/roles/access', $out );
 		return is_array( $filtered ) ? array_map( array( self::class, 'sanitize_access' ), $filtered ) : $out;
 	}
 
@@ -178,7 +178,7 @@ class Roles {
 	 */
 	public static function save( $map ) {
 		if ( ! self::can_manage() ) {
-			return new \WP_Error( 'forbidden', __( 'Only administrators can change role access.', 'canvasly-lite' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', __( 'Only administrators can change role access.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
 		}
 		$clean = self::sanitize( $map );
 		update_option( self::OPTION, $clean, false );
@@ -189,7 +189,7 @@ class Roles {
 		 *
 		 * @param array<string,string> $clean
 		 */
-		do_action( 'canvasly-lite/roles/after_save', $clean );
+		do_action( 'sidcraft-syntex/roles/after_save', $clean );
 		return $clean;
 	}
 
@@ -209,8 +209,8 @@ class Roles {
 		if ( $done ) {
 			return;
 		}
-		$ver    = defined( 'CANVASLY_LITE_VERSION' ) ? (string) CANVASLY_LITE_VERSION : '';
-		$stored = function_exists( 'get_option' ) ? (string) get_option( 'canvasly_lite_roles_synced', '' ) : '';
+		$ver    = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? (string) SIDCRAFT_SYNTEX_VERSION : '';
+		$stored = function_exists( 'get_option' ) ? (string) get_option( 'sidcraft_syntex_roles_synced', '' ) : '';
 		if ( $ver !== '' && $stored === $ver ) {
 			$done = true;
 			return;
@@ -220,9 +220,9 @@ class Roles {
 	}
 
 	private static function mark_synced() {
-		$ver = defined( 'CANVASLY_LITE_VERSION' ) ? (string) CANVASLY_LITE_VERSION : '';
+		$ver = defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? (string) SIDCRAFT_SYNTEX_VERSION : '';
 		if ( $ver !== '' && function_exists( 'update_option' ) ) {
-			update_option( 'canvasly_lite_roles_synced', $ver, false );
+			update_option( 'sidcraft_syntex_roles_synced', $ver, false );
 		}
 	}
 
@@ -346,10 +346,10 @@ class Roles {
 	}
 
 	public static function maybe_save() {
-		if ( class_exists( '\\CanvaslyLite\\Admin\\AdminContext' ) && ! \CanvaslyLite\Admin\AdminContext::is_plugin_page() ) {
+		if ( class_exists( '\\SidcraftSyntex\\Admin\\AdminContext' ) && ! \SidcraftSyntex\Admin\AdminContext::is_plugin_page() ) {
 			return;
 		}
-		if ( empty( $_POST['lb_save_roles'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( empty( $_POST['sidsyn_save_roles'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return;
 		}
 		if ( ! self::can_manage() ) {
@@ -359,32 +359,32 @@ class Roles {
 			return;
 		}
 		$raw = array();
-		if ( isset( $_POST['lb_role_access'] ) && is_array( $_POST['lb_role_access'] ) ) {
-			$posted = map_deep( wp_unslash( $_POST['lb_role_access'] ), 'sanitize_key' );
+		if ( isset( $_POST['sidsyn_role_access'] ) && is_array( $_POST['sidsyn_role_access'] ) ) {
+			$posted = map_deep( wp_unslash( $_POST['sidsyn_role_access'] ), 'sanitize_key' );
 			foreach ( (array) $posted as $role => $access ) {
 				$raw[ sanitize_key( (string) $role ) ] = sanitize_key( (string) $access );
 			}
 		}
 		self::save( $raw );
-		add_settings_error( 'canvasly_lite_roles', 'saved', __( 'Role access saved.', 'canvasly-lite' ), 'updated' );
+		add_settings_error( 'sidcraft_syntex_roles', 'saved', __( 'Role access saved.', 'sidcraft-syntex' ), 'updated' );
 	}
 
 	public static function screen() {
 		if ( ! self::can_manage() ) {
-			wp_die( esc_html__( 'Only administrators can manage Canvasly roles.', 'canvasly-lite' ) );
+			wp_die( esc_html__( 'Only administrators can manage Sidcraft Syntex roles.', 'sidcraft-syntex' ) );
 		}
 		$map = self::all();
 		echo '<div class="wrap lb-settings-wrap lb-role-manager">';
-		echo '<h1>' . esc_html__( 'Role Manager', 'canvasly-lite' ) . '</h1>';
-		settings_errors( 'canvasly_lite_roles' );
-		echo '<p class="description">' . esc_html__( "Choose who can open Canvasly. Content only hides Style and Advanced tabs. Full access is not limited to administrators \u{2014} it uses a dedicated design capability.", 'canvasly-lite' ) . '</p>';
+		echo '<h1>' . esc_html__( 'Role Manager', 'sidcraft-syntex' ) . '</h1>';
+		settings_errors( 'sidcraft_syntex_roles' );
+		echo '<p class="description">' . esc_html__( "Choose who can open Sidcraft Syntex. Content only hides Style and Advanced tabs. Full access is not limited to administrators \u{2014} it uses a dedicated design capability.", 'sidcraft-syntex' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE ) ) . '">';
 		wp_nonce_field( self::NONCE );
 		echo '<table class="widefat striped lb-roles-table"><thead><tr>';
-		echo '<th>' . esc_html__( 'Role', 'canvasly-lite' ) . '</th>';
-		echo '<th>' . esc_html__( 'No Access', 'canvasly-lite' ) . '</th>';
-		echo '<th>' . esc_html__( 'Content Only', 'canvasly-lite' ) . '</th>';
-		echo '<th>' . esc_html__( 'Full Access', 'canvasly-lite' ) . '</th>';
+		echo '<th>' . esc_html__( 'Role', 'sidcraft-syntex' ) . '</th>';
+		echo '<th>' . esc_html__( 'No Access', 'sidcraft-syntex' ) . '</th>';
+		echo '<th>' . esc_html__( 'Content Only', 'sidcraft-syntex' ) . '</th>';
+		echo '<th>' . esc_html__( 'Full Access', 'sidcraft-syntex' ) . '</th>';
 		echo '</tr></thead><tbody>';
 		foreach ( self::role_list() as $slug => $_role ) {
 			$access = $map[ $slug ] ?? self::default_access( $_role );
@@ -392,16 +392,16 @@ class Roles {
 			echo '<tr>';
 			echo '<th scope="row">' . esc_html( self::role_label( $slug ) ) . ' <code>' . esc_html( $slug ) . '</code></th>';
 			foreach ( array( self::NONE, self::CONTENT, self::FULL ) as $level ) {
-				echo '<td><label><input type="radio" name="lb_role_access[' . esc_attr( $slug ) . ']" value="' . esc_attr( $level ) . '"' . checked( $access, $level, false ) . disabled( $locked, true, false ) . '></label></td>';
+				echo '<td><label><input type="radio" name="sidsyn_role_access[' . esc_attr( $slug ) . ']" value="' . esc_attr( $level ) . '"' . checked( $access, $level, false ) . disabled( $locked, true, false ) . '></label></td>';
 			}
 			if ( $locked ) {
-				echo '<input type="hidden" name="lb_role_access[' . esc_attr( $slug ) . ']" value="' . esc_attr( self::FULL ) . '">';
+				echo '<input type="hidden" name="sidsyn_role_access[' . esc_attr( $slug ) . ']" value="' . esc_attr( self::FULL ) . '">';
 			}
 			echo '</tr>';
 		}
 		echo '</tbody></table>';
-		echo '<p class="description">' . esc_html__( 'Content only: users can edit widget content and save the page. Style, Advanced, Site Settings, Classes and Variables stay hidden. No access hides the editor, row actions and REST routes.', 'canvasly-lite' ) . '</p>';
-		echo '<p class="submit"><button type="submit" class="button button-primary" name="lb_save_roles" value="1">' . esc_html__( 'Save Changes', 'canvasly-lite' ) . '</button></p>';
+		echo '<p class="description">' . esc_html__( 'Content only: users can edit widget content and save the page. Style, Advanced, Site Settings, Classes and Variables stay hidden. No access hides the editor, row actions and REST routes.', 'sidcraft-syntex' ) . '</p>';
+		echo '<p class="submit"><button type="submit" class="button button-primary" name="sidsyn_save_roles" value="1">' . esc_html__( 'Save Changes', 'sidcraft-syntex' ) . '</button></p>';
 		echo '</form></div>';
 	}
 
@@ -432,7 +432,7 @@ class Roles {
 	 * @return true|\WP_Error
 	 */
 	public static function rest_can_manage( $request = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-		return self::can_manage() ? true : new \WP_Error( 'forbidden', __( 'Only administrators can manage Canvasly roles.', 'canvasly-lite' ), array( 'status' => 403 ) );
+		return self::can_manage() ? true : new \WP_Error( 'forbidden', __( 'Only administrators can manage Sidcraft Syntex roles.', 'sidcraft-syntex' ), array( 'status' => 403 ) );
 	}
 
 	public static function rest_get() {
