@@ -254,8 +254,8 @@ class Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * [<file>]
-	 * : Destination file or directory. Defaults to a generated name in the current directory.
+	 * [<name>]
+	 * : File name for the ZIP. It is always written to wp-content/uploads/sidcraft-page-builder/kits/, with a random suffix added. Defaults to a generated name.
 	 *
 	 * [--templates]
 	 * : Include saved templates. Default: true.
@@ -278,7 +278,7 @@ class Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp sidcraft-page-builder export
-	 *     wp sidcraft-page-builder export ./kit.zip --content --content-ids=12,15
+	 *     wp sidcraft-page-builder export my-kit.zip --content --content-ids=12,15
 	 *
 	 * @when after_wp_load
 	 *

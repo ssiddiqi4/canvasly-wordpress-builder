@@ -213,38 +213,53 @@ class Cli {
 	}
 
 	/**
-	 * Write a kit ZIP to $dest (file or directory). Empty dest uses the generated filename in cwd.
+	 * uploads/sidcraft-page-builder/kits/, created with an empty index.php.
 	 *
-	 * @param string $dest
+	 * @return string|\WP_Error Directory path with a trailing slash.
+	 */
+	public static function export_dir() {
+		$uploads = wp_upload_dir( null, false );
+		if ( ! empty( $uploads['error'] ) || empty( $uploads['basedir'] ) ) {
+			return new \WP_Error( 'export_dir', __( 'The uploads folder is not available.', 'sidcraft-page-builder' ) );
+		}
+		$dir = trailingslashit( $uploads['basedir'] ) . 'sidcraft-page-builder/kits/';
+		if ( ! wp_mkdir_p( $dir ) ) {
+			return new \WP_Error( 'export_dir', __( 'Could not create the export folder in uploads.', 'sidcraft-page-builder' ) );
+		}
+		if ( ! file_exists( $dir . 'index.php' ) ) {
+			file_put_contents( $dir . 'index.php', "<?php\n// Silence is golden.\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- WP-CLI context, inside uploads.
+		}
+		return $dir;
+	}
+
+	/**
+	 * Write a kit ZIP into the uploads folder (uploads/sidcraft-page-builder/kits).
+	 * $name only picks the file name; any directory part is ignored.
+	 *
+	 * @param string $name
 	 * @param array  $args Kit::normalize_args keys.
 	 * @return array|\WP_Error
 	 */
-	public static function export( $dest = '', $args = array() ) {
+	public static function export( $name = '', $args = array() ) {
 		if ( ! class_exists( Kit::class ) ) {
 			return new \WP_Error( 'unavailable', __( 'Kit export is not available.', 'sidcraft-page-builder' ) );
+		}
+		$dir = self::export_dir();
+		if ( is_wp_error( $dir ) ) {
+			return $dir;
 		}
 		$args  = is_array( $args ) ? $args : array();
 		$built = Kit::write_zip( $args );
 		if ( is_wp_error( $built ) ) {
 			return $built;
 		}
-		$filename = (string) ( $built['filename'] ?? 'sidcraft-page-builder-kit.zip' );
-		$dest     = trim( (string) $dest );
-		if ( $dest === '' ) {
-			$cwd  = function_exists( 'getcwd' ) ? getcwd() : '';
-			$dest = ( $cwd !== '' ? rtrim( $cwd, '/\\' ) . DIRECTORY_SEPARATOR : '' ) . $filename;
-		} else {
-			$dest = self::resolve_path( $dest );
-			if ( is_dir( $dest ) ) {
-				$dest = rtrim( $dest, '/\\' ) . DIRECTORY_SEPARATOR . $filename;
-			}
+		$filename = sanitize_file_name( wp_basename( trim( (string) $name ) ) );
+		if ( '' === $filename ) {
+			$filename = sanitize_file_name( (string) ( $built['filename'] ?? 'sidcraft-page-builder-kit.zip' ) );
 		}
-		$dir = dirname( $dest );
-		if ( $dir !== '' && $dir !== '.' && ! is_dir( $dir ) ) {
-			Kit::discard_export( $built );
-			return new \WP_Error( 'export_dir', __( 'The export directory does not exist.', 'sidcraft-page-builder' ) );
-		}
-		$copied = @copy( $built['path'], $dest );
+		$filename = preg_replace( '/\.zip$/i', '', $filename ) . '-' . strtolower( wp_generate_password( 8, false ) ) . '.zip';
+		$dest     = $dir . wp_unique_filename( $dir, $filename );
+		$copied   = copy( $built['path'], $dest );
 		Kit::discard_export( $built );
 		if ( ! $copied || ! file_exists( $dest ) ) {
 			return new \WP_Error( 'export_write', __( 'Could not write the kit ZIP.', 'sidcraft-page-builder' ) );

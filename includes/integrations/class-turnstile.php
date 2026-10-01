@@ -61,6 +61,7 @@ class Turnstile {
 		add_action( 'sidcraft-page-builder/units/register', array( self::class, 'register_unit' ), 6 );
 		add_action( 'sidcraft-page-builder/frontend/enqueue', array( self::class, 'register_assets' ) );
 		add_action( 'sidcraft-page-builder/settings/integrations', array( self::class, 'render_settings' ) );
+		add_filter( 'sidcraft-page-builder/settings/integration_fields', array( self::class, 'integration_fields' ) );
 		add_action( 'sidcraft-page-builder/settings/save_integrations', array( self::class, 'save_from_post' ) );
 		add_action( 'admin_init', array( self::class, 'handle_admin_action' ), 5 );
 		add_filter( 'sidcraft-page-builder/form/verify', array( self::class, 'verify_form' ), 10, 3 );
@@ -202,6 +203,22 @@ class Turnstile {
 	 *
 	 * @param array $p Unslashed $_POST.
 	 */
+	/**
+	 * Settings fields this integration reads from the Integrations tab.
+	 *
+	 * @param string[] $fields
+	 * @return string[]
+	 */
+	public static function integration_fields( $fields ) {
+		return array_merge(
+			(array) $fields,
+			array(
+				'turnstile_site_key', 'turnstile_secret_key', 'turnstile_api_token', 'turnstile_account_id', 'turnstile_theme',
+				'turnstile_size', 'turnstile_appearance', 'turnstile_protect_forms', 'turnstile_protect_login', 'turnstile_protect_comments',
+			)
+		);
+	}
+
 	public static function save_from_post( $p ) {
 		$p = is_array( $p ) ? $p : array();
 		if ( ! array_key_exists( 'turnstile_site_key', $p ) ) {
@@ -246,7 +263,7 @@ class Turnstile {
 			return;
 		}
 		check_admin_referer( 'sidsyn_admin_settings' );
-		$post   = wp_unslash( $_POST );
+		$post   = \SidcraftPageBuilder\Settings\AdminSettings::posted_fields( self::integration_fields( array( 'sidsyn_turnstile_action' ) ) );
 		$action = sanitize_key( (string) $post['sidsyn_turnstile_action'] );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 		self::save_from_post( $post );

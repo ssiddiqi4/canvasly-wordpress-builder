@@ -3,6 +3,8 @@
 * Changed: Renamed to Sidcraft Page Builder (slug and text domain sidcraft-page-builder) after the WordPress.org plugin review.
 * Removed: Custom CSS fields on pages and units, and the Global Classes manager. Use XEditor classes instead. Custom CSS saved by earlier versions is no longer printed.
 * Security: The theme header and footer capture no longer forwards visitor cookies. Inline CSS is printed through WordPress's style functions, and rendered pages, template blocks and template shortcodes are escaped with wp_kses before output.
+* Security: Settings screens now read and sanitize only their own form fields instead of handing the whole request to add-ons.
+* Changed: `wp sidcraft-page-builder export` always writes the kit ZIP to wp-content/uploads/sidcraft-page-builder/kits/; the optional argument is now just a file name.
 * Docs: The readme now lists every external service, what it receives and when, and where the editor source and build tools are.
 
 = 0.13.3 =

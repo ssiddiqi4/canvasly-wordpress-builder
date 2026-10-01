@@ -519,14 +519,42 @@ class AdminSettings {
 		$raw  = self::from_post( $tab );
 		$save = self::save( $raw, true );
 		if ( $tab === 'integrations' && ! is_wp_error( $save ) ) {
-			/** Save extra integration fields (Cloudflare Turnstile, add-ons). @param array $post Unslashed $_POST. */
-			do_action( 'sidcraft-page-builder/settings/save_integrations', wp_unslash( $_POST ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check_admin_referer() above.
+			/**
+			 * Field names the Integrations tab hands to save_integrations. Integrations add theirs.
+			 *
+			 * @param string[] $fields
+			 */
+			$fields = (array) apply_filters( 'sidcraft-page-builder/settings/integration_fields', array() );
+			/** Save extra integration fields (Cloudflare Turnstile, add-ons). @param array $post Sanitized values of the registered fields only. */
+			do_action( 'sidcraft-page-builder/settings/save_integrations', self::posted_fields( $fields ) );
 		}
 		if ( is_wp_error( $save ) ) {
 			add_settings_error( 'sidcraft_page_builder_settings', 'forbidden', $save->get_error_message(), 'error' );
 		} else {
 			add_settings_error( 'sidcraft_page_builder_settings', 'saved', __( 'Settings saved.', 'sidcraft-page-builder' ), 'updated' );
 		}
+	}
+
+	/**
+	 * Sanitized values of the named $_POST fields, and nothing else. Strings go
+	 * through sanitize_text_field(), arrays through map_deep() with the same.
+	 *
+	 * @param string[] $keys
+	 * @return array
+	 */
+	public static function posted_fields( array $keys ) {
+		$out = array();
+		foreach ( $keys as $key ) {
+			$key = (string) $key;
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Callers verify the nonce before reading fields.
+			if ( '' === $key || ! isset( $_POST[ $key ] ) ) {
+				continue;
+			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized on the next line.
+			$value       = wp_unslash( $_POST[ $key ] );
+			$out[ $key ] = is_array( $value ) ? map_deep( $value, 'sanitize_text_field' ) : sanitize_text_field( (string) $value );
+		}
+		return $out;
 	}
 
 	/**
@@ -537,7 +565,14 @@ class AdminSettings {
 	 */
 	public static function from_post( $tab ) {
 		$tab = sanitize_key( (string) $tab );
-		$p   = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$p   = self::posted_fields(
+			array(
+				'post_types', 'disable_default_colors', 'disable_default_fonts', 'google_maps_api_key', 'recaptcha_type',
+				'recaptcha_site_key', 'recaptcha_secret_key', 'css_print_method', 'font_display', 'google_fonts_local',
+				'editor_loader_mode', 'unit_cache', 'unit_cache_ttl', 'lazy_load', 'optimized_markup', 'experiments',
+				'maintenance_mode', 'maintenance_template', 'maintenance_exclude_roles', 'safe_mode', 'rollback_keep',
+			)
+		);
 		$out = array();
 		if ( $tab === 'general' ) {
 			$out['post_types']             = isset( $p['post_types'] ) && is_array( $p['post_types'] ) ? $p['post_types'] : array();
