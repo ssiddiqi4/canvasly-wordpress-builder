@@ -1,4 +1,3 @@
-  var app = {};
-
+var app = {};
 
 export { app };

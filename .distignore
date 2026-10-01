@@ -4,6 +4,9 @@
 .distignore
 node_modules
 src
+scripts
+.prettierrc.json
+.prettierignore
 package.json
 package-lock.json
 build.mjs
