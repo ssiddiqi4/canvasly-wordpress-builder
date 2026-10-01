@@ -845,8 +845,9 @@ class ThemeChrome {
 	}
 
 	/**
-	 * The page itself, including an unpublished preview, before the homepage.
-	 * A footer condition scoped to this page does not match the homepage.
+	 * The published page itself, before the homepage. A footer condition scoped
+	 * to this page does not match the homepage. The fetch runs as an anonymous
+	 * visitor, so an unpublished page falls back to the homepage.
 	 *
 	 * @param int $post_id
 	 * @return string[]
@@ -860,14 +861,6 @@ class ThemeChrome {
 			$link   = is_string( $link ) ? $link : '';
 			if ( '' !== $link && 'publish' === $status ) {
 				$urls[] = $link;
-			}
-			if ( function_exists( 'get_preview_post_link' ) ) {
-				$preview = get_preview_post_link( $post_id );
-				if ( is_string( $preview ) && '' !== $preview ) {
-					$urls[] = $preview;
-				}
-			} elseif ( '' !== $link ) {
-				$urls[] = $link . ( false === strpos( $link, '?' ) ? '?' : '&' ) . 'preview=true';
 			}
 		}
 		if ( function_exists( 'home_url' ) ) {
@@ -897,19 +890,12 @@ class ThemeChrome {
 				'Cache-Control' => 'no-cache',
 			),
 		);
-		// A loopback request to the site's own domain (self::same_site())
-		// is what this fallback almost always is. Many hosts fail that
-		// request on a bad/self-signed local cert or a strict SSL config
-		// that a real visitor's browser never hits; relaxing verification
-		// only for that same-site case keeps the header/footer fallback
-		// working without weakening verification for any external host.
+		// The site fetches its own page as an anonymous visitor: no cookies of the
+		// current user are sent. SSL verification for this loopback follows the
+		// core 'https_local_ssl_verify' filter, as WordPress's own loopback requests do.
 		if ( self::same_site( $url ) ) {
-			$args['sslverify'] = false;
-			$url                = add_query_arg( array( 'sidcraft_syntex_chrome' => '1', '_' => (string) time() ), $url );
-		}
-		$cookies = self::auth_cookies( $url );
-		if ( $cookies ) {
-			$args['cookies'] = $cookies;
+			$args['sslverify'] = (bool) apply_filters( 'https_local_ssl_verify', false ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core filter.
+			$url               = add_query_arg( array( 'sidcraft_syntex_chrome' => '1', '_' => (string) time() ), $url );
 		}
 		$response = wp_remote_get( $url, $args );
 		if ( function_exists( 'is_wp_error' ) && is_wp_error( $response ) ) {
@@ -923,32 +909,6 @@ class ThemeChrome {
 			return '';
 		}
 		return function_exists( 'wp_remote_retrieve_body' ) ? (string) wp_remote_retrieve_body( $response ) : '';
-	}
-
-	/**
-	 * Logged-in cookies so a draft preview resolves the same footer visitors of that page see.
-	 *
-	 * @param string $url
-	 * @return array<int, array{name:string,value:string}>
-	 */
-	private static function auth_cookies( $url ) {
-		if ( empty( $_COOKIE ) || ! is_array( $_COOKIE ) || ! self::same_site( $url ) ) {
-			return array();
-		}
-		$cookies = array();
-		foreach ( $_COOKIE as $name => $value ) {
-			if ( ! is_string( $name ) || '' === $name || ! is_scalar( $value ) ) {
-				continue;
-			}
-			$cookies[] = array(
-				'name'  => $name,
-				'value' => function_exists( 'wp_unslash' ) ? (string) wp_unslash( $value ) : (string) $value,
-			);
-			if ( count( $cookies ) >= 20 ) {
-				break;
-			}
-		}
-		return $cookies;
 	}
 
 	/**
