@@ -332,7 +332,7 @@ class XEditorEngine {
 			return;
 		}
 		wp_register_style( self::STYLE_HANDLE, false, array(), defined( 'SIDCRAFT_SYNTEX_VERSION' ) ? SIDCRAFT_SYNTEX_VERSION : self::VERSION );
-		wp_add_inline_style( self::STYLE_HANDLE, self::base_css() . XEditorClassesManager::css() );
+		wp_add_inline_style( self::STYLE_HANDLE, wp_strip_all_tags( self::base_css() . XEditorClassesManager::css() ) );
 	}
 
 	/**

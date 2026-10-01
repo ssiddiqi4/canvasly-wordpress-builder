@@ -85,16 +85,9 @@ function installDesignSystem() {
       ) +
       app.lb09Section(app.t("Responsive"), app.hideOnHTML(s), false) +
       app.lb09Section(
-        app.t("Custom CSS"),
+        app.t("Attributes"),
         app.lb09Field("css_id", app.t("CSS ID"), "text", s.css_id) +
           app.lb09Field("css_class", app.t("CSS Classes"), "text", s.css_class) +
-          app.lb09Field("global_class", app.t("Global Classes"), "text", s.global_class) +
-          app.control(
-            "custom_css",
-            { type: "code", language: "css", rows: 8 },
-            s.custom_css || "",
-            app.t("Custom CSS"),
-          ) +
           `<label class="lb-control"><span>Attributes</span><textarea data-setting="html_attributes" rows="4" placeholder="title=Example">${app.esc(s.html_attributes || "")}</textarea></label>`,
         false,
       )

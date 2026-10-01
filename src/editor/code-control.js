@@ -178,22 +178,9 @@ function installCodeControl() {
     const host = document.querySelector(".lb-modal-backdrop");
     if (host) app.bindCodeEditors(host);
   };
-  const oldSaveClass = app.lb110SaveClass;
-  if (typeof oldSaveClass === "function") {
-    app.lb110SaveClass = function lb110SaveClassCode(name) {
-      app.lbCodeFlush(document);
-      return oldSaveClass(name);
-    };
-  }
   const oldPage = app.openPageSettings;
   app.openPageSettings = function openPageSettingsCode() {
     oldPage();
-    const ta = app.$("#lb-page-css");
-    if (ta) {
-      ta.classList.add("lb-code-textarea");
-      ta.setAttribute("data-lb-code", "css");
-      app.lbMountCodeEditor(ta, "css", { height: 220 });
-    }
     app.$("#lb-page-save")?.addEventListener("click", () => app.lbCodeFlush(document), true);
   };
   const oldSave = app.save;

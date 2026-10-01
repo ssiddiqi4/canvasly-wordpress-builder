@@ -315,14 +315,6 @@ function installCanvasSchema() {
     if (!parts.length) return "";
     return "#lb-node-" + String(node.id).replace(/[^a-zA-Z0-9_-]/g, "") + "{" + parts.join("") + "}";
   }
-  function customCss(node) {
-    const css = String((node.settings || {}).custom_css || "")
-      .replace(/<\/style/gi, "")
-      .trim();
-    if (!css) return "";
-    const sel2 = "#lb-node-" + String(node.id).replace(/[^a-zA-Z0-9_-]/g, "");
-    return css.replace(/\bselector\b/g, sel2);
-  }
   function nodeCss(node) {
     if (!node || !node.id) return "";
     const controls = (app.meta(node.type) || {}).controls || {};
@@ -339,7 +331,6 @@ function installCanvasSchema() {
       css += rules(def, settings[key], wrapper);
     });
     css += declarations(node, selectorKeys);
-    css += customCss(node);
     return css;
   }
   function walk(nodes, out) {

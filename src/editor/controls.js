@@ -344,7 +344,6 @@ function installControls() {
     "variable_ref",
     "css_id",
     "css_class",
-    "custom_css",
     "z_index",
     "position",
     "top",

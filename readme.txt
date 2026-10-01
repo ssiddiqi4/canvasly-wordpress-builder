@@ -81,7 +81,64 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 
 [Sidcraft Syntex Pro](https://canvasly.pro/price.html#lite-vs-pro) is a separate add-on that adds Theme Builder, popups, display conditions, dynamic tags, Loop Grid and Loop Carousel, 70+ extra units, WooCommerce builder units, hosted payments (Stripe, PayPal, Square, Authorize.Net, Razorpay, Mollie) with Payment Forms, form actions and submissions, custom fonts and icons, custom code, editor notes and an AI assistant with an MCP server. Pro's Login & Register and Payment Form units also include the "Require Cloudflare Turnstile" option.
 
-The full unit list and user guide are at [canvasly.pro](https://canvasly.pro/blocks.html). For third-party services used by optional features, see the FAQ entry "Does Sidcraft Syntex connect to external services?".
+The full unit list and user guide are at [canvasly.pro](https://canvasly.pro/blocks.html). For third-party services used by optional features, see "External services" below.
+
+== External services ==
+
+Sidcraft Syntex works without any external service. The services below are contacted only when you use the feature that needs them; none of them is used to track you or your visitors, and no data is sent to the plugin author.
+
+= Google Fonts (Google LLC) =
+
+Used to show the Google fonts you pick in the editor. When a published page uses a Google font, the visitor's browser loads the font stylesheet from fonts.googleapis.com and the font files from fonts.gstatic.com, which sends the visitor's IP address and browser user agent to Google. If you turn on "Load Google Fonts locally", your server downloads the stylesheet and font files from the same two hosts once, when you save that setting or click Download, and visitors load the fonts from your own site instead.
+[Terms of Service](https://developers.google.com/terms), [Privacy Policy](https://policies.google.com/privacy).
+
+= Google reCAPTCHA (Google LLC) =
+
+Used to protect forms from spam, only after you enter reCAPTCHA keys under Settings. Pages with a protected form load the reCAPTCHA script from www.google.com, which sends the visitor's IP address, browser data and interaction data to Google. When the form is submitted, your server sends the reCAPTCHA response token, your secret key and the visitor's IP address to www.google.com/recaptcha/api/siteverify to check it.
+[Terms of Service](https://policies.google.com/terms), [Privacy Policy](https://policies.google.com/privacy).
+
+= Cloudflare Turnstile (Cloudflare, Inc.) =
+
+Used to protect forms, the WordPress login form and comments from spam, only after you enter Turnstile keys under Settings, Integrations. Protected pages load the Turnstile script from challenges.cloudflare.com, which sends the visitor's IP address and browser data to Cloudflare. When the form is submitted, your server sends the Turnstile token, your secret key and the visitor's IP address to challenges.cloudflare.com/turnstile/v0/siteverify. If you also enter a Cloudflare API token, the settings screen sends that token and your account ID to api.cloudflare.com, only when you click Verify or Create widget.
+[Terms of Service](https://www.cloudflare.com/website-terms/), [Privacy Policy](https://www.cloudflare.com/privacypolicy/), [Turnstile Privacy Addendum](https://www.cloudflare.com/turnstile-privacy-policy/).
+
+= Google Maps (Google LLC) =
+
+Used by the Google Maps unit to show a map. The page embeds a map from www.google.com for the address you enter, which sends that address and the visitor's IP address and browser data to Google when the page is viewed. If you enter a Google Maps API key under Settings, the key is sent with the request to the Maps Embed API.
+[Terms of Service](https://maps.google.com/help/terms_maps/), [Privacy Policy](https://policies.google.com/privacy).
+
+= YouTube (Google LLC) =
+
+Used by the Video unit when you link a YouTube video. The page embeds the player from www.youtube.com, or www.youtube-nocookie.com when privacy mode is on, which sends the video ID and the visitor's IP address and browser data to YouTube when the page is viewed.
+[Terms of Service](https://www.youtube.com/t/terms), [Privacy Policy](https://policies.google.com/privacy).
+
+= Vimeo (Vimeo.com, Inc.) =
+
+Used by the Video unit when you link a Vimeo video. The page embeds the player from player.vimeo.com, which sends the video ID and the visitor's IP address and browser data to Vimeo when the page is viewed.
+[Terms of Service](https://vimeo.com/terms), [Privacy Policy](https://vimeo.com/privacy).
+
+= Dailymotion (Dailymotion SA) =
+
+Used by the Video unit when you link a Dailymotion video. The page embeds the player from www.dailymotion.com, which sends the video ID and the visitor's IP address and browser data to Dailymotion when the page is viewed.
+[Terms of Service](https://legal.dailymotion.com/en/terms-of-use/), [Privacy Policy](https://legal.dailymotion.com/en/privacy-policy/).
+
+= VideoPress (Automattic Inc.) =
+
+Used by the Video unit when you link a VideoPress video. The page embeds the player from videopress.com, which sends the video ID and the visitor's IP address and browser data to Automattic when the page is viewed.
+[Terms of Service](https://wordpress.com/tos/), [Privacy Policy](https://automattic.com/privacy/).
+
+= SoundCloud (SoundCloud Global Limited & Co. KG) =
+
+Used by the SoundCloud unit to play a track or playlist. The page embeds the player from w.soundcloud.com with the track URL you enter, which sends that URL and the visitor's IP address and browser data to SoundCloud when the page is viewed.
+[Terms of Use](https://soundcloud.com/terms-of-use), [Privacy Policy](https://soundcloud.com/pages/privacy).
+
+= Kit and template import =
+
+When you import a kit or template file whose images are listed by URL rather than packed in the file, your server downloads each image from the address in the file so it can be added to your Media Library. The request goes to whichever site hosts that image, and sends only your server's IP address and a WordPress user agent.
+
+== Source code ==
+
+The editor script (assets/js/editor.js) is built from the files in src/editor/ with esbuild. The full source, the build script (build.mjs) and instructions are on GitHub: [github.com/ssiddiqi4/canvasly-wordpress-builder](https://github.com/ssiddiqi4/canvasly-wordpress-builder). Run `npm ci` and then `npm run build` to rebuild it. The other scripts in assets/js, including frontend.js and xeditor.js, are not compiled: the shipped files are the source.
 
 == Installation ==
 
@@ -222,13 +279,7 @@ No. Elementor is a trademark of its respective owner. Sidcraft Syntex is an inde
 
 = Does Sidcraft Syntex connect to external services? =
 
-Only when you turn on a feature that needs one. Nothing below is contacted by default.
-
-* **Cloudflare Turnstile** (Cloudflare, Inc.) — used when you add Turnstile keys under Settings → Integrations. Pages with a protected form or login (and the WordPress login or comment form, if you enable them) load `api.js` from challenges.cloudflare.com; your server sends the visitor's token and IP address to the Siteverify endpoint when the form is submitted. If you enter a Cloudflare API token, the admin screen calls api.cloudflare.com only when you click Verify or Create widget. [Terms](https://www.cloudflare.com/website-terms/), [Privacy](https://www.cloudflare.com/privacypolicy/).
-* **Google reCAPTCHA** (Google LLC) — used when reCAPTCHA keys are set: loads the reCAPTCHA script and verifies the token on submit. [Terms](https://policies.google.com/terms), [Privacy](https://policies.google.com/privacy).
-* **Google Maps** — the Google Maps unit embeds a map from google.com (Maps Embed API when a key is set). Same Google terms and privacy policy.
-* **Google Fonts** — fonts chosen in the editor load from fonts.googleapis.com unless "Load Google Fonts locally" is on.
-* **Video and embed units** (YouTube, Vimeo, SoundCloud and others) — the player loads from the provider you link to.
+Only when you use a feature that needs one, such as Google Fonts, a captcha, a map or a video embed. The "External services" section above lists each service, what is sent and when, and links to its terms and privacy policy.
 
 = Where do I get help? =
 

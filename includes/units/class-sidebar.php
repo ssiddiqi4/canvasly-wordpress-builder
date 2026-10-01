@@ -9,6 +9,6 @@ class Sidebar extends Unit {
  public function render($s,$children=''){
   $id=sanitize_key($s['sidebar']??''); if(!$id||!is_active_sidebar($id))return '<div class="'.$this->cls($s).' lb-embed-placeholder">'.esc_html__('Choose an active sidebar', 'sidcraft-syntex').'</div>';
   ob_start(); dynamic_sidebar($id); $html=ob_get_clean();
-  return '<aside class="'.$this->cls($s).' lb-sidebar">'.$html.'</aside>';
+  return '<aside class="'.$this->cls($s).' lb-sidebar">'.\SidcraftSyntex\Rendering\OutputEscape::raw($html).'</aside>';
  }
 }

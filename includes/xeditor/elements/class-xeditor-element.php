@@ -82,7 +82,7 @@ abstract class XEditorElement extends Unit {
 	 */
 	protected function base_controls() {
 		$shared = self::shared_controls();
-		$keep   = array( 'css_id', 'css_class', 'aria_label', 'role', 'html_attributes', 'custom_css', 'xe_classes', 'hide_desktop', 'hide_tablet', 'hide_mobile' );
+		$keep   = array( 'css_id', 'css_class', 'aria_label', 'role', 'html_attributes', 'xe_classes', 'hide_desktop', 'hide_tablet', 'hide_mobile' );
 		$out    = $this->controls();
 		foreach ( $keep as $k ) {
 			if ( isset( $shared[ $k ] ) && ! isset( $out[ $k ] ) ) {

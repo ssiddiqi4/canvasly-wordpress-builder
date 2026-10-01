@@ -71,7 +71,7 @@ class FrontendRenderer {
   if(class_exists('\\SidcraftSyntex\\Settings\\KitSettings'))$css.=\SidcraftSyntex\Settings\KitSettings::css();
   if(class_exists('\\SidcraftSyntex\\Design\\GlobalClasses'))$css.=\SidcraftSyntex\Design\GlobalClasses::css();
   if(class_exists('\\SidcraftSyntex\\Design\\Interactions'))$css.=\SidcraftSyntex\Design\Interactions::css();
-  if($css){wp_add_inline_style('sidcraft-syntex-frontend',$css);$done=true;}
+  if($css){wp_add_inline_style('sidcraft-syntex-frontend',wp_strip_all_tags($css));$done=true;}
  }
  public static function filter_content($content){
   static $rendering=false;
@@ -85,13 +85,13 @@ class FrontendRenderer {
    if(class_exists('\\SidcraftSyntex\\Design\\CssPrint')){
     \SidcraftSyntex\Design\CssPrint::enqueue_for_document($id);
    }else{
-    $css=DocumentManager::compiled_css($id);if($css)wp_add_inline_style('sidcraft-syntex-frontend',$css);
+    $css=DocumentManager::compiled_css($id);if($css)wp_add_inline_style('sidcraft-syntex-frontend',wp_strip_all_tags($css));
    }
    self::enqueue_google_fonts($nodes);
    if(class_exists('\\SidcraftSyntex\\Rendering\\FrontendAssets'))\SidcraftSyntex\Rendering\FrontendAssets::enqueue($nodes,$id);
    elseif(self::needs_frontend_script($nodes,$id))wp_enqueue_script('sidcraft-syntex-frontend');
    if(class_exists('\\SidcraftSyntex\\Units\\MenuAnchor'))\SidcraftSyntex\Units\MenuAnchor::enqueue();
-   return self::render_document($doc,$id);
+   return OutputEscape::render(function()use($doc,$id){return self::render_document($doc,$id);});
   }finally{
    $rendering=false;
   }
@@ -173,6 +173,7 @@ class FrontendRenderer {
   }
   $el=UnitRegistry::instance()->get($n['type']??'');
   if(!$el)return '';
+  $raw_marks=OutputEscape::marks();
   $s=$n['settings']??[];
   $s=self::resolve_dynamic($s,$post_id,$el,$extra_ctx,$n);
   if(method_exists($el,'render_collection')){
@@ -216,7 +217,8 @@ class FrontendRenderer {
   }else{
    $html='<div id="lb-node-'.esc_attr($html_id).'" class="'.esc_attr($classes).'"'.$attrs.'>'.$inner.'</div>';
   }
-  if($use_cache)\SidcraftSyntex\Design\Optimize::set($n,$post_id,$html);
+  // Output passed through OutputEscape::raw() holds a per-request placeholder, so it is never cached.
+  if($use_cache&&OutputEscape::marks()===$raw_marks)\SidcraftSyntex\Design\Optimize::set($n,$post_id,$html);
   return $html;
  }
  /**
