@@ -7,7 +7,7 @@ class Sidebar extends Unit {
  public function defaults(){return ['sidebar'=>''];}
  public function controls(){return ['sidebar'=>'select'];}
  public function render($s,$children=''){
-  $id=sanitize_key($s['sidebar']??''); if(!$id||!is_active_sidebar($id))return '<div class="'.$this->cls($s).' lb-embed-placeholder">'.esc_html__('Choose an active sidebar', 'sidcraft-page-builder').'</div>';
+  $id=sanitize_key($s['sidebar']??''); if(!$id||!is_active_sidebar($id))return current_user_can('edit_posts')?'<div class="'.$this->cls($s).' lb-embed-placeholder">'.esc_html($id?__('This sidebar has no widgets yet. Add them under Appearance > Widgets.', 'sidcraft-page-builder'):__('Choose an active sidebar', 'sidcraft-page-builder')).'</div>':'';
   ob_start(); dynamic_sidebar($id); $html=ob_get_clean();
   return '<aside class="'.$this->cls($s).' lb-sidebar">'.\SidcraftPageBuilder\Rendering\OutputEscape::raw($html).'</aside>';
  }

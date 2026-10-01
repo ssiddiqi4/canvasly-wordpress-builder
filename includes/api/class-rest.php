@@ -84,6 +84,7 @@ class Rest {
   ]]);
   register_rest_route('sidcraft-page-builder/v1','/loop/preview',['methods'=>'POST','callback'=>[__CLASS__,'loop_preview'],'permission_callback'=>[__CLASS__,'can_edit_preview']]);
   register_rest_route('sidcraft-page-builder/v1','/shortcode/preview',['methods'=>'POST','callback'=>[__CLASS__,'preview_shortcode'],'permission_callback'=>[__CLASS__,'can_edit_preview']]);
+  register_rest_route('sidcraft-page-builder/v1','/widget/preview',['methods'=>'POST','callback'=>[__CLASS__,'preview_widget'],'permission_callback'=>[__CLASS__,'can_edit_preview']]);
   /**
    * Fires after core routes are registered. Add-ons register their own routes here; the namespace
    * is passed so they can share it (e.g. `register_rest_route($ns,'/my-route',...)`).
@@ -165,6 +166,22 @@ class Rest {
   $code=isset($d['shortcode'])?$d['shortcode']:'';
   if(!class_exists('\\SidcraftPageBuilder\\Units\\Shortcode'))return rest_ensure_response(['html'=>'','css'=>'','links'=>[]]);
   return rest_ensure_response(\SidcraftPageBuilder\Units\Shortcode::preview($code,$post_id));
+ }
+ /** Sidebar and WordPress Widget markup for the editor canvas, rendered as on the page. */
+ public static function preview_widget($req){
+  $d=is_array($req->get_json_params())?$req->get_json_params():[];
+  $type=sanitize_key($d['type']??'');
+  $empty=['html'=>'','css'=>'','links'=>[]];
+  $registry=class_exists('\\SidcraftPageBuilder\\Units\\UnitRegistry')?\SidcraftPageBuilder\Units\UnitRegistry::instance():null;
+  $unit=($registry&&in_array($type,['sidebar','wordpress_widget'],true))?$registry->get($type):null;
+  if(!$unit||!class_exists('\\SidcraftPageBuilder\\Units\\Shortcode'))return rest_ensure_response($empty);
+  $s=is_array($d['settings']??null)?$d['settings']:[];
+  $s=array_intersect_key($s,array_flip(['sidebar','widget','title','widget_options']));
+  $s=array_map(function($v){return is_scalar($v)?(string)$v:'';},$s);
+  $out=\SidcraftPageBuilder\Units\Shortcode::capture(function()use($unit,$s){
+   return \SidcraftPageBuilder\Rendering\OutputEscape::render(function()use($unit,$s){return $unit->render($s);});
+  },absint($d['post_id']??0));
+  return rest_ensure_response($out);
  }
  public static function loop_preview($req){
   $d=is_array($req->get_json_params())?$req->get_json_params():[];

@@ -3253,6 +3253,53 @@
         delete app.shortcodePreviewPending[key];
       });
     };
+    app.widgetPreviewKey = function widgetPreviewKey(type, s) {
+      s = s || {};
+      const pick = {
+        sidebar: s.sidebar || "",
+        widget: s.widget || "",
+        title: s.title || "",
+        widget_options: s.widget_options || ""
+      };
+      if (type === "sidebar") return pick.sidebar ? "widget:sidebar:" + pick.sidebar : "";
+      if (!pick.widget && !pick.sidebar) return "";
+      return "widget:" + type + ":" + JSON.stringify(pick);
+    };
+    app.queueWidgetPreview = function queueWidgetPreview(type, s) {
+      const key = app.widgetPreviewKey(type, s);
+      if (!key) return;
+      if (Object.prototype.hasOwnProperty.call(app.shortcodePreview, key) || app.shortcodePreviewPending[key]) return;
+      const api = String(app.D && app.D.api || "").replace(/\/$/, "");
+      if (!api) return;
+      app.shortcodePreviewPending[key] = true;
+      const post = parseInt(app.D && app.D.postId || 0, 10) || 0;
+      fetch(api + "/widget/preview", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D && app.D.nonce || "" },
+        body: JSON.stringify({ post_id: post, type, settings: s || {} })
+      }).then((r) => r.ok ? r.json() : null).then((data) => {
+        delete app.shortcodePreviewPending[key];
+        if (!data) return;
+        const html = app.lbSanitizePreviewHtml(data.html || "");
+        app.shortcodePreview[key] = {
+          html,
+          css: String(data.css || ""),
+          links: Array.isArray(data.links) ? data.links.filter(Boolean) : []
+        };
+        if (html.trim() && typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
+        else if (typeof app.frameDoc === "function") app.installShortcodePreviewStyles(app.frameDoc());
+      }).catch(() => {
+        delete app.shortcodePreviewPending[key];
+      });
+    };
+    app.widgetPreviewHTML = function widgetPreviewHTML(type, s) {
+      const key = app.widgetPreviewKey(type, s);
+      const pack = key && app.shortcodePreview && app.shortcodePreview[key];
+      if (pack && pack.html && pack.html.trim()) return '<div class="lb-shortcode-live">' + pack.html + "</div>";
+      if (key) app.queueWidgetPreview(type, s);
+      return "";
+    };
     app.hydrateShortcodes = function hydrateShortcodes() {
       const fd = typeof app.frameDoc === "function" ? app.frameDoc() : null;
       if (fd) app.installShortcodePreviewStyles(fd);
@@ -3260,6 +3307,7 @@
         (nodes || []).forEach((n) => {
           if (!n) return;
           if (n.type === "shortcode") app.queueShortcodePreview(n.settings && n.settings.shortcode);
+          if (n.type === "sidebar" || n.type === "wordpress_widget") app.queueWidgetPreview(n.type, n.settings);
           if (Array.isArray(n.children)) walk(n.children);
         });
       };
@@ -13069,10 +13117,14 @@
           case "wordpress_widget": {
             const w = (app.D.widgets || []).find((x) => x.id === s.widget);
             const label = w ? w.name : s.sidebar ? "Sidebar: " + s.sidebar : "";
+            const live = app.widgetPreviewHTML ? app.widgetPreviewHTML("wordpress_widget", s) : "";
+            if (live) return `<div class="lb-wordpress-widget">${live}</div>`;
             return `<div class="lb-wordpress-widget">${s.title ? `<h3 class="lb-wp-widget-title">${app.esc(s.title)}</h3>` : ""}<div class="lb-embed-placeholder">${label ? "WordPress Widget · " + app.esc(label) : "Choose a WordPress widget"}</div></div>`;
           }
           case "sidebar": {
             const sb = (app.D.sidebars || []).find((x) => x.id === s.sidebar);
+            const live = sb && app.widgetPreviewHTML ? app.widgetPreviewHTML("sidebar", s) : "";
+            if (live) return `<aside class="lb-sidebar">${live}</aside>`;
             return `<aside class="lb-sidebar"><div class="lb-embed-placeholder">${sb ? "Sidebar · " + app.esc(sb.name) : "Choose an active sidebar"}</div></aside>`;
           }
           case "price_table": {

@@ -63,13 +63,32 @@ class Shortcode extends Unit {
   if ( '' === $code ) {
    return array( 'html' => '', 'css' => '', 'links' => array() );
   }
-  $run = function () use ( $code ) {
+  return self::capture(
+   function () use ( $code ) {
+    return function_exists( 'do_shortcode' ) ? (string) do_shortcode( $code ) : $code;
+   },
+   $post_id,
+   $code
+  );
+ }
+
+ /**
+  * Run $produce as it would run on the page and collect its markup plus the
+  * stylesheets it queued, for the editor canvas.
+  *
+  * @param callable $produce Returns markup; anything it echoes is kept too.
+  * @param int      $post_id Post the preview stands in for.
+  * @param string   $code    Shortcode text, used to prime form plugin styles.
+  * @return array{html:string,css:string,links:string[]}
+  */
+ public static function capture( callable $produce, $post_id = 0, $code = '' ) {
+  $run = function () use ( $produce, $code ) {
    self::prime_form_styles( $code );
    $before = self::style_handles();
    $echoed = '';
    $level  = ob_get_level();
    ob_start();
-   $html = function_exists( 'do_shortcode' ) ? (string) do_shortcode( $code ) : $code;
+   $html = (string) call_user_func( $produce );
    while ( ob_get_level() > $level ) {
     $echoed = (string) ob_get_clean() . $echoed;
    }
