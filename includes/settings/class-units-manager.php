@@ -604,7 +604,7 @@ class UnitsManager {
 		if ( empty( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), self::NONCE ) ) {
 			return;
 		}
-		self::save( self::data_from_post( wp_unslash( $_POST ) ) );
+		self::save( self::data_from_post( AdminSettings::posted_fields( array( 'sidsyn_unit_disabled', 'sidsyn_unit_disabled_map', 'sidsyn_unit_restricted' ) ) ) );
 		add_settings_error( 'sidcraft_page_builder_units', 'saved', __( 'Units Manager saved.', 'sidcraft-page-builder' ), 'updated' );
 	}
 
