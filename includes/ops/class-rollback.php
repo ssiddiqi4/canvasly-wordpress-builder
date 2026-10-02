@@ -19,13 +19,13 @@ class Rollback {
 	const NOTICE = 'sidcraft_page_builder_rollback_notice';
 
 	public static function init() {
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
 		add_filter( 'upgrader_pre_install', array( self::class, 'on_pre_install' ), 10, 2 );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_post_sidsyn_rollback', array( self::class, 'handle_restore' ) );
 			add_action( 'admin_post_sidsyn_rollback_snapshot', array( self::class, 'handle_snapshot' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
-			add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'tools_screen' ), 23 );
+			add_action( 'sidcraft_page_builder_tools_screen', array( self::class, 'tools_screen' ), 23 );
 		}
 	}
 
@@ -49,7 +49,7 @@ class Rollback {
 		 *
 		 * @param string $dir
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/rollback/dir', $dir );
+		$filtered = apply_filters( 'sidcraft_page_builder_rollback_dir', $dir );
 		return is_string( $filtered ) && $filtered !== '' ? untrailingslashit( $filtered ) : untrailingslashit( $dir );
 	}
 
@@ -168,7 +168,7 @@ class Rollback {
 		 * @param string $path
 		 * @param string $version
 		 */
-		do_action( 'sidcraft-page-builder/rollback/snapshot', $path, $version );
+		do_action( 'sidcraft_page_builder_rollback_snapshot', $path, $version );
 		return array(
 			'file'    => $path,
 			'name'    => $name,
@@ -242,7 +242,7 @@ class Rollback {
 		 * @param string $file
 		 * @param string $dest
 		 */
-		do_action( 'sidcraft-page-builder/rollback/restore', $file, $dest );
+		do_action( 'sidcraft_page_builder_rollback_restore', $file, $dest );
 		return array(
 			'restored' => basename( $file ),
 			'version'  => $parsed['version'],

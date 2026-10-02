@@ -81,7 +81,7 @@ class Interactions {
 			'wipe-left'       => array( 'label' => __( 'Wipe Left', 'sidcraft-page-builder' ), 'group' => 'wipe', 'from' => array( 'clip' => 'inset(0 0 0 100%)' ) ),
 			'wipe-right'      => array( 'label' => __( 'Wipe Right', 'sidcraft-page-builder' ), 'group' => 'wipe', 'from' => array( 'clip' => 'inset(0 100% 0 0)' ) ),
 		);
-		$filtered = apply_filters( 'sidcraft-page-builder/interactions/presets', $p );
+		$filtered = apply_filters( 'sidcraft_page_builder_interactions_presets', $p );
 		return is_array( $filtered ) ? $filtered : $p;
 	}
 

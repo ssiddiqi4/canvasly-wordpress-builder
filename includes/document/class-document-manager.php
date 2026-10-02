@@ -245,9 +245,9 @@ class DocumentManager {
   if(class_exists(Revisions::class))Revisions::migrate_legacy($id);
   $data=is_array($data)?$data:[];
   /** Fires before a document is sanitized and saved. @param int $id @param array $data Raw incoming document. */
-  do_action('sidcraft-page-builder/document/before_save',$id,$data);
+  do_action('sidcraft_page_builder_document_before_save',$id,$data);
   /** Filter the raw document before sanitization. Return an array. */
-  $filtered=apply_filters('sidcraft-page-builder/document/save_data',$data,$id);
+  $filtered=apply_filters('sidcraft_page_builder_document_save_data',$data,$id);
   if(is_array($filtered))$data=$filtered;
   $clean=self::sanitize_tree($data);
   $old=self::get($id);
@@ -260,7 +260,7 @@ class DocumentManager {
   if(class_exists('SidcraftPageBuilder\Design\Performance'))\SidcraftPageBuilder\Design\Performance::invalidate($id);
   self::$loaded[$id]=$clean;
   /** Fires after a document has been saved. @param int $id @param array $clean Sanitized document. @param array $old Previous document. */
-  do_action('sidcraft-page-builder/document/after_save',$id,$clean,$old);
+  do_action('sidcraft_page_builder_document_after_save',$id,$clean,$old);
   return $clean;
  }
  private static function sanitize_tree($data){$out=['version'=>self::SCHEMA,'root'=>[],'header'=>[],'footer'=>[],'settings'=>[]];$out['settings']=is_array($data['settings']??null)?self::sanitize_settings($data['settings']):[];foreach(['root','header','footer'] as $part){foreach((array)($data[$part]??[]) as $n){$x=self::sanitize_node($n);if($x)$out[$part][]=$x;}}if(class_exists(DevMode::class))$out=DevMode::sanitize_document($out);return $out;}

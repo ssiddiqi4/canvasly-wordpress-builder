@@ -566,7 +566,7 @@ class CollectionLoop extends Unit {
 	 * Saved template this loop repeats.
 	 *
 	 * Inline loops return 0. `item_source` `template` returns `template_id`.
-	 * `sidcraft-page-builder/loop/template_id` can point the same slot at a loop-item
+	 * `sidcraft_page_builder_loop_template_id` can point the same slot at a loop-item
 	 * template without a second renderer.
 	 *
 	 * @param array $settings
@@ -578,7 +578,7 @@ class CollectionLoop extends Unit {
 			$id = absint( $settings['template_id'] ?? 0 );
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'sidcraft-page-builder/loop/template_id', $id, $settings );
+			$filtered = apply_filters( 'sidcraft_page_builder_loop_template_id', $id, $settings );
 			if ( is_numeric( $filtered ) ) {
 				$id = absint( $filtered );
 			}
@@ -604,14 +604,14 @@ class CollectionLoop extends Unit {
 	private function render_item( array $s, array $template, $item, $kind, $node_id, $page, $index ) {
 		if ( function_exists( 'do_action' ) ) {
 			/** Fires before one loop item renders. Pro pushes the loop post here. @param mixed $item Post or term. @param string $kind posts|terms */
-			do_action( 'sidcraft-page-builder/loop/before_item', $item, $kind );
+			do_action( 'sidcraft_page_builder_loop_before_item', $item, $kind );
 		}
 		try {
 			return $this->render_item_markup( $s, $template, $item, $kind, $node_id, $page, $index );
 		} finally {
 			if ( function_exists( 'do_action' ) ) {
 				/** Fires after one loop item renders. @param mixed $item @param string $kind */
-				do_action( 'sidcraft-page-builder/loop/after_item', $item, $kind );
+				do_action( 'sidcraft_page_builder_loop_after_item', $item, $kind );
 			}
 		}
 	}

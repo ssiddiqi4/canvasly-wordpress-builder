@@ -33,8 +33,8 @@ class Upgrades {
 		add_action( 'admin_init', array( self::class, 'maybe_continue' ), 5 );
 		add_action( self::CRON, array( self::class, 'cron_batch' ) );
 		add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
-		add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'tools_screen' ), 26 );
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_tools_screen', array( self::class, 'tools_screen' ), 26 );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
 		add_action( 'admin_post_sidsyn_upgrade_retry', array( self::class, 'handle_retry' ) );
 		add_action( 'admin_post_sidsyn_upgrade_run', array( self::class, 'handle_run' ) );
 		add_action( 'admin_post_sidsyn_log_clear', array( self::class, 'handle_clear_log' ) );
@@ -99,7 +99,7 @@ class Upgrades {
 		 *
 		 * @param array $map
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/upgrades/register', $map );
+		$filtered = apply_filters( 'sidcraft_page_builder_upgrades_register', $map );
 		return is_array( $filtered ) ? $filtered : $map;
 	}
 
@@ -231,7 +231,7 @@ class Upgrades {
 		 * @param string $to
 		 * @param array  $tasks
 		 */
-		do_action( 'sidcraft-page-builder/upgrade/before', $from, $to, $tasks );
+		do_action( 'sidcraft_page_builder_upgrade_before', $from, $to, $tasks );
 		self::process_batch();
 		return self::status();
 	}
@@ -497,7 +497,7 @@ class Upgrades {
 		 * @param int   $offset
 		 * @param int   $limit
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/upgrades/document_ids', $ids, $offset, $limit );
+		$filtered = apply_filters( 'sidcraft_page_builder_upgrades_document_ids', $ids, $offset, $limit );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'absint', $filtered ) ) ) : $ids;
 	}
 
@@ -511,7 +511,7 @@ class Upgrades {
 		 *
 		 * @param int $n
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/upgrades/batch_size', $n );
+		$filtered = apply_filters( 'sidcraft_page_builder_upgrades_batch_size', $n );
 		return max( 1, min( 200, absint( $filtered ) ) );
 	}
 
@@ -975,7 +975,7 @@ class Upgrades {
 		 * @param string $from
 		 * @param string $to
 		 */
-		do_action( 'sidcraft-page-builder/upgrade/after', $from, $to );
+		do_action( 'sidcraft_page_builder_upgrade_after', $from, $to );
 	}
 
 	/**
@@ -1010,7 +1010,7 @@ class Upgrades {
 		 *
 		 * @param int $delay
 		 */
-		$delay = absint( apply_filters( 'sidcraft-page-builder/upgrades/delay', $delay ) );
+		$delay = absint( apply_filters( 'sidcraft_page_builder_upgrades_delay', $delay ) );
 		wp_schedule_single_event( time() + max( 1, $delay ), self::CRON );
 	}
 

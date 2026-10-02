@@ -559,7 +559,7 @@ class Converter {
 			'root'     => $root,
 			'settings' => $settings,
 		);
-		$filtered = apply_filters( 'sidcraft-page-builder/convert/document', $doc, $this->report );
+		$filtered = apply_filters( 'sidcraft_page_builder_convert_document', $doc, $this->report );
 		if ( is_array( $filtered ) ) {
 			$doc = $filtered;
 		}
@@ -646,7 +646,7 @@ class Converter {
 		$this->report['layout']++;
 		$this->report['nodes']++;
 		$this->report['mapped']++;
-		$filtered = apply_filters( 'sidcraft-page-builder/convert/node', $node, $el, $kind );
+		$filtered = apply_filters( 'sidcraft_page_builder_convert_node', $node, $el, $kind );
 		return is_array( $filtered ) ? $filtered : $node;
 	}
 
@@ -802,12 +802,12 @@ class Converter {
 					__( 'Widget converted as plain text (best effort): %s', 'sidcraft-page-builder' ),
 					$src_type !== '' ? $src_type : 'widget'
 				);
-				$filtered = apply_filters( 'sidcraft-page-builder/convert/node', $node, $el, 'widget' );
+				$filtered = apply_filters( 'sidcraft_page_builder_convert_node', $node, $el, 'widget' );
 				return is_array( $filtered ) ? $filtered : $node;
 			}
 			$this->note_unmapped( $src_type !== '' ? $src_type : 'widget' );
 			$node = $this->placeholder_html( $src_type !== '' ? $src_type : 'widget', $el );
-			$filtered = apply_filters( 'sidcraft-page-builder/convert/node', $node, $el, 'widget' );
+			$filtered = apply_filters( 'sidcraft_page_builder_convert_node', $node, $el, 'widget' );
 			return is_array( $filtered ) ? $filtered : $node;
 		}
 
@@ -840,7 +840,7 @@ class Converter {
 		}
 		$this->report['mapped']++;
 		$this->report['nodes']++;
-		$filtered = apply_filters( 'sidcraft-page-builder/convert/node', $node, $el, 'widget' );
+		$filtered = apply_filters( 'sidcraft_page_builder_convert_node', $node, $el, 'widget' );
 		return is_array( $filtered ) ? $filtered : $node;
 	}
 
@@ -1918,7 +1918,7 @@ class Converter {
 				'edit_url'   => function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=sidcraft-page-builder&post_id=' . $id ) : '',
 			);
 		}
-		$filtered = apply_filters( 'sidcraft-page-builder/convert/candidates', $out, $args );
+		$filtered = apply_filters( 'sidcraft_page_builder_convert_candidates', $out, $args );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 
@@ -2133,7 +2133,7 @@ class Converter {
 		}
 		$agg['warnings'] = array_values( array_unique( $agg['warnings'] ) );
 		$agg['items']    = $items;
-		$filtered        = apply_filters( 'sidcraft-page-builder/convert/report', $agg, $ids, $args );
+		$filtered        = apply_filters( 'sidcraft_page_builder_convert_report', $agg, $ids, $args );
 		return is_array( $filtered ) ? $filtered : $agg;
 	}
 

@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Globally disable types, restrict them per WordPress role, and show usage
  * counts from saved documents. Sidcraft Builder Pro widgets registered on
- * `sidcraft-page-builder/units/register` appear in the same list. Disabled types
+ * `sidcraft_page_builder_units_register` appear in the same list. Disabled types
  * stay registered so existing nodes still render and sanitize.
  */
 class UnitsManager {
@@ -26,8 +26,8 @@ class UnitsManager {
 	const WALK      = 500;
 
 	public static function init() {
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'sidcraft-page-builder/document/after_save', array( self::class, 'invalidate_usage' ), 25, 0 );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_document_after_save', array( self::class, 'invalidate_usage' ), 25, 0 );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_menu', array( self::class, 'menu' ), 11 );
 			add_action( 'admin_init', array( self::class, 'maybe_save' ) );
@@ -82,7 +82,7 @@ class UnitsManager {
 		 *
 		 * @param string[] $locked
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/units/locked', $locked );
+		$filtered = apply_filters( 'sidcraft_page_builder_units_locked', $locked );
 		$out      = array();
 		foreach ( is_array( $filtered ) ? $filtered : $locked as $type ) {
 			$type = sanitize_key( (string) $type );
@@ -112,7 +112,7 @@ class UnitsManager {
 		 *
 		 * @param array $out
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/units/manager', $out );
+		$filtered = apply_filters( 'sidcraft_page_builder_units_manager', $out );
 		return is_array( $filtered ) ? self::sanitize( $filtered ) : $out;
 	}
 
@@ -181,7 +181,7 @@ class UnitsManager {
 		 *
 		 * @param array $clean
 		 */
-		do_action( 'sidcraft-page-builder/units/after_save', $clean );
+		do_action( 'sidcraft_page_builder_units_after_save', $clean );
 		return $clean;
 	}
 
@@ -229,7 +229,7 @@ class UnitsManager {
 		 * @param string   $type
 		 * @param string[] $roles
 		 */
-		return (bool) apply_filters( 'sidcraft-page-builder/units/allowed', $ok, $type, $roles );
+		return (bool) apply_filters( 'sidcraft_page_builder_units_allowed', $ok, $type, $roles );
 	}
 
 	/**
@@ -291,7 +291,7 @@ class UnitsManager {
 		 * @param string        $slug
 		 * @param object|string $unit
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/units/source', $slug, $unit );
+		$filtered = apply_filters( 'sidcraft_page_builder_units_source', $slug, $unit );
 		$filtered = sanitize_key( (string) $filtered );
 		return $filtered !== '' ? $filtered : 'lite';
 	}
@@ -505,7 +505,7 @@ class UnitsManager {
 		 * @param int[] $ids
 		 * @param int   $limit
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/units/usage_ids', $ids, $limit );
+		$filtered = apply_filters( 'sidcraft_page_builder_units_usage_ids', $ids, $limit );
 		$out      = array();
 		foreach ( (array) ( is_array( $filtered ) ? $filtered : $ids ) as $id ) {
 			$id = absint( $id );

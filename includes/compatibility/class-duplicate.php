@@ -124,7 +124,7 @@ class Duplicate {
 		 * @param int $from_id
 		 * @param int $copied Number of meta values written.
 		 */
-		do_action( 'sidcraft-page-builder/document/duplicated', $to_id, $from_id, $copied );
+		do_action( 'sidcraft_page_builder_document_duplicated', $to_id, $from_id, $copied );
 		return $copied > 0;
 	}
 

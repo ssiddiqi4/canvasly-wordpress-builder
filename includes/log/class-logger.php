@@ -51,7 +51,7 @@ class Logger {
 		 *
 		 * @param string $default
 		 */
-		$level = apply_filters( 'sidcraft-page-builder/logger/level', $default );
+		$level = apply_filters( 'sidcraft_page_builder_logger_level', $default );
 		$level = is_string( $level ) ? strtolower( $level ) : $default;
 		$all   = self::levels();
 		return isset( $all[ $level ] ) ? $level : self::INFO;
@@ -88,7 +88,7 @@ class Logger {
 		 *
 		 * @param string $dir
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/logger/dir', $dir );
+		$filtered = apply_filters( 'sidcraft_page_builder_logger_dir', $dir );
 		return is_string( $filtered ) && $filtered !== '' ? untrailingslashit( $filtered ) : untrailingslashit( $dir );
 	}
 
@@ -110,7 +110,7 @@ class Logger {
 		 *
 		 * @param int $n
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/logger/keep', $n );
+		$filtered = apply_filters( 'sidcraft_page_builder_logger_keep', $n );
 		return max( 1, min( 20, absint( $filtered ) ) );
 	}
 
@@ -124,7 +124,7 @@ class Logger {
 		 *
 		 * @param int $n
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/logger/max_bytes', $n );
+		$filtered = apply_filters( 'sidcraft_page_builder_logger_max_bytes', $n );
 		return max( 1024, absint( $filtered ) );
 	}
 
@@ -176,7 +176,7 @@ class Logger {
 		 * @param string $message
 		 * @param array  $context
 		 */
-		$write = apply_filters( 'sidcraft-page-builder/logger/write', true, $level, $message, $context );
+		$write = apply_filters( 'sidcraft_page_builder_logger_write', true, $level, $message, $context );
 		if ( ! $write ) {
 			return false;
 		}

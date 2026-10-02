@@ -102,7 +102,7 @@ class Experiments {
 		 *
 		 * @param array $out
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/experiments/register', $out );
+		$filtered = apply_filters( 'sidcraft_page_builder_experiments_register', $out );
 		if ( ! is_array( $filtered ) ) {
 			return $out;
 		}
@@ -201,7 +201,7 @@ class Experiments {
 		 * @param bool   $on
 		 * @param string $id
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/experiments/active', $on, $id );
+		$filtered = apply_filters( 'sidcraft_page_builder_experiments_active', $on, $id );
 		return (bool) $filtered;
 	}
 

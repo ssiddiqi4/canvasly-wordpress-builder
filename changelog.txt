@@ -1,4 +1,16 @@
 === Sidcraft Page Builder: full changelog ===
+= 0.14.3 =
+* Fixed: Right-clicking a unit in the Units panel shows "Add to Favorites" again. The menu no longer depends on the panel finishing its refresh, and the canvas no longer throws errors when its frame has no head yet.
+
+= 0.14.2 =
+* Fixed: Opening the WordPress block editor no longer crashes with "Class SidcraftPageBuilder\Settings\AdminSettings not found" when an add-on such as Sidcraft Builder Pro is active and Safe Mode is on. Add-ons can check the SIDCRAFT_PAGE_BUILDER_NATIVE_EDITOR_SCREEN constant to skip their boot on that screen.
+
+= 0.14.1 =
+* Changed: Every PHP action and filter now starts with the plugin prefix, for example `sidcraft_page_builder_unit_render_html` instead of `sidcraft-page-builder/unit/render_html`. Add-ons must use the new names; Sidcraft Builder Pro 0.11.3 does.
+* Fixed: Template import and export work again, and imported templates keep their text intact.
+* Fixed: A container's background, height and width no longer spill into the containers inside it, and container backgrounds follow rounded corners.
+* Changed: The editor's copy and paste source file is renamed so it is not mistaken for the WordPress core clipboard library.
+
 = 0.14.0 =
 * Changed: Renamed to Sidcraft Page Builder (slug and text domain sidcraft-page-builder) after the WordPress.org plugin review.
 * Removed: Custom CSS fields on pages and units, and the Global Classes manager. Use XEditor classes instead. Custom CSS saved by earlier versions is no longer printed.

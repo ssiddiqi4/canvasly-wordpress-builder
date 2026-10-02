@@ -99,7 +99,7 @@ class Kit {
 		 * @param array $kit
 		 * @param array $args
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/kit/export_payload', $kit, $args );
+		$filtered = apply_filters( 'sidcraft_page_builder_kit_export_payload', $kit, $args );
 		return is_array( $filtered ) ? $filtered : $kit;
 	}
 
@@ -502,7 +502,7 @@ class Kit {
 	public static function write_zip( $args = array() ) {
 		$args = self::normalize_args( $args );
 		/** Fires before a kit ZIP is built. @param array $args */
-		do_action( 'sidcraft-page-builder/kit/before_export', $args );
+		do_action( 'sidcraft_page_builder_kit_before_export', $args );
 
 		$kit   = self::payload( $args );
 		$media = array();
@@ -658,7 +658,7 @@ class Kit {
 			GlobalSettings::invalidate_css_cache();
 		}
 		/** Fires after a kit import attempt. @param array|\WP_Error $result @param string $mode */
-		do_action( 'sidcraft-page-builder/kit/after_import', $result, $mode );
+		do_action( 'sidcraft_page_builder_kit_after_import', $result, $mode );
 		return $result;
 	}
 
@@ -986,7 +986,7 @@ class Kit {
 		update_post_meta( $id, '_sidsyn_template_type', $type ?: 'page' );
 		update_post_meta( $id, '_sidsyn_template_key', $key );
 		/** Fires after a kit template row is written. @param int $id @param array $item */
-		do_action( 'sidcraft-page-builder/kit/template_saved', absint( $id ), is_array( $item ) ? $item : array() );
+		do_action( 'sidcraft_page_builder_kit_template_saved', absint( $id ), is_array( $item ) ? $item : array() );
 		if ( class_exists( '\\SidcraftPageBuilder\\Templates\\SavedTemplates' ) && ! empty( $item['categories'] ) ) {
 			\SidcraftPageBuilder\Templates\SavedTemplates::set_categories( $id, $item['categories'] );
 		}
@@ -1086,7 +1086,7 @@ class Kit {
 	/**
 	 * Delete templates during a replace import.
 	 *
-	 * The default is every `sidsyn_template`. `sidcraft-page-builder/kit/replace_template_ids`
+	 * The default is every `sidsyn_template`. `sidcraft_page_builder_kit_replace_template_ids`
 	 * can narrow that set. Ids outside the queried set are ignored, so the
 	 * filter cannot delete pages or other post types.
 	 */
@@ -1115,7 +1115,7 @@ class Kit {
 		 *
 		 * @param int[] $ids All sidsyn_template ids.
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/kit/replace_template_ids', $ids );
+		$filtered = apply_filters( 'sidcraft_page_builder_kit_replace_template_ids', $ids );
 		if ( ! is_array( $filtered ) ) {
 			$filtered = $ids;
 		}
@@ -1319,7 +1319,7 @@ class Kit {
 		/**
 		 * Extra Tools sections (CSS print / Regenerate CSS, Replace URL, layout converter, ...).
 		 */
-		do_action( 'sidcraft-page-builder/tools/screen' );
+		do_action( 'sidcraft_page_builder_tools_screen' );
 		echo '</div>';
 	}
 

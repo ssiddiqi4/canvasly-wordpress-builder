@@ -23,7 +23,7 @@ class CustomCssHooks {
 	 * @return bool
 	 */
 	public static function enabled() {
-		return function_exists( 'apply_filters' ) && (bool) apply_filters( 'sidcraft-page-builder/custom_css/enabled', false );
+		return function_exists( 'apply_filters' ) && (bool) apply_filters( 'sidcraft_page_builder_custom_css_enabled', false );
 	}
 
 	/**
@@ -36,7 +36,7 @@ class CustomCssHooks {
 		if ( ! self::enabled() || ! is_string( $css ) || '' === trim( $css ) ) {
 			return '';
 		}
-		return (string) apply_filters( 'sidcraft-page-builder/custom_css/sanitize', '', $css );
+		return (string) apply_filters( 'sidcraft_page_builder_custom_css_sanitize', '', $css );
 	}
 
 	/**
@@ -50,7 +50,7 @@ class CustomCssHooks {
 		if ( ! self::enabled() || ! is_string( $css ) || '' === trim( $css ) ) {
 			return '';
 		}
-		return wp_strip_all_tags( (string) apply_filters( 'sidcraft-page-builder/custom_css/node', '', $css, (string) $selector ) );
+		return wp_strip_all_tags( (string) apply_filters( 'sidcraft_page_builder_custom_css_node', '', $css, (string) $selector ) );
 	}
 
 	/**
@@ -63,6 +63,6 @@ class CustomCssHooks {
 		if ( ! self::enabled() || ! is_string( $css ) || '' === trim( $css ) ) {
 			return '';
 		}
-		return wp_strip_all_tags( (string) apply_filters( 'sidcraft-page-builder/custom_css/page', '', $css ) );
+		return wp_strip_all_tags( (string) apply_filters( 'sidcraft_page_builder_custom_css_page', '', $css ) );
 	}
 }

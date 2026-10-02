@@ -1503,7 +1503,7 @@ function installWidgetDepth() {
       if (!st) {
         st = fd.createElement("style");
         st.id = "lb30-style";
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       st.textContent = CELL_CSS;
       fd.getElementById("lb29-style")?.remove();
@@ -3327,7 +3327,7 @@ function installWidgetDepth() {
       if (!st) {
         st = fd.createElement("style");
         st.id = "lb40-media-style";
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       st.textContent = CSS2;
     }
@@ -3467,7 +3467,7 @@ function installWidgetDepth() {
       if (!st) {
         st = fd.createElement("style");
         st.id = "lb-tiny-size-style";
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       st.textContent = CSS2;
     }

@@ -158,7 +158,7 @@ class XEditorLoopUnit extends XEditorElement {
 	 * @return bool
 	 */
 	public static function engine() {
-		return (bool) apply_filters( 'sidcraft-page-builder/xeditor/loop_engine', false );
+		return (bool) apply_filters( 'sidcraft_page_builder_xeditor_loop_engine', false );
 	}
 
 	/**

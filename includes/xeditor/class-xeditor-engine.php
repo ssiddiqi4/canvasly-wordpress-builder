@@ -68,14 +68,14 @@ class XEditorEngine {
 		}
 		self::$booted = true;
 		XEditorAccess::init();
-		add_action( 'sidcraft-page-builder/units/register', array( self::class, 'register_units' ), 5 );
-		add_action( 'sidcraft-page-builder/controls/register', array( self::class, 'register_controls' ) );
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'sidcraft-page-builder/editor/enqueue', array( self::class, 'enqueue_editor' ) );
-		add_filter( 'sidcraft-page-builder/editor/localize_data', array( self::class, 'localize' ), 20, 2 );
-		add_action( 'sidcraft-page-builder/frontend/enqueue', array( self::class, 'register_frontend' ) );
-		add_filter( 'sidcraft-page-builder/unit/styles', array( self::class, 'unit_styles' ), 10, 3 );
-		add_filter( 'sidcraft-page-builder/unit/cacheable', array( self::class, 'cacheable' ), 10, 2 );
+		add_action( 'sidcraft_page_builder_units_register', array( self::class, 'register_units' ), 5 );
+		add_action( 'sidcraft_page_builder_controls_register', array( self::class, 'register_controls' ) );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_editor_enqueue', array( self::class, 'enqueue_editor' ) );
+		add_filter( 'sidcraft_page_builder_editor_localize_data', array( self::class, 'localize' ), 20, 2 );
+		add_action( 'sidcraft_page_builder_frontend_enqueue', array( self::class, 'register_frontend' ) );
+		add_filter( 'sidcraft_page_builder_unit_styles', array( self::class, 'unit_styles' ), 10, 3 );
+		add_filter( 'sidcraft_page_builder_unit_cacheable', array( self::class, 'cacheable' ), 10, 2 );
 	}
 
 	/**

@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Mapping table: stored third-party builder JSON -> Sidcraft Page Builder types/settings.
  *
- * Add-ons extend this via `sidcraft-page-builder/convert/widgets` and
- * `sidcraft-page-builder/convert/common_settings`. Reads stored post meta only;
+ * Add-ons extend this via `sidcraft_page_builder_convert_widgets` and
+ * `sidcraft_page_builder_convert_common_settings`. Reads stored post meta only;
  * no third-party builder code is loaded.
  */
 class Map {
@@ -32,7 +32,7 @@ class Map {
 			'_laptop'        => 'laptop',
 			'_widescreen'    => 'widescreen',
 		);
-		$filtered = apply_filters( 'sidcraft-page-builder/convert/breakpoints', $map );
+		$filtered = apply_filters( 'sidcraft_page_builder_convert_breakpoints', $map );
 		return is_array( $filtered ) ? $filtered : $map;
 	}
 
@@ -118,7 +118,7 @@ class Map {
 			'overflow'       => 'overflow',
 			'opacity'        => array( 'opacity', 'slider' ),
 		);
-		$filtered = apply_filters( 'sidcraft-page-builder/convert/common_settings', $map );
+		$filtered = apply_filters( 'sidcraft_page_builder_convert_common_settings', $map );
 		return is_array( $filtered ) ? $filtered : $map;
 	}
 
@@ -650,7 +650,7 @@ class Map {
 			}
 		}
 
-		$filtered = apply_filters( 'sidcraft-page-builder/convert/widgets', $map );
+		$filtered = apply_filters( 'sidcraft_page_builder_convert_widgets', $map );
 		return is_array( $filtered ) ? $filtered : $map;
 	}
 

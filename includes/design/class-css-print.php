@@ -36,16 +36,16 @@ class CssPrint {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'sidcraft-page-builder/document/after_save', array( self::class, 'on_after_save' ), 20, 1 );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_document_after_save', array( self::class, 'on_after_save' ), 20, 1 );
 		add_action( 'deleted_post', array( self::class, 'on_deleted_post' ) );
-		add_filter( 'sidcraft-page-builder/replace_url/report', array( self::class, 'on_replace_url' ), 10, 2 );
+		add_filter( 'sidcraft_page_builder_replace_url_report', array( self::class, 'on_replace_url' ), 10, 2 );
 		foreach ( self::option_keys() as $key ) {
 			add_action( 'update_option_' . $key, array( self::class, 'invalidate_global' ), 20 );
 			add_action( 'add_option_' . $key, array( self::class, 'invalidate_global' ), 20 );
 		}
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
-			add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'screen' ), 4 );
+			add_action( 'sidcraft_page_builder_tools_screen', array( self::class, 'screen' ), 4 );
 			add_action( 'admin_post_sidsyn_css_print', array( self::class, 'handle_method' ) );
 			add_action( 'admin_post_sidsyn_regenerate_css', array( self::class, 'handle_regenerate' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
@@ -160,7 +160,7 @@ class CssPrint {
 		 *
 		 * @param string $method external|inline
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/css/print_method', $method );
+		$filtered = apply_filters( 'sidcraft_page_builder_css_print_method', $method );
 		return self::sanitize_method( is_string( $filtered ) ? $filtered : $method );
 	}
 
@@ -330,7 +330,7 @@ class CssPrint {
 		 *
 		 * @param string $css
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/css/global', $css );
+		$filtered = apply_filters( 'sidcraft_page_builder_css_global', $css );
 		return is_string( $filtered ) ? $filtered : $css;
 	}
 
@@ -358,7 +358,7 @@ class CssPrint {
 		 * @param string $css
 		 * @param int    $id
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/css/post', $css, $id );
+		$filtered = apply_filters( 'sidcraft_page_builder_css_post', $css, $id );
 		return is_string( $filtered ) ? $filtered : $css;
 	}
 
@@ -679,7 +679,7 @@ class CssPrint {
 		 * @param int[] $ids
 		 * @param int   $limit
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/css/document_ids', $ids, $limit );
+		$filtered = apply_filters( 'sidcraft_page_builder_css_document_ids', $ids, $limit );
 		return is_array( $filtered ) ? array_values( array_unique( array_map( 'absint', $filtered ) ) ) : $ids;
 	}
 
@@ -911,7 +911,7 @@ class CssPrint {
 		 * @param array $report
 		 * @param array $args
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/css/regenerate', $report, $args );
+		$filtered = apply_filters( 'sidcraft_page_builder_css_regenerate', $report, $args );
 		return is_array( $filtered ) ? $filtered : $report;
 	}
 

@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * One screen under Sidcraft Page Builder lists every other item in that menu. Sidcraft Builder Pro
  * uses this same screen and adds its own menu items through the submenu and
- * the sidcraft-page-builder/dashboard/items filter.
+ * the sidcraft_page_builder_dashboard_items filter.
  */
 class Dashboard {
 	const PAGE          = 'sidcraft-page-builder-dashboard';
@@ -148,7 +148,7 @@ class Dashboard {
 		 *
 		 * @param array $items
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/dashboard/items', $items );
+		$filtered = apply_filters( 'sidcraft_page_builder_dashboard_items', $items );
 		if ( ! is_array( $filtered ) ) {
 			return $items;
 		}

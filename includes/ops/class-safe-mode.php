@@ -30,9 +30,9 @@ class SafeMode {
 		add_action( 'admin_post_sidsyn_safe_mode_enter', array( self::class, 'handle_enter' ) );
 		add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
 		add_action( 'admin_bar_menu', array( self::class, 'admin_bar' ), 81 );
-		add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'tools_screen' ), 22 );
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
-		add_filter( 'sidcraft-page-builder/editor/localize_data', array( self::class, 'localize' ), 10, 2 );
+		add_action( 'sidcraft_page_builder_tools_screen', array( self::class, 'tools_screen' ), 22 );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
+		add_filter( 'sidcraft_page_builder_editor_localize_data', array( self::class, 'localize' ), 10, 2 );
 		add_filter( 'admin_body_class', array( self::class, 'admin_body_class' ) );
 	}
 

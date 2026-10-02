@@ -79,7 +79,7 @@ class XEditorClassesManager {
 		}
 		self::$memo = $clean;
 		if ( function_exists( 'do_action' ) ) {
-			do_action( 'sidcraft-page-builder/xeditor/design_saved', $clean );
+			do_action( 'sidcraft_page_builder_xeditor_design_saved', $clean );
 		}
 		return $clean;
 	}
@@ -410,7 +410,7 @@ class XEditorClassesManager {
 			}
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$css = (string) apply_filters( 'sidcraft-page-builder/xeditor/css', $css, $design );
+			$css = (string) apply_filters( 'sidcraft_page_builder_xeditor_css', $css, $design );
 		}
 		return $css;
 	}

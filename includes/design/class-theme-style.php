@@ -137,7 +137,7 @@ class ThemeStyle {
 		$saved = get_option( self::KEY, array() );
 		$out   = self::sanitize_map( is_array( $saved ) ? $saved : array() );
 		/** Filter the Theme Style map used by CSS and the editor. @param array $out */
-		$filtered = apply_filters( 'sidcraft-page-builder/theme_style', $out );
+		$filtered = apply_filters( 'sidcraft_page_builder_theme_style', $out );
 		return is_array( $filtered ) ? self::sanitize_map( $filtered ) : $out;
 	}
 
@@ -338,7 +338,7 @@ class ThemeStyle {
 			$css = '/*lb-theme-style*/' . $css . '/*lb-theme-style-end*/';
 		}
 		/** Filter compiled Theme Style CSS. @param string $css @param array $d */
-		$filtered = apply_filters( 'sidcraft-page-builder/theme_style/css', $css, $d );
+		$filtered = apply_filters( 'sidcraft_page_builder_theme_style_css', $css, $d );
 		return is_string( $filtered ) ? $filtered : $css;
 	}
 

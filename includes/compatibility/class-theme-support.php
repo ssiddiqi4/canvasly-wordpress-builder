@@ -47,7 +47,7 @@ class ThemeSupport {
 		 *
 		 * @param array $out
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/theme_support', $out );
+		$filtered = apply_filters( 'sidcraft_page_builder_theme_support', $out );
 		if ( ! is_array( $filtered ) ) {
 			return $out;
 		}
@@ -142,7 +142,7 @@ class ThemeSupport {
 		 * @param string   $css
 		 * @param string[] $selectors
 		 */
-		$css = apply_filters( 'sidcraft-page-builder/theme_support/container_css', $css, $selectors );
+		$css = apply_filters( 'sidcraft_page_builder_theme_support_container_css', $css, $selectors );
 		if ( ! is_string( $css ) || $css === '' ) {
 			return;
 		}

@@ -30,7 +30,7 @@ class Maintenance {
 		add_filter( 'wp_robots', array( self::class, 'robots' ) );
 		add_action( 'wp_enqueue_scripts', array( self::class, 'enqueue' ), 25 );
 		add_action( 'admin_bar_menu', array( self::class, 'admin_bar' ), 80 );
-		add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'tools_screen' ), 21 );
+		add_action( 'sidcraft_page_builder_tools_screen', array( self::class, 'tools_screen' ), 21 );
 	}
 
 	/**
@@ -49,7 +49,7 @@ class Maintenance {
 		 *
 		 * @param array $d
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/maintenance/settings', $d );
+		$filtered = apply_filters( 'sidcraft_page_builder_maintenance_settings', $d );
 		if ( ! is_array( $filtered ) ) {
 			$filtered = $d;
 		}
@@ -116,7 +116,7 @@ class Maintenance {
 		 * @param array $s
 		 * @param array $ctx
 		 */
-		return (bool) apply_filters( 'sidcraft-page-builder/maintenance/apply', $apply, $s, $ctx );
+		return (bool) apply_filters( 'sidcraft_page_builder_maintenance_apply', $apply, $s, $ctx );
 	}
 
 	/**
@@ -273,7 +273,7 @@ class Maintenance {
 			 * @param int    $id
 			 * @param array  $s
 			 */
-			$html = (string) apply_filters( 'sidcraft-page-builder/maintenance/html', is_string( $html ) ? $html : '', $id, $s );
+			$html = (string) apply_filters( 'sidcraft_page_builder_maintenance_html', is_string( $html ) ? $html : '', $id, $s );
 			if ( trim( $html ) !== '' ) {
 				return $html;
 			}

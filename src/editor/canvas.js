@@ -564,7 +564,7 @@ function installCanvas() {
       link.rel = "stylesheet";
       link.href = href;
       link.setAttribute("data-lb-shortcode-style", "1");
-      fd.head.appendChild(link);
+      (fd.head || fd.documentElement).appendChild(link);
     });
     let tag = fd.getElementById("lb-shortcode-preview-css");
     if (!tag) {
@@ -572,7 +572,7 @@ function installCanvas() {
       tag.id = "lb-shortcode-preview-css";
     }
     tag.textContent = css;
-    fd.head.appendChild(tag);
+    (fd.head || fd.documentElement).appendChild(tag);
   };
   app.queueShortcodePreview = function queueShortcodePreview(code) {
     const key = String(code || "").trim();

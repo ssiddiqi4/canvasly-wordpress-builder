@@ -354,7 +354,7 @@ function installCanvasSchema() {
     if (!style) {
       style = fd.createElement("style");
       style.id = "lb-schema-css";
-      fd.head.appendChild(style);
+      (fd.head || fd.documentElement).appendChild(style);
     }
     const css = app.lbSchemaCanvasCss();
     if (style.textContent !== css) style.textContent = css;

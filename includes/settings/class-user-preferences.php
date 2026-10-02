@@ -42,7 +42,7 @@ class UserPreferences {
 		 * @param array<string,mixed> $clean
 		 * @param int                 $user_id
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/user_preferences', $clean, $user_id );
+		$filtered = apply_filters( 'sidcraft_page_builder_user_preferences', $clean, $user_id );
 		return is_array( $filtered ) ? self::sanitize( $filtered ) : $clean;
 	}
 
