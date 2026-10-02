@@ -138,7 +138,7 @@ function installKitSettings() {
     if (!st) {
       st = fd.createElement("style");
       st.id = "lb-kit-style";
-      fd.head.appendChild(st);
+      (fd.head || fd.documentElement).appendChild(st);
     }
     st.textContent = css;
     const root = fd.querySelector(".lb-frame-root");

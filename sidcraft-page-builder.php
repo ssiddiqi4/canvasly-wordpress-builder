@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Sidcraft Page Builder
  * Description: A lightweight, independent visual page builder for WordPress.
- * Version: 0.14.2
+ * Version: 0.14.3
  * Requires at least: 6.9
  * Requires PHP: 7.4
  * Author: Sidcraft Page Builder
@@ -22,7 +22,7 @@ if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_URL' ) ) {
 	define( 'SIDCRAFT_PAGE_BUILDER_URL', plugin_dir_url( __FILE__ ) );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ) {
-	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '0.14.2' );
+	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '0.14.3' );
 }
 
 /**
@@ -231,7 +231,7 @@ function sidcraft_page_builder_native_editor_launcher() {
     );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ) {
-	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '0.14.2' );
+	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '0.14.3' );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_FILE' ) ) {
 	define( 'SIDCRAFT_PAGE_BUILDER_FILE', __FILE__ );

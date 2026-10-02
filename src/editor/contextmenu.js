@@ -17,6 +17,19 @@ function installContextmenu() {
   app.contextItem = function contextItem(label, action, disabled = false, shortcut = "") {
     return `<button type="button" class="lb-context-item ${disabled ? "is-disabled" : ""}" data-context-action="${app.esc(action)}" ${disabled ? "disabled" : ""}><span>${app.esc(label)}</span>${shortcut ? `<kbd>${app.esc(shortcut)}</kbd>` : ""}</button>`;
   };
+  // Unit cards also get a listener when the panel binds, but that binding is
+  // skipped if an earlier step of a panel refresh throws. Listening on the
+  // document keeps "Add to Favorites" available on every card either way.
+  if (!app.unitCardContextBound) {
+    app.unitCardContextBound = true;
+    document.addEventListener("contextmenu", (e) => {
+      const card = e.target?.closest?.(".lb-unit-card[data-type]");
+      if (!card) return;
+      e.preventDefault();
+      e.stopPropagation();
+      app.showContextMenu("unit-card", { type: card.dataset.type, x: e.clientX, y: e.clientY });
+    });
+  }
   app.showContextMenu = function showContextMenu(kind, opts = {}) {
     app.closeContextMenu();
     const sc = (id) => (app.shortcutLabel ? app.shortcutLabel(id) : "");

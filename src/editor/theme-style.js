@@ -383,7 +383,7 @@ function installThemeStyle() {
     if (!st) {
       st = fd.createElement("style");
       st.id = "lb-theme-style";
-      fd.head.appendChild(st);
+      (fd.head || fd.documentElement).appendChild(st);
     }
     st.textContent = css;
   };

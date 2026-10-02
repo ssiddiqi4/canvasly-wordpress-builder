@@ -1147,7 +1147,7 @@ function installPanel() {
     if (!tag) {
       tag = fd.createElement("style");
       tag.id = "lb-theme-chrome-css";
-      fd.head.appendChild(tag);
+      (fd.head || fd.documentElement).appendChild(tag);
     }
     const fetched = Object.keys(app.themeChromeFetched)
       .map((href) => app.themeChromeFetched[href] || "")
@@ -2015,7 +2015,7 @@ function installPanel() {
     if (!st) {
       st = fd.createElement("style");
       st.id = "lb-stage-style";
-      fd.head.appendChild(st);
+      (fd.head || fd.documentElement).appendChild(st);
     }
     st.textContent =
       "html{margin:0!important;padding:0!important;height:100%!important;background:#fff!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:scroll!important;scrollbar-gutter:stable!important}html::-webkit-scrollbar{width:12px}html::-webkit-scrollbar-track{background:#eef1f4}html::-webkit-scrollbar-thumb{background:#b7c0ca;border-radius:6px}" +

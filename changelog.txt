@@ -1,4 +1,7 @@
 === Sidcraft Page Builder: full changelog ===
+= 0.14.3 =
+* Fixed: Right-clicking a unit in the Units panel shows "Add to Favorites" again. The menu no longer depends on the panel finishing its refresh, and the canvas no longer throws errors when its frame has no head yet.
+
 = 0.14.2 =
 * Fixed: Opening the WordPress block editor no longer crashes with "Class SidcraftPageBuilder\Settings\AdminSettings not found" when an add-on such as Sidcraft Builder Pro is active and Safe Mode is on. Add-ons can check the SIDCRAFT_PAGE_BUILDER_NATIVE_EDITOR_SCREEN constant to skip their boot on that screen.
 
