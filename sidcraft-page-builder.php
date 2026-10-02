@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Sidcraft Page Builder
  * Description: A lightweight, independent visual page builder for WordPress.
- * Version: 0.14.1
+ * Version: 0.14.2
  * Requires at least: 6.9
  * Requires PHP: 7.4
  * Author: Sidcraft Page Builder
@@ -22,7 +22,7 @@ if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_URL' ) ) {
 	define( 'SIDCRAFT_PAGE_BUILDER_URL', plugin_dir_url( __FILE__ ) );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ) {
-	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '0.14.1' );
+	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '0.14.2' );
 }
 
 /**
@@ -172,6 +172,14 @@ if ( sidcraft_page_builder_native_editor_zero_bootstrap() ) {
     // Native Gutenberg integration: launcher plus the Template block.
     // No Sidcraft Page Builder editor/runtime assets or normal hooks are initialized here.
     add_action( 'admin_enqueue_scripts', 'sidcraft_page_builder_native_editor_launcher' );
+    // Add-ons check this to skip their own boot on this screen. The class
+    // loader is still registered so an add-on that looks up a Sidcraft Page
+    // Builder class gets it instead of a fatal "class not found" error.
+    if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_NATIVE_EDITOR_SCREEN' ) ) {
+        define( 'SIDCRAFT_PAGE_BUILDER_NATIVE_EDITOR_SCREEN', true );
+    }
+    require_once SIDCRAFT_PAGE_BUILDER_PATH . 'includes/bootstrap/class-autoloader.php';
+    \SidcraftPageBuilder\Bootstrap\Autoloader::register();
     return;
 }
 
@@ -223,7 +231,7 @@ function sidcraft_page_builder_native_editor_launcher() {
     );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ) {
-	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '0.14.1' );
+	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '0.14.2' );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_FILE' ) ) {
 	define( 'SIDCRAFT_PAGE_BUILDER_FILE', __FILE__ );

@@ -4,7 +4,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.14.1
+Stable tag: 0.14.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -296,6 +296,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 0.14.2 =
+* Fixed: Opening the WordPress block editor no longer crashes with "Class SidcraftPageBuilder\Settings\AdminSettings not found" when Sidcraft Builder Pro is active and Safe Mode is on.
+
 = 0.14.1 =
 * Changed: Every PHP action and filter now starts with the plugin prefix, for example `sidcraft_page_builder_unit_render_html` instead of `sidcraft-page-builder/unit/render_html`. Add-ons must use the new names; Sidcraft Builder Pro 0.11.3 does.
 * Fixed: Template import and export work again, and imported templates keep their text intact.
@@ -341,6 +344,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 The complete history is in `changelog.txt` inside the plugin folder.
 
 == Upgrade Notice ==
+
+= 0.14.2 =
+Fixes a fatal error in the block editor when Sidcraft Builder Pro and Safe Mode are both on. Update Sidcraft Builder Pro to 0.11.5 as well.
 
 = 0.14.1 =
 Hook names changed to the sidcraft_page_builder_ prefix. Update Sidcraft Builder Pro to 0.11.3 at the same time.
