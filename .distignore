@@ -11,3 +11,4 @@ package.json
 package-lock.json
 build.mjs
 eslint.config.mjs
+tmp-*
