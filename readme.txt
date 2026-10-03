@@ -4,7 +4,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.14.3
+Stable tag: 0.14.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -296,6 +296,10 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 0.14.4 =
+* Fixed: Units can be dragged from the Units panel onto the canvas in Firefox. Unit cards are no longer button elements, which Firefox will not drag; Enter or Space on a focused card adds the unit.
+* Fixed: Pro units show their locked look and license hint again while the Pro license is inactive.
+
 = 0.14.3 =
 * Fixed: Right-clicking a unit in the Units panel shows "Add to Favorites" again. The menu no longer depends on the panel finishing its refresh, and the canvas no longer throws errors when its frame has no head yet.
 
@@ -347,6 +351,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 The complete history is in `changelog.txt` inside the plugin folder.
 
 == Upgrade Notice ==
+
+= 0.14.4 =
+Units can be dragged onto the canvas in Firefox again.
 
 = 0.14.3 =
 Brings back the "Add to Favorites" right-click menu on units.

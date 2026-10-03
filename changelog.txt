@@ -1,4 +1,8 @@
 === Sidcraft Page Builder: full changelog ===
+= 0.14.4 =
+* Fixed: Units can be dragged from the Units panel onto the canvas in Firefox. Unit cards are no longer button elements, which Firefox will not drag; Enter or Space on a focused card adds the unit.
+* Fixed: Pro units show their locked look and license hint again while the Pro license is inactive.
+
 = 0.14.3 =
 * Fixed: Right-clicking a unit in the Units panel shows "Add to Favorites" again. The menu no longer depends on the panel finishing its refresh, and the canvas no longer throws errors when its frame has no head yet.
 

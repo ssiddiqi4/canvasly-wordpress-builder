@@ -3802,7 +3802,7 @@
           (e) => (() => {
             const locked = app.proUnitLocked(e);
             const hint = locked ? app.t("Sidcraft Builder Pro license required") : app.t("Double-click to add");
-            return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "□")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></button>`;
+            return `<div class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" role="button" tabindex="0" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "□")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></div>`;
           })()
         ).join("")}</div></div>`;
       }).join("");
@@ -5694,6 +5694,15 @@
           app.render();
         }
       );
+      if (app.root && !app.root.__lbUnitCardKeys) {
+        app.root.__lbUnitCardKeys = true;
+        app.root.addEventListener("keydown", (e) => {
+          const card = e.target && e.target.closest && e.target.closest(".lb-unit-card[data-type]");
+          if (!card || e.target !== card || e.key !== "Enter" && e.key !== " ") return;
+          e.preventDefault();
+          card.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true }));
+        });
+      }
       app.$$(".lb-unit-card").forEach((b) => {
         b.onclick = (e) => {
           if (e.target.closest("[data-fav]")) return;
@@ -7119,7 +7128,9 @@
         const label = c === "pro" ? "PRO" : c;
         return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>★ " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => {
           const ico = e.type === "icon" ? app.lb101IconSvg("star", "lb-unit-svg-icon") : app.esc(e.icon || "□");
-          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}" draggable="true" data-type="${app.esc(e.type)}" title="${app.esc(e.title)}" data-lb-hint="${app.esc(app.t("Double-click to add"))}"><span class="lb-icon" aria-hidden="true">${ico}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></button>`;
+          const locked = app.proUnitLocked(e);
+          const hint = locked ? app.t("Sidcraft Builder Pro license required") : app.t("Double-click to add");
+          return `<div class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" role="button" tabindex="0" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${ico}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></div>`;
         }).join("")}</div></div>`;
       }).join("");
     };
