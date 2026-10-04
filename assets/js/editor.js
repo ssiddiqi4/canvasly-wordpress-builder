@@ -1489,6 +1489,16 @@
     app.contextItem = function contextItem(label, action, disabled = false, shortcut = "") {
       return `<button type="button" class="lb-context-item ${disabled ? "is-disabled" : ""}" data-context-action="${app.esc(action)}" ${disabled ? "disabled" : ""}><span>${app.esc(label)}</span>${shortcut ? `<kbd>${app.esc(shortcut)}</kbd>` : ""}</button>`;
     };
+    if (!app.unitCardContextBound) {
+      app.unitCardContextBound = true;
+      document.addEventListener("contextmenu", (e) => {
+        const card = e.target?.closest?.(".lb-unit-card[data-type]");
+        if (!card) return;
+        e.preventDefault();
+        e.stopPropagation();
+        app.showContextMenu("unit-card", { type: card.dataset.type, x: e.clientX, y: e.clientY });
+      });
+    }
     app.showContextMenu = function showContextMenu(kind, opts = {}) {
       app.closeContextMenu();
       const sc = (id) => app.shortcutLabel ? app.shortcutLabel(id) : "";
@@ -3215,7 +3225,7 @@
         link.rel = "stylesheet";
         link.href = href;
         link.setAttribute("data-lb-shortcode-style", "1");
-        fd.head.appendChild(link);
+        (fd.head || fd.documentElement).appendChild(link);
       });
       let tag = fd.getElementById("lb-shortcode-preview-css");
       if (!tag) {
@@ -3223,7 +3233,7 @@
         tag.id = "lb-shortcode-preview-css";
       }
       tag.textContent = css;
-      fd.head.appendChild(tag);
+      (fd.head || fd.documentElement).appendChild(tag);
     };
     app.queueShortcodePreview = function queueShortcodePreview(code) {
       const key = String(code || "").trim();
@@ -3792,7 +3802,7 @@
           (e) => (() => {
             const locked = app.proUnitLocked(e);
             const hint = locked ? app.t("Sidcraft Builder Pro license required") : app.t("Double-click to add");
-            return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "□")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></button>`;
+            return `<div class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" role="button" tabindex="0" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "□")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></div>`;
           })()
         ).join("")}</div></div>`;
       }).join("");
@@ -4364,7 +4374,7 @@
       if (!tag) {
         tag = fd.createElement("style");
         tag.id = "lb-theme-chrome-css";
-        fd.head.appendChild(tag);
+        (fd.head || fd.documentElement).appendChild(tag);
       }
       const fetched = Object.keys(app.themeChromeFetched).map((href) => app.themeChromeFetched[href] || "").join("\n");
       tag.textContent = app.lbScopeThemeCss([pack.css || "", ...app.themeChromeInlineCss || []].join("\n")) + "\n" + fetched;
@@ -4901,7 +4911,7 @@
       if (!st) {
         st = fd.createElement("style");
         st.id = "lb-stage-style";
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       st.textContent = "html{margin:0!important;padding:0!important;height:100%!important;background:#fff!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:scroll!important;scrollbar-gutter:stable!important}html::-webkit-scrollbar{width:12px}html::-webkit-scrollbar-track{background:#eef1f4}html::-webkit-scrollbar-thumb{background:#b7c0ca;border-radius:6px}" + app.pageStageStyle(true);
       if (fd.head.lastElementChild !== st) fd.head.appendChild(st);
@@ -5684,6 +5694,15 @@
           app.render();
         }
       );
+      if (app.root && !app.root.__lbUnitCardKeys) {
+        app.root.__lbUnitCardKeys = true;
+        app.root.addEventListener("keydown", (e) => {
+          const card = e.target && e.target.closest && e.target.closest(".lb-unit-card[data-type]");
+          if (!card || e.target !== card || e.key !== "Enter" && e.key !== " ") return;
+          e.preventDefault();
+          card.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true }));
+        });
+      }
       app.$$(".lb-unit-card").forEach((b) => {
         b.onclick = (e) => {
           if (e.target.closest("[data-fav]")) return;
@@ -7109,7 +7128,9 @@
         const label = c === "pro" ? "PRO" : c;
         return `<div class="lb-unit-group${c === "pro" ? " lb-unit-group-pro" : ""}"><h4>${app.esc(label)} ${a.some((e) => app.fav.has(e.type)) ? "<span>★ " + app.t("Favorites") + "</span>" : ""}</h4><div class="lb-unit-grid">${a.map((e) => {
           const ico = e.type === "icon" ? app.lb101IconSvg("star", "lb-unit-svg-icon") : app.esc(e.icon || "□");
-          return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}" draggable="true" data-type="${app.esc(e.type)}" title="${app.esc(e.title)}" data-lb-hint="${app.esc(app.t("Double-click to add"))}"><span class="lb-icon" aria-hidden="true">${ico}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></button>`;
+          const locked = app.proUnitLocked(e);
+          const hint = locked ? app.t("Sidcraft Builder Pro license required") : app.t("Double-click to add");
+          return `<div class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" role="button" tabindex="0" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${ico}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "★" : "☆"}</b></div>`;
         }).join("")}</div></div>`;
       }).join("");
     };
@@ -8932,7 +8953,7 @@
         if (!st) {
           st = fd.createElement("style");
           st.id = "lb123-resize-style";
-          fd.head.appendChild(st);
+          (fd.head || fd.documentElement).appendChild(st);
         }
         st.textContent = `
       .lb-node.lb123-resize-active,.lb-grid-inner>.lb-node.lb123-resize-active,.lb-container-inner>.lb-node.lb123-resize-active{outline:1px solid #2d72d9!important;outline-offset:-1px!important;overflow:visible!important;}
@@ -9151,7 +9172,7 @@
           const st = fd.createElement("style");
           st.id = "lb26-style";
           st.textContent = ".lb26-img-handle{position:absolute!important;z-index:2147483646!important;background:#2d72d9;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45);touch-action:none;box-sizing:border-box;margin:0;padding:0;pointer-events:auto!important}.lb26-img-handle.e{width:14px;height:42px;border-radius:7px;cursor:ew-resize}.lb26-img-handle.s{width:42px;height:14px;border-radius:7px;cursor:ns-resize}.lb26-img-handle.se{width:18px;height:18px;border-radius:50%;cursor:nwse-resize}.lb26-img-label{position:absolute;transform:translateX(-50%);z-index:2147483647;background:rgba(23,25,29,.92);color:#fff;font:600 11px/1 system-ui,sans-serif;padding:4px 8px;border-radius:4px;pointer-events:none;white-space:nowrap}";
-          fd.head.appendChild(st);
+          (fd.head || fd.documentElement).appendChild(st);
         }
         const win = fd.defaultView, img = node.querySelector("img"), id = node.dataset.id;
         if (!img) return;
@@ -9273,7 +9294,7 @@
           const st = fd.createElement("style");
           st.id = "lb-tiny-handle-style";
           st.textContent = ".lb-tiny-handle{position:absolute!important;z-index:2147483646!important;background:#2d72d9;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45);touch-action:none;box-sizing:border-box;margin:0;padding:0;pointer-events:auto!important}.lb-tiny-handle.e{width:14px;height:42px;border-radius:7px;cursor:ew-resize}.lb-tiny-handle.s{width:42px;height:14px;border-radius:7px;cursor:ns-resize}.lb-tiny-handle.se{width:18px;height:18px;border-radius:50%;cursor:nwse-resize}.lb-tiny-label{position:absolute;transform:translateX(-50%);z-index:2147483647;background:rgba(23,25,29,.92);color:#fff;font:600 11px/1 system-ui,sans-serif;padding:4px 8px;border-radius:4px;pointer-events:none;white-space:nowrap}";
-          fd.head.appendChild(st);
+          (fd.head || fd.documentElement).appendChild(st);
         }
         const box = node.querySelector(".lb-tinymce-preview,.lb-tinymce-text-editor") || node, id = node.dataset.id;
         const mk = (edge) => {
@@ -10346,7 +10367,7 @@
       .lb-grid-inner>.lb-node.is-selected{z-index:10;}
       .lb123-resizing,.lb123-resizing *{cursor:inherit!important;}
     `;
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       const lb16OldRefresh = lb16Refresh;
       lb16Refresh = function() {
@@ -10489,7 +10510,7 @@
       .lb-grid-inner>.lb-node{min-width:0!important;max-width:100%;}
       .lb15-cell-target{position:absolute!important;display:none;z-index:2147482990!important;pointer-events:none!important;box-sizing:border-box!important;border:2px solid rgba(45,114,217,.85)!important;background:rgba(45,114,217,.10)!important;}
     `;
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       function lb15Refresh() {
         lb15HideGridInsertZone();
@@ -10700,7 +10721,7 @@
       .lb-grid-inner>.lb-node.lb-node-heading,.lb-grid-inner>.lb-node.lb-node-text{width:auto!important;}
       .lb-grid-inner>.lb-node.is-selected{z-index:100;}
     `;
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       function lb17Refresh() {
         lb17Css();
@@ -11178,7 +11199,7 @@
         if (!st) {
           st = fd.createElement("style");
           st.id = "lb21-style";
-          fd.head.appendChild(st);
+          (fd.head || fd.documentElement).appendChild(st);
         }
         st.textContent = `
       .lb18-hover-tab,.lb19-hover-tab,.lb20-hover-tab{display:none!important}
@@ -11545,7 +11566,7 @@
       .lb22-grid-host>.lb-node.lb-node-image{min-width:0!important;max-width:100%!important;box-sizing:border-box!important;}
       .lb22-grid-host>.lb-node.lb-node-image img{display:block!important;width:100%;max-width:100%!important;max-height:100%;height:auto;object-fit:contain;box-sizing:border-box!important;}
     `;
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       function refresh22() {
         const fd = frame22();
@@ -13627,7 +13648,7 @@
         if (!st) {
           st = fd.createElement("style");
           st.id = "lb30-style";
-          fd.head.appendChild(st);
+          (fd.head || fd.documentElement).appendChild(st);
         }
         st.textContent = CELL_CSS;
         fd.getElementById("lb29-style")?.remove();
@@ -15348,7 +15369,7 @@
         if (!st) {
           st = fd.createElement("style");
           st.id = "lb40-media-style";
-          fd.head.appendChild(st);
+          (fd.head || fd.documentElement).appendChild(st);
         }
         st.textContent = CSS2;
       }
@@ -15468,7 +15489,7 @@
         if (!st) {
           st = fd.createElement("style");
           st.id = "lb-tiny-size-style";
-          fd.head.appendChild(st);
+          (fd.head || fd.documentElement).appendChild(st);
         }
         st.textContent = CSS2;
       }
@@ -17742,7 +17763,7 @@
       if (!st) {
         st = fd.createElement("style");
         st.id = "lb-theme-style";
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       st.textContent = css;
     };
@@ -18174,7 +18195,7 @@
       if (!st) {
         st = fd.createElement("style");
         st.id = "lb-kit-style";
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       st.textContent = css;
       const root = fd.querySelector(".lb-frame-root");
@@ -20520,7 +20541,7 @@
     }
   }
 
-  // src/editor/clipboard.js
+  // src/editor/copy-paste.js
   var CLIPBOARD_STORAGE = "sidcraft-page-builder.clipboard";
   var CLIPBOARD_SCHEMA = "2.6";
   var BP_NAMES = ["mobile", "mobile_extra", "tablet", "tablet_extra", "laptop", "desktop", "widescreen"];
@@ -23495,7 +23516,7 @@
       if (!style) {
         style = fd.createElement("style");
         style.id = "lb-schema-css";
-        fd.head.appendChild(style);
+        (fd.head || fd.documentElement).appendChild(style);
       }
       const css = app.lbSchemaCanvasCss();
       if (style.textContent !== css) style.textContent = css;

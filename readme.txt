@@ -4,7 +4,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.14.0
+Stable tag: 0.14.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,6 +13,8 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 == Description ==
 
 **Sidcraft Page Builder is a free visual page builder for WordPress.** Build landing pages, home pages, blog layouts and complete websites on a live canvas with drag and drop, nested containers, CSS Grid and responsive controls, then publish through the normal WordPress workflow. No coding needed, and clean HTML and CSS when you want it.
+
+Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 
 = Why Sidcraft Page Builder? =
 
@@ -82,6 +84,8 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 [Sidcraft Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) is a separate add-on that adds Theme Builder, popups, display conditions, dynamic tags, Loop Grid and Loop Carousel, 70+ extra units, WooCommerce builder units, hosted payments (Stripe, PayPal, Square, Authorize.Net, Razorpay, Mollie) with Payment Forms, form actions and submissions, custom fonts and icons, custom code, editor notes and an AI assistant with an MCP server. Pro's Login & Register and Payment Form units also include the "Require Cloudflare Turnstile" option.
 
 The full unit list and user guide are at [canvasly.pro](https://canvasly.pro/blocks.html). For third-party services used by optional features, see "External services" below.
+
+Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 
 == External services ==
 
@@ -296,6 +300,23 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 0.14.4 =
+* New: Add-ons can add their own tabs to Settings (sidcraft_page_builder_settings_tabs filter and sidcraft_page_builder_settings_render_tab action).
+* Fixed: Units can be dragged from the Units panel onto the canvas in Firefox. Unit cards are no longer button elements, which Firefox will not drag; Enter or Space on a focused card adds the unit.
+* Fixed: Pro units show their locked look and license hint again while the Pro license is inactive.
+
+= 0.14.3 =
+* Fixed: Right-clicking a unit in the Units panel shows "Add to Favorites" again. The menu no longer depends on the panel finishing its refresh, and the canvas no longer throws errors when its frame has no head yet.
+
+= 0.14.2 =
+* Fixed: Opening the WordPress block editor no longer crashes with "Class SidcraftPageBuilder\Settings\AdminSettings not found" when Sidcraft Builder Pro is active and Safe Mode is on.
+
+= 0.14.1 =
+* Changed: Every PHP action and filter now starts with the plugin prefix, for example `sidcraft_page_builder_unit_render_html` instead of `sidcraft-page-builder/unit/render_html`. Add-ons must use the new names; Sidcraft Builder Pro 0.11.3 does.
+* Fixed: Template import and export work again, and imported templates keep their text intact.
+* Fixed: A container's background, height and width no longer spill into the containers inside it, and container backgrounds follow rounded corners.
+* Changed: The editor's copy and paste source file is renamed so it is not mistaken for the WordPress core clipboard library.
+
 = 0.14.0 =
 * Changed: Renamed to Sidcraft Page Builder (slug and text domain sidcraft-page-builder) after the WordPress.org plugin review.
 * Removed: Custom CSS fields on pages and units, and the Global Classes manager. Use XEditor classes instead. Custom CSS saved by earlier versions is no longer printed.
@@ -335,6 +356,18 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 The complete history is in `changelog.txt` inside the plugin folder.
 
 == Upgrade Notice ==
+
+= 0.14.4 =
+Units can be dragged onto the canvas in Firefox again.
+
+= 0.14.3 =
+Brings back the "Add to Favorites" right-click menu on units.
+
+= 0.14.2 =
+Fixes a fatal error in the block editor when Sidcraft Builder Pro and Safe Mode are both on. Update Sidcraft Builder Pro to 0.11.5 as well.
+
+= 0.14.1 =
+Hook names changed to the sidcraft_page_builder_ prefix. Update Sidcraft Builder Pro to 0.11.3 at the same time.
 
 = 0.14.0 =
 The plugin is now called Sidcraft Page Builder. Custom CSS fields and Global Classes are removed; move any custom CSS into XEditor classes before updating.

@@ -1197,3 +1197,4 @@ input[type="color"].lb-cp-input::-moz-color-swatch{opacity:0}
 .lb-admin .lb-device button:before{content:none!important}
 .lb-admin .lb-device .lb-device-icon{display:block;flex:none;width:18px;height:18px}
 .lb-admin .lb-device .lb-device-extra{font-size:11px;font-weight:700}
+.lb-unit-card{font-size:13.3333px;line-height:normal;text-align:center;-webkit-user-drag:element}.lb-unit-card:focus-visible{outline:2px solid #2f73d9;outline-offset:1px}
