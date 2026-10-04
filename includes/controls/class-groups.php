@@ -37,7 +37,7 @@ class Groups {
 			null,
 			array( 'label' => 'Gradient' )
 		);
-		add_filter( 'sidcraft-page-builder/unit/render_html', array( self::class, 'inject_layers' ), 10, 4 );
+		add_filter( 'sidcraft_page_builder_unit_render_html', array( self::class, 'inject_layers' ), 10, 4 );
 	}
 
 	public static function handles( $type ) {

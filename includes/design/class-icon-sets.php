@@ -1,6 +1,6 @@
 <?php
 /**
- * Registry passed to `sidcraft-page-builder/icons/register`.
+ * Registry passed to `sidcraft_page_builder_icons_register`.
  *
  * Add-ons call register() with an icon array (`id`, `title`, `svg`). The same
  * SVG allow-list as IconLibrary::save() is applied here.

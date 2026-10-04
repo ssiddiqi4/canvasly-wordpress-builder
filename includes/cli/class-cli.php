@@ -48,7 +48,7 @@ class Cli {
 		 *
 		 * Add-ons can attach extra subcommands with WP_CLI::add_command().
 		 */
-		do_action( 'sidcraft-page-builder/cli/register' );
+		do_action( 'sidcraft_page_builder_cli_register' );
 	}
 
 	/**
@@ -106,7 +106,7 @@ class Cli {
 		 * @param array $report
 		 * @param array $params
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/cli/regenerate_css', $report, $params );
+		$filtered = apply_filters( 'sidcraft_page_builder_cli_regenerate_css', $report, $params );
 		return is_array( $filtered ) ? $filtered : $report;
 	}
 
@@ -151,7 +151,7 @@ class Cli {
 		 * @param array $report
 		 * @param array $args
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/cli/flush_cache', $report, $args );
+		$filtered = apply_filters( 'sidcraft_page_builder_cli_flush_cache', $report, $args );
 		return is_array( $filtered ) ? $filtered : $report;
 	}
 
@@ -179,7 +179,7 @@ class Cli {
 		 * @param string          $to
 		 * @param array           $args
 		 */
-		return apply_filters( 'sidcraft-page-builder/cli/replace_url', $out, $from, $to, $args );
+		return apply_filters( 'sidcraft_page_builder_cli_replace_url', $out, $from, $to, $args );
 	}
 
 	/**
@@ -209,7 +209,7 @@ class Cli {
 		 * @param string          $path
 		 * @param array           $args
 		 */
-		return apply_filters( 'sidcraft-page-builder/cli/import', $result, $path, $args );
+		return apply_filters( 'sidcraft_page_builder_cli_import', $result, $path, $args );
 	}
 
 	/**
@@ -276,7 +276,7 @@ class Cli {
 		 * @param array $out
 		 * @param array $args
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/cli/export', $out, $args );
+		$filtered = apply_filters( 'sidcraft_page_builder_cli_export', $out, $args );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 
@@ -317,7 +317,7 @@ class Cli {
 		 * @param int[] $ids
 		 * @param array $args
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/cli/convert', $report, $ids, $args );
+		$filtered = apply_filters( 'sidcraft_page_builder_cli_convert', $report, $ids, $args );
 		return is_array( $filtered ) ? $filtered : $report;
 	}
 

@@ -51,7 +51,7 @@ class Editor {
    * 'sidcraft-page-builder-editor' as a dependency so `window.SidcraftPageBuilder` exists when they run.
    * @param int $post_id
    */
-  do_action('sidcraft-page-builder/editor/enqueue',$post_id);
+  do_action('sidcraft_page_builder_editor_enqueue',$post_id);
   $data=[
    'wpRest'=>esc_url_raw(rest_url('wp/v2')),
    'api'=>esc_url_raw(rest_url('sidcraft-page-builder/v1')),
@@ -124,7 +124,7 @@ class Editor {
    $data['caps']['units']=\SidcraftPageBuilder\Settings\UnitsManager::allowed_types();
   }
   /** Filter the data passed to the editor as `window.SidcraftPageBuilderData`. @param array $data @param int $post_id */
-  $filtered=apply_filters('sidcraft-page-builder/editor/localize_data',$data,$post_id);
+  $filtered=apply_filters('sidcraft_page_builder_editor_localize_data',$data,$post_id);
   wp_localize_script('sidcraft-page-builder-editor','SidcraftPageBuilderData',is_array($filtered)?$filtered:$data);
  }
  /**
@@ -189,7 +189,7 @@ class Editor {
    *
    * @param string[] $fonts
    */
-  $filtered=apply_filters('sidcraft-page-builder/fonts/families',$fonts);
+  $filtered=apply_filters('sidcraft_page_builder_fonts_families',$fonts);
   if(!is_array($filtered))return $fonts;
   $out=[];
   foreach($filtered as $name){ if(is_string($name)&&$name!=='')$out[]=$name; }
@@ -216,7 +216,7 @@ class Editor {
    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only editor screen query var.
    $iframe_post=isset($_GET['post_id'])?absint(wp_unslash($_GET['post_id'])):0;
    /** Filter the editor shell iframe URL. @param string $src @param int $iframe_post */
-   $src=apply_filters('sidcraft-page-builder/editor/iframe_src',$src,$iframe_post);
+   $src=apply_filters('sidcraft_page_builder_editor_iframe_src',$src,$iframe_post);
    echo '<iframe class="lb-editor-frame" src="'.esc_url($src).'" title="'.esc_attr__('Sidcraft Page Builder editor', 'sidcraft-page-builder').'"></iframe>';
    return;
   }

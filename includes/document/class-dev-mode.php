@@ -34,7 +34,7 @@ class DevMode {
 			}
 		}
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'sidcraft-page-builder/dev-mode/enabled', $on );
+			$filtered = apply_filters( 'sidcraft_page_builder_dev_mode_enabled', $on );
 			if ( is_bool( $filtered ) || is_int( $filtered ) || is_string( $filtered ) ) {
 				$on = (bool) $filtered;
 			}

@@ -90,7 +90,7 @@ class Rest {
    * is passed so they can share it (e.g. `register_rest_route($ns,'/my-route',...)`).
    * @param string $namespace 'sidcraft-page-builder/v1'
    */
-  do_action('sidcraft-page-builder/rest/register_routes','sidcraft-page-builder/v1');
+  do_action('sidcraft_page_builder_rest_register_routes','sidcraft-page-builder/v1');
  }
  public static function can_edit($req){
   if(class_exists('\\SidcraftPageBuilder\\Settings\\Roles')&&!\SidcraftPageBuilder\Settings\Roles::can_edit())return false;
@@ -233,7 +233,7 @@ class Rest {
    'unit_id'=>$unit_id,
   ];
   /** Filter a form submission before the default email. Return send_email false to skip wp_mail. Lite does not store the visitor IP. @param array $result @param array $fields @param \WP_REST_Request $r */
-  $filtered=apply_filters('sidcraft-page-builder/form/submission',$result,$fields,$r);
+  $filtered=apply_filters('sidcraft_page_builder_form_submission',$result,$fields,$r);
   if(!is_array($filtered))$filtered=$result;
   $send=!array_key_exists('send_email',$filtered)||!empty($filtered['send_email']);
   if($send){

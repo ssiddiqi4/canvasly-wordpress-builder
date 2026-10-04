@@ -42,12 +42,12 @@ class Optimize {
 			return;
 		}
 		self::$booted = true;
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'sidcraft-page-builder/document/after_save', array( self::class, 'on_after_save' ), 15, 1 );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_document_after_save', array( self::class, 'on_after_save' ), 15, 1 );
 		add_action( 'deleted_post', array( self::class, 'invalidate_post' ) );
 		add_action( 'init', array( self::class, 'maybe_purge_option_transients' ), 30 );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
-			add_action( 'sidcraft-page-builder/tools/screen', array( self::class, 'screen' ), 7 );
+			add_action( 'sidcraft_page_builder_tools_screen', array( self::class, 'screen' ), 7 );
 			add_action( 'admin_post_sidsyn_optimize_settings', array( self::class, 'handle_settings' ) );
 			add_action( 'admin_post_sidsyn_optimize_flush', array( self::class, 'handle_flush' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
@@ -234,7 +234,7 @@ class Optimize {
 		 *
 		 * @param bool $on
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/optimize/unit_cache', $on );
+		$filtered = apply_filters( 'sidcraft_page_builder_optimize_unit_cache', $on );
 		return ! empty( $filtered );
 	}
 
@@ -246,7 +246,7 @@ class Optimize {
 		 *
 		 * @param int $ttl
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/optimize/ttl', $ttl );
+		$filtered = apply_filters( 'sidcraft_page_builder_optimize_ttl', $ttl );
 		return self::sanitize_ttl( is_numeric( $filtered ) ? $filtered : $ttl );
 	}
 
@@ -258,7 +258,7 @@ class Optimize {
 		 *
 		 * @param bool $on
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/optimize/lazy_load', $on );
+		$filtered = apply_filters( 'sidcraft_page_builder_optimize_lazy_load', $on );
 		return ! empty( $filtered );
 	}
 
@@ -270,7 +270,7 @@ class Optimize {
 		 *
 		 * @param bool $on
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/optimize/markup', $on );
+		$filtered = apply_filters( 'sidcraft_page_builder_optimize_markup', $on );
 		return ! empty( $filtered );
 	}
 
@@ -313,7 +313,7 @@ class Optimize {
 		 *
 		 * @param string[] $types
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/optimize/live_types', $types );
+		$filtered = apply_filters( 'sidcraft_page_builder_optimize_live_types', $types );
 		return is_array( $filtered ) ? array_values( array_map( 'strval', $filtered ) ) : $types;
 	}
 
@@ -363,7 +363,7 @@ class Optimize {
 		}
 		$ok = true;
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'sidcraft-page-builder/unit/cacheable', $ok, $node );
+			$filtered = apply_filters( 'sidcraft_page_builder_unit_cacheable', $ok, $node );
 			$ok       = ! empty( $filtered );
 		}
 		return $ok;
