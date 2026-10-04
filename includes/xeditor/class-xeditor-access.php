@@ -5,7 +5,7 @@
  * Loop Architecture elements are Sidcraft Builder Pro features. This guard is the single
  * place that answers "may this node render / be edited?":
  *
- *   - Frontend: `sidcraft-page-builder/unit/should_render` returns false for guarded nodes
+ *   - Frontend: `sidcraft_page_builder_unit_should_render` returns false for guarded nodes
  *     when Pro is not active, so nothing (wrapper, children, assets) is printed.
  *   - Editor:   the guard state is localized as `SidcraftPageBuilderData.xeditor.access`
  *     and the editor-side guard (assets/js/xeditor.js → XEditorAccess) blocks
@@ -14,7 +14,7 @@
  *     so saving a page while Pro is off never strips a user's loops.
  *
  * Pro reports its state through `SidcraftBuilderPro\License::is_active()`; add-ons or
- * tests can override with the `sidcraft-page-builder/xeditor/pro_active` filter.
+ * tests can override with the `sidcraft_page_builder_xeditor_pro_active` filter.
  *
  * @package SidcraftPageBuilder
  */
@@ -33,7 +33,7 @@ class XEditorAccess {
 	private static $memo = null;
 
 	public static function init() {
-		add_filter( 'sidcraft-page-builder/unit/should_render', array( self::class, 'should_render' ), 5, 2 );
+		add_filter( 'sidcraft_page_builder_unit_should_render', array( self::class, 'should_render' ), 5, 2 );
 	}
 
 	/**
@@ -47,7 +47,7 @@ class XEditorAccess {
 			if ( class_exists( '\\SidcraftBuilderPro\\License' ) && method_exists( '\\SidcraftBuilderPro\\License', 'is_active' ) ) {
 				$active = (bool) \SidcraftBuilderPro\License::is_active();
 			}
-			self::$memo = (bool) apply_filters( 'sidcraft-page-builder/xeditor/pro_active', $active );
+			self::$memo = (bool) apply_filters( 'sidcraft_page_builder_xeditor_pro_active', $active );
 		}
 		return self::$memo;
 	}
@@ -67,7 +67,7 @@ class XEditorAccess {
 
 	/** @return string[] */
 	public static function guarded_types() {
-		$types = apply_filters( 'sidcraft-page-builder/xeditor/guarded_types', self::GUARDED );
+		$types = apply_filters( 'sidcraft_page_builder_xeditor_guarded_types', self::GUARDED );
 		return array_values( array_filter( array_map( 'sanitize_key', (array) $types ) ) );
 	}
 

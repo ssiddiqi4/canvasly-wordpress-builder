@@ -103,7 +103,7 @@ class XEditorContext {
 	 * @return string|null
 	 */
 	public static function token( $group, $key, $arg = '' ) {
-		$pre = apply_filters( 'sidcraft-page-builder/xeditor/token', null, $group, $key, $arg, self::current() );
+		$pre = apply_filters( 'sidcraft_page_builder_xeditor_token', null, $group, $key, $arg, self::current() );
 		if ( null !== $pre ) {
 			return (string) $pre;
 		}
