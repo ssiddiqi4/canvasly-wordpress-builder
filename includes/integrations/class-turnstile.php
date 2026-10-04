@@ -58,14 +58,14 @@ class Turnstile {
 	private static $memo = null;
 
 	public static function init() {
-		add_action( 'sidcraft-page-builder/units/register', array( self::class, 'register_unit' ), 6 );
-		add_action( 'sidcraft-page-builder/frontend/enqueue', array( self::class, 'register_assets' ) );
-		add_action( 'sidcraft-page-builder/settings/integrations', array( self::class, 'render_settings' ) );
-		add_filter( 'sidcraft-page-builder/settings/integration_fields', array( self::class, 'integration_fields' ) );
-		add_action( 'sidcraft-page-builder/settings/save_integrations', array( self::class, 'save_from_post' ) );
+		add_action( 'sidcraft_page_builder_units_register', array( self::class, 'register_unit' ), 6 );
+		add_action( 'sidcraft_page_builder_frontend_enqueue', array( self::class, 'register_assets' ) );
+		add_action( 'sidcraft_page_builder_settings_integrations', array( self::class, 'render_settings' ) );
+		add_filter( 'sidcraft_page_builder_settings_integration_fields', array( self::class, 'integration_fields' ) );
+		add_action( 'sidcraft_page_builder_settings_save_integrations', array( self::class, 'save_from_post' ) );
 		add_action( 'admin_init', array( self::class, 'handle_admin_action' ), 5 );
-		add_filter( 'sidcraft-page-builder/form/verify', array( self::class, 'verify_form' ), 10, 3 );
-		add_filter( 'sidcraft-page-builder/editor/localize_data', array( self::class, 'localize_editor' ), 25 );
+		add_filter( 'sidcraft_page_builder_form_verify', array( self::class, 'verify_form' ), 10, 3 );
+		add_filter( 'sidcraft_page_builder_editor_localize_data', array( self::class, 'localize_editor' ), 25 );
 		// Optional WordPress core forms.
 		add_action( 'init', array( self::class, 'core_form_hooks' ), 20 );
 	}
@@ -475,7 +475,7 @@ class Turnstile {
 		if ( '' === $token || strlen( $token ) > 2048 ) {
 			return false;
 		}
-		$pre = apply_filters( 'sidcraft-page-builder/turnstile/verify', null, $token, $action );
+		$pre = apply_filters( 'sidcraft_page_builder_turnstile_verify', null, $token, $action );
 		if ( null !== $pre ) {
 			return (bool) $pre;
 		}
@@ -566,7 +566,7 @@ class Turnstile {
 	}
 
 	/**
-	 * `sidcraft-page-builder/form/verify` filter.
+	 * `sidcraft_page_builder_form_verify` filter.
 	 *
 	 * @param true|\WP_Error $ok
 	 * @param array          $params

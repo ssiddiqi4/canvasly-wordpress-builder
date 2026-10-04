@@ -145,7 +145,7 @@ class ThemeChrome {
 	public static function has( $part ) {
 		$part  = $part === 'footer' ? 'footer' : 'header';
 		$found = self::classic_file( $part ) || ( self::is_block_theme() && self::block_part( $part ) );
-		$found = apply_filters( 'sidcraft-page-builder/theme/has_part', $found, $part );
+		$found = apply_filters( 'sidcraft_page_builder_theme_has_part', $found, $part );
 		return (bool) $found;
 	}
 
@@ -156,7 +156,7 @@ class ThemeChrome {
 	 */
 	public static function provides() {
 		$on = self::has( 'header' ) && self::has( 'footer' );
-		return (bool) apply_filters( 'sidcraft-page-builder/theme/provides_chrome', $on );
+		return (bool) apply_filters( 'sidcraft_page_builder_theme_provides_chrome', $on );
 	}
 
 	/**
@@ -272,7 +272,7 @@ class ThemeChrome {
 			return $html;
 		}
 		$extra = self::builder_css( $html );
-		$extra = (string) apply_filters( 'sidcraft-page-builder/theme/builder_css', $extra, $html );
+		$extra = (string) apply_filters( 'sidcraft_page_builder_theme_builder_css', $extra, $html );
 		$extra = trim( $extra );
 		if ( '' === $extra ) {
 			return $html;

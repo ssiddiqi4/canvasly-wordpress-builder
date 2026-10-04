@@ -50,8 +50,8 @@ class AdminSettings {
 	}
 
 	public static function init() {
-		add_action( 'sidcraft-page-builder/rest/register_routes', array( self::class, 'routes' ) );
-		add_action( 'sidcraft-page-builder/frontend/enqueue', array( self::class, 'register_frontend' ) );
+		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
+		add_action( 'sidcraft_page_builder_frontend_enqueue', array( self::class, 'register_frontend' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'admin_menu', array( self::class, 'menu' ), 12 );
 			add_action( 'admin_init', array( self::class, 'maybe_save' ) );
@@ -196,6 +196,33 @@ class AdminSettings {
 	 * @return array<string,string>
 	 */
 	public static function tabs() {
+		$core = self::core_tabs();
+		/**
+		 * Extra Settings tabs from add-ons, as slug => label. An add-on draws its
+		 * tab on the sidcraft_page_builder_settings_render_tab action and saves it
+		 * with its own form. Core tabs cannot be replaced.
+		 *
+		 * @param array<string,string> $extra
+		 */
+		$extra = function_exists( 'apply_filters' ) ? apply_filters( 'sidcraft_page_builder_settings_tabs', array() ) : array();
+		if ( is_array( $extra ) ) {
+			foreach ( $extra as $id => $label ) {
+				$id = sanitize_key( (string) $id );
+				if ( '' === $id || isset( $core[ $id ] ) || ! is_string( $label ) || '' === $label ) {
+					continue;
+				}
+				$core[ $id ] = $label;
+			}
+		}
+		return $core;
+	}
+
+	/**
+	 * Tabs that ship with Sidcraft Page Builder.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function core_tabs() {
 		return array(
 			'general'      => __( 'General', 'sidcraft-page-builder' ),
 			'integrations' => __( 'Integrations', 'sidcraft-page-builder' ),
@@ -204,6 +231,15 @@ class AdminSettings {
 			'tools'        => __( 'Tools', 'sidcraft-page-builder' ),
 			'features'     => __( 'Features', 'sidcraft-page-builder' ),
 		);
+	}
+
+	/**
+	 * Add-ons check this before adding a Settings tab.
+	 *
+	 * @return bool
+	 */
+	public static function supports_extra_tabs() {
+		return true;
 	}
 
 	/**
@@ -285,7 +321,7 @@ class AdminSettings {
 		 *
 		 * @param array $d
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/settings', $d );
+		$filtered = apply_filters( 'sidcraft_page_builder_settings', $d );
 		return is_array( $filtered ) ? self::sanitize( $filtered, $d, false ) : $d;
 	}
 
@@ -407,7 +443,7 @@ class AdminSettings {
 		 * @param array $out
 		 * @param array $raw
 		 */
-		$filtered = apply_filters( 'sidcraft-page-builder/settings/sanitize', $out, $raw );
+		$filtered = apply_filters( 'sidcraft_page_builder_settings_sanitize', $out, $raw );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 
@@ -500,7 +536,7 @@ class AdminSettings {
 		 * @param array $saved
 		 * @param array $raw
 		 */
-		do_action( 'sidcraft-page-builder/settings/after_save', $saved, is_array( $raw ) ? $raw : array() );
+		do_action( 'sidcraft_page_builder_settings_after_save', $saved, is_array( $raw ) ? $raw : array() );
 		return $saved;
 	}
 
@@ -524,9 +560,9 @@ class AdminSettings {
 			 *
 			 * @param string[] $fields
 			 */
-			$fields = (array) apply_filters( 'sidcraft-page-builder/settings/integration_fields', array() );
+			$fields = (array) apply_filters( 'sidcraft_page_builder_settings_integration_fields', array() );
 			/** Save extra integration fields (Cloudflare Turnstile, add-ons). @param array $post Sanitized values of the registered fields only. */
-			do_action( 'sidcraft-page-builder/settings/save_integrations', self::posted_fields( $fields ) );
+			do_action( 'sidcraft_page_builder_settings_save_integrations', self::posted_fields( $fields ) );
 		}
 		if ( is_wp_error( $save ) ) {
 			add_settings_error( 'sidcraft_page_builder_settings', 'forbidden', $save->get_error_message(), 'error' );
@@ -794,7 +830,7 @@ class AdminSettings {
 		 * @param array          $params Request parameters.
 		 * @param mixed          $req
 		 */
-		$extra = function_exists( 'apply_filters' ) ? apply_filters( 'sidcraft-page-builder/form/verify', true, $params, $req ) : true;
+		$extra = function_exists( 'apply_filters' ) ? apply_filters( 'sidcraft_page_builder_form_verify', true, $params, $req ) : true;
 		if ( is_wp_error( $extra ) ) {
 			return $extra;
 		}
@@ -825,7 +861,7 @@ class AdminSettings {
 		if ( $token === '' ) {
 			return false;
 		}
-		$pre = apply_filters( 'sidcraft-page-builder/recaptcha/verify', null, $token, $secret );
+		$pre = apply_filters( 'sidcraft_page_builder_recaptcha_verify', null, $token, $secret );
 		if ( $pre !== null ) {
 			return (bool) $pre;
 		}
@@ -864,7 +900,14 @@ class AdminSettings {
 			echo '<a class="nav-tab' . ( $tab === $id ? ' nav-tab-active' : '' ) . '" href="' . esc_url( self::url( $id ) ) . '">' . esc_html( $label ) . '</a>';
 		}
 		echo '</nav>';
-		if ( $tab === 'tools' ) {
+		if ( ! isset( self::core_tabs()[ $tab ] ) ) {
+			/**
+			 * Draw an add-on Settings tab. The add-on prints its own form.
+			 *
+			 * @param string $tab Tab slug.
+			 */
+			do_action( 'sidcraft_page_builder_settings_render_tab', $tab );
+		} elseif ( $tab === 'tools' ) {
 			self::render_tools( $d );
 		} else {
 			echo '<form method="post" action="' . esc_url( self::url( $tab ) ) . '">';
@@ -947,7 +990,7 @@ class AdminSettings {
 		 *
 		 * @param array $d Global settings.
 		 */
-		do_action( 'sidcraft-page-builder/settings/integrations', $d );
+		do_action( 'sidcraft_page_builder_settings_integrations', $d );
 	}
 
 	/**

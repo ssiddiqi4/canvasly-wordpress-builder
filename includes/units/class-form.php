@@ -69,7 +69,7 @@ class Form extends Unit {
    $input='';
    if($type===''){
     /** Extra field types from add-ons. Return escaped HTML, or empty to keep a text input. Known types skip this filter. */
-    $custom=apply_filters('sidcraft-page-builder/form/field_html','',$raw,array('name'=>$name,'label'=>$label,'required'=>$req,'placeholder'=>$placeholder,'options'=>(string)($row['options']??''),'row'=>$row));
+    $custom=apply_filters('sidcraft_page_builder_form_field_html','',$raw,array('name'=>$name,'label'=>$label,'required'=>$req,'placeholder'=>$placeholder,'options'=>(string)($row['options']??''),'row'=>$row));
     if(is_string($custom)&&$custom!==''){ $type=sanitize_key($raw); $input=$custom; }
     else $type='text';
    }

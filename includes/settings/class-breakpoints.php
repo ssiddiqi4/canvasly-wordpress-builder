@@ -173,7 +173,7 @@ class Breakpoints {
 				$out[ $name ]['direction'] = 'max';
 			}
 		}
-		$filtered = apply_filters( 'sidcraft-page-builder/breakpoints', $out );
+		$filtered = apply_filters( 'sidcraft_page_builder_breakpoints', $out );
 		return is_array( $filtered ) ? $filtered : $out;
 	}
 

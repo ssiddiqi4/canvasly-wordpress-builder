@@ -67,7 +67,7 @@ class KitSettings {
 		$out   = self::sanitize_map( is_array( $saved ) ? $saved : array() );
 		$out   = self::merge_identity_from_core( $out );
 		/** Filter the kit settings map. @param array $out */
-		$filtered = apply_filters( 'sidcraft-page-builder/kit_settings', $out );
+		$filtered = apply_filters( 'sidcraft_page_builder_kit_settings', $out );
 		return is_array( $filtered ) ? self::sanitize_map( self::merge_identity_from_core( $filtered ) ) : $out;
 	}
 
@@ -291,7 +291,7 @@ class KitSettings {
 			$css = '/*lb-kit-style*/' . $css . '/*lb-kit-style-end*/';
 		}
 		/** Filter compiled kit CSS. @param string $css @param array $d */
-		$filtered = apply_filters( 'sidcraft-page-builder/kit_settings/css', $css, $d );
+		$filtered = apply_filters( 'sidcraft_page_builder_kit_settings_css', $css, $d );
 		return is_string( $filtered ) ? $filtered : $css;
 	}
 

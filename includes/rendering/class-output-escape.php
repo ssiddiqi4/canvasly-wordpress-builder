@@ -115,7 +115,7 @@ class OutputEscape {
 		 *
 		 * @param string[] $scripts
 		 */
-		$scripts = (array) apply_filters( 'sidcraft-page-builder/kses/trusted_scripts', array() );
+		$scripts = (array) apply_filters( 'sidcraft_page_builder_kses_trusted_scripts', array() );
 		foreach ( $scripts as $js ) {
 			if ( ! is_string( $js ) || '' === $js || false !== stripos( $js, '</script' ) ) {
 				continue;

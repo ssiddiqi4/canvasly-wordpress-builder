@@ -314,7 +314,7 @@ class Style {
 			$css = \SidcraftPageBuilder\Design\Optimize::expand_selectors( $css );
 		}
 		/** Filter the CSS generated for one node. @param string $css @param array $n Node @param Unit|null $el */
-		$filtered = apply_filters( 'sidcraft-page-builder/unit/style_css', $css, $n, $el );
+		$filtered = apply_filters( 'sidcraft_page_builder_unit_style_css', $css, $n, $el );
 		return is_string( $filtered ) ? $filtered : $css;
 	}
 
