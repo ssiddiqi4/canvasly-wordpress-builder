@@ -554,6 +554,10 @@ class AdminSettings {
 		$tab  = isset( $_POST['sidsyn_settings_tab'] ) ? sanitize_key( wp_unslash( $_POST['sidsyn_settings_tab'] ) ) : self::current_tab();
 		$raw  = self::from_post( $tab );
 		$save = self::save( $raw, true );
+		if ( $tab === 'advanced' && ! is_wp_error( $save ) && class_exists( '\\SidcraftPageBuilder\\Document\\FallbackContent' ) ) {
+			$fallback = self::posted_fields( array( 'fallback_content' ) );
+			update_option( \SidcraftPageBuilder\Document\FallbackContent::OPTION, ! empty( $fallback['fallback_content'] ) ? '1' : '0' );
+		}
 		if ( $tab === 'integrations' && ! is_wp_error( $save ) ) {
 			/**
 			 * Field names the Integrations tab hands to save_integrations. Integrations add theirs.
@@ -1029,7 +1033,14 @@ class AdminSettings {
 		echo '<label><input type="radio" name="editor_loader_mode" value="default"' . ( $loader === 'default' ? ' checked' : '' ) . '> ' . esc_html__( 'Default', 'sidcraft-page-builder' ) . '</label><br>';
 		echo '<label><input type="radio" name="editor_loader_mode" value="iframe"' . ( $loader === 'iframe' ? ' checked' : '' ) . '> ' . esc_html__( 'Iframe', 'sidcraft-page-builder' ) . '</label>';
 		echo '<p class="description">' . esc_html__( 'Iframe mode loads the editor in an isolated frame so other admin CSS and scripts are less likely to conflict. Use this if the editor fails to open.', 'sidcraft-page-builder' ) . '</p>';
-		echo '</td></tr></tbody></table>';
+		echo '</td></tr>';
+		if ( class_exists( '\\SidcraftPageBuilder\\Document\\FallbackContent' ) ) {
+			echo '<tr><th>' . esc_html__( 'Readable fallback content', 'sidcraft-page-builder' ) . '</th><td>';
+			echo '<label><input type="checkbox" name="fallback_content" value="1"' . ( \SidcraftPageBuilder\Document\FallbackContent::site_enabled() ? ' checked' : '' ) . '> ' . esc_html__( 'Also save a clean HTML copy of each layout in the post content.', 'sidcraft-page-builder' ) . '</label>';
+			echo '<p class="description">' . esc_html__( 'Keeps headings, text, links, images, lists and tables readable if Sidcraft Page Builder is ever switched off, and gives search, feeds and SEO plugins real content. Visitors still see the full layout while the builder is active. Fill in existing pages with: wp sidcraft-page-builder fallback', 'sidcraft-page-builder' ) . '</p>';
+			echo '</td></tr>';
+		}
+		echo '</tbody></table>';
 	}
 
 	public static function render_advanced_actions() {
