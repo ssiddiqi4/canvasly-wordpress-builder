@@ -24,7 +24,7 @@ import { installKitExport } from "./kit-export.js";
 import { installGroups } from "./groups.js";
 import { installCodeControl } from "./code-control.js";
 import { installShortcuts } from "./shortcuts.js";
-import { installClipboard } from "./clipboard.js";
+import { installClipboard } from "./copy-paste.js";
 import { installPreferences } from "./preferences.js";
 import { installInlineToolbar } from "./inline-toolbar.js";
 import { installDynamicTags } from "./dynamic-tags.js";
@@ -38,6 +38,7 @@ import { installCanvasSchema } from "./canvas-schema.js";
 import { installEffectsReset } from "./effects-reset.js";
 import { installImageCarouselPreview } from "./carousel-preview.js";
 import { installColorPicker } from "./color-picker.js";
+import { installNavigatorTools } from "./navigator-tools.js";
 
 installHooks();
 
@@ -112,6 +113,8 @@ function boot() {
   installImageCarouselPreview();
   installEffectsReset();
   installColorPicker();
+  // Last: wraps render, refreshRightPanel, lbPaintCanvas, remove, move, undo and redo.
+  installNavigatorTools();
   if (typeof app.render === "function") app.render();
   if (typeof app.lbHydrateDocument === "function") app.lbHydrateDocument();
 }

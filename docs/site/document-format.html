@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Replace https://canvasly.local with the live origin before publishing. Host either these HTML files or the imported WordPress pages, not both. -->
+  <title>Sidcraft Document Format | Saved JSON and JSON Schema</title>
+  <meta name="description" content="How Sidcraft stores a page: the JSON document in post meta, every field of a node, responsive values, the readable copy in post content, and the published JSON Schema.">
+  <meta name="author" content="Sidcraft">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="theme-color" content="#f6f1e7">
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml">
+  <link rel="canonical" href="https://canvasly.local/document-format.html">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Sidcraft Help">
+  <meta property="og:title" content="Sidcraft Document Format | Saved JSON and JSON Schema">
+  <meta property="og:description" content="How Sidcraft stores a page: the JSON document in post meta, every field of a node, responsive values, the readable copy in post content, and the published JSON Schema.">
+  <meta property="og:url" content="https://canvasly.local/document-format.html">
+  <meta property="og:image" content="https://canvasly.pro/assets/sidcraft-banner.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="article:modified_time" content="2026-10-05T12:00:00+00:00">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://canvasly.local/document-format.html#article",
+      "headline": "Sidcraft Document Format | Saved JSON and JSON Schema",
+      "inLanguage": "en",
+      "datePublished": "2026-10-05",
+      "dateModified": "2026-10-05",
+      "mainEntityOfPage": "https://canvasly.local/document-format.html",
+      "author": {"@type": "Organization", "name": "Sidcraft", "url": "https://canvasly.pro"},
+      "publisher": {"@type": "Organization", "name": "Sidcraft", "url": "https://canvasly.pro"}
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Sidcraft", "item": "https://canvasly.pro/overview.html"},
+        {"@type": "ListItem", "position": 2, "name": "Document format", "item": "https://canvasly.local/document-format.html"}
+      ]
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="assets/style.css?v=20260924">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header">
+    <p class="brand"><a href="https://canvasly.pro"><img class="brand-logo" src="assets/canvasly-logo.png" alt="Sidcraft. Design your pages visually." width="400" height="320"></a></p>
+    <nav aria-label="Documentation">
+      <a href="https://canvasly.pro">Home</a>
+      <details class="nav-drop">
+        <summary>Products</summary>
+        <ul>
+          <li><a href="https://canvasly.pro/price">Sidcraft Pro</a></li>
+          <li><a href="https://canvasly.pro/vidcellar/index.html">VidCellar Pro</a></li>
+        </ul>
+      </details>
+      <details class="nav-drop">
+        <summary>Sidcraft</summary>
+        <ul>
+          <li><a href="https://canvasly.pro/overview.html">Overview</a></li>
+          <li><a href="price.html">Price</a></li>
+          <li><a href="installation.html">Install</a></li>
+          <li><a href="settings.html">Settings</a></li>
+          <li><a href="shortcodes.html">Shortcodes</a></li>
+          <li><a href="blocks.html">Units</a></li>
+          <li><a href="document-format.html" aria-current="page">Document format</a></li>
+          <li><a href="performance.html">Performance</a></li>
+          <li><a href="ai-connectivity.html">AI &amp; MCP</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </details>
+      <a href="support.html">Support</a>
+      <a href="affiliate.html">Join Affiliate Program</a>
+    </nav>
+  </header>
+  <main id="content">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="https://canvasly.pro/overview.html">Sidcraft</a></li>
+        <li aria-current="page">Document format</li>
+      </ol>
+    </nav>
+    <header class="page-intro">
+      <h1>Sidcraft document format</h1>
+      <p class="lede">Every page you build is saved as one JSON document, not as shortcodes. This page describes that format field by field, publishes it as a JSON Schema, and explains what stays in WordPress if Sidcraft is ever switched off.</p>
+      <p class="meta">Updated <time datetime="2026-10-05">October 5, 2026</time>. Covers Sidcraft 0.15.0, document format version 2.8.</p>
+    </header>
+
+    <article id="schema">
+      <h2>The JSON Schema</h2>
+      <p>The format is published as a <a href="https://json-schema.org/draft/2020-12/schema">JSON Schema (draft 2020-12)</a>. Use it to validate documents, generate types, or write an importer or exporter.</p>
+      <table>
+        <thead><tr><th>Where</th><th>What you get</th></tr></thead>
+        <tbody>
+          <tr><td><a href="schema/sidcraft-document-2.8.schema.json"><code>schema/sidcraft-document-2.8.schema.json</code></a></td><td>The schema for the free plugin's 62 units, format 2.8.</td></tr>
+          <tr><td><code>GET /wp-json/sidcraft-page-builder/v1/schema</code></td><td>The schema for your own site, generated from the units installed there, so Sidcraft Pro and other add-on units are included. Public, cached for an hour.</td></tr>
+          <tr><td><code>wp sidcraft-page-builder schema</code></td><td>The same, printed by WP-CLI.</td></tr>
+        </tbody>
+      </table>
+      <p>Each unit type has its own settings definition in <code>$defs</code>, named <code>settings_&lt;type&gt;</code>, for example <code>settings_heading</code>. Settings every unit shares (spacing, background, border, position, motion, visibility) are described once in <code>$defs/shared_settings</code>. Fields starting with <code>x-</code> are Sidcraft notes: <code>x-control</code> is the editor control type, <code>x-options</code> the choices of a select, <code>x-units</code> the CSS units a slider accepts.</p>
+    </article>
+
+    <article id="storage">
+      <h2>Where a page is stored</h2>
+      <table>
+        <thead><tr><th>Post meta key</th><th>Holds</th></tr></thead>
+        <tbody>
+          <tr><td><code>_sidsyn_document_data</code></td><td>The document, as JSON. This is the source of truth.</td></tr>
+          <tr><td><code>_sidsyn_template_data</code></td><td>The same format, for saved templates.</td></tr>
+          <tr><td><code>_sidsyn_document_hash</code></td><td>Hash of the document's normalized form. A save with an identical layout is detected with it and writes nothing.</td></tr>
+          <tr><td><code>_sidsyn_document_version</code>, <code>_sidsyn_document_updated</code></td><td>Plugin version and time of the last save.</td></tr>
+          <tr><td><code>_sidsyn_css_cache</code></td><td>Compiled CSS for the page. Rebuilt from the document when missing.</td></tr>
+          <tr><td><code>_sidsyn_autosave_data</code></td><td>An unsaved editor draft, deleted on save.</td></tr>
+          <tr><td><code>_sidsyn_original_content</code></td><td>The post content the page had before Sidcraft first wrote its readable copy (see below). Kept once.</td></tr>
+        </tbody>
+      </table>
+      <p>Revisions are ordinary WordPress revisions. Each one carries a copy of the document meta, so restoring a revision restores the layout.</p>
+    </article>
+
+    <article id="fallback">
+      <h2>If Sidcraft is switched off</h2>
+      <p>Every save that changes the layout also writes a clean copy of the page into the normal WordPress post content, as core blocks: headings, paragraphs, lists and separators become real Heading, Paragraph, List and Separator blocks; images, tables, quotes and figures become Custom HTML blocks. Builder classes, inline styles, scripts and forms are left out.</p>
+      <ul>
+        <li>While Sidcraft is active, visitors always see the full layout. The copy is never shown.</li>
+        <li>With Sidcraft off, the page shows the copy and opens in the block editor as editable content. Nothing is lost.</li>
+        <li>Search, feeds, excerpts, the REST API and SEO plugins read real content instead of an empty page.</li>
+        <li>The copy is only rewritten when the layout changes, so normal saves and page views make no extra database writes.</li>
+      </ul>
+      <p>Turn this off under <strong>Settings → Advanced → Readable fallback content</strong>. To fill in pages built before 0.15.0, run <code>wp sidcraft-page-builder fallback</code>. To put back the content pages had before their first copy, run <code>wp sidcraft-page-builder fallback --restore</code>.</p>
+      <p>Content that only exists while the builder runs is not in the copy: forms, sliders that load slides with JavaScript, maps, video players, and query loops show the posts they listed at the time of the save.</p>
+    </article>
+
+    <article id="document">
+      <h2>The document</h2>
+      <pre class="example">{
+  "version": "2.8",
+  "settings": { "template": "default", "page_width": "1140px" },
+  "root":   [ /* nodes, top to bottom */ ],
+  "header": [ /* optional page header */ ],
+  "footer": [ /* optional page footer */ ]
+}</pre>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>version</code></td><td>string</td><td>Format version. Older documents are upgraded when read; a save always writes the current version.</td></tr>
+          <tr><td><code>root</code></td><td>array of nodes</td><td>The page body.</td></tr>
+          <tr><td><code>header</code>, <code>footer</code></td><td>array of nodes</td><td>A header and footer for this page only. Ignored while the theme provides its own header and footer.</td></tr>
+          <tr><td><code>settings.template</code></td><td>string</td><td><code>default</code>, <code>full_width</code> or <code>canvas</code> (no theme header and footer).</td></tr>
+          <tr><td><code>settings.title</code>, <code>settings.body_class</code>, <code>settings.page_width</code></td><td>string</td><td>Page title override, extra body class, content width as a CSS length.</td></tr>
+        </tbody>
+      </table>
+      <p>PHP stores an empty object as <code>[]</code>, so <code>"settings": []</code> means no settings.</p>
+    </article>
+
+    <article id="node">
+      <h2>A node</h2>
+      <pre class="example">{
+  "id": "hero_title",
+  "type": "heading",
+  "settings": { "text": "Welcome", "tag": "h1", "size": { "desktop": "48px", "mobile": "32px" } },
+  "styles": { "base": {}, "hover": {} },
+  "interactions": [],
+  "editor_settings": { "label": "Main title", "locked": true },
+  "children": []
+}</pre>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>string</td><td>Stable and unique in the document: letters, digits, <code>_</code> and <code>-</code>, up to 40 characters. Generated when missing. Used in CSS as <code>#lb-node-{id}</code> and for anchors, so keep it when you edit a document.</td></tr>
+          <tr><td><code>type</code></td><td>string</td><td>A registered unit type such as <code>container</code>, <code>heading</code> or <code>image</code>. Nodes of unknown types are dropped on save.</td></tr>
+          <tr><td><code>settings</code></td><td>object</td><td>Values for the unit's controls. Unknown keys are dropped on save; missing keys use the unit's defaults. See <code>$defs/settings_&lt;type&gt;</code>.</td></tr>
+          <tr><td><code>settings._dynamic</code></td><td>object</td><td>Dynamic tag bindings, keyed by setting name, resolved when the page renders.</td></tr>
+          <tr><td><code>children</code></td><td>array of nodes</td><td>Only for units that hold other units (container, grid, inner section, nested tabs…).</td></tr>
+          <tr><td><code>slot</code></td><td>string</td><td>For children of Nested Tabs, Nested Accordion and Nested Toggle: the <code>_id</code> of the tab or item the child belongs to.</td></tr>
+          <tr><td><code>atomic</code></td><td>boolean</td><td>XEditor element: prints a single HTML element styled by its classes.</td></tr>
+          <tr><td><code>styles</code></td><td>object</td><td>XEditor style layer, CSS property → value, per state: <code>base</code>, <code>hover</code>, <code>focus</code>, <code>active</code>, <code>focus_visible</code>.</td></tr>
+          <tr><td><code>interactions</code></td><td>array</td><td>Motion effects: kind, trigger, effect, duration and delay in seconds (0–30), easing, iteration (1–20), repeat, threshold (0–1).</td></tr>
+          <tr><td><code>editor_settings</code></td><td>object</td><td>Editor-only state that never changes what visitors see: <code>label</code> (name in the Navigator), <code>hidden</code> (hidden on the editor canvas), <code>locked</code> (cannot be moved, edited or deleted until unlocked).</td></tr>
+          <tr><td><code>exposed</code></td><td>array of strings</td><td>On component instances: the settings that may be overridden.</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="values">
+      <h2>Setting values</h2>
+      <table>
+        <thead><tr><th>Control</th><th>Stored as</th></tr></thead>
+        <tbody>
+          <tr><td>Text, textarea, code, icon</td><td>String.</td></tr>
+          <tr><td>Rich text (wysiwyg)</td><td>HTML string, limited to what WordPress allows in posts.</td></tr>
+          <tr><td>Number</td><td>Number, or <code>""</code> when empty. Clamped to the control's range.</td></tr>
+          <tr><td>Slider</td><td>A number (in the control's default unit), a string with a unit such as <code>"24px"</code> or <code>"50%"</code>, <code>"auto"</code>, or <code>{"size": 24, "unit": "px"}</code>.</td></tr>
+          <tr><td>Switch</td><td>Boolean.</td></tr>
+          <tr><td>Select, choose</td><td>String, one of the listed options.</td></tr>
+          <tr><td>Color</td><td>Hex, <code>rgb()</code>/<code>hsl()</code>, or a global color such as <code>var(--lb-color-primary)</code>.</td></tr>
+          <tr><td>URL</td><td>String. <code>javascript:</code>, <code>vbscript:</code> and <code>data:</code> links are removed.</td></tr>
+          <tr><td>Media</td><td>Attachment ID (integer).</td></tr>
+          <tr><td>Gallery</td><td>Comma-separated attachment IDs.</td></tr>
+          <tr><td>Repeater (tabs, list items, slides)</td><td>Array of row objects. Each row has a stable <code>_id</code> plus its fields.</td></tr>
+          <tr><td>Group controls (typography, border, box shadow…)</td><td>An object with that group's fields.</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Responsive values.</strong> A responsive setting holds either one value for all screens or an object keyed by breakpoint: <code>widescreen</code>, <code>desktop</code>, <code>laptop</code>, <code>tablet_extra</code>, <code>tablet</code>, <code>mobile_extra</code>, <code>mobile</code>. A breakpoint without its own value inherits one, the same way it does in the editor's device preview.</p>
+    </article>
+
+    <article id="api">
+      <h2>Reading and writing documents</h2>
+      <table>
+        <thead><tr><th>Request</th><th>Does</th></tr></thead>
+        <tbody>
+          <tr><td><code>GET /wp-json/sidcraft-page-builder/v1/document/{id}</code></td><td>The document of post {id}. Needs permission to edit that post.</td></tr>
+          <tr><td><code>POST /wp-json/sidcraft-page-builder/v1/document/{id}</code></td><td>Save a document (JSON body). It is checked and normalized exactly like an editor save, then returned.</td></tr>
+          <tr><td><code>GET …/document/{id}/export</code>, <code>POST …/document/{id}/import</code></td><td>Export and import one page.</td></tr>
+          <tr><td><code>GET …/document/{id}/revisions</code></td><td>Saved revisions, which can be previewed and restored.</td></tr>
+        </tbody>
+      </table>
+      <p>Always write through the API (or <code>SidcraftPageBuilder\Document\DocumentManager::save()</code> in PHP), not straight into post meta: saving normalizes values, records a revision, refreshes the CSS and the readable copy, and skips all of it when nothing changed.</p>
+    </article>
+
+    <article id="elementor">
+      <h2>Converting from Elementor</h2>
+      <p>The converter reads Elementor's own stored JSON and produces a document in this format. It never changes or deletes the Elementor data. Under <strong>Sidcraft → Tools</strong>, choose <strong>Convert for review</strong>: each converted page waits in <strong>Sidcraft → Review Conversions</strong> next to the current page, side by side, with a content check (any text from the old page that is missing on the new one), the widgets that could not be converted, and the dynamic data that needs re-linking. Nothing changes until you click <strong>Accept</strong>, and an accepted page can be reverted to its Elementor layout from the same screen.</p>
+      <p>Large sites convert in small batches. Progress is saved after every page, so a closed browser or a timeout never loses work; click <strong>Resume</strong>, or run <code>wp sidcraft-page-builder convert-batch --resume</code>. A page that fails is left untouched and listed with the exact element where it stopped, for example <code>section#4f2a &gt; column#9c1d &gt; slides#77ab</code>.</p>
+    </article>
+
+    <article id="versions">
+      <h2>Format versions</h2>
+      <p>A newer plugin reads every older version and upgrades it in memory; the upgraded form is written the next time the page is saved. The current version is in the document's <code>version</code> field and in the schema's <code>x-version</code>. Keys a version does not know are dropped on save, so validate against the schema for the version you target.</p>
+    </article>
+
+    <nav class="card toc" aria-label="Related">
+      <h2>Related</h2>
+      <a href="performance.html">Performance numbers</a>
+      <a href="blocks.html">Sidcraft units</a>
+      <a href="ai-connectivity.html">AI and MCP</a>
+    </nav>
+  </main>
+  <footer class="site-foot"><p><a href="index.html">Back to overview</a></p></footer>
+</body>
+</html>

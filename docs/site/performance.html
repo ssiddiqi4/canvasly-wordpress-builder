@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Replace https://canvasly.local with the live origin before publishing. Host either these HTML files or the imported WordPress pages, not both. -->
+  <title>Sidcraft Performance | Measured Numbers and How to Reproduce Them</title>
+  <meta name="description" content="Measured Sidcraft numbers for a 200-unit page: save time, database writes, server render time, peak memory, front-end CSS and JS bytes, and editor start-up. With the commands to measure your own site.">
+  <meta name="author" content="Sidcraft">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="theme-color" content="#f6f1e7">
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml">
+  <link rel="canonical" href="https://canvasly.local/performance.html">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Sidcraft Help">
+  <meta property="og:title" content="Sidcraft Performance | Measured Numbers and How to Reproduce Them">
+  <meta property="og:description" content="Measured Sidcraft numbers for a 200-unit page, with the commands to measure your own site.">
+  <meta property="og:url" content="https://canvasly.local/performance.html">
+  <meta property="og:image" content="https://canvasly.pro/assets/sidcraft-banner.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="article:modified_time" content="2026-10-05T12:00:00+00:00">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://canvasly.local/performance.html#article",
+      "headline": "Sidcraft Performance | Measured Numbers and How to Reproduce Them",
+      "inLanguage": "en",
+      "datePublished": "2026-10-05",
+      "dateModified": "2026-10-05",
+      "mainEntityOfPage": "https://canvasly.local/performance.html",
+      "author": {"@type": "Organization", "name": "Sidcraft", "url": "https://canvasly.pro"},
+      "publisher": {"@type": "Organization", "name": "Sidcraft", "url": "https://canvasly.pro"}
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Sidcraft", "item": "https://canvasly.pro/overview.html"},
+        {"@type": "ListItem", "position": 2, "name": "Performance", "item": "https://canvasly.local/performance.html"}
+      ]
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="assets/style.css?v=20260924">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header">
+    <p class="brand"><a href="https://canvasly.pro"><img class="brand-logo" src="assets/canvasly-logo.png" alt="Sidcraft. Design your pages visually." width="400" height="320"></a></p>
+    <nav aria-label="Documentation">
+      <a href="https://canvasly.pro">Home</a>
+      <details class="nav-drop">
+        <summary>Products</summary>
+        <ul>
+          <li><a href="https://canvasly.pro/price">Sidcraft Pro</a></li>
+          <li><a href="https://canvasly.pro/vidcellar/index.html">VidCellar Pro</a></li>
+        </ul>
+      </details>
+      <details class="nav-drop">
+        <summary>Sidcraft</summary>
+        <ul>
+          <li><a href="https://canvasly.pro/overview.html">Overview</a></li>
+          <li><a href="price.html">Price</a></li>
+          <li><a href="installation.html">Install</a></li>
+          <li><a href="settings.html">Settings</a></li>
+          <li><a href="shortcodes.html">Shortcodes</a></li>
+          <li><a href="blocks.html">Units</a></li>
+          <li><a href="document-format.html">Document format</a></li>
+          <li><a href="performance.html" aria-current="page">Performance</a></li>
+          <li><a href="ai-connectivity.html">AI &amp; MCP</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </details>
+      <a href="support.html">Support</a>
+      <a href="affiliate.html">Join Affiliate Program</a>
+    </nav>
+  </header>
+  <main id="content">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="https://canvasly.pro/overview.html">Sidcraft</a></li>
+        <li aria-current="page">Performance</li>
+      </ol>
+    </nav>
+    <header class="page-intro">
+      <h1>Sidcraft performance</h1>
+      <p class="lede">Measured numbers for a page with 200 units: what saving costs, what a page view costs on the server, how many bytes of CSS and JavaScript Sidcraft adds, and how long the editor takes to open. The same commands are in the plugin, so you can measure your own site.</p>
+      <p class="meta">Updated <time datetime="2026-10-05">October 5, 2026</time>. Measured with Sidcraft 0.15.0, without Sidcraft Pro unless noted.</p>
+    </header>
+
+    <article id="setup">
+      <h2>Test setup</h2>
+      <table>
+        <tbody>
+          <tr><th>Test page</th><td>200 units: 20 containers, each with a heading, rich text, image, button, icon list, divider, counter, accordion and testimonial. Document JSON 117 KB.</td></tr>
+          <tr><th>Comparison page</th><td>A plain block-editor page with one paragraph, on the same site.</td></tr>
+          <tr><th>Software</th><td>WordPress 6.9, Twenty Twenty-Five theme, PHP 8.3 with OPcache, no persistent object cache. Linux container, PHP's built-in web server with 4 workers, SQLite database.</td></tr>
+          <tr><th>Browser</th><td>Headless Chromium, 1440 × 900, cache cleared before each run.</td></tr>
+          <tr><th>Runs</th><td>Server figures: median of 3 runs. Editor: median of 5 runs. Times on a tuned host with MySQL and a full web server will be lower; compare the two pages and the before/after rows rather than the absolute milliseconds.</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="frontend">
+      <h2>Page views</h2>
+      <table>
+        <thead><tr><th>Measure</th><th>200-unit page</th><th>Plain page</th></tr></thead>
+        <tbody>
+          <tr><td>Server time (request start to end)</td><td>325 ms</td><td>54 ms</td></tr>
+          <tr><td>Peak PHP memory</td><td>14 MB</td><td>14 MB</td></tr>
+          <tr><td>Database queries</td><td>34</td><td>28</td></tr>
+          <tr><td><strong>Database writes during the page view</strong></td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
+          <tr><td>HTML</td><td>211 KB</td><td>64 KB</td></tr>
+          <tr><td>CSS added by Sidcraft</td><td>139 KB (21 KB gzip)</td><td>0</td></tr>
+          <tr><td>JavaScript added by Sidcraft</td><td>40 KB (12 KB gzip)</td><td>0</td></tr>
+        </tbody>
+      </table>
+      <p>Pages without a Sidcraft layout load no Sidcraft CSS or JavaScript at all. On a Sidcraft page the CSS is three files: the shared front-end stylesheet (78 KB, 14 KB gzip), the site's design tokens (14 KB, 2 KB gzip) and the page's own compiled CSS (46 KB, 4 KB gzip). Unit scripts load only for the units on the page.</p>
+      <p><strong>Render cost.</strong> Rendering the 200 units takes about 205 ms the first time in a request and about 40 ms when the unit fragment cache already holds them. The fragment cache lasts across page views only with a persistent object cache (Redis or Memcached); without one, each page view renders from scratch. Full-page caching avoids the render entirely, and Sidcraft clears the page from the common page-cache plugins when you save.</p>
+      <p>With Sidcraft Pro active, page-view times were in the same range (305 to 360 ms).</p>
+    </article>
+
+    <article id="save">
+      <h2>Saving</h2>
+      <table>
+        <thead><tr><th>Measure</th><th>200-unit page</th></tr></thead>
+        <tbody>
+          <tr><td>Save that changes the layout</td><td>757 ms, 17 database writes (document, hash, readable copy, revision, cache invalidation)</td></tr>
+          <tr><td>Save with nothing changed</td><td>177 ms, <strong>0 database writes</strong></td></tr>
+        </tbody>
+      </table>
+      <p>An unchanged save is recognised by comparing a hash of the normalized layout, so it does not rewrite the document, create a revision, clear CSS or purge page caches.</p>
+    </article>
+
+    <article id="editor">
+      <h2>Editor start-up</h2>
+      <table>
+        <thead><tr><th>Measure</th><th>200-unit page</th><th>10-unit page</th></tr></thead>
+        <tbody>
+          <tr><td>Time until every unit is on the canvas and in the Navigator</td><td>1.8 s</td><td>1.4 s</td></tr>
+          <tr><td>JavaScript heap in use</td><td>31 MB</td><td>30 MB</td></tr>
+          <tr><td>Editor scripts and styles</td><td colspan="2">1,388 KB (306 KB gzip), cached by the browser after the first visit</td></tr>
+          <tr><td>Editor page HTML (includes unit definitions)</td><td>659 KB (88 KB gzip)</td><td>548 KB</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Improved in 0.15.0.</strong> Every unit used to carry its own copy of the ~100 shared Style and Advanced control definitions. They are now sent once, which made the editor page much smaller:</p>
+      <table>
+        <thead><tr><th>Editor page HTML</th><th>0.14.4</th><th>0.15.0</th></tr></thead>
+        <tbody>
+          <tr><td>Sidcraft</td><td>1,657 KB (110 KB gzip), ready in 2.0 s</td><td>659 KB (88 KB gzip), ready in 1.8 s</td></tr>
+          <tr><td>Sidcraft with Sidcraft Pro (208 units)</td><td>5,913 KB (426 KB gzip)</td><td>2,007 KB (254 KB gzip), ready in 2.5 s</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article id="next">
+      <h2>Where the remaining cost is</h2>
+      <ul>
+        <li>The shared front-end stylesheet (78 KB) loads in full on every Sidcraft page, whichever units the page uses.</li>
+        <li>The menu-anchor stylesheet and script (2 KB) load on Sidcraft pages that have no menu anchor.</li>
+        <li>The editor sends every unit's control definitions at start-up, including units the page does not use.</li>
+      </ul>
+    </article>
+
+    <article id="measure">
+      <h2>Measure your own site</h2>
+      <p>On the server, with WP-CLI:</p>
+      <pre class="example">wp sidcraft-page-builder benchmark
+wp sidcraft-page-builder benchmark --units=500 --format=json</pre>
+      <p>It creates two temporary published pages (one with a 200-unit layout, one without), measures saving, rendering and a real page view of each, and deletes them again. Page views are requested over HTTP from the server to itself; if a page cache answers instead of WordPress, the command says so. Add <code>--keep</code> to keep the pages.</p>
+      <p>In a browser, from the plugin's source repository (needs Node.js and Playwright):</p>
+      <pre class="example">wp sidcraft-page-builder benchmark --keep
+node tools/bench-editor.mjs --url=https://your-site.test --user=admin --pass=… --post=&lt;page ID&gt; --runs=5</pre>
+    </article>
+
+    <nav class="card toc" aria-label="Related">
+      <h2>Related</h2>
+      <a href="settings.html#performance">Performance settings</a>
+      <a href="document-format.html">Document format</a>
+      <a href="faq.html">Common questions</a>
+    </nav>
+  </main>
+  <footer class="site-foot"><p><a href="index.html">Back to overview</a></p></footer>
+</body>
+</html>

@@ -17,6 +17,16 @@ function installContextmenu() {
   app.contextItem = function contextItem(label, action, disabled = false, shortcut = "") {
     return `<button type="button" class="lb-context-item ${disabled ? "is-disabled" : ""}" data-context-action="${app.esc(action)}" ${disabled ? "disabled" : ""}><span>${app.esc(label)}</span>${shortcut ? `<kbd>${app.esc(shortcut)}</kbd>` : ""}</button>`;
   };
+  if (!app.unitCardContextBound) {
+    app.unitCardContextBound = true;
+    document.addEventListener("contextmenu", (e) => {
+      const card = e.target?.closest?.(".lb-unit-card[data-type]");
+      if (!card) return;
+      e.preventDefault();
+      e.stopPropagation();
+      app.showContextMenu("unit-card", { type: card.dataset.type, x: e.clientX, y: e.clientY });
+    });
+  }
   app.showContextMenu = function showContextMenu(kind, opts = {}) {
     app.closeContextMenu();
     const sc = (id) => (app.shortcutLabel ? app.shortcutLabel(id) : "");

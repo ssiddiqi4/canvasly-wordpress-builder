@@ -1,21 +1,23 @@
 {
   "name": "sidcraft-page-builder",
+  "version": "0.15.1",
   "private": true,
-  "description": "Build tooling for the Sidcraft Page Builder editor bundle (assets/js/editor.js).",
+  "description": "Sidcraft Page Builder: build the editor bundle from src/editor and package the plugin zip.",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
   "scripts": {
-    "build": "node build.mjs",
-    "check": "node build.mjs --check",
-    "lint": "eslint src && prettier --check src scripts",
-    "format": "prettier --write src",
-    "compare": "node scripts/compare-bundle.mjs"
+    "build": "node esbuild.config.mjs",
+    "watch": "node esbuild.config.mjs --watch",
+    "zip": "node scripts/build-zip.mjs",
+    "release": "npm run build && npm run test:editor && npm run zip",
+    "test:editor": "node scripts/check-editor-modules.mjs && node scripts/test-shortcuts.mjs && node scripts/test-clipboard.mjs && node scripts/test-history.mjs && node scripts/test-preferences.mjs && node scripts/test-inline-toolbar.mjs && node scripts/test-dynamic-tags.mjs && node scripts/test-interactions.mjs && node scripts/test-counter-live.mjs && node scripts/smoke-editor-bundle.mjs",
+    "compare-bundle": "node scripts/compare-bundle.mjs",
+    "bench:editor": "node tools/bench-editor.mjs"
   },
   "devDependencies": {
-    "acorn": "8.18.0",
-    "acorn-walk": "8.3.5",
-    "esbuild": "0.25.12",
-    "eslint": "9.39.5",
-    "eslint-scope": "8.4.0",
-    "globals": "17.13.0",
-    "prettier": "3.9.9"
+    "acorn": "^8.14.0",
+    "esbuild": "~0.25.12",
+    "eslint-scope": "^8.2.0",
+    "playwright": "^1.49.0"
   }
 }

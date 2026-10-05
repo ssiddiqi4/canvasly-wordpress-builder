@@ -4,7 +4,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.14.4
+Stable tag: 0.15.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,14 @@ Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 * Content, Style and Advanced tabs on every unit: spacing, borders, shadows, backgrounds (image, gradient, video, slideshow), transforms, filters and blend modes.
 * Style > Items flex controls (direction, justify, align, gaps, wrap) on containers and widgets.
 * Editing lock so two people never overwrite each other.
+* Navigator with collapse and expand, rename, hide on canvas and lock.
+
+= Your content stays yours =
+
+* Every layout is also saved as clean, readable content in WordPress (core blocks), so pages stay readable and editable if the builder is ever switched off.
+* The saved format is documented and published as a JSON Schema, not hidden in shortcodes.
+* Saving an unchanged page writes nothing to the database, and page views make no database writes.
+* `wp sidcraft-page-builder benchmark` measures save, render, page-view and editor cost on your own site.
 
 = XEditor (CSS-first layer) =
 
@@ -76,7 +84,7 @@ Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 * Maintenance and Coming Soon mode, Safe mode for troubleshooting, and one-click rollback to an earlier Sidcraft Page Builder version.
 * Replace URL tool, system info, roles and capabilities, Units Manager and experiments.
 * Yoast SEO and Rank Math see your Sidcraft Page Builder content; WPML and Polylang can translate it.
-* Import pages and templates built with Elementor (when Elementor is active) into new Sidcraft Page Builder documents.
+* Import pages and templates built with Elementor: review each conversion side by side before it replaces a page, convert large sites in resumable batches, and revert at any time.
 * REST routes, WP-CLI commands and hooks for developers.
 
 = Sidcraft Builder Pro =
@@ -272,7 +280,7 @@ Under Settings → Advanced, set Editor loader to Iframe. Under Settings → Too
 
 Sidcraft Page Builder is a standalone page builder and does not require any other builder. If Elementor is installed and active on your site, Sidcraft Page Builder can:
 
-* Import pages, posts and library templates that were built with Elementor into new Sidcraft Page Builder documents. The original content is never changed or deleted.
+* Import pages, posts and library templates that were built with Elementor into new Sidcraft Page Builder documents. The original content is never changed or deleted. Each conversion can wait in Review Conversions, where you compare it side by side with the current page, see any text, widgets or dynamic data that did not carry over, and accept it, keep it as a copy, or discard it. Accepted pages can be reverted.
 * Show a theme header or footer built with Elementor correctly in the Sidcraft Page Builder editor, by loading the stylesheets that your installed copy of Elementor already provides.
 
 Sidcraft Page Builder does not include, copy or redistribute any Elementor code, stylesheets or images. It only references the files already installed on your site, and this compatibility only applies while Elementor is active.
@@ -280,6 +288,14 @@ Sidcraft Page Builder does not include, copy or redistribute any Elementor code,
 = Is Sidcraft Page Builder affiliated with Elementor? =
 
 No. Elementor is a trademark of its respective owner. Sidcraft Page Builder is an independent plugin and is not affiliated with, sponsored by or endorsed by Elementor or its owner. The name is used only to describe compatibility.
+
+= What happens to my pages if I deactivate Sidcraft Page Builder? =
+
+Each page keeps a readable copy of its layout in the normal WordPress content: headings, text, links, images, lists and tables, as blocks you can edit in the block editor. Builder-only features such as forms, sliders and animations are not in the copy. Reactivate Sidcraft Page Builder and the full layouts are back, since they are stored separately. Pages built before 0.15.0 get their copy the next time they are saved, or all at once with `wp sidcraft-page-builder fallback`.
+
+= Where is the saved format documented? =
+
+On the [document format page](https://canvasly.pro/document-format.html), and as a JSON Schema at /wp-json/sidcraft-page-builder/v1/schema on your own site.
 
 = Does Sidcraft Page Builder connect to external services? =
 
@@ -299,6 +315,20 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 6. **Sidcraft Builder Pro** - Theme Builder, popups, shop units, and the annual plans.
 
 == Changelog ==
+
+= 0.15.1 =
+* Fixed: Dragging a unit onto the "Drag widget here" area at the bottom of the page now always adds it to the end of the page. Before, the drop was sometimes lost (for example when a theme header or footer layer or a neighbouring grid caught it first), and a container had to be added first. The area is now matched by the pointer position, and it highlights while a unit is over it. Moving an existing unit there moves it to the end of the page.
+
+= 0.15.0 =
+* New: Readable fallback content. Every save that changes a layout also writes a clean copy of the page into the post content as core blocks (headings, paragraphs, lists; images and tables as Custom HTML), so the page stays readable and editable in the block editor if Sidcraft Page Builder is switched off. Search, feeds, excerpts and SEO plugins see real content. The post content a page had before is kept. Settings → Advanced → Readable fallback content; fill in existing pages with `wp sidcraft-page-builder fallback`.
+* New: Published document format. The saved JSON is described as a JSON Schema at /wp-json/sidcraft-page-builder/v1/schema and with `wp sidcraft-page-builder schema`, generated from the installed units. Documentation: canvasly.pro/document-format.html.
+* New: Review before replacing. Elementor conversions can wait in Sidcraft Page Builder → Review Conversions, where the current and converted page are shown side by side (desktop, tablet, mobile, synced scrolling) with a content check of text that did not carry over, the widgets that could not be converted, and the dynamic data to re-link. Accept replaces the page or creates a copy; Discard leaves it untouched; an accepted page can be reverted to its Elementor layout.
+* New: Batched, resumable conversion. Conversions run in small batches within the PHP time and memory limits, save progress after every page, and resume after a closed tab, timeout or fatal error (Tools screen, REST, or `wp sidcraft-page-builder convert-batch`). Every failure names the page and the element where it stopped; a failed page is never changed. All pages with Elementor data can be converted, not only the 200 listed.
+* New: Navigator tools. Collapse and expand (with Expand all / Collapse all), rename (pencil button or F2), hide on the editor canvas, and lock. A locked unit and everything inside it cannot be selected on the canvas, moved, edited or deleted until it is unlocked. Names, hidden and locked states are saved with the page and work with undo.
+* New: `wp sidcraft-page-builder benchmark` measures save, render, page-view and editor cost on a temporary 200-unit page. Results: canvasly.pro/performance.html.
+* Improved: Saving an unchanged layout writes nothing: no document write, revision, CSS rebuild or cache purge.
+* Improved: The editor page is much smaller. Shared control definitions are sent once instead of once per unit (about 1.7 MB to 0.7 MB; with Sidcraft Builder Pro about 5.9 MB to 2.0 MB).
+* Developers: New filters `sidcraft_page_builder_fallback_content_enabled`, `sidcraft_page_builder_fallback_content_html`, `sidcraft_page_builder_document_schema`, `sidcraft_page_builder_document_force_save`, `sidcraft_page_builder_convert_step_seconds` and `sidcraft_page_builder_editor_intern_controls`; actions `sidcraft_page_builder_document_unchanged`, `sidcraft_page_builder_fallback_content_written` and `sidcraft_page_builder_conversion_accepted`. Conversion reports now include `dynamic` and `unmapped_nodes` with element paths.
 
 = 0.14.4 =
 * New: Add-ons can add their own tabs to Settings (sidcraft_page_builder_settings_tabs filter and sidcraft_page_builder_settings_render_tab action).
@@ -356,6 +386,12 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 The complete history is in `changelog.txt` inside the plugin folder.
 
 == Upgrade Notice ==
+
+= 0.15.1 =
+Dropping a unit on the "Drag widget here" area at the bottom of the page works every time.
+
+= 0.15.0 =
+Pages keep a readable copy in WordPress if the builder is switched off, Elementor conversions can be reviewed side by side before they replace a page, and the Navigator can collapse, rename, hide and lock.
 
 = 0.14.4 =
 Units can be dragged onto the canvas in Firefox again.

@@ -478,7 +478,7 @@ function installPanel() {
             (() => {
               const locked = app.proUnitLocked(e);
               const hint = locked ? app.t("Sidcraft Builder Pro license required") : app.t("Double-click to add");
-              return `<button class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "\u25A1")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\u2605" : "\u2606"}</b></button>`;
+              return `<div class="lb-unit-card ${app.fav.has(e.type) ? "is-favorite" : ""}${locked ? " is-pro-locked" : ""}" role="button" tabindex="0" draggable="${locked ? "false" : "true"}" ${locked ? 'aria-disabled="true"' : ""} data-type="${app.esc(e.type)}" title="${app.esc(locked ? hint : e.title)}" data-lb-hint="${app.esc(hint)}"><span class="lb-icon" aria-hidden="true">${app.esc(e.icon || "\u25A1")}</span><span>${app.esc(e.title)}</span><b class="lb-fav" data-fav="${app.esc(e.type)}" title="${app.t("Favorite")}">${app.fav.has(e.type) ? "\u2605" : "\u2606"}</b></div>`;
             })(),
           )
           .join("")}</div></div>`;
@@ -1147,7 +1147,7 @@ function installPanel() {
     if (!tag) {
       tag = fd.createElement("style");
       tag.id = "lb-theme-chrome-css";
-      fd.head.appendChild(tag);
+      (fd.head || fd.documentElement).appendChild(tag);
     }
     const fetched = Object.keys(app.themeChromeFetched)
       .map((href) => app.themeChromeFetched[href] || "")
@@ -1966,7 +1966,7 @@ function installPanel() {
       b +
       ";box-sizing:border-box" +
       b +
-      ";display:flex;align-items:center;justify-content:center;border:1px dashed #c5ccd4;background:#fff;color:#8b939c}.lb-page-drop-inner{display:flex;flex-direction:column;align-items:center;gap:12px}.lb-page-drop-actions{display:flex;align-items:center;justify-content:center;gap:10px}.lb-page-drop-btn{width:36px;height:36px;padding:0;border:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font:700 18px/1 system-ui,sans-serif}.lb-page-drop-btn.is-plus{background:#e6e8eb;color:#2c3136;font-size:22px;font-weight:500}.lb-page-drop-btn.is-folder{background:#1c1e22}.lb-page-drop-btn.is-brand{background:#2f73d9;font-size:14px;font-weight:800}.lb-page-drop-btn.is-grid{background:#7b5ea7;border-radius:10px}.lb-page-drop-btn:hover{filter:brightness(1.06)}.lb-page-drop-label{margin:0;font:italic 14px/1.3 system-ui,sans-serif;color:#8e969e}.lb-frame-root.canvas-drop>.lb-page-drop{border-color:#3f7fdf;background:#f4f8fd}body.lb-template-full-width .lb-frame-root,body.lb-template-canvas .lb-frame-root,body.lb-template-default .lb-frame-root{padding:0" +
+      ";display:flex;align-items:center;justify-content:center;border:1px dashed #c5ccd4;background:#fff;color:#8b939c}.lb-page-drop.is-drag-over{border:2px dashed #3f7fdf!important;background:#f0f6ff!important}.lb-page-drop.is-drag-over .lb-page-drop-label{color:#2463b4!important}.lb-page-drop-inner{display:flex;flex-direction:column;align-items:center;gap:12px}.lb-page-drop-actions{display:flex;align-items:center;justify-content:center;gap:10px}.lb-page-drop-btn{width:36px;height:36px;padding:0;border:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font:700 18px/1 system-ui,sans-serif}.lb-page-drop-btn.is-plus{background:#e6e8eb;color:#2c3136;font-size:22px;font-weight:500}.lb-page-drop-btn.is-folder{background:#1c1e22}.lb-page-drop-btn.is-brand{background:#2f73d9;font-size:14px;font-weight:800}.lb-page-drop-btn.is-grid{background:#7b5ea7;border-radius:10px}.lb-page-drop-btn:hover{filter:brightness(1.06)}.lb-page-drop-label{margin:0;font:italic 14px/1.3 system-ui,sans-serif;color:#8e969e}.lb-frame-root.canvas-drop>.lb-page-drop{border-color:#3f7fdf;background:#f4f8fd}body.lb-template-full-width .lb-frame-root,body.lb-template-canvas .lb-frame-root,body.lb-template-default .lb-frame-root{padding:0" +
       b +
       ";width:100%" +
       b +
@@ -2015,7 +2015,7 @@ function installPanel() {
     if (!st) {
       st = fd.createElement("style");
       st.id = "lb-stage-style";
-      fd.head.appendChild(st);
+      (fd.head || fd.documentElement).appendChild(st);
     }
     st.textContent =
       "html{margin:0!important;padding:0!important;height:100%!important;background:#fff!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:scroll!important;scrollbar-gutter:stable!important}html::-webkit-scrollbar{width:12px}html::-webkit-scrollbar-track{background:#eef1f4}html::-webkit-scrollbar-thumb{background:#b7c0ca;border-radius:6px}" +
@@ -2663,6 +2663,117 @@ function installPanel() {
     app.bindSliders();
     if (app.bindCounterLive) app.bindCounterLive();
   };
+  /** Drag payload ("unit:type" or "node:id") of a drag event, or "". */
+  app.dragPayload = function dragPayload(e) {
+    let v = typeof window.__lbDragPayload === "string" ? window.__lbDragPayload : "";
+    if (!/^unit:|^node:/.test(v)) {
+      try {
+        v = (e && e.dataTransfer && e.dataTransfer.getData("text/plain")) || "";
+      } catch (err) {
+        v = "";
+      }
+    }
+    return /^unit:|^node:/.test(v) ? v : "";
+  };
+  /** Add a unit, or move a node, to the end of the page body. */
+  app.dropOnPage = function dropOnPage(v) {
+    if (!v) return false;
+    if (v.startsWith("unit:")) {
+      const prev = app.chromeInsert;
+      app.chromeInsert = "root";
+      try {
+        app.add(v.slice(5));
+      } finally {
+        app.chromeInsert = prev;
+      }
+      return true;
+    }
+    if (v.startsWith("node:")) {
+      const r = app.locate(app.state.root, v.slice(5));
+      if (!r) return false;
+      app.commit();
+      r.nodes.splice(r.index, 1);
+      if (r.node.slot) delete r.node.slot;
+      app.state.root.push(r.node);
+      app.selected = r.node.id;
+      app.chromeFocus = null;
+      app.render();
+      return true;
+    }
+    return false;
+  };
+  /*
+   * The "Drag widget here" area at the bottom of the page. Whether a drop over it
+   * reached the page used to depend on which element was under the pointer: a
+   * neighbouring grid's cell finder, a theme header/footer layer or an overlapping
+   * element could take the event first, so the drop was lost and a container had
+   * to be added first. The area is now matched by position, in the capture phase
+   * on the frame window (before any element or document listener), so a drop
+   * anywhere inside its dashed box always lands at the end of the page.
+   */
+  app.bindPageDropZone = function bindPageDropZone(fd, locked) {
+    const fw = fd && fd.defaultView;
+    if (!fw) return;
+    fw.__lbPageDropLocked = !!locked;
+    if (fw.__lbPageDropRoute) return;
+    fw.__lbPageDropRoute = true;
+    const zoneAt = (e) => {
+      if (fw.__lbPageDropLocked) return null;
+      const z = fd.querySelector(".lb-frame-root > .lb-page-drop");
+      if (!z) return null;
+      const r = z.getBoundingClientRect();
+      return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom ? z : null;
+    };
+    const clear = () => fd.querySelectorAll(".lb-page-drop.is-drag-over").forEach((z) => z.classList.remove("is-drag-over"));
+    fw.addEventListener(
+      "dragover",
+      (e) => {
+        const z = zoneAt(e);
+        const v = z ? app.dragPayload(e) : "";
+        if (!z || !v) {
+          clear();
+          return;
+        }
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = v.startsWith("node:") ? "move" : "copy";
+        z.classList.add("is-drag-over");
+      },
+      true,
+    );
+    fw.addEventListener(
+      "dragenter",
+      (e) => {
+        if (zoneAt(e) && app.dragPayload(e)) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }
+      },
+      true,
+    );
+    fw.addEventListener(
+      "drop",
+      (e) => {
+        const z = zoneAt(e);
+        const v = z ? app.dragPayload(e) : "";
+        clear();
+        if (!z || !v) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        fd.querySelectorAll(".canvas-drop,.drop-target").forEach((x) => x.classList.remove("canvas-drop", "drop-target"));
+        app.dropOnPage(v);
+      },
+      true,
+    );
+    fw.addEventListener("dragend", clear, true);
+    fw.addEventListener(
+      "dragleave",
+      (e) => {
+        if (!e.relatedTarget) clear();
+      },
+      true,
+    );
+  };
   app.bindFrame = function bindFrame() {
     const fd = app.frameDoc();
     if (!fd) return;
@@ -2762,28 +2873,9 @@ function installPanel() {
           e.preventDefault();
           e.stopPropagation();
           rootCanvas.classList.remove("canvas-drop");
-          const v = e.dataTransfer.getData("text/plain") || window.__lbDragPayload || "";
-          if (v.startsWith("unit:")) {
-            const prev = app.chromeInsert;
-            app.chromeInsert = "root";
-            try {
-              app.add(v.slice(5));
-            } finally {
-              app.chromeInsert = prev;
-            }
-          } else if (v.startsWith("node:")) {
-            const r = app.locate(app.state.root, v.slice(5));
-            if (r) {
-              app.commit();
-              r.nodes.splice(r.index, 1);
-              if (r.node.slot) delete r.node.slot;
-              app.state.root.push(r.node);
-              app.selected = r.node.id;
-              app.chromeFocus = null;
-              app.render();
-            }
-          }
+          app.dropOnPage(app.dragPayload(e));
         };
+    app.bindPageDropZone(fd, lockPage);
     fd.querySelectorAll("[data-lb-chrome]").forEach((bar) => {
       if (bar.__lbChromeBound) {
         app.bindCanvasTree(bar);
@@ -2898,6 +2990,17 @@ function installPanel() {
           app.render();
         }),
     );
+    // Unit cards are not <button>s (Firefox will not drag a button), so Enter and
+    // Space on a focused card add the unit, the same as a double-click.
+    if (app.root && !app.root.__lbUnitCardKeys) {
+      app.root.__lbUnitCardKeys = true;
+      app.root.addEventListener("keydown", (e) => {
+        const card = e.target && e.target.closest && e.target.closest(".lb-unit-card[data-type]");
+        if (!card || e.target !== card || (e.key !== "Enter" && e.key !== " ")) return;
+        e.preventDefault();
+        card.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true }));
+      });
+    }
     app.$$(".lb-unit-card").forEach((b) => {
       b.onclick = (e) => {
         if (e.target.closest("[data-fav]")) return;

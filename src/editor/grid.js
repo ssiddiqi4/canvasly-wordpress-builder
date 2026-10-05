@@ -579,7 +579,7 @@ function installGrid() {
       if (!st) {
         st = fd.createElement("style");
         st.id = "lb123-resize-style";
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       st.textContent = `
       .lb-node.lb123-resize-active,.lb-grid-inner>.lb-node.lb123-resize-active,.lb-container-inner>.lb-node.lb123-resize-active{outline:1px solid #2d72d9!important;outline-offset:-1px!important;overflow:visible!important;}
@@ -812,7 +812,7 @@ function installGrid() {
         st.id = "lb26-style";
         st.textContent =
           ".lb26-img-handle{position:absolute!important;z-index:2147483646!important;background:#2d72d9;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45);touch-action:none;box-sizing:border-box;margin:0;padding:0;pointer-events:auto!important}.lb26-img-handle.e{width:14px;height:42px;border-radius:7px;cursor:ew-resize}.lb26-img-handle.s{width:42px;height:14px;border-radius:7px;cursor:ns-resize}.lb26-img-handle.se{width:18px;height:18px;border-radius:50%;cursor:nwse-resize}.lb26-img-label{position:absolute;transform:translateX(-50%);z-index:2147483647;background:rgba(23,25,29,.92);color:#fff;font:600 11px/1 system-ui,sans-serif;padding:4px 8px;border-radius:4px;pointer-events:none;white-space:nowrap}";
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       const win = fd.defaultView,
         img = node.querySelector("img"),
@@ -954,7 +954,7 @@ function installGrid() {
         st.id = "lb-tiny-handle-style";
         st.textContent =
           ".lb-tiny-handle{position:absolute!important;z-index:2147483646!important;background:#2d72d9;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45);touch-action:none;box-sizing:border-box;margin:0;padding:0;pointer-events:auto!important}.lb-tiny-handle.e{width:14px;height:42px;border-radius:7px;cursor:ew-resize}.lb-tiny-handle.s{width:42px;height:14px;border-radius:7px;cursor:ns-resize}.lb-tiny-handle.se{width:18px;height:18px;border-radius:50%;cursor:nwse-resize}.lb-tiny-label{position:absolute;transform:translateX(-50%);z-index:2147483647;background:rgba(23,25,29,.92);color:#fff;font:600 11px/1 system-ui,sans-serif;padding:4px 8px;border-radius:4px;pointer-events:none;white-space:nowrap}";
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       const box = node.querySelector(".lb-tinymce-preview,.lb-tinymce-text-editor") || node,
         id = node.dataset.id;
@@ -2126,7 +2126,7 @@ function installGrid() {
       .lb-grid-inner>.lb-node.is-selected{z-index:10;}
       .lb123-resizing,.lb123-resizing *{cursor:inherit!important;}
     `;
-      fd.head.appendChild(st);
+      (fd.head || fd.documentElement).appendChild(st);
     }
     const lb16OldRefresh = lb16Refresh;
     lb16Refresh = function () {
@@ -2269,7 +2269,7 @@ function installGrid() {
       .lb-grid-inner>.lb-node{min-width:0!important;max-width:100%;}
       .lb15-cell-target{position:absolute!important;display:none;z-index:2147482990!important;pointer-events:none!important;box-sizing:border-box!important;border:2px solid rgba(45,114,217,.85)!important;background:rgba(45,114,217,.10)!important;}
     `;
-      fd.head.appendChild(st);
+      (fd.head || fd.documentElement).appendChild(st);
     }
     function lb15Refresh() {
       lb15HideGridInsertZone();
@@ -2489,7 +2489,7 @@ function installGrid() {
       .lb-grid-inner>.lb-node.lb-node-heading,.lb-grid-inner>.lb-node.lb-node-text{width:auto!important;}
       .lb-grid-inner>.lb-node.is-selected{z-index:100;}
     `;
-      fd.head.appendChild(st);
+      (fd.head || fd.documentElement).appendChild(st);
     }
     function lb17Refresh() {
       lb17Css();
@@ -2985,7 +2985,7 @@ function installGrid() {
       if (!st) {
         st = fd.createElement("style");
         st.id = "lb21-style";
-        fd.head.appendChild(st);
+        (fd.head || fd.documentElement).appendChild(st);
       }
       st.textContent = `
       .lb18-hover-tab,.lb19-hover-tab,.lb20-hover-tab{display:none!important}
@@ -3372,7 +3372,7 @@ function installGrid() {
       .lb22-grid-host>.lb-node.lb-node-image{min-width:0!important;max-width:100%!important;box-sizing:border-box!important;}
       .lb22-grid-host>.lb-node.lb-node-image img{display:block!important;width:100%;max-width:100%!important;max-height:100%;height:auto;object-fit:contain;box-sizing:border-box!important;}
     `;
-      fd.head.appendChild(st);
+      (fd.head || fd.documentElement).appendChild(st);
     }
     function refresh22() {
       const fd = frame22();
