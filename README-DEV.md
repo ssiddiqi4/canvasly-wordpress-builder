@@ -1,4 +1,4 @@
-# Sidcraft Page Builder 0.15.1 — source
+# Sidcraft Page Builder 0.15.3 — source
 
 The full source of the free plugin. The folder is also the plugin itself: copy it
 into `wp-content/plugins/sidcraft-page-builder/` and it runs as is (the built
@@ -36,6 +36,19 @@ bundle would no longer match the committed one byte for byte.
 - `npm run test:editor` passes (223 checks).
 - `npm run zip` produces a zip whose contents are identical to the plugin tested in
   WordPress 6.9 (with and without Sidcraft Builder Pro 0.13.2).
+
+## What changed in the editor source for 0.15.3
+
+- `src/editor/panel.js`: `bindPageDropZone` matches the drop area three ways (window capture by
+  target element, text nodes included, or position; handlers on the area element; the page canvas
+  handler), turns off pointer events on the area's children during a drag (`.lb-is-dragging`), and
+  logs drag events with `?dnd_debug=1` (`app.dndLog`).
+
+## What changed in the editor source for 0.15.2
+
+- `src/editor/panel.js`: `app.dropOnPage` wraps any non-layout unit (or moved node)
+  in a new container before placing it at the end of the page, as one undo step.
+  `bindPageDropZone` also matches the drop by its target element, not only by position.
 
 ## What changed in the editor source for 0.15.1
 

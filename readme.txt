@@ -4,7 +4,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.15.1
+Stable tag: 0.15.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -316,6 +316,15 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 0.15.3 =
+* Fixed: Firefox. Dropping a widget on the "Drag widget here" area works in Firefox too. Firefox can report the drop on the label's text rather than on an element, and its pointer position is not always usable; the area now recognises the drop from the text, its own handlers and the page canvas, and its buttons and label stop catching the pointer while a drag is in progress.
+* Developers: add `dnd_debug=1` to the editor URL to show a small log of drag events over the canvas.
+
+= 0.15.2 =
+* Changed: Dropping a widget on the "Drag widget here" area at the bottom of the page now creates a container with the widget inside it, in one step (one Undo removes both). Layout units such as Container, Grid and Inner Section are still placed on the page directly. Moving an existing widget there also wraps it in a new container.
+* Fixed: The "Drag widget here" area also accepts the drop when the pointer is over its buttons or label in browsers that report the drop on those elements.
+* Plugin Check: the list of pages with Elementor data is read with WP_Query instead of a direct database query.
+
 = 0.15.1 =
 * Fixed: Dragging a unit onto the "Drag widget here" area at the bottom of the page now always adds it to the end of the page. Before, the drop was sometimes lost (for example when a theme header or footer layer or a neighbouring grid caught it first), and a container had to be added first. The area is now matched by the pointer position, and it highlights while a unit is over it. Moving an existing unit there moves it to the end of the page.
 
@@ -386,6 +395,12 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 The complete history is in `changelog.txt` inside the plugin folder.
 
 == Upgrade Notice ==
+
+= 0.15.3 =
+Dropping a widget on "Drag widget here" works in Firefox.
+
+= 0.15.2 =
+A widget dropped on "Drag widget here" now gets its own container automatically.
 
 = 0.15.1 =
 Dropping a unit on the "Drag widget here" area at the bottom of the page works every time.

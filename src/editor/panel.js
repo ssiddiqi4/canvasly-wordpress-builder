@@ -1966,7 +1966,7 @@ function installPanel() {
       b +
       ";box-sizing:border-box" +
       b +
-      ";display:flex;align-items:center;justify-content:center;border:1px dashed #c5ccd4;background:#fff;color:#8b939c}.lb-page-drop.is-drag-over{border:2px dashed #3f7fdf!important;background:#f0f6ff!important}.lb-page-drop.is-drag-over .lb-page-drop-label{color:#2463b4!important}.lb-page-drop-inner{display:flex;flex-direction:column;align-items:center;gap:12px}.lb-page-drop-actions{display:flex;align-items:center;justify-content:center;gap:10px}.lb-page-drop-btn{width:36px;height:36px;padding:0;border:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font:700 18px/1 system-ui,sans-serif}.lb-page-drop-btn.is-plus{background:#e6e8eb;color:#2c3136;font-size:22px;font-weight:500}.lb-page-drop-btn.is-folder{background:#1c1e22}.lb-page-drop-btn.is-brand{background:#2f73d9;font-size:14px;font-weight:800}.lb-page-drop-btn.is-grid{background:#7b5ea7;border-radius:10px}.lb-page-drop-btn:hover{filter:brightness(1.06)}.lb-page-drop-label{margin:0;font:italic 14px/1.3 system-ui,sans-serif;color:#8e969e}.lb-frame-root.canvas-drop>.lb-page-drop{border-color:#3f7fdf;background:#f4f8fd}body.lb-template-full-width .lb-frame-root,body.lb-template-canvas .lb-frame-root,body.lb-template-default .lb-frame-root{padding:0" +
+      ";display:flex;align-items:center;justify-content:center;border:1px dashed #c5ccd4;background:#fff;color:#8b939c}.lb-is-dragging .lb-page-drop *{pointer-events:none!important}.lb-page-drop.is-drag-over{border:2px dashed #3f7fdf!important;background:#f0f6ff!important}.lb-page-drop.is-drag-over .lb-page-drop-label{color:#2463b4!important}.lb-page-drop-inner{display:flex;flex-direction:column;align-items:center;gap:12px}.lb-page-drop-actions{display:flex;align-items:center;justify-content:center;gap:10px}.lb-page-drop-btn{width:36px;height:36px;padding:0;border:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font:700 18px/1 system-ui,sans-serif}.lb-page-drop-btn.is-plus{background:#e6e8eb;color:#2c3136;font-size:22px;font-weight:500}.lb-page-drop-btn.is-folder{background:#1c1e22}.lb-page-drop-btn.is-brand{background:#2f73d9;font-size:14px;font-weight:800}.lb-page-drop-btn.is-grid{background:#7b5ea7;border-radius:10px}.lb-page-drop-btn:hover{filter:brightness(1.06)}.lb-page-drop-label{margin:0;font:italic 14px/1.3 system-ui,sans-serif;color:#8e969e}.lb-frame-root.canvas-drop>.lb-page-drop{border-color:#3f7fdf;background:#f4f8fd}body.lb-template-full-width .lb-frame-root,body.lb-template-canvas .lb-frame-root,body.lb-template-default .lb-frame-root{padding:0" +
       b +
       ";width:100%" +
       b +
@@ -2675,17 +2675,44 @@ function installPanel() {
     }
     return /^unit:|^node:/.test(v) ? v : "";
   };
-  /** Add a unit, or move a node, to the end of the page body. */
+  /*
+   * Add a unit, or move a node, to the end of the page body. Layout units
+   * (container, grid, inner section, nested tabs…) go straight onto the page.
+   * Any other unit is wrapped in a new container first, so a widget dropped on
+   * the "Drag widget here" area never needs a container to be added by hand.
+   * Wrapping and placing are one undo step.
+   */
   app.dropOnPage = function dropOnPage(v) {
-    if (!v) return false;
+    if (!v || app.previewingRevision) return false;
+    const wrap = (child) => {
+      const box = app.makeNode("container");
+      if (!box) return null;
+      box.children = [child];
+      return box;
+    };
     if (v.startsWith("unit:")) {
-      const prev = app.chromeInsert;
-      app.chromeInsert = "root";
-      try {
-        app.add(v.slice(5));
-      } finally {
-        app.chromeInsert = prev;
+      const type = v.slice(5);
+      if (app.acceptsInside(type)) {
+        const prev = app.chromeInsert;
+        app.chromeInsert = "root";
+        try {
+          app.add(type);
+        } finally {
+          app.chromeInsert = prev;
+        }
+        return true;
       }
+      if (typeof app.unitAllowed === "function" && !app.unitAllowed(type)) return false;
+      if (app.proUnitLocked(type)) return false;
+      const child = app.makeNode(type);
+      const box = child && wrap(child);
+      if (!box) return false;
+      app.commit(app.t("Added %s", app.meta(type).title || type), child.id);
+      app.state.root.push(box);
+      app.selected = child.id;
+      app.chromeFocus = null;
+      app.activeTab = "settings";
+      app.render();
       return true;
     }
     if (v.startsWith("node:")) {
@@ -2694,7 +2721,8 @@ function installPanel() {
       app.commit();
       r.nodes.splice(r.index, 1);
       if (r.node.slot) delete r.node.slot;
-      app.state.root.push(r.node);
+      const node = app.acceptsInside(r.node) ? r.node : wrap(r.node);
+      app.state.root.push(node || r.node);
       app.selected = r.node.id;
       app.chromeFocus = null;
       app.render();
@@ -2711,43 +2739,144 @@ function installPanel() {
    * on the frame window (before any element or document listener), so a drop
    * anywhere inside its dashed box always lands at the end of the page.
    */
+  /*
+   * Drag-and-drop diagnostics for the page drop area. Turn on with
+   * ?dnd_debug=1 on the editor URL (or localStorage "sidcraftDndDebug" = "1"):
+   * a small log in the corner of the editor shows each drag event over the
+   * canvas, what it hit and whether the drop was taken.
+   */
+  app.dndDebugOn = (() => {
+    try {
+      return /[?&]dnd_debug=1\b/.test(window.location.search) || window.localStorage.getItem("sidcraftDndDebug") === "1";
+    } catch (err) {
+      return false;
+    }
+  })();
+  app.dndLog = function dndLog(msg) {
+    if (!app.dndDebugOn) return;
+    if (window.console) console.log("[Sidcraft DnD] " + msg);
+    let box = document.getElementById("lb-dnd-debug");
+    if (!box) {
+      box = document.createElement("pre");
+      box.id = "lb-dnd-debug";
+      box.style.cssText =
+        "position:fixed;left:8px;bottom:8px;z-index:999999;max-width:560px;max-height:260px;overflow:auto;margin:0;padding:8px 10px;background:rgba(17,20,24,.92);color:#b9f6ca;font:11px/1.45 ui-monospace,Consolas,monospace;border-radius:6px;white-space:pre-wrap;pointer-events:none";
+      document.body.appendChild(box);
+    }
+    const lines = (box.textContent ? box.textContent.split("\n") : []).concat(msg).slice(-16);
+    box.textContent = lines.join("\n");
+  };
+  const describeTarget = (t) => {
+    if (!t) return "none";
+    if (t.nodeType === 3) return "#text(" + (t.parentElement ? t.parentElement.className || t.parentElement.tagName : "") + ")";
+    return (t.tagName || "?").toLowerCase() + (t.className && typeof t.className === "string" ? "." + t.className.trim().split(/\s+/).join(".") : "");
+  };
+  /*
+   * The "Drag widget here" area at the bottom of the page. A drop anywhere in
+   * its dashed box lands at the end of the page (in a new container when the
+   * unit is a widget). It is matched three ways, so no browser quirk or other
+   * listener can lose the drop:
+   *  1. in the capture phase on the frame window, by the element under the
+   *     pointer (text nodes included, which Firefox reports) or by position;
+   *  2. by handlers on the area element itself;
+   *  3. by the page canvas handler, as before.
+   * While a drag is in progress the area's buttons and label stop taking
+   * pointer events, so the area itself is always the drop target.
+   */
   app.bindPageDropZone = function bindPageDropZone(fd, locked) {
     const fw = fd && fd.defaultView;
     if (!fw) return;
     fw.__lbPageDropLocked = !!locked;
-    if (fw.__lbPageDropRoute) return;
-    fw.__lbPageDropRoute = true;
+    const zoneEl = () => fd.querySelector(".lb-frame-root .lb-page-drop") || fd.querySelector(".lb-page-drop");
     const zoneAt = (e) => {
       if (fw.__lbPageDropLocked) return null;
-      const z = fd.querySelector(".lb-frame-root > .lb-page-drop");
+      const z = zoneEl();
       if (!z) return null;
+      let t = e.target || null;
+      if (t && t.nodeType === 3) t = t.parentElement;
+      if (t && t.closest && t.closest(".lb-page-drop") === z) return z;
       const r = z.getBoundingClientRect();
-      return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom ? z : null;
+      const x = Number(e.clientX),
+        y = Number(e.clientY);
+      return Number.isFinite(x) && Number.isFinite(y) && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom ? z : null;
     };
-    const clear = () => fd.querySelectorAll(".lb-page-drop.is-drag-over").forEach((z) => z.classList.remove("is-drag-over"));
-    fw.addEventListener(
-      "dragover",
-      (e) => {
-        const z = zoneAt(e);
-        const v = z ? app.dragPayload(e) : "";
-        if (!z || !v) {
-          clear();
-          return;
+    const root = fd.documentElement;
+    const clear = () => {
+      fd.querySelectorAll(".lb-page-drop.is-drag-over").forEach((z) => z.classList.remove("is-drag-over"));
+    };
+    const endDrag = () => {
+      clear();
+      if (root) root.classList.remove("lb-is-dragging");
+    };
+    const take = (e, z, v) => {
+      e.preventDefault();
+      if (e.dataTransfer) {
+        try {
+          e.dataTransfer.dropEffect = v.startsWith("node:") ? "move" : "copy";
+        } catch (err) {
+          /* read-only in some browsers */
         }
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        if (e.dataTransfer) e.dataTransfer.dropEffect = v.startsWith("node:") ? "move" : "copy";
-        z.classList.add("is-drag-over");
+      }
+      z.classList.add("is-drag-over");
+    };
+    const drop = (e, z, v, via) => {
+      e.preventDefault();
+      endDrag();
+      fd.querySelectorAll(".canvas-drop,.drop-target").forEach((x) => x.classList.remove("canvas-drop", "drop-target"));
+      app.dndLog("drop on page area via " + via + ": " + v);
+      app.dropOnPage(v);
+    };
+    // 2. Handlers on the area element (re-set on every paint, the element is new).
+    const z0 = zoneEl();
+    if (z0 && !locked) {
+      z0.ondragenter = z0.ondragover = (e) => {
+        const v = app.dragPayload(e);
+        if (!v) return;
+        e.stopPropagation();
+        take(e, z0, v);
+      };
+      z0.ondrop = (e) => {
+        const v = app.dragPayload(e);
+        if (!v) return;
+        e.stopPropagation();
+        drop(e, z0, v, "area");
+      };
+    }
+    if (fw.__lbPageDropRoute) return;
+    fw.__lbPageDropRoute = true;
+    let lastLog = 0;
+    // 1. Capture phase on the frame window: runs before any other listener.
+    fw.addEventListener(
+      "dragenter",
+      (e) => {
+        const v = app.dragPayload(e);
+        if (v && root) root.classList.add("lb-is-dragging");
+        const z = zoneAt(e);
+        app.dndLog("dragenter " + describeTarget(e.target) + " @" + Math.round(e.clientX) + "," + Math.round(e.clientY) + " payload=" + (v || "-") + " area=" + (z ? "yes" : "no"));
+        if (z && v) {
+          e.stopImmediatePropagation();
+          take(e, z, v);
+        }
       },
       true,
     );
     fw.addEventListener(
-      "dragenter",
+      "dragover",
       (e) => {
-        if (zoneAt(e) && app.dragPayload(e)) {
-          e.preventDefault();
-          e.stopImmediatePropagation();
+        const z = zoneAt(e);
+        const v = app.dragPayload(e);
+        if (v && root) root.classList.add("lb-is-dragging");
+        const now = Date.now();
+        if (now - lastLog > 400) {
+          lastLog = now;
+          app.dndLog("dragover " + describeTarget(e.target) + " @" + Math.round(e.clientX) + "," + Math.round(e.clientY) + " payload=" + (v || "-") + " area=" + (z ? "yes" : "no"));
         }
+        if (!z || !v) {
+          clear();
+          return;
+        }
+        e.stopImmediatePropagation();
+        take(e, z, v);
       },
       true,
     );
@@ -2755,17 +2884,18 @@ function installPanel() {
       "drop",
       (e) => {
         const z = zoneAt(e);
-        const v = z ? app.dragPayload(e) : "";
-        clear();
-        if (!z || !v) return;
-        e.preventDefault();
+        const v = app.dragPayload(e);
+        app.dndLog("drop " + describeTarget(e.target) + " @" + Math.round(e.clientX) + "," + Math.round(e.clientY) + " payload=" + (v || "-") + " area=" + (z ? "yes" : "no"));
+        if (!z || !v) {
+          endDrag();
+          return;
+        }
         e.stopImmediatePropagation();
-        fd.querySelectorAll(".canvas-drop,.drop-target").forEach((x) => x.classList.remove("canvas-drop", "drop-target"));
-        app.dropOnPage(v);
+        drop(e, z, v, "window");
       },
       true,
     );
-    fw.addEventListener("dragend", clear, true);
+    fw.addEventListener("dragend", endDrag, true);
     fw.addEventListener(
       "dragleave",
       (e) => {
@@ -2773,6 +2903,18 @@ function installPanel() {
       },
       true,
     );
+    // The drag may end outside the canvas (Escape, dropped on a panel).
+    if (!app.__lbPageDropEndBound) {
+      app.__lbPageDropEndBound = true;
+      const endAll = () => {
+        const d = app.frameDoc();
+        if (!d) return;
+        d.querySelectorAll(".lb-page-drop.is-drag-over").forEach((z) => z.classList.remove("is-drag-over"));
+        if (d.documentElement) d.documentElement.classList.remove("lb-is-dragging");
+      };
+      window.addEventListener("dragend", endAll, true);
+      window.addEventListener("drop", endAll, true);
+    }
   };
   app.bindFrame = function bindFrame() {
     const fd = app.frameDoc();
@@ -2873,6 +3015,7 @@ function installPanel() {
           e.preventDefault();
           e.stopPropagation();
           rootCanvas.classList.remove("canvas-drop");
+          app.dndLog("drop on page canvas: " + (app.dragPayload(e) || "-"));
           app.dropOnPage(app.dragPayload(e));
         };
     app.bindPageDropZone(fd, lockPage);

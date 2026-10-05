@@ -1,6 +1,6 @@
 {
   "name": "sidcraft-page-builder",
-  "version": "0.15.1",
+  "version": "0.15.3",
   "private": true,
   "description": "Sidcraft Page Builder: build the editor bundle from src/editor and package the plugin zip.",
   "license": "GPL-2.0-or-later",
