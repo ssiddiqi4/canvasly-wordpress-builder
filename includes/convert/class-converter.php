@@ -2002,23 +2002,42 @@ class Converter {
 	 * @return int[]
 	 */
 	public static function candidate_ids( $after = 0, $limit = 0 ) {
-		global $wpdb;
 		$types = array_merge(
 			class_exists( Documents::class ) ? Documents::enabled() : array( 'post', 'page' ),
 			array( self::SOURCE_LIBRARY_TYPE )
 		);
-		$types    = array_values( array_unique( array_map( 'sanitize_key', $types ) ) );
-		$statuses = array( 'publish', 'draft', 'private', 'pending', 'future' );
-		$tph      = implode( ',', array_fill( 0, count( $types ), '%s' ) );
-		$sph      = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
-		$sql      = "SELECT DISTINCT p.ID FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = %s WHERE p.post_type IN ($tph) AND p.post_status IN ($sph) AND p.ID > %d AND m.meta_value <> '' AND m.meta_value <> '[]' ORDER BY p.ID ASC";
-		$params   = array_merge( array( self::SOURCE_META ), $types, $statuses, array( absint( $after ) ) );
-		if ( $limit > 0 ) {
-			$sql     .= ' LIMIT %d';
-			$params[] = absint( $limit );
+		$query = new \WP_Query(
+			array(
+				'post_type'              => array_values( array_unique( array_map( 'sanitize_key', $types ) ) ),
+				'post_status'            => array( 'publish', 'draft', 'private', 'pending', 'future' ),
+				'fields'                 => 'ids',
+				'posts_per_page'         => -1,
+				'orderby'                => 'ID',
+				'order'                  => 'ASC',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'suppress_filters'       => true,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Candidates are the posts that still store source-builder JSON.
+				'meta_query'             => array(
+					array(
+						'key'     => self::SOURCE_META,
+						'value'   => array( '', '[]' ),
+						'compare' => 'NOT IN',
+					),
+				),
+			)
+		);
+		$after = absint( $after );
+		$ids   = array();
+		foreach ( (array) $query->posts as $id ) {
+			$id = absint( $id );
+			if ( $id > $after ) {
+				$ids[] = $id;
+			}
 		}
-		$ids = $wpdb->get_col( $wpdb->prepare( $sql, $params ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared
-		return array_values( array_filter( array_map( 'absint', (array) $ids ) ) );
+		$ids = array_values( array_unique( $ids ) );
+		return $limit > 0 ? array_slice( $ids, 0, absint( $limit ) ) : $ids;
 	}
 
 	public static function candidates( $args = array() ) {
