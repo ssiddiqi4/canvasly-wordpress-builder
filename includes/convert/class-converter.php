@@ -30,6 +30,27 @@ class Converter {
 	private $seq = 0;
 	/** @var string */
 	private static $decode_warning = '';
+	/** @var string[] Source elements from the root to the one being converted. */
+	private $path = array();
+	/** @var array|null Where the first exception was thrown. */
+	private $fail_at = null;
+	/**
+	 * Post and node being converted right now. Read by the batch job's
+	 * shutdown handler to say where a fatal error or timeout stopped it.
+	 *
+	 * @var array{post:int,path:string[]}
+	 */
+	private static $current = array(
+		'post' => 0,
+		'path' => array(),
+	);
+
+	/**
+	 * @return array{post:int,path:string[]}
+	 */
+	public static function current() {
+		return self::$current;
+	}
 
 	public function __construct() {
 		$this->reset_report();
@@ -43,8 +64,12 @@ class Converter {
 			'nodes'     => 0,
 			'globals'   => 0,
 			'layout'    => 0,
+			'dynamic'   => array(),
+			'unmapped_nodes' => array(),
 		);
-		$this->seq = 0;
+		$this->seq     = 0;
+		$this->path    = array();
+		$this->fail_at = null;
 	}
 
 	/**
@@ -577,6 +602,94 @@ class Converter {
 		if ( ! is_array( $el ) ) {
 			return null;
 		}
+		$this->path[]          = self::describe( $el );
+		self::$current['path'] = $this->path;
+		try {
+			$this->note_dynamic( $el );
+			return $this->convert_node_inner( $el );
+		} catch ( \Throwable $e ) {
+			if ( $this->fail_at === null ) {
+				$this->fail_at = array(
+					'node'    => (string) ( $el['id'] ?? '' ),
+					'type'    => self::source_type( $el ),
+					'path'    => implode( ' > ', $this->path ),
+					'message' => $e->getMessage(),
+					'where'   => basename( $e->getFile() ) . ':' . $e->getLine(),
+				);
+			}
+			throw $e;
+		} finally {
+			array_pop( $this->path );
+			self::$current['path'] = $this->path;
+		}
+	}
+
+	/**
+	 * Where the last conversion failed, or null.
+	 *
+	 * @return array|null
+	 */
+	public function failure() {
+		return $this->fail_at;
+	}
+
+	/**
+	 * Source type of an element: widget type, or elType for layout.
+	 *
+	 * @param array $el
+	 * @return string
+	 */
+	public static function source_type( $el ) {
+		$type = (string) ( $el['widgetType'] ?? '' );
+		if ( $type === '' ) {
+			$type = (string) ( $el['elType'] ?? 'element' );
+		}
+		return sanitize_key( $type );
+	}
+
+	/**
+	 * Short label for a source element, e.g. "heading#a1b2c3".
+	 *
+	 * @param array $el
+	 * @return string
+	 */
+	public static function describe( $el ) {
+		$id = preg_replace( '/[^a-zA-Z0-9_-]/', '', substr( (string) ( $el['id'] ?? '' ), 0, 40 ) );
+		return self::source_type( $el ) . ( $id !== '' ? '#' . $id : '' );
+	}
+
+	/**
+	 * Record Elementor dynamic tags on this element. They are not converted,
+	 * so the static fallback value (if any) is what the new page shows.
+	 *
+	 * @param array $el
+	 */
+	private function note_dynamic( $el ) {
+		$dyn = $el['settings']['__dynamic__'] ?? null;
+		if ( ! is_array( $dyn ) || ! $dyn ) {
+			return;
+		}
+		$fields = array();
+		foreach ( $dyn as $field => $tag ) {
+			$name = '';
+			if ( is_string( $tag ) && preg_match( '/name="([^"]+)"/', $tag, $m ) ) {
+				$name = sanitize_key( $m[1] );
+			}
+			$fields[ sanitize_key( (string) $field ) ] = $name !== '' ? $name : 'dynamic';
+		}
+		$this->report['dynamic'][] = array(
+			'node'   => (string) ( $el['id'] ?? '' ),
+			'type'   => self::source_type( $el ),
+			'path'   => implode( ' > ', $this->path ),
+			'fields' => $fields,
+		);
+	}
+
+	/**
+	 * @param array $el
+	 * @return array|null
+	 */
+	private function convert_node_inner( $el ) {
 		$kind = sanitize_key( (string) ( $el['elType'] ?? '' ) );
 		if ( $kind === '' && ! empty( $el['widgetType'] ) ) {
 			$kind = 'widget';
@@ -1723,6 +1836,11 @@ class Converter {
 			'settings' => array( 'html' => $html ),
 		);
 		$this->report['nodes']++;
+		$this->report['unmapped_nodes'][] = array(
+			'node' => (string) ( $el['id'] ?? '' ),
+			'type' => $label,
+			'path' => implode( ' > ', $this->path ),
+		);
 		return $node;
 	}
 
@@ -1874,6 +1992,35 @@ class Converter {
 	 * @param array $args
 	 * @return array<int,array>
 	 */
+	/**
+	 * Every post ID that stores source-builder data, oldest first. Cheap: one
+	 * indexed query returning integers, so it scales to large sites where
+	 * candidates() (capped for the Tools list) would not.
+	 *
+	 * @param int $after Only IDs greater than this.
+	 * @param int $limit 0 for all.
+	 * @return int[]
+	 */
+	public static function candidate_ids( $after = 0, $limit = 0 ) {
+		global $wpdb;
+		$types = array_merge(
+			class_exists( Documents::class ) ? Documents::enabled() : array( 'post', 'page' ),
+			array( self::SOURCE_LIBRARY_TYPE )
+		);
+		$types    = array_values( array_unique( array_map( 'sanitize_key', $types ) ) );
+		$statuses = array( 'publish', 'draft', 'private', 'pending', 'future' );
+		$tph      = implode( ',', array_fill( 0, count( $types ), '%s' ) );
+		$sph      = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
+		$sql      = "SELECT DISTINCT p.ID FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = %s WHERE p.post_type IN ($tph) AND p.post_status IN ($sph) AND p.ID > %d AND m.meta_value <> '' AND m.meta_value <> '[]' ORDER BY p.ID ASC";
+		$params   = array_merge( array( self::SOURCE_META ), $types, $statuses, array( absint( $after ) ) );
+		if ( $limit > 0 ) {
+			$sql     .= ' LIMIT %d';
+			$params[] = absint( $limit );
+		}
+		$ids = $wpdb->get_col( $wpdb->prepare( $sql, $params ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared
+		return array_values( array_filter( array_map( 'absint', (array) $ids ) ) );
+	}
+
 	public static function candidates( $args = array() ) {
 		$args  = is_array( $args ) ? $args : array();
 		$limit = max( 1, min( 500, absint( $args['limit'] ?? 200 ) ) );
@@ -1953,7 +2100,7 @@ class Converter {
 		$sidsyn_key = class_exists( DocumentManager::class ) ? DocumentManager::META : '_sidsyn_document_data';
 		$has_lb = (string) get_post_meta( $post_id, $sidsyn_key, true ) !== ''
 			|| (string) get_post_meta( $post_id, self::CONVERTED_META, true ) !== '';
-		if ( $has_lb && ! $force && ! $dry ) {
+		if ( $has_lb && ! $force && ! $dry && empty( $args['stage'] ) ) {
 			self::consume_decode_warning();
 			return array(
 				'id'       => $post_id,
@@ -1965,12 +2112,68 @@ class Converter {
 		}
 		$page = self::source_page_settings( $post_id );
 		$note = self::consume_decode_warning();
-		$pack = $this->convert_tree( $source, $page );
+		// The whole page is converted in memory before anything is written,
+		// so an error part-way through leaves the original page untouched.
+		self::$current = array(
+			'post' => $post_id,
+			'path' => array(),
+		);
+		try {
+			$pack = $this->convert_tree( $source, $page );
+		} catch ( \Throwable $e ) {
+			$at            = $this->failure();
+			self::$current = array(
+				'post' => 0,
+				'path' => array(),
+			);
+			return new \WP_Error(
+				'convert_failed',
+				$at
+					? sprintf(
+						/* translators: 1: source element path, 2: error message */
+						__( 'Conversion stopped at %1$s: %2$s. The original page was not changed.', 'sidcraft-page-builder' ),
+						$at['path'],
+						$at['message']
+					)
+					: sprintf(
+						/* translators: %s: error message */
+						__( 'Conversion stopped: %s. The original page was not changed.', 'sidcraft-page-builder' ),
+						$e->getMessage()
+					),
+				array(
+					'post'  => $post_id,
+					'node'  => $at['node'] ?? '',
+					'type'  => $at['type'] ?? '',
+					'path'  => $at['path'] ?? '',
+					'where' => $at['where'] ?? ( basename( $e->getFile() ) . ':' . $e->getLine() ),
+				)
+			);
+		}
+		self::$current = array(
+			'post' => 0,
+			'path' => array(),
+		);
 		if ( $note !== '' ) {
 			$pack['report']['warnings'][] = $note;
 		}
 		$doc  = $pack['document'];
 		$rep  = $pack['report'];
+		if ( ! $dry && ! empty( $args['stage'] ) && class_exists( Review::class ) ) {
+			// Review step: keep the result beside the page until the owner accepts it.
+			$staged = Review::stage( $post_id, $doc, $rep, (string) ( $args['stage_target'] ?? 'in_place' ) );
+			if ( is_wp_error( $staged ) ) {
+				return $staged;
+			}
+			return array(
+				'id'       => $post_id,
+				'title'    => $post ? ( function_exists( 'get_the_title' ) ? get_the_title( $post_id ) : (string) ( $post->post_title ?? '' ) ) : '',
+				'type'     => $post ? (string) $post->post_type : '',
+				'status'   => 'staged',
+				'report'   => $rep,
+				'document' => $doc,
+				'note'     => $note,
+			);
+		}
 		if ( ! $dry ) {
 			if ( $post && ( $post->post_type ?? '' ) === self::SOURCE_LIBRARY_TYPE && class_exists( SavedTemplates::class ) ) {
 				$saved = $this->save_as_template( $post, $doc );
@@ -2023,7 +2226,7 @@ class Converter {
 	 * @param array    $doc
 	 * @return int|\WP_Error
 	 */
-	private function save_as_template( $post, array $doc ) {
+	public function save_as_template( $post, array $doc ) {
 		$src_type = (string) get_post_meta( $post->ID, self::SOURCE_TEMPLATE_TYPE, true );
 		$map      = Map::library_types();
 		$type     = $map[ $src_type ] ?? 'section';
@@ -2072,6 +2275,7 @@ class Converter {
 		$agg   = array(
 			'posts'     => 0,
 			'converted' => 0,
+			'staged'    => 0,
 			'skipped'   => 0,
 			'errors'    => 0,
 			'mapped'    => 0,
@@ -2091,17 +2295,22 @@ class Converter {
 			$one = $this->convert_post( $id, $args );
 			if ( is_wp_error( $one ) ) {
 				$agg['errors']++;
+				$data    = $one->get_error_data();
 				$items[] = array(
 					'id'     => $id,
 					'title'  => function_exists( 'get_the_title' ) ? get_the_title( $id ) : '',
 					'status' => 'error',
 					'error'  => $one->get_error_message(),
+					'node'   => is_array( $data ) ? (string) ( $data['node'] ?? '' ) : '',
+					'path'   => is_array( $data ) ? (string) ( $data['path'] ?? '' ) : '',
 				);
 				continue;
 			}
 			$status = $one['status'] ?? '';
 			if ( $status === 'skipped' ) {
 				$agg['skipped']++;
+			} elseif ( $status === 'staged' ) {
+				$agg['staged'] = (int) ( $agg['staged'] ?? 0 ) + 1;
 			} elseif ( $status === 'converted' || $status === 'preview' ) {
 				$agg['converted']++;
 			}
@@ -2128,6 +2337,7 @@ class Converter {
 				'mapped'      => (int) ( $rep['mapped'] ?? 0 ),
 				'nodes'       => (int) ( $rep['nodes'] ?? 0 ),
 				'unmapped'    => $rep['unmapped'] ?? array(),
+				'dynamic'     => count( (array) ( $rep['dynamic'] ?? array() ) ),
 				'note'        => (string) ( $one['note'] ?? '' ),
 			);
 		}
@@ -2146,6 +2356,7 @@ class Converter {
 		return array(
 			'posts'     => 0,
 			'converted' => 0,
+			'staged'    => 0,
 			'skipped'   => 0,
 			'errors'    => 0,
 			'mapped'    => 0,

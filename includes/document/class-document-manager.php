@@ -8,13 +8,15 @@ use SidcraftPageBuilder\Utils\JsonCache;
 use SidcraftPageBuilder\Utils\Style;
 if(!defined('ABSPATH')) exit;
 class DocumentManager {
- const META='_sidsyn_document_data', VERSION='_sidsyn_document_version', UPDATED='_sidsyn_document_updated', REVISIONS='_sidsyn_document_revisions', CSS_CACHE='_sidsyn_css_cache', AUTOSAVE='_sidsyn_autosave_data', SCHEMA='2.8';
+ const META='_sidsyn_document_data', VERSION='_sidsyn_document_version', UPDATED='_sidsyn_document_updated', REVISIONS='_sidsyn_document_revisions', CSS_CACHE='_sidsyn_css_cache', AUTOSAVE='_sidsyn_autosave_data', HASH='_sidsyn_document_hash', SCHEMA='2.8';
  const PAGE_TEMPLATES=['default','full_width','canvas'];
  /** @var array<int,array> */
  private static $loaded=[];
  public static function empty(){return ['version'=>self::SCHEMA,'root'=>[],'header'=>[],'footer'=>[],'settings'=>[]];}
  /** Sanitize a document array the same way save() does, without writing it. Used by the layout-schema API. */
  public static function sanitize($data){return self::sanitize_tree(is_array($data)?$data:[]);}
+ /** Hash of a document's canonical (fully normalized) form; equal layouts hash equal however they were sent. */
+ public static function canonical_hash($data){return md5((string)wp_json_encode(self::sanitize_tree(self::sanitize_tree(is_array($data)?$data:[]))));}
  public static function flush_runtime($id=0){
   $id=absint($id);
   if($id){unset(self::$loaded[$id]);return;}
@@ -252,9 +254,29 @@ class DocumentManager {
   $clean=self::sanitize_tree($data);
   $old=self::get($id);
   $json=wp_json_encode($clean);
+  // Unchanged layout: no meta write, no revision, no cache purge. A stale
+  // autosave is still dropped and a missing fallback copy is still filled in.
+  // Compare canonical forms: one sanitize pass can still normalize values
+  // (16 becomes "16", "" becomes a background object), a second one cannot.
+  $hash=md5((string)wp_json_encode(self::sanitize_tree($clean)));
+  $stored_hash=(string)get_post_meta($id,self::HASH,true);
+  $same=self::has($id)&&hash_equals($stored_hash!==''?$stored_hash:self::canonical_hash($old),$hash);
+  if($same&&!apply_filters('sidcraft_page_builder_document_force_save',false,$id,$clean)){
+   if((string)get_post_meta($id,self::AUTOSAVE,true)!==''){
+    if(class_exists(Revisions::class))Revisions::delete_autosave($id);else delete_post_meta($id,self::AUTOSAVE);
+   }
+   if(class_exists(FallbackContent::class))FallbackContent::sync($id,$clean,false,$hash);
+   self::$loaded[$id]=$clean;
+   /** Fires when a save request carried the same layout as the stored one, so nothing was written. @param int $id @param array $clean */
+   do_action('sidcraft_page_builder_document_unchanged',$id,$clean);
+   return $clean;
+  }
   self::write_json_meta($id,self::META,$json);
+  update_post_meta($id,self::HASH,$hash);
   if(function_exists('get_post_type')&&get_post_type($id)==='sidsyn_template')self::write_json_meta($id,'_sidsyn_template_data',$json);
   update_post_meta($id,self::VERSION,SIDCRAFT_PAGE_BUILDER_VERSION);update_post_meta($id,self::UPDATED,current_time('mysql'));delete_post_meta($id,self::CSS_CACHE);delete_post_meta($id,self::AUTOSAVE);
+  // Readable copy in post_content first, so the revision recorded next holds it too.
+  if(class_exists(FallbackContent::class))FallbackContent::sync($id,$clean,false,$hash);
   if(class_exists(Revisions::class)){Revisions::record($id,__('Saved', 'sidcraft-page-builder'));Revisions::delete_autosave($id);}
   elseif(!empty($old['root']))self::record_revision($id,$old);
   if(class_exists('SidcraftPageBuilder\Design\Performance'))\SidcraftPageBuilder\Design\Performance::invalidate($id);
@@ -264,7 +286,7 @@ class DocumentManager {
   return $clean;
  }
  private static function sanitize_tree($data){$out=['version'=>self::SCHEMA,'root'=>[],'header'=>[],'footer'=>[],'settings'=>[]];$out['settings']=is_array($data['settings']??null)?self::sanitize_settings($data['settings']):[];foreach(['root','header','footer'] as $part){foreach((array)($data[$part]??[]) as $n){$x=self::sanitize_node($n);if($x)$out[$part][]=$x;}}if(class_exists(DevMode::class))$out=DevMode::sanitize_document($out);return $out;}
- private static function sanitize_settings($s){$o=[];foreach($s as $k=>$v){$k=sanitize_key($k);if(in_array($k,['title','body_class','page_width'],true))$o[$k]=sanitize_text_field((string)$v);elseif($k==='template')$o[$k]=self::normalize_page_template($v);elseif($k==='custom_css'){$c=\SidcraftPageBuilder\Design\CustomCssHooks::sanitize($v);if($c!=='')$o[$k]=$c;}elseif(is_bool($v)||is_numeric($v))$o[$k]=$v;}return $o;}
+ private static function sanitize_settings($s){$o=[];foreach($s as $k=>$v){$k=sanitize_key($k);if(in_array($k,['title','body_class','page_width'],true))$o[$k]=sanitize_text_field((string)$v);elseif($k==='label')$o[$k]=mb_substr(sanitize_text_field((string)$v),0,80);elseif($k==='template')$o[$k]=self::normalize_page_template($v);elseif($k==='custom_css'){$c=\SidcraftPageBuilder\Design\CustomCssHooks::sanitize($v);if($c!=='')$o[$k]=$c;}elseif(is_bool($v)||is_numeric($v))$o[$k]=$v;}return $o;}
  private static function sanitize_node($n){if(!is_array($n))return null;$type=sanitize_key($n['type']??'');$e=UnitRegistry::instance()->get($type);if(!$e)return null;$id=preg_replace('/[^a-zA-Z0-9_-]/','',substr((string)($n['id']??''),0,40));if(!$id)$id='n_'.wp_generate_uuid4();$in=self::migrate_node_settings($type,is_array($n['settings']??null)?$n['settings']:[]);$safe=[];foreach($e->get_defaults() as $k=>$v)$safe[$k]=$v;$controls=$e->all_controls();foreach($in as $k=>$v){$k=sanitize_key($k);if($k==='_dynamic')continue;if(array_key_exists($k,$controls))$safe[$k]=self::sanitize_control($controls[$k],$v,$k,$in);} if(class_exists('\\SidcraftPageBuilder\\Dynamic\\Resolver')){$dyn=\SidcraftPageBuilder\Dynamic\Resolver::sanitize_map($in['_dynamic']??[],$controls);if($dyn)$safe['_dynamic']=$dyn;} $o=['id'=>$id,'type'=>$type,'atomic'=>!empty($n['atomic'])||\SidcraftPageBuilder\Design\Atomic::is($type),'settings'=>$safe,'styles'=>self::sanitize_style_map($n['styles']??[]),'interactions'=>self::sanitize_interactions($n['interactions']??[],$in),'editor_settings'=>self::sanitize_settings($n['editor_settings']??[])];if($type==='gallery'&&($safe['mode']??'')==='multiple'){$merged=[];foreach((array)($safe['collections']??[]) as $c){foreach(preg_split('/[,\s]+/',(string)($c['ids']??'')) as $one){$aid=absint($one);if($aid)$merged[]=$aid;}}if($merged)$safe['ids']=implode(',',array_values(array_unique($merged)));$o['settings']=$safe;}if($type==='carousel'&&!empty($safe['slides'])&&is_array($safe['slides'])){$ids=[];foreach($safe['slides'] as $slide){$aid=absint($slide['image_id']??0);if($aid)$ids[]=$aid;}if($ids)$safe['ids']=implode(',',$ids);$o['settings']=$safe;}if(isset($n['exposed'])&&is_array($n['exposed']))$o['exposed']=array_map('sanitize_key',$n['exposed']);if($e->supports_children()){$o['children']=[];$slotted=method_exists($e,'supports_slots')&&$e->supports_slots();foreach((array)($n['children']??[]) as $raw){if(!is_array($raw))continue;$slot=$raw['slot']??'';$c=self::sanitize_node($raw);if(!$c)continue;if($slotted){$slot=preg_replace('/[^a-zA-Z0-9_-]/','',substr((string)$slot,0,40));if($slot!=='')$c['slot']=$slot;}$o['children'][]=$c;}}return $o;}
 
  private static function sanitize_style_map($styles){$out=[];foreach((array)$styles as $state=>$vals){$state=sanitize_key($state);if(!in_array($state,['base','hover','focus','active','focus_visible'],true))continue;$out[$state]=[];foreach((array)$vals as $k=>$v){$k=sanitize_key($k);if(is_array($v))$out[$state][$k]=self::sanitize_control('text',$v);else $out[$state][$k]=self::sanitize_control('text',$v);}}return $out;}
@@ -388,7 +410,16 @@ class DocumentManager {
   if(class_exists(Revisions::class))return Revisions::restore($id,(int)$i);
   if(!current_user_can('edit_post',$id))return new \WP_Error('forbidden',__('You cannot edit this document.', 'sidcraft-page-builder'));$r=get_post_meta($id,self::REVISIONS,true);$r=is_array($r)?$r:[];if(!isset($r[$i]))return new \WP_Error('not_found',__('Revision not found.', 'sidcraft-page-builder'));$clean=self::sanitize_tree($r[$i]['document']);self::write_json_meta($id,self::META,wp_json_encode($clean));update_post_meta($id,self::VERSION,SIDCRAFT_PAGE_BUILDER_VERSION);delete_post_meta($id,self::CSS_CACHE);self::$loaded[$id]=$clean;return $clean;
  }
- public static function compiled_css($id){$cached=get_post_meta($id,self::CSS_CACHE,true);if(is_string($cached)&&$cached!=='')return $cached;$d=self::get($id);if(class_exists('\\SidcraftPageBuilder\\Dynamic\\Resolver'))\SidcraftPageBuilder\Dynamic\Resolver::set_context(['post_id'=>absint($id)]);$css=Style::document_css($d);$css.=\SidcraftPageBuilder\Design\CustomCssHooks::page($d['settings']['custom_css']??''); if(class_exists('\\SidcraftPageBuilder\\Dynamic\\Resolver'))\SidcraftPageBuilder\Dynamic\Resolver::set_context([]);if($css)update_post_meta($id,self::CSS_CACHE,$css);return $css;}
+ /** @var array<int,bool> Posts whose document is a review preview for this request only. */
+ private static $previewing=[];
+ /**
+  * Show `$doc` instead of the stored document for the rest of this request
+  * (conversion review). Nothing is written and caches are bypassed.
+  */
+ public static function preview($id,$doc){$id=absint($id);if(!$id||!is_array($doc))return;self::$loaded[$id]=self::sanitize_tree($doc);self::$previewing[$id]=true;}
+ /** True when post `$id` (or any post, with 0) shows a review preview this request. */
+ public static function previewing($id=0){$id=absint($id);return $id?!empty(self::$previewing[$id]):!empty(self::$previewing);}
+ public static function compiled_css($id){if(self::previewing($id)){$d=self::get($id);return Style::document_css($d);}$cached=get_post_meta($id,self::CSS_CACHE,true);if(is_string($cached)&&$cached!=='')return $cached;$d=self::get($id);if(class_exists('\\SidcraftPageBuilder\\Dynamic\\Resolver'))\SidcraftPageBuilder\Dynamic\Resolver::set_context(['post_id'=>absint($id)]);$css=Style::document_css($d);$css.=\SidcraftPageBuilder\Design\CustomCssHooks::page($d['settings']['custom_css']??''); if(class_exists('\\SidcraftPageBuilder\\Dynamic\\Resolver'))\SidcraftPageBuilder\Dynamic\Resolver::set_context([]);if($css)update_post_meta($id,self::CSS_CACHE,$css);return $css;}
  /**
   * Convert legacy pipe-delimited / single-item settings into repeater arrays.
   * Already-array values are left untouched. Called on load (schema 2.2) and again on save.

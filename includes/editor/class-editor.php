@@ -125,7 +125,51 @@ class Editor {
   }
   /** Filter the data passed to the editor as `window.SidcraftPageBuilderData`. @param array $data @param int $post_id */
   $filtered=apply_filters('sidcraft_page_builder_editor_localize_data',$data,$post_id);
-  wp_localize_script('sidcraft-page-builder-editor','SidcraftPageBuilderData',is_array($filtered)?$filtered:$data);
+  $payload=self::intern_unit_controls(is_array($filtered)?$filtered:$data);
+  wp_localize_script('sidcraft-page-builder-editor','SidcraftPageBuilderData',$payload);
+  if(!empty($payload['unitControlDefs']))wp_add_inline_script('sidcraft-page-builder-editor',self::expand_controls_script(),'before');
+ }
+ /**
+  * Every unit repeats the ~100 shared Style/Advanced control definitions, which
+  * made the editor bootstrap several MB. Send each distinct definition once
+  * (`unitControlDefs`) and per unit an ordered list of [key, definition index]
+  * (`c`). expand_controls_script() rebuilds `units[].controls` - same keys,
+  * same order, a separate object per unit - before the editor script runs.
+  *
+  * @param array $data
+  * @return array
+  */
+ public static function intern_unit_controls(array $data){
+  if(empty($data['units'])||!is_array($data['units'])||!apply_filters('sidcraft_page_builder_editor_intern_controls',true))return $data;
+  $index=[];$defs=[];$tails=[];$tail_index=[];
+  // Keys that most units have (shared Style/Advanced controls and add-on extras).
+  $freq=[];$n=0;
+  foreach($data['units'] as $u){if(!is_array($u)||!is_array($u['controls']??null))continue;$n++;foreach($u['controls'] as $k=>$d)$freq[(string)$k]=($freq[(string)$k]??0)+1;}
+  $shared=[];foreach($freq as $k=>$c)if($c*2>=$n)$shared[$k]=true;
+  foreach($data['units'] as $i=>$u){
+   if(!is_array($u)||!isset($u['controls'])||!is_array($u['controls']))continue;
+   $pairs=[];
+   foreach($u['controls'] as $k=>$def){
+    $json=(string)wp_json_encode($def);
+    if(!isset($index[$json])){$index[$json]=count($defs);$defs[]=$def;}
+    $pairs[]=[(string)$k,$index[$json]];
+   }
+   // The shared controls form the same tail on most units: store each distinct tail once.
+   $cut=count($pairs);
+   while($cut>0&&isset($shared[$pairs[$cut-1][0]]))$cut--;
+   $tail=array_slice($pairs,$cut);
+   $tkey=(string)wp_json_encode($tail);
+   if(!isset($tail_index[$tkey])){$tail_index[$tkey]=count($tails);$tails[]=$tail;}
+   unset($data['units'][$i]['controls']);
+   $data['units'][$i]['c']=array_slice($pairs,0,$cut);
+   $data['units'][$i]['t']=$tail_index[$tkey];
+  }
+  if($defs){$data['unitControlDefs']=$defs;$data['unitControlTails']=$tails;}
+  return $data;
+ }
+ /** Inline script that restores units[].controls from the interned form. */
+ public static function expand_controls_script(){
+  return '(function(){var D=window.SidcraftPageBuilderData;if(!D||!D.unitControlDefs||!Array.isArray(D.units))return;var defs=D.unitControlDefs,tails=D.unitControlTails||[];D.units.forEach(function(u){if(!u||!Array.isArray(u.c))return;var o={},pairs=u.c.concat(tails[u.t]||[]);pairs.forEach(function(p){o[p[0]]=JSON.parse(JSON.stringify(defs[p[1]]));});u.controls=o;delete u.c;delete u.t;});delete D.unitControlDefs;delete D.unitControlTails;})();';
  }
  /**
   * Whether the current user may publish this document from the editor.

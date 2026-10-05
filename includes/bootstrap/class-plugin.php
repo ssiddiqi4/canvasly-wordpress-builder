@@ -3,6 +3,7 @@ namespace SidcraftPageBuilder\Bootstrap; use SidcraftPageBuilder\Units\UnitRegis
 class Plugin { private static $instance; public static function instance(){ if(!self::$instance){ self::$instance=new self; self::$instance->init(); } return self::$instance; }
  public static function is_admin_request(){ return !function_exists('is_admin') || is_admin(); }
  public static function init(){
+  if(!self::is_admin_request()&&class_exists('SidcraftPageBuilder\\Tools\\Benchmark'))\SidcraftPageBuilder\Tools\Benchmark::init();
   if(class_exists('SidcraftPageBuilder\\Compatibility\\Compat'))\SidcraftPageBuilder\Compatibility\Compat::init();
   elseif(class_exists('SidcraftPageBuilder\\Compatibility\\ImportExport'))\SidcraftPageBuilder\Compatibility\ImportExport::init();
   if(class_exists('SidcraftPageBuilder\\Compatibility\\Duplicate')&&!class_exists('SidcraftPageBuilder\\Compatibility\\Compat'))\SidcraftPageBuilder\Compatibility\Duplicate::init();
@@ -41,6 +42,9 @@ class Plugin { private static $instance; public static function instance(){ if(!
   if(class_exists('SidcraftPageBuilder\\Theme\\Locations'))\SidcraftPageBuilder\Theme\Locations::init();
   if(class_exists('SidcraftPageBuilder\\Templates\\SavedTemplates'))\SidcraftPageBuilder\Templates\SavedTemplates::init();
   if(class_exists('SidcraftPageBuilder\\Convert\\Tool'))\SidcraftPageBuilder\Convert\Tool::init();
+  if(class_exists('SidcraftPageBuilder\\Document\\Schema'))\SidcraftPageBuilder\Document\Schema::init();
+  if(class_exists('SidcraftPageBuilder\\Convert\\Review'))\SidcraftPageBuilder\Convert\Review::init();
+  if(class_exists('SidcraftPageBuilder\\Convert\\Job'))\SidcraftPageBuilder\Convert\Job::init();
   if(class_exists('SidcraftPageBuilder\\Tools\\ReplaceUrl'))\SidcraftPageBuilder\Tools\ReplaceUrl::init();
   if(class_exists('SidcraftPageBuilder\\Design\\CssPrint'))\SidcraftPageBuilder\Design\CssPrint::init();
   if(class_exists('SidcraftPageBuilder\\Design\\Fonts'))\SidcraftPageBuilder\Design\Fonts::init();

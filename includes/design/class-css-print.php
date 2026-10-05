@@ -471,7 +471,8 @@ class CssPrint {
 			return;
 		}
 		wp_enqueue_style( 'sidcraft-page-builder-frontend' );
-		if ( self::is_external() ) {
+		$review = class_exists( DocumentManager::class ) && method_exists( DocumentManager::class, 'previewing' ) && DocumentManager::previewing( $id );
+		if ( self::is_external() && ! $review ) {
 			$hash = self::write_post( $id );
 			$src  = self::url( self::post_filename( $id ) );
 			if ( $hash !== '' && $src !== '' && self::file_exists( self::post_filename( $id ) ) ) {

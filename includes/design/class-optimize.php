@@ -343,6 +343,9 @@ class Optimize {
 		if ( function_exists( 'is_preview' ) && is_preview() ) {
 			return false;
 		}
+		if ( class_exists( '\\SidcraftPageBuilder\\Document\\DocumentManager' ) && method_exists( '\\SidcraftPageBuilder\\Document\\DocumentManager', 'previewing' ) && \SidcraftPageBuilder\Document\DocumentManager::previewing() ) {
+			return false;
+		}
 		if ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) {
 			return false;
 		}

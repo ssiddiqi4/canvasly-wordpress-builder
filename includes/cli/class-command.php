@@ -371,6 +371,326 @@ class Command {
 	}
 
 	/**
+	 * Convert pages in resumable batches.
+	 *
+	 * Progress is saved after every page, so an interrupted run continues
+	 * where it stopped with --resume.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--ids=<ids>]
+	 * : Comma-separated post IDs. Omit to convert every page with Elementor data.
+	 *
+	 * [--mode=<mode>]
+	 * : stage (wait for review), dry, copy or in_place.
+	 * ---
+	 * default: stage
+	 * options:
+	 *   - stage
+	 *   - dry
+	 *   - copy
+	 *   - in_place
+	 * ---
+	 *
+	 * [--batch=<n>]
+	 * : Pages per batch.
+	 * ---
+	 * default: 10
+	 * ---
+	 *
+	 * [--force]
+	 * : With in_place, overwrite an existing Sidcraft Page Builder document.
+	 *
+	 * [--resume]
+	 * : Continue the current job instead of starting a new one.
+	 *
+	 * [--status]
+	 * : Show the current job and exit.
+	 *
+	 * [--cancel]
+	 * : Cancel the current job and exit.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp sidcraft-page-builder convert-batch --mode=stage
+	 *     wp sidcraft-page-builder convert-batch --resume
+	 *     wp sidcraft-page-builder convert-batch --status
+	 *
+	 * @subcommand convert-batch
+	 * @when after_wp_load
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
+	 */
+	public function convert_batch( $args, $assoc_args ) {
+		$assoc_args = is_array( $assoc_args ) ? $assoc_args : array();
+		if ( ! class_exists( '\\SidcraftPageBuilder\\Convert\\Job' ) ) {
+			self::fail( __( 'The converter is not available.', 'sidcraft-page-builder' ) );
+			return;
+		}
+		if ( ! get_current_user_id() ) {
+			$admins = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
+			if ( $admins ) {
+				wp_set_current_user( (int) $admins[0] );
+			}
+		}
+		if ( ! empty( $assoc_args['cancel'] ) ) {
+			\SidcraftPageBuilder\Convert\Job::cancel();
+			self::ok( __( 'Job cancelled.', 'sidcraft-page-builder' ) );
+			return;
+		}
+		if ( ! empty( $assoc_args['status'] ) ) {
+			$job = \SidcraftPageBuilder\Convert\Job::get();
+			if ( ! $job ) {
+				self::ok( __( 'No conversion job.', 'sidcraft-page-builder' ) );
+				return;
+			}
+			self::print_job( \SidcraftPageBuilder\Convert\Job::public_view( $job ) );
+			return;
+		}
+		if ( empty( $assoc_args['resume'] ) ) {
+			$job = \SidcraftPageBuilder\Convert\Job::start(
+				array(
+					'ids'     => Cli::ids_from( $assoc_args['ids'] ?? array() ),
+					'mode'    => (string) ( $assoc_args['mode'] ?? 'stage' ),
+					'force'   => ! empty( $assoc_args['force'] ),
+					'batch'   => absint( $assoc_args['batch'] ?? 10 ),
+					'replace' => false,
+				)
+			);
+			if ( is_wp_error( $job ) ) {
+				self::fail( $job->get_error_message() . ' ' . __( 'Use --resume, or --cancel first.', 'sidcraft-page-builder' ) );
+				return;
+			}
+		}
+		$seen = 0;
+		do {
+			$job = \SidcraftPageBuilder\Convert\Job::step();
+			if ( is_wp_error( $job ) ) {
+				self::fail( $job->get_error_message() );
+				return;
+			}
+			foreach ( array_slice( (array) $job['failures'], $seen ) as $f ) {
+				self::line( sprintf( 'FAILED #%d %s | at: %s | node: %s | %s', (int) $f['post'], $f['title'], $f['path'] !== '' ? $f['path'] : '-', $f['node'] !== '' ? $f['node'] : '-', $f['message'] ) );
+			}
+			$seen = count( (array) $job['failures'] );
+			self::line( sprintf( '%d/%d (%d%%)', (int) $job['cursor'], (int) $job['total'], (int) $job['percent'] ) );
+		} while ( $job['status'] === 'running' );
+		self::print_job( $job );
+	}
+
+	/**
+	 * Write readable fallback HTML for every existing layout.
+	 *
+	 * The copy goes into post_content, so pages stay readable if the builder
+	 * is ever switched off.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--batch=<n>]
+	 * : Posts per batch.
+	 * ---
+	 * default: 50
+	 * ---
+	 *
+	 * [--restore]
+	 * : Instead, put back the post_content each page had before its first fallback copy.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp sidcraft-page-builder fallback
+	 *     wp sidcraft-page-builder fallback --restore
+	 *
+	 * @when after_wp_load
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
+	 */
+	public function fallback( $args, $assoc_args ) {
+		$assoc_args = is_array( $assoc_args ) ? $assoc_args : array();
+		$fc         = '\\SidcraftPageBuilder\\Document\\FallbackContent';
+		if ( ! class_exists( $fc ) ) {
+			self::fail( __( 'Fallback content is not available.', 'sidcraft-page-builder' ) );
+			return;
+		}
+		$admins = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
+		if ( ! get_current_user_id() && $admins ) {
+			wp_set_current_user( (int) $admins[0] );
+		}
+		if ( ! empty( $assoc_args['restore'] ) ) {
+			global $wpdb;
+			$ids = $wpdb->get_col( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s", $fc::ORIGINAL_META ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$n   = 0;
+			foreach ( (array) $ids as $id ) {
+				$n += $fc::restore_original( (int) $id ) ? 1 : 0;
+			}
+			/* translators: %d: number of posts */
+			self::ok( sprintf( __( 'Restored the original post content of %d posts.', 'sidcraft-page-builder' ), $n ) );
+			return;
+		}
+		$next    = 0;
+		$total   = 0;
+		$written = 0;
+		do {
+			$r        = $fc::backfill( $next, absint( $assoc_args['batch'] ?? 50 ) );
+			$next     = (int) $r['next'];
+			$total   += (int) $r['processed'];
+			$written += (int) $r['written'];
+			self::line( sprintf( '%d checked, %d written', $total, $written ) );
+		} while ( ! $r['done'] );
+		/* translators: 1: written, 2: checked */
+		self::ok( sprintf( __( 'Wrote fallback content for %1$d of %2$d documents.', 'sidcraft-page-builder' ), $written, $total ) );
+	}
+
+	/**
+	 * Measure save, render, front-end and editor cost on a ~200-unit page.
+	 *
+	 * Creates two temporary published pages (one with a builder layout, one
+	 * without), measures them, and deletes them again.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--units=<n>]
+	 * : Units on the test page.
+	 * ---
+	 * default: 200
+	 * ---
+	 *
+	 * [--runs=<n>]
+	 * : Warm render repetitions (median is reported).
+	 * ---
+	 * default: 5
+	 * ---
+	 *
+	 * [--keep]
+	 * : Keep the temporary pages.
+	 *
+	 * [--format=<format>]
+	 * : table or json.
+	 * ---
+	 * default: table
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp sidcraft-page-builder benchmark
+	 *     wp sidcraft-page-builder benchmark --units=500 --format=json
+	 *
+	 * @when after_wp_load
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
+	 */
+	public function benchmark( $args, $assoc_args ) {
+		$assoc_args = is_array( $assoc_args ) ? $assoc_args : array();
+		if ( ! class_exists( '\\SidcraftPageBuilder\\Tools\\Benchmark' ) ) {
+			self::fail( __( 'The benchmark is not available.', 'sidcraft-page-builder' ) );
+			return;
+		}
+		if ( ! get_current_user_id() ) {
+			$admins = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
+			if ( $admins ) {
+				wp_set_current_user( (int) $admins[0] );
+			}
+		}
+		$r = \SidcraftPageBuilder\Tools\Benchmark::run(
+			array(
+				'units' => absint( $assoc_args['units'] ?? 200 ),
+				'runs'  => absint( $assoc_args['runs'] ?? 5 ),
+				'keep'  => ! empty( $assoc_args['keep'] ),
+			)
+		);
+		if ( ( $assoc_args['format'] ?? 'table' ) === 'json' ) {
+			self::line( (string) wp_json_encode( $r, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+			return;
+		}
+		if ( ! empty( $r['error'] ) ) {
+			self::fail( $r['error'] );
+			return;
+		}
+		$rows = array();
+		$add  = function ( $group, $metric, $value ) use ( &$rows ) {
+			$rows[] = array(
+				'group'  => $group,
+				'metric' => $metric,
+				'value'  => is_scalar( $value ) ? (string) $value : wp_json_encode( $value ),
+			);
+		};
+		foreach ( $r['environment'] as $k => $v ) {
+			$add( 'environment', $k, $v );
+		}
+		foreach ( $r['page'] as $k => $v ) {
+			$add( 'save', $k, $v );
+		}
+		foreach ( $r['render'] as $k => $v ) {
+			$add( 'render (in process)', $k, $v );
+		}
+		foreach ( array( 'frontend' => 'front end, builder page', 'frontend_bare' => 'front end, page without builder' ) as $key => $label ) {
+			foreach ( (array) $r[ $key ] as $k => $v ) {
+				if ( in_array( $k, array( 'assets', 'write_queries', 'run' ), true ) ) {
+					continue;
+				}
+				$add( $label, $k, $v );
+			}
+		}
+		$add( 'editor', 'total_kb', $r['editor']['total_kb'] );
+		$add( 'editor', 'total_gzip_kb', $r['editor']['total_gzip_kb'] );
+		if ( function_exists( '\WP_CLI\Utils\format_items' ) ) {
+			\WP_CLI\Utils\format_items( 'table', $rows, array( 'group', 'metric', 'value' ) );
+		}
+		if ( ! empty( $r['frontend']['write_queries'] ) ) {
+			self::line( 'Writes during the front-end request:' );
+			foreach ( $r['frontend']['write_queries'] as $q ) {
+				self::line( '  ' . $q );
+			}
+		}
+	}
+
+	/**
+	 * Print the JSON Schema of the saved document format.
+	 *
+	 * Generated from the units registered on this site, so add-on units are
+	 * included. The same schema is served at /wp-json/sidcraft-page-builder/v1/schema.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp sidcraft-page-builder schema > sidcraft-document.schema.json
+	 *
+	 * @when after_wp_load
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
+	 */
+	public function schema( $args, $assoc_args ) {
+		if ( ! class_exists( '\\SidcraftPageBuilder\\Document\\Schema' ) ) {
+			self::fail( __( 'The schema is not available.', 'sidcraft-page-builder' ) );
+			return;
+		}
+		self::line( (string) wp_json_encode( \SidcraftPageBuilder\Document\Schema::json_schema(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+	}
+
+	/**
+	 * @param array $job
+	 */
+	private static function print_job( array $job ) {
+		$c = (array) $job['counts'];
+		self::line( sprintf( 'Job %s: %s, mode %s, %d/%d pages', $job['id'], $job['status'], $job['mode'], (int) $job['cursor'], (int) $job['total'] ) );
+		self::line( sprintf( 'converted %d, staged %d, skipped %d, failed %d, dynamic fields %d', (int) $c['converted'], (int) $c['staged'], (int) $c['skipped'], (int) $c['errors'], (int) $c['dynamic'] ) );
+		if ( ! empty( $job['review'] ) && (int) $c['staged'] > 0 ) {
+			self::line( 'Review: ' . $job['review'] );
+		}
+	}
+
+	/**
+	 * @param string $message
+	 */
+	private static function line( $message ) {
+		if ( class_exists( '\WP_CLI' ) ) {
+			\WP_CLI::line( $message );
+		}
+	}
+
+	/**
 	 * @param string $message
 	 */
 	private static function ok( $message ) {
