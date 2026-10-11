@@ -894,7 +894,7 @@
 		const MAX_NODES = opts.maxNodes || 1500;
 		const win = doc.defaultView;
 		const cs = (el) => (win ? win.getComputedStyle(el) : null);
-		const classesOf = (el) => {
+		const classesOf = (el, extra) => {
 			const list = [];
 			String(el.getAttribute('class') || '')
 				.split(/\s+/)
@@ -905,7 +905,14 @@
 						usedClasses[n] = 1;
 					}
 				});
-			const inl = inlineStyleProps(el);
+			let inl = inlineStyleProps(el);
+			if (typeof extra === 'function') {
+				// Properties the element's own classes and style attribute already set.
+				const declared = {};
+				list.forEach((n) => Object.keys(((css.classes[n] || {}).base || {}).desktop || {}).forEach((p) => (declared[p] = 1)));
+				Object.keys(inl).forEach((p) => (declared[p] = 1));
+				inl = Object.assign({}, extra(declared), inl);
+			}
 			if (Object.keys(inl).length) {
 				const key = JSON.stringify(inl);
 				if (!inlineClasses[key]) inlineClasses[key] = 'imported-' + ++inlineCount;
@@ -913,10 +920,24 @@
 			}
 			return list;
 		};
-		const settingsWith = (el, s) => {
-			const cls = classesOf(el);
+		const settingsWith = (el, s, extra) => {
+			const cls = classesOf(el, extra);
 			if (cls.length) s.xe_classes = cls;
 			return s;
+		};
+		/*
+		 * XEditor buttons have a default dark fill and white text. When the HTML
+		 * does not set a background or text color on the button itself (an outline
+		 * or text-style button), keep the color the browser actually showed.
+		 */
+		const transparent = (v) => !v || v === 'transparent' || /^rgba\([^)]*,\s*0\)$/.test(v.replace(/\s+/g, ' '));
+		const buttonColors = (el) => (declared) => {
+			const st = cs(el);
+			const out = {};
+			if (!st) return out;
+			if (!declared.background && !declared['background-color'] && !declared['background-image']) out.background = transparent(st.backgroundColor) ? 'transparent' : st.backgroundColor;
+			if (!declared.color) out.color = st.color;
+			return out;
 		};
 		const containerFor = (el, tag) => {
 			const st = cs(el);
@@ -954,7 +975,7 @@
 			if (tag === 'hr') return meta('divider').type ? [{ type: 'divider', settings: {} }] : [];
 			if (tag === 'button' || (tag === 'input' && /^(submit|button)$/i.test(el.getAttribute('type') || '')) || isButtonLink(el)) {
 				const text = tag === 'input' ? el.getAttribute('value') || t('Submit') : el.textContent.replace(/\s+/g, ' ').trim();
-				return [{ type: 'xe_button', settings: settingsWith(el, { text: text || t('Button'), link: tag === 'a' ? absUrl(el.getAttribute('href'), opts.baseUrl) || '#' : '' }) }];
+				return [{ type: 'xe_button', settings: settingsWith(el, { text: text || t('Button'), link: tag === 'a' ? absUrl(el.getAttribute('href'), opts.baseUrl) || '#' : '' }, buttonColors(el)) }];
 			}
 			if (tag === 'iframe') {
 				const src = absUrl(el.getAttribute('src'), opts.baseUrl);

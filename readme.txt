@@ -4,7 +4,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -331,6 +331,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 1.2.4 =
+* Fixed: HTML import. A button whose HTML sets no background or text color (an outline or text-style button) no longer turns into a dark filled XEditor button; it keeps the background and text color it had in the original page.
+
 = 1.2.3 =
 * Changed: the AI Chat Bot now uses the AI Client built into WordPress 7.0 and later, with the provider connected under Settings → Connectors. The plugin no longer contacts AI providers itself or stores its own AI API key; a key saved by version 1.2.1 or 1.2.2 is deleted. This follows the WordPress.org recommendation reported by Plugin Check (PluginCheck.CodeAnalysis.AIProvider.DirectIntegration).
 * On WordPress 6.9 the chat explains that it needs WordPress 7.0; HTML import keeps working without AI.
@@ -436,6 +439,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 The complete history is in `changelog.txt` inside the plugin folder.
 
 == Upgrade Notice ==
+
+= 1.2.4 =
+HTML import keeps the colors of outline and text-style buttons.
 
 = 1.2.3 =
 The AI Chat Bot now uses WordPress's built-in AI Client (Settings → Connectors, WordPress 7.0+). Reconnect AI there; the chat's old API key is removed.
