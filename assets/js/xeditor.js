@@ -374,7 +374,7 @@
 			const s = n.settings || {};
 			const cls = esc(this.classNames(n));
 			const kids = (n.children || []).map((c) => (helpers && helpers.nodeHTML ? helpers.nodeHTML(c) : '')).join('');
-			if (XEditorAccess.isGuarded(n.type) && !XEditorAccess.isProActive()) return XEditorAccess.lockedHTML((LB.data && n.type === 'xe_loop' && t('XEditor Loop')) || t('Loop part'));
+			if (XEditorAccess.isGuarded(n.type) && !XEditorAccess.isProActive()) return this.sampleLoop(n, cls, kids);
 			const drop = (label) => (kids ? kids : `<div class="xe-drop-hint" data-xe-drop-hint="1">${esc(label || t('Drop elements here'))}</div>`);
 			switch (n.type) {
 				case 'xe_div_block':
@@ -418,6 +418,60 @@
 				}
 			}
 			return '';
+		},
+		/**
+		 * Loop parts without Sidcraft Builder Pro: a design preview with sample data.
+		 * The Loop Item is shown three times with placeholder text; real posts are
+		 * queried and rendered only by Sidcraft Builder Pro on the live site.
+		 */
+		sampleLoop(n, cls, kids) {
+			const s = n.settings || {};
+			const titles = [t('Sample post title'), t('Another sample post'), t('A third sample post')];
+			const sample = (group, key, i) => {
+				group = String(group).toLowerCase();
+				key = String(key).toLowerCase();
+				if (group === 'loop') return key === 'number' || key === 'index' ? String(i) : '';
+				if (group === 'term') return key === 'name' ? t('Category') + ' ' + i : key === 'count' ? String(3 + i) : key === 'url' ? '#' : '';
+				if (group === 'site') return key === 'title' || key === 'name' ? esc((LB.data && LB.data.siteName) || t('Your site')) : '#';
+				switch (key) {
+					case 'title':
+						return esc(titles[(i - 1) % 3]);
+					case 'excerpt':
+					case 'content':
+						return esc(t('A short sample excerpt shows how this item reads with real text.'));
+					case 'date':
+						return esc(t('January %s, 2026').replace('%s', String(10 + i)));
+					case 'author':
+						return esc(t('Author name'));
+					case 'url':
+					case 'permalink':
+						return '#';
+					case 'comment_count':
+						return String(i * 2);
+					default:
+						return '';
+				}
+			};
+			const fill = (html, i) => String(html || '').replace(/\{\{\s*(post|term|loop|site)\.([a-z_]+)(?::[^}]*)?\s*\}\}/gi, (m, g, k) => sample(g, k, i));
+			const strip = (html) => String(html || '').replace(/\sid="lb-node-[^"]*"/g, '').replace(/\sdata-id="/g, ' data-xe-copy-of="').replace(/\sdraggable="true"/g, '').replace(/\stabindex="0"/g, '').replace(/\sdata-inline="text"/g, '').replace(/\sdata-xe-drop="[^"]*"/g, '');
+			const note = `<div class="xe-loop-sample-note" style="grid-column:1/-1;flex:1 1 100%;margin:0 0 8px;padding:6px 10px;border:1px dashed #d38cb5;border-radius:6px;background:rgba(226,73,138,.05);color:#7a3c62;font:12px/1.4 system-ui,sans-serif">${esc(t('Sample preview with placeholder posts. Sidcraft Builder Pro shows real posts here on your live site.'))}</div>`;
+			switch (n.type) {
+				case 'xe_loop': {
+					const tag = this.pickTag(s, ['div', 'section', 'aside', 'nav']);
+					return `<${tag} class="${cls} xe-loop-sample" data-xe-sample="1">${note}${kids || `<div class="xe-drop-hint">${esc(t('Add a Loop Layout'))}</div>`}</${tag}>`;
+				}
+				case 'xe_loop_layout': {
+					const tag = this.pickTag(s, ['div', 'ul', 'ol']);
+					if (!kids) return `<${tag} class="${cls}" data-xe-layout="${esc(s.layout || 'grid')}"><div class="xe-drop-hint">${esc(t('Add a Loop Item'))}</div></${tag}>`;
+					const copies = [2, 3].map((i) => `<div class="xe-loop-sample-copy" style="display:contents" aria-hidden="true" inert>${fill(strip(kids), i)}</div>`).join('');
+					return `<${tag} class="${cls}" data-xe-layout="${esc(s.layout || 'grid')}">${fill(kids, 1)}${copies}</${tag}>`;
+				}
+				case 'xe_loop_item': {
+					const tag = this.pickTag(s, ['article', 'div', 'li']);
+					return `<${tag} class="${cls}">${kids || `<div class="xe-drop-hint">${esc(t('Design one item: drop Heading, Image, Paragraph…'))}</div>`}</${tag}>`;
+				}
+			}
+			return XEditorAccess.lockedHTML(t('Loop part'));
 		},
 		/** Canvas mock of the Cloudflare Turnstile widget (the real one renders on the frontend only). */
 		turnstilePreview(n) {

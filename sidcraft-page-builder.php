@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Sidcraft Page Builder
  * Description: A lightweight, independent visual page builder for WordPress.
- * Version: 0.15.3
+ * Version: 1.2.1
  * Requires at least: 6.9
  * Requires PHP: 7.4
  * Author: Sidcraft Page Builder
@@ -11,6 +11,37 @@
  * Domain Path: /languages
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
+
+/*
+ * Another copy of this plugin is already loaded (for example a second folder
+ * created by uploading a zip whose folder name differs from the installed
+ * one). Stop here instead of redeclaring functions and classes, which would
+ * be a fatal error, and say which copy to remove.
+ */
+if ( defined( 'SIDCRAFT_PAGE_BUILDER_FILE' ) && realpath( SIDCRAFT_PAGE_BUILDER_FILE ) !== realpath( __FILE__ ) ) {
+	if ( ! isset( $GLOBALS['sidcraft_page_builder_duplicates'] ) || ! is_array( $GLOBALS['sidcraft_page_builder_duplicates'] ) ) {
+		$GLOBALS['sidcraft_page_builder_duplicates'] = array();
+		add_action(
+			'admin_notices',
+			static function () {
+				if ( ! current_user_can( 'activate_plugins' ) ) {
+					return;
+				}
+				$active = plugin_basename( SIDCRAFT_PAGE_BUILDER_FILE );
+				foreach ( $GLOBALS['sidcraft_page_builder_duplicates'] as $copy ) {
+					echo '<div class="notice notice-error"><p>' . sprintf(
+						/* translators: 1: folder/file of the copy that is not loaded, 2: folder/file of the copy in use. */
+						esc_html__( 'Two copies of Sidcraft Page Builder are installed. %1$s was not loaded because %2$s is already running. Deactivate and delete one of them on the Plugins screen; your pages and settings are kept.', 'sidcraft-page-builder' ),
+						'<code>' . esc_html( $copy ) . '</code>',
+						'<code>' . esc_html( $active ) . '</code>'
+					) . '</p></div>';
+				}
+			}
+		);
+	}
+	$GLOBALS['sidcraft_page_builder_duplicates'][] = plugin_basename( __FILE__ );
+	return;
+}
 
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_FILE' ) ) {
 	define( 'SIDCRAFT_PAGE_BUILDER_FILE', __FILE__ );
@@ -22,26 +53,30 @@ if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_URL' ) ) {
 	define( 'SIDCRAFT_PAGE_BUILDER_URL', plugin_dir_url( __FILE__ ) );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ) {
-	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '0.15.3' );
+	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '1.2.1' );
 }
 
 /**
  * PHP and WordPress versions this plugin can run. WordPress also reads the
  * plugin header, and this notice explains the stop when those are too old.
  */
-function sidcraft_page_builder_requirements_met() {
-	global $wp_version;
-	if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
-		return false;
+if ( ! function_exists( 'sidcraft_page_builder_requirements_met' ) ) {
+	function sidcraft_page_builder_requirements_met() {
+		global $wp_version;
+		if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
+			return false;
+		}
+		if ( isset( $wp_version ) && is_string( $wp_version ) && version_compare( $wp_version, '6.9', '<' ) ) {
+			return false;
+		}
+		return true;
 	}
-	if ( isset( $wp_version ) && is_string( $wp_version ) && version_compare( $wp_version, '6.9', '<' ) ) {
-		return false;
-	}
-	return true;
 }
 
-function sidcraft_page_builder_requirements_notice() {
-	echo '<div class="notice notice-error"><p>' . esc_html__( 'Sidcraft Page Builder needs PHP 7.4 or newer and WordPress 6.9 or newer. It stays inactive until this site meets those versions.', 'sidcraft-page-builder' ) . '</p></div>';
+if ( ! function_exists( 'sidcraft_page_builder_requirements_notice' ) ) {
+	function sidcraft_page_builder_requirements_notice() {
+		echo '<div class="notice notice-error"><p>' . esc_html__( 'Sidcraft Page Builder needs PHP 7.4 or newer and WordPress 6.9 or newer. It stays inactive until this site meets those versions.', 'sidcraft-page-builder' ) . '</p></div>';
+	}
 }
 
 if ( ! sidcraft_page_builder_requirements_met() ) {
@@ -64,11 +99,13 @@ if ( is_readable( $sidcraft_page_builder_admin_context ) ) {
  * @param string $post_type
  * @return bool
  */
-function sidcraft_page_builder_supports_post_type( $post_type ) {
-	if ( class_exists( '\SidcraftPageBuilder\Document\Documents', false ) ) {
-		return \SidcraftPageBuilder\Document\Documents::supports( $post_type );
+if ( ! function_exists( 'sidcraft_page_builder_supports_post_type' ) ) {
+	function sidcraft_page_builder_supports_post_type( $post_type ) {
+		if ( class_exists( '\SidcraftPageBuilder\Document\Documents', false ) ) {
+			return \SidcraftPageBuilder\Document\Documents::supports( $post_type );
+		}
+		return in_array( sanitize_key( $post_type ), array( 'post', 'page' ), true );
 	}
-	return in_array( sanitize_key( $post_type ), array( 'post', 'page' ), true );
 }
 
 /**
@@ -77,11 +114,13 @@ function sidcraft_page_builder_supports_post_type( $post_type ) {
  * @param string $post_type
  * @return string
  */
-function sidcraft_page_builder_post_type_edit_cap( $post_type ) {
-	if ( class_exists( '\SidcraftPageBuilder\Document\Documents', false ) ) {
-		return \SidcraftPageBuilder\Document\Documents::edit_cap( $post_type );
+if ( ! function_exists( 'sidcraft_page_builder_post_type_edit_cap' ) ) {
+	function sidcraft_page_builder_post_type_edit_cap( $post_type ) {
+		if ( class_exists( '\SidcraftPageBuilder\Document\Documents', false ) ) {
+			return \SidcraftPageBuilder\Document\Documents::edit_cap( $post_type );
+		}
+		return ( 'page' === $post_type ) ? 'edit_pages' : 'edit_posts';
 	}
-	return ( 'page' === $post_type ) ? 'edit_pages' : 'edit_posts';
 }
 
 /**
@@ -92,33 +131,35 @@ function sidcraft_page_builder_post_type_edit_cap( $post_type ) {
  * Gutenberg block is registered before this guard so it still appears in
  * post.php / post-new.php.
  */
-function sidcraft_page_builder_native_editor_zero_bootstrap() {
-    // During normal plugin loading, $GLOBALS['pagenow'] may not yet be
-    // populated because wp-settings.php loads active plugins before the
-    // admin.php screen bootstrap completes. Use the actual executing script
-    // first, then fall back to $pagenow when it is already available.
-    $script = '';
-    if ( isset( $_SERVER['SCRIPT_NAME'] ) ) {
-        $script = basename( sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) );
-    } elseif ( isset( $_SERVER['PHP_SELF'] ) ) {
-        $script = basename( sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) ) );
-    }
-    $pagenow = isset( $GLOBALS['pagenow'] ) ? $GLOBALS['pagenow'] : $script;
-    if ( ! in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
-        return false;
-    }
-    // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only WordPress editor screen routing.
-    if ( 'post-new.php' === $pagenow ) {
-        $post_type = isset( $_GET['post_type'] ) ? sanitize_key( wp_unslash( $_GET['post_type'] ) ) : 'post';
-        return sidcraft_page_builder_supports_post_type( $post_type );
-    }
-    $post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
-    // phpcs:enable WordPress.Security.NonceVerification.Recommended
-    if ( ! $post_id ) {
-        return false;
-    }
-    $post = get_post( $post_id );
-    return $post && sidcraft_page_builder_supports_post_type( $post->post_type );
+if ( ! function_exists( 'sidcraft_page_builder_native_editor_zero_bootstrap' ) ) {
+	function sidcraft_page_builder_native_editor_zero_bootstrap() {
+	    // During normal plugin loading, $GLOBALS['pagenow'] may not yet be
+	    // populated because wp-settings.php loads active plugins before the
+	    // admin.php screen bootstrap completes. Use the actual executing script
+	    // first, then fall back to $pagenow when it is already available.
+	    $script = '';
+	    if ( isset( $_SERVER['SCRIPT_NAME'] ) ) {
+	        $script = basename( sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) );
+	    } elseif ( isset( $_SERVER['PHP_SELF'] ) ) {
+	        $script = basename( sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) ) );
+	    }
+	    $pagenow = isset( $GLOBALS['pagenow'] ) ? $GLOBALS['pagenow'] : $script;
+	    if ( ! in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
+	        return false;
+	    }
+	    // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only WordPress editor screen routing.
+	    if ( 'post-new.php' === $pagenow ) {
+	        $post_type = isset( $_GET['post_type'] ) ? sanitize_key( wp_unslash( $_GET['post_type'] ) ) : 'post';
+	        return sidcraft_page_builder_supports_post_type( $post_type );
+	    }
+	    $post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
+	    // phpcs:enable WordPress.Security.NonceVerification.Recommended
+	    if ( ! $post_id ) {
+	        return false;
+	    }
+	    $post = get_post( $post_id );
+	    return $post && sidcraft_page_builder_supports_post_type( $post->post_type );
+	}
 }
 
 /**
@@ -168,6 +209,58 @@ if ( is_readable( $sidcraft_page_builder_admin_bar ) ) {
 	}
 }
 
+// Defined before the block-editor early return below, which hooks it as an
+// admin_enqueue_scripts callback (conditional functions are not hoisted).
+if ( ! function_exists( 'sidcraft_page_builder_native_editor_launcher' ) ) {
+	function sidcraft_page_builder_native_editor_launcher() {
+	    // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only WordPress editor screen routing.
+	    $post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
+	    $post_type = isset( $_GET['post_type'] ) ? sanitize_key( wp_unslash( $_GET['post_type'] ) ) : 'post';
+	    // phpcs:enable WordPress.Security.NonceVerification.Recommended
+	    if ( $post_id ) {
+	        $post = get_post( $post_id );
+	        if ( $post ) {
+	            $post_type = $post->post_type;
+	        }
+	    }
+	    if ( ! sidcraft_page_builder_supports_post_type( $post_type ) ) {
+	        return;
+	    }
+	    if ( ! current_user_can( sidcraft_page_builder_post_type_edit_cap( $post_type ) ) ) {
+	        return;
+	    }
+	    $roles_file = SIDCRAFT_PAGE_BUILDER_PATH . 'includes/settings/class-roles.php';
+	    if ( is_readable( $roles_file ) ) {
+	        require_once $roles_file;
+	        if ( class_exists( '\SidcraftPageBuilder\Settings\Roles', false ) ) {
+	            if ( method_exists( '\SidcraftPageBuilder\Settings\Roles', 'maybe_sync' ) ) {
+	                \SidcraftPageBuilder\Settings\Roles::maybe_sync();
+	            }
+	            if ( ! \SidcraftPageBuilder\Settings\Roles::can_edit() ) {
+	                return;
+	            }
+	        }
+	    }
+	    $builder_url = admin_url( 'admin.php?page=sidcraft-page-builder' );
+	    $ver         = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '0';
+	    wp_register_style( 'sidcraft-page-builder-native-editor', SIDCRAFT_PAGE_BUILDER_URL . 'assets/css/native-editor-launcher.css', array(), $ver );
+	    wp_enqueue_style( 'sidcraft-page-builder-native-editor' );
+	    wp_register_script( 'sidcraft-page-builder-native-editor', SIDCRAFT_PAGE_BUILDER_URL . 'assets/js/native-editor-launcher.js', array(), $ver, true );
+	    wp_enqueue_script( 'sidcraft-page-builder-native-editor' );
+	    wp_add_inline_script(
+	        'sidcraft-page-builder-native-editor',
+	        'window.sidcraftPageBuilderNativeEditor=' . wp_json_encode(
+	            array(
+	                'url'    => $builder_url,
+	                'postId' => $post_id,
+	                'label'  => __( 'Edit with Sidcraft Page Builder', 'sidcraft-page-builder' ),
+	            )
+	        ) . ';',
+	        'before'
+	    );
+	}
+}
+
 if ( sidcraft_page_builder_native_editor_zero_bootstrap() ) {
     // Native Gutenberg integration: launcher plus the Template block.
     // No Sidcraft Page Builder editor/runtime assets or normal hooks are initialized here.
@@ -183,55 +276,8 @@ if ( sidcraft_page_builder_native_editor_zero_bootstrap() ) {
     return;
 }
 
-function sidcraft_page_builder_native_editor_launcher() {
-    // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only WordPress editor screen routing.
-    $post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
-    $post_type = isset( $_GET['post_type'] ) ? sanitize_key( wp_unslash( $_GET['post_type'] ) ) : 'post';
-    // phpcs:enable WordPress.Security.NonceVerification.Recommended
-    if ( $post_id ) {
-        $post = get_post( $post_id );
-        if ( $post ) {
-            $post_type = $post->post_type;
-        }
-    }
-    if ( ! sidcraft_page_builder_supports_post_type( $post_type ) ) {
-        return;
-    }
-    if ( ! current_user_can( sidcraft_page_builder_post_type_edit_cap( $post_type ) ) ) {
-        return;
-    }
-    $roles_file = SIDCRAFT_PAGE_BUILDER_PATH . 'includes/settings/class-roles.php';
-    if ( is_readable( $roles_file ) ) {
-        require_once $roles_file;
-        if ( class_exists( '\SidcraftPageBuilder\Settings\Roles', false ) ) {
-            if ( method_exists( '\SidcraftPageBuilder\Settings\Roles', 'maybe_sync' ) ) {
-                \SidcraftPageBuilder\Settings\Roles::maybe_sync();
-            }
-            if ( ! \SidcraftPageBuilder\Settings\Roles::can_edit() ) {
-                return;
-            }
-        }
-    }
-    $builder_url = admin_url( 'admin.php?page=sidcraft-page-builder' );
-    $ver         = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '0';
-    wp_register_style( 'sidcraft-page-builder-native-editor', SIDCRAFT_PAGE_BUILDER_URL . 'assets/css/native-editor-launcher.css', array(), $ver );
-    wp_enqueue_style( 'sidcraft-page-builder-native-editor' );
-    wp_register_script( 'sidcraft-page-builder-native-editor', SIDCRAFT_PAGE_BUILDER_URL . 'assets/js/native-editor-launcher.js', array(), $ver, true );
-    wp_enqueue_script( 'sidcraft-page-builder-native-editor' );
-    wp_add_inline_script(
-        'sidcraft-page-builder-native-editor',
-        'window.sidcraftPageBuilderNativeEditor=' . wp_json_encode(
-            array(
-                'url'    => $builder_url,
-                'postId' => $post_id,
-                'label'  => __( 'Edit with Sidcraft Page Builder', 'sidcraft-page-builder' ),
-            )
-        ) . ';',
-        'before'
-    );
-}
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ) {
-	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '0.15.3' );
+	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '1.2.1' );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_FILE' ) ) {
 	define( 'SIDCRAFT_PAGE_BUILDER_FILE', __FILE__ );

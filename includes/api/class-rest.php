@@ -244,6 +244,8 @@ class Rest {
    $filtered['success']=(bool)$ok;
   }
   $ok=!empty($filtered['success']);
+  /** Fires after a Form unit submission was handled (Form Entries stores it). @param array $filtered @param array $fields @param \WP_REST_Request $r @param bool $ok */
+  do_action('sidcraft_page_builder_form_submitted',$filtered,$fields,$r,$ok);
   $msg=!empty($d['_success'])?sanitize_text_field($d['_success']):'';
   if(!empty($filtered['message'])&&is_string($filtered['message']))$msg=sanitize_text_field($filtered['message']);
   if($msg==='')$msg=$ok?__('Thanks! Your message has been sent.', 'sidcraft-page-builder'):__('The form could not be sent.', 'sidcraft-page-builder');

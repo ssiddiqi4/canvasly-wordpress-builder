@@ -21,6 +21,11 @@ class Plugin { private static $instance; public static function instance(){ if(!
   if(is_readable($xe_engine)){require_once $xe_engine;\SidcraftPageBuilder\XEditor\XEditorEngine::init();}
   $turnstile=SIDCRAFT_PAGE_BUILDER_PATH.'includes/integrations/class-turnstile.php';
   if(is_readable($turnstile)){require_once $turnstile;\SidcraftPageBuilder\Integrations\Turnstile::init();}
+  // Form Entries (stored submissions) and the in-editor AI Chat Bot.
+  $entries=SIDCRAFT_PAGE_BUILDER_PATH.'includes/forms/class-submissions.php';
+  if(is_readable($entries)){require_once $entries;\SidcraftPageBuilder\Forms\Submissions::init();}
+  $ai_chat=SIDCRAFT_PAGE_BUILDER_PATH.'includes/ai/class-ai-chat.php';
+  if(is_readable($ai_chat)){require_once $ai_chat;\SidcraftPageBuilder\Ai\AiChat::init();}
   add_action('rest_api_init',['SidcraftPageBuilder\Api\Rest','register_routes']);
   add_filter('rest_post_dispatch',['SidcraftPageBuilder\Api\Rest','utf8_content_type'],10,3);
   if(self::is_admin_request()){

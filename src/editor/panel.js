@@ -2663,17 +2663,111 @@ function installPanel() {
     app.bindSliders();
     if (app.bindCounterLive) app.bindCounterLive();
   };
+  /* Custom drag data type for unit cards, so Firefox keeps the payload even when the drag starts on the card's text. */
+  const LB_DRAG_MIME = "application/x-sidcraft-unit";
+  const isPayload = (v) => typeof v === "string" && /^unit:|^node:/.test(v);
   /** Drag payload ("unit:type" or "node:id") of a drag event, or "". */
   app.dragPayload = function dragPayload(e) {
-    let v = typeof window.__lbDragPayload === "string" ? window.__lbDragPayload : "";
-    if (!/^unit:|^node:/.test(v)) {
-      try {
-        v = (e && e.dataTransfer && e.dataTransfer.getData("text/plain")) || "";
-      } catch (err) {
-        v = "";
+    if (isPayload(window.__lbDragPayload)) return window.__lbDragPayload;
+    if (app.__lbDrag && isPayload(app.__lbDrag.payload)) return app.__lbDrag.payload;
+    const dt = e && e.dataTransfer;
+    if (dt) {
+      for (const type of [LB_DRAG_MIME, "text/plain", "text", "Text"]) {
+        let v = "";
+        try {
+          v = dt.getData(type) || "";
+        } catch (err) {
+          v = "";
+        }
+        if (isPayload(v)) return v;
       }
     }
-    return /^unit:|^node:/.test(v) ? v : "";
+    return "";
+  };
+  /*
+   * Record which unit is being dragged as soon as the mouse goes down on its card
+   * and again when the drag starts (Firefox can start the drag on the card's text
+   * node), and store it in the drag data under its own type.
+   */
+  app.bindDragSources = function bindDragSources() {
+    if (app.__lbDragSourcesBound) return;
+    app.__lbDragSourcesBound = true;
+    const elOf = (t) => (t && t.nodeType === 3 ? t.parentElement : t);
+    const payloadOf = (t) => {
+      const el = elOf(t);
+      if (!el || !el.closest) return "";
+      const card = el.closest(".lb-unit-card[data-type]");
+      if (card) {
+        if (card.getAttribute("draggable") === "false") return "";
+        if (app.proUnitLocked && app.proUnitLocked(card.dataset.type)) return "";
+        return "unit:" + card.dataset.type;
+      }
+      return "";
+    };
+    let pressed = { payload: "", at: 0 };
+    document.addEventListener(
+      "pointerdown",
+      (e) => {
+        app.__lbDrag = null;
+        pressed = { payload: payloadOf(e.target), at: Date.now() };
+      },
+      true,
+    );
+    document.addEventListener(
+      "mousedown",
+      (e) => {
+        const v = payloadOf(e.target);
+        if (v || Date.now() - pressed.at > 50) pressed = { payload: v, at: Date.now() };
+      },
+      true,
+    );
+    document.addEventListener(
+      "dragstart",
+      (e) => {
+        let v = payloadOf(e.target);
+        let via = "target";
+        if (!v && pressed.payload && Date.now() - pressed.at < 10000) {
+          v = pressed.payload;
+          via = "pointer";
+        }
+        if (!v) {
+          app.__lbDrag = null;
+          app.dndLog("dragstart " + describeTarget(e.target) + " (not a unit)");
+          return;
+        }
+        app.__lbDrag = { payload: v, at: Date.now() };
+        window.__lbDragPayload = v;
+        const dt = e.dataTransfer;
+        if (dt) {
+          try {
+            dt.setData(LB_DRAG_MIME, v);
+            dt.setData("text/plain", v);
+            if (dt.effectAllowed === "uninitialized" || dt.effectAllowed === "none") dt.effectAllowed = "copy";
+          } catch (err) {
+            /* some browsers lock the data store; the recorded payload still works */
+          }
+        }
+        app.dndLog("dragstart " + describeTarget(e.target) + " payload=" + v + " via " + via);
+      },
+      true,
+    );
+    // Bubble phase: if another handler replaced the plain-text data, put ours back.
+    document.addEventListener("dragstart", (e) => {
+      const v = app.__lbDrag && app.__lbDrag.payload;
+      if (!v || !e.dataTransfer) return;
+      try {
+        if (!isPayload(e.dataTransfer.getData("text/plain"))) e.dataTransfer.setData("text/plain", v);
+      } catch (err) {
+        /* ignore */
+      }
+      window.__lbDragPayload = v;
+    });
+    const finish = () => {
+      setTimeout(() => {
+        app.__lbDrag = null;
+      }, 0);
+    };
+    document.addEventListener("dragend", finish, true);
   };
   /*
    * Add a unit, or move a node, to the end of the page body. Layout units
@@ -2784,6 +2878,7 @@ function installPanel() {
    * pointer events, so the area itself is always the drop target.
    */
   app.bindPageDropZone = function bindPageDropZone(fd, locked) {
+    app.bindDragSources();
     const fw = fd && fd.defaultView;
     if (!fw) return;
     fw.__lbPageDropLocked = !!locked;
@@ -2845,6 +2940,23 @@ function installPanel() {
     if (fw.__lbPageDropRoute) return;
     fw.__lbPageDropRoute = true;
     let lastLog = 0;
+    // A drag that starts inside the canvas is a node move, not a unit from the panel.
+    fw.addEventListener(
+      "dragstart",
+      () => {
+        app.__lbDrag = null;
+      },
+      true,
+    );
+    fw.addEventListener(
+      "dragend",
+      () => {
+        setTimeout(() => {
+          app.__lbDrag = null;
+        }, 0);
+      },
+      true,
+    );
     // 1. Capture phase on the frame window: runs before any other listener.
     fw.addEventListener(
       "dragenter",
@@ -2885,7 +2997,13 @@ function installPanel() {
       (e) => {
         const z = zoneAt(e);
         const v = app.dragPayload(e);
-        app.dndLog("drop " + describeTarget(e.target) + " @" + Math.round(e.clientX) + "," + Math.round(e.clientY) + " payload=" + (v || "-") + " area=" + (z ? "yes" : "no"));
+        let types = "";
+        try {
+          types = e.dataTransfer ? Array.from(e.dataTransfer.types || []).join(",") : "";
+        } catch (err) {
+          types = "?";
+        }
+        app.dndLog("drop " + describeTarget(e.target) + " @" + Math.round(e.clientX) + "," + Math.round(e.clientY) + " payload=" + (v || "-") + " area=" + (z ? "yes" : "no") + " types=" + (types || "-"));
         if (!z || !v) {
           endDrag();
           return;

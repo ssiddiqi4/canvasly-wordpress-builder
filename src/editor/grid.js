@@ -3870,6 +3870,8 @@ function installGrid() {
       e.stopPropagation();
       app.lb23More();
     };
+    // Add-ons place their own top-bar buttons here (see SidcraftPageBuilder.topbar in assets/js/editor-ai.js).
+    if (app.LB && app.LB.hooks) app.LB.hooks.doAction("editor/topbar", top, app.LB);
     app.$$("[data-device]").forEach(
       (b) =>
         (b.onclick = () => {
@@ -4073,7 +4075,20 @@ function installGrid() {
     };
     app.LB.locate = (id) => app.locate(app.state.root, id);
     app.LB.update = (path, v) => app.update(path, v);
-    app.LB.commit = () => app.commit();
+    app.LB.commit = (label, target) => app.commit(label, target);
+    app.LB.makeNode = (type) => app.makeNode(type);
+    app.LB.eid = () => app.eid();
+    app.LB.acceptsInside = (n) => app.acceptsInside(n);
+    app.LB.isPreviewingRevision = () => !!app.previewingRevision;
+    app.LB.getDevice = () => app.device || "desktop";
+    /** Replace the document state (used by page operations such as AI plans); call LB.render() after. */
+    app.LB.setState = (next) => {
+      if (!next || typeof next !== "object" || !Array.isArray(next.root)) return false;
+      app.state = next;
+      if (app.selected && !app.locate(app.state.root, app.selected)) app.selected = null;
+      return true;
+    };
+    app.LB.frameDoc = () => app.frameDoc();
     app.LB.render = () => app.render();
     app.LB.refreshPanel = () => app.refreshRightPanel();
     app.LB.select = (id) => app.selectNode(id);

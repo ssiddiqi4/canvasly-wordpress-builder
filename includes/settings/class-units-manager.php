@@ -633,6 +633,15 @@ class UnitsManager {
 				break;
 			}
 		}
+		/**
+		 * Short notes shown next to units in Units Manager, keyed by type
+		 * (for example "Duplicate of Countdown"). Noted units can be listed with the
+		 * "Duplicates" filter.
+		 *
+		 * @param array<string,string> $notes
+		 */
+		$notes = apply_filters( 'sidcraft_page_builder_units_manager_notes', array() );
+		$notes = is_array( $notes ) ? $notes : array();
 		$confirm = __( 'Turn off every unit that is not used on a saved page, template, or component? Required layout units stay on. Content that already uses an unit keeps rendering.', 'sidcraft-page-builder' );
 		echo '<div class="wrap lb-settings-wrap lb-units-manager">';
 		echo '<h1>' . esc_html__( 'Units Manager', 'sidcraft-page-builder' ) . '</h1>';
@@ -655,6 +664,9 @@ class UnitsManager {
 		}
 		echo '<option value="unused">' . esc_html__( 'Unused', 'sidcraft-page-builder' ) . '</option>';
 		echo '<option value="disabled">' . esc_html__( 'Turned off', 'sidcraft-page-builder' ) . '</option>';
+		if ( $notes ) {
+			echo '<option value="noted">' . esc_html__( 'Duplicates', 'sidcraft-page-builder' ) . '</option>';
+		}
 		echo '</select></label>';
 		echo '<label class="screen-reader-text" for="lb-unit-search">' . esc_html__( 'Search units', 'sidcraft-page-builder' ) . '</label>';
 		echo '<input type="search" id="lb-unit-search" class="lb-unit-search" placeholder="' . esc_attr__( 'Search units', 'sidcraft-page-builder' ) . '">';
@@ -682,7 +694,8 @@ class UnitsManager {
 			$count    = (int) ( $usage[ $type ] ?? 0 );
 			$source   = sanitize_key( (string) ( $item['source'] ?? 'lite' ) );
 			$search   = strtolower( (string) $item['title'] . ' ' . $type . ' ' . (string) $item['category'] );
-			echo '<tr data-type="' . esc_attr( $type ) . '" data-source="' . esc_attr( $source ) . '" data-usage="' . esc_attr( (string) $count ) . '" data-enabled="' . ( $enabled ? '1' : '0' ) . '" data-locked="' . ( $locked ? '1' : '0' ) . '" data-search="' . esc_attr( $search ) . '">';
+			$note     = isset( $notes[ $type ] ) ? (string) $notes[ $type ] : '';
+			echo '<tr data-type="' . esc_attr( $type ) . '" data-source="' . esc_attr( $source ) . '" data-usage="' . esc_attr( (string) $count ) . '" data-enabled="' . ( $enabled ? '1' : '0' ) . '" data-locked="' . ( $locked ? '1' : '0' ) . '" data-noted="' . ( '' !== $note ? '1' : '0' ) . '" data-search="' . esc_attr( $search ) . '">';
 			echo '<td><label><input type="checkbox" name="sidsyn_unit_enabled[]" value="' . esc_attr( $type ) . '"' . checked( $enabled, true, false ) . disabled( $locked, true, false ) . ' class="lb-unit-enabled" data-type="' . esc_attr( $type ) . '">';
 			if ( $locked ) {
 				echo ' <span class="description">' . esc_html__( 'Required', 'sidcraft-page-builder' ) . '</span>';
@@ -690,7 +703,7 @@ class UnitsManager {
 				echo '<input type="hidden" name="sidsyn_unit_disabled_map[' . esc_attr( $type ) . ']" value="' . ( $enabled ? '0' : '1' ) . '" class="lb-unit-disabled-flag">';
 			}
 			echo '</label></td>';
-			echo '<td><strong>' . esc_html( $item['title'] ) . '</strong> <code>' . esc_html( $type ) . '</code></td>';
+			echo '<td><strong>' . esc_html( $item['title'] ) . '</strong> <code>' . esc_html( $type ) . '</code>' . ( '' !== $note ? '<br><span class="description">' . esc_html( $note ) . '</span>' : '' ) . '</td>';
 			echo '<td><span class="lb-unit-source lb-unit-source-' . esc_attr( $source ) . '">' . esc_html( self::source_label( $source ) ) . '</span></td>';
 			echo '<td>' . esc_html( $item['category'] ) . '</td>';
 			echo '<td>' . esc_html( (string) $count ) . '</td>';

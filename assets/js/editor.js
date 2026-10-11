@@ -5466,16 +5466,101 @@
       app.bindSliders();
       if (app.bindCounterLive) app.bindCounterLive();
     };
+    const LB_DRAG_MIME = "application/x-sidcraft-unit";
+    const isPayload = (v) => typeof v === "string" && /^unit:|^node:/.test(v);
     app.dragPayload = function dragPayload(e) {
-      let v = typeof window.__lbDragPayload === "string" ? window.__lbDragPayload : "";
-      if (!/^unit:|^node:/.test(v)) {
-        try {
-          v = e && e.dataTransfer && e.dataTransfer.getData("text/plain") || "";
-        } catch (err) {
-          v = "";
+      if (isPayload(window.__lbDragPayload)) return window.__lbDragPayload;
+      if (app.__lbDrag && isPayload(app.__lbDrag.payload)) return app.__lbDrag.payload;
+      const dt = e && e.dataTransfer;
+      if (dt) {
+        for (const type of [LB_DRAG_MIME, "text/plain", "text", "Text"]) {
+          let v = "";
+          try {
+            v = dt.getData(type) || "";
+          } catch (err) {
+            v = "";
+          }
+          if (isPayload(v)) return v;
         }
       }
-      return /^unit:|^node:/.test(v) ? v : "";
+      return "";
+    };
+    app.bindDragSources = function bindDragSources() {
+      if (app.__lbDragSourcesBound) return;
+      app.__lbDragSourcesBound = true;
+      const elOf = (t3) => t3 && t3.nodeType === 3 ? t3.parentElement : t3;
+      const payloadOf = (t3) => {
+        const el = elOf(t3);
+        if (!el || !el.closest) return "";
+        const card = el.closest(".lb-unit-card[data-type]");
+        if (card) {
+          if (card.getAttribute("draggable") === "false") return "";
+          if (app.proUnitLocked && app.proUnitLocked(card.dataset.type)) return "";
+          return "unit:" + card.dataset.type;
+        }
+        return "";
+      };
+      let pressed = { payload: "", at: 0 };
+      document.addEventListener(
+        "pointerdown",
+        (e) => {
+          app.__lbDrag = null;
+          pressed = { payload: payloadOf(e.target), at: Date.now() };
+        },
+        true
+      );
+      document.addEventListener(
+        "mousedown",
+        (e) => {
+          const v = payloadOf(e.target);
+          if (v || Date.now() - pressed.at > 50) pressed = { payload: v, at: Date.now() };
+        },
+        true
+      );
+      document.addEventListener(
+        "dragstart",
+        (e) => {
+          let v = payloadOf(e.target);
+          let via = "target";
+          if (!v && pressed.payload && Date.now() - pressed.at < 1e4) {
+            v = pressed.payload;
+            via = "pointer";
+          }
+          if (!v) {
+            app.__lbDrag = null;
+            app.dndLog("dragstart " + describeTarget(e.target) + " (not a unit)");
+            return;
+          }
+          app.__lbDrag = { payload: v, at: Date.now() };
+          window.__lbDragPayload = v;
+          const dt = e.dataTransfer;
+          if (dt) {
+            try {
+              dt.setData(LB_DRAG_MIME, v);
+              dt.setData("text/plain", v);
+              if (dt.effectAllowed === "uninitialized" || dt.effectAllowed === "none") dt.effectAllowed = "copy";
+            } catch (err) {
+            }
+          }
+          app.dndLog("dragstart " + describeTarget(e.target) + " payload=" + v + " via " + via);
+        },
+        true
+      );
+      document.addEventListener("dragstart", (e) => {
+        const v = app.__lbDrag && app.__lbDrag.payload;
+        if (!v || !e.dataTransfer) return;
+        try {
+          if (!isPayload(e.dataTransfer.getData("text/plain"))) e.dataTransfer.setData("text/plain", v);
+        } catch (err) {
+        }
+        window.__lbDragPayload = v;
+      });
+      const finish = () => {
+        setTimeout(() => {
+          app.__lbDrag = null;
+        }, 0);
+      };
+      document.addEventListener("dragend", finish, true);
     };
     app.dropOnPage = function dropOnPage(v) {
       if (!v || app.previewingRevision) return false;
@@ -5551,6 +5636,7 @@
       return (t3.tagName || "?").toLowerCase() + (t3.className && typeof t3.className === "string" ? "." + t3.className.trim().split(/\s+/).join(".") : "");
     };
     app.bindPageDropZone = function bindPageDropZone(fd, locked) {
+      app.bindDragSources();
       const fw = fd && fd.defaultView;
       if (!fw) return;
       fw.__lbPageDropLocked = !!locked;
@@ -5610,6 +5696,22 @@
       fw.__lbPageDropRoute = true;
       let lastLog = 0;
       fw.addEventListener(
+        "dragstart",
+        () => {
+          app.__lbDrag = null;
+        },
+        true
+      );
+      fw.addEventListener(
+        "dragend",
+        () => {
+          setTimeout(() => {
+            app.__lbDrag = null;
+          }, 0);
+        },
+        true
+      );
+      fw.addEventListener(
         "dragenter",
         (e) => {
           const v = app.dragPayload(e);
@@ -5648,7 +5750,13 @@
         (e) => {
           const z = zoneAt(e);
           const v = app.dragPayload(e);
-          app.dndLog("drop " + describeTarget(e.target) + " @" + Math.round(e.clientX) + "," + Math.round(e.clientY) + " payload=" + (v || "-") + " area=" + (z ? "yes" : "no"));
+          let types = "";
+          try {
+            types = e.dataTransfer ? Array.from(e.dataTransfer.types || []).join(",") : "";
+          } catch (err) {
+            types = "?";
+          }
+          app.dndLog("drop " + describeTarget(e.target) + " @" + Math.round(e.clientX) + "," + Math.round(e.clientY) + " payload=" + (v || "-") + " area=" + (z ? "yes" : "no") + " types=" + (types || "-"));
           if (!z || !v) {
             endDrag();
             return;
@@ -6805,6 +6913,10 @@
     app.lb09Render = app.render;
     app.render = function() {
       app.lb09Render();
+      if (app.$(".lb24-top-left")) {
+        app.$$(".lb-top > #lb-export, .lb-top > #lb-import, .lb-top > #lb-breakpoints, .lb-top > #lb-audit, .lb-top > #lb-lock, .lb-top > #lb-performance, .lb-top > #lb-design-system, .lb-top > #lb-import-file").forEach((el) => el.remove());
+        return;
+      }
       app.lb09Toolbar();
     };
     app.lb09Schedule = app.scheduleSave;
@@ -12218,6 +12330,7 @@
         e.stopPropagation();
         app.lb23More();
       };
+      if (app.LB && app.LB.hooks) app.LB.hooks.doAction("editor/topbar", top, app.LB);
       app.$$("[data-device]").forEach(
         (b) => b.onclick = () => {
           app.device = b.dataset.device;
@@ -12414,7 +12527,19 @@
       };
       app.LB.locate = (id) => app.locate(app.state.root, id);
       app.LB.update = (path, v) => app.update(path, v);
-      app.LB.commit = () => app.commit();
+      app.LB.commit = (label, target) => app.commit(label, target);
+      app.LB.makeNode = (type) => app.makeNode(type);
+      app.LB.eid = () => app.eid();
+      app.LB.acceptsInside = (n) => app.acceptsInside(n);
+      app.LB.isPreviewingRevision = () => !!app.previewingRevision;
+      app.LB.getDevice = () => app.device || "desktop";
+      app.LB.setState = (next) => {
+        if (!next || typeof next !== "object" || !Array.isArray(next.root)) return false;
+        app.state = next;
+        if (app.selected && !app.locate(app.state.root, app.selected)) app.selected = null;
+        return true;
+      };
+      app.LB.frameDoc = () => app.frameDoc();
       app.LB.render = () => app.render();
       app.LB.refreshPanel = () => app.refreshRightPanel();
       app.LB.select = (id) => app.selectNode(id);

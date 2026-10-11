@@ -860,6 +860,11 @@ function installDesignSystem() {
   app.lb09Render = app.render;
   app.render = function () {
     app.lb09Render();
+    // The current top bar has these tools in its ⋮ menu; the old inline strip only squeezed the bar.
+    if (app.$(".lb24-top-left")) {
+      app.$$(".lb-top > #lb-export, .lb-top > #lb-import, .lb-top > #lb-breakpoints, .lb-top > #lb-audit, .lb-top > #lb-lock, .lb-top > #lb-performance, .lb-top > #lb-design-system, .lb-top > #lb-import-file").forEach((el) => el.remove());
+      return;
+    }
     app.lb09Toolbar();
   };
   app.lb09Schedule = app.scheduleSave;

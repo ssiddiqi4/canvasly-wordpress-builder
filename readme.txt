@@ -4,7 +4,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.15.3
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,7 @@ Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 * **Design once, reuse everywhere**: global colors, typography, classes, variables, components and site kits keep every page on brand.
 * **Performance built in**: per-page CSS and scripts, external CSS files, a unit cache, lazy images and self-hosted Google Fonts.
 * **Spam-safe forms and logins**: honeypot, Google reCAPTCHA or privacy-friendly Cloudflare Turnstile, with the Submit or Log In button kept disabled until the visitor passes the check.
+* **AI Chat Bot and HTML import**: turn an HTML page into native, editable layout in one click, or describe a change and preview it on the canvas before applying it.
 
 = Visual editor =
 
@@ -34,6 +35,15 @@ Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 * Style > Items flex controls (direction, justify, align, gaps, wrap) on containers and widgets.
 * Editing lock so two people never overwrite each other.
 * Navigator with collapse and expand, rename, hide on canvas and lock.
+
+= AI Chat Bot and HTML import =
+
+* **AI Chat Bot** button next to XEditor in the top bar opens a docked chat panel; the canvas keeps rendering beside it.
+* **HTML import, no AI needed**: upload or paste an HTML page, snippet or CSS file. Sections, headings, text, images, buttons and lists become XEditor elements; flex and grid layouts are kept; stylesheet classes become reusable XEditor classes and CSS custom properties become design variables.
+* **Chat with your own AI key** (OpenAI, Anthropic or Google Gemini): ask for a new section, a restyle, a layout change or a translation. The bot answers with a plan of changes.
+* **You stay in control**: preview every plan on the canvas (new parts outlined in green, changed parts in amber), untick any step, then Apply or Discard. Each applied plan is one undo step and keeps a Revert button in the chat.
+* **Scope switch**: change only the selected unit, the whole page, or site-wide design variables and classes.
+* Sidcraft Builder Pro adds image input: upload a screenshot, wireframe or mockup and get a native layout.
 
 = Your content stays yours =
 
@@ -47,7 +57,7 @@ Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 * Atomic elements: Div Block, Flexbox, Grid, Heading, Paragraph, Image and Button.
 * Classes & Variables Manager: global `--xe-var-*` tokens and reusable `.xe-class-*` utility classes with Normal, Hover, Focus and Active states and breakpoints.
 * Class stacking on every unit (XEditor and classic).
-* XEditor Loop data model with dynamic tokens such as `{{post.title}}` and `{{post.url}}` (rendering comes with Sidcraft Builder Pro).
+* XEditor Loop data model with dynamic tokens such as `{{post.title}}` and `{{post.url}}` (rendering comes with Sidcraft Builder Pro). Pages that contain a loop show a three-item sample preview in the editor.
 
 = 50+ free units =
 
@@ -66,6 +76,7 @@ Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 * **Site-wide protection**: optionally protect every Sidcraft Page Builder form, the WordPress login form (wp-login.php) and the comment form.
 * **Cloudflare Turnstile unit**: drop it next to any Sidcraft Page Builder form to protect that form.
 * Honeypot and Google reCAPTCHA (v2 or v3) are also supported.
+* **Form Entries**: every submission is also saved on your site (Sidcraft Page Builder → Form Entries), so a lead is not lost when the notification email fails. Keep the newest 50 entries per form or set your own number; visitor IP addresses are not stored, and the WordPress personal data export and erase tools include these entries.
 
 = Templates and theme =
 
@@ -144,13 +155,21 @@ Used by the Video unit when you link a VideoPress video. The page embeds the pla
 Used by the SoundCloud unit to play a track or playlist. The page embeds the player from w.soundcloud.com with the track URL you enter, which sends that URL and the visitor's IP address and browser data to SoundCloud when the page is viewed.
 [Terms of Use](https://soundcloud.com/terms-of-use), [Privacy Policy](https://soundcloud.com/pages/privacy).
 
+= AI Chat Bot providers: OpenAI, Anthropic, Google Gemini =
+
+The AI Chat Bot is optional and off until an administrator saves an API key in the chat panel's settings. After that, each message you send in the chat goes from your server to the provider you chose, together with the conversation so far and an outline of the page you are editing (unit types, text, layout settings, class and variable names). Nothing is sent when the chat is not used, and importing HTML without AI sends nothing. Your API key is stored encrypted on your site and sent only to that provider.
+
+* OpenAI (OpenAI, L.L.C.), api.openai.com: [Terms of Use](https://openai.com/policies/terms-of-use/), [Privacy Policy](https://openai.com/policies/privacy-policy/).
+* Anthropic (Anthropic, PBC), api.anthropic.com: [Commercial Terms](https://www.anthropic.com/legal/commercial-terms), [Privacy Policy](https://www.anthropic.com/legal/privacy).
+* Google Gemini API (Google LLC), generativelanguage.googleapis.com: [Gemini API Terms](https://ai.google.dev/gemini-api/terms), [Privacy Policy](https://policies.google.com/privacy).
+
 = Kit and template import =
 
 When you import a kit or template file whose images are listed by URL rather than packed in the file, your server downloads each image from the address in the file so it can be added to your Media Library. The request goes to whichever site hosts that image, and sends only your server's IP address and a WordPress user agent.
 
 == Source code ==
 
-The editor script (assets/js/editor.js) is built from the files in src/editor/ with esbuild. The full source, the build script (build.mjs) and instructions are on GitHub: [github.com/ssiddiqi4/canvasly-wordpress-builder](https://github.com/ssiddiqi4/canvasly-wordpress-builder). Run `npm ci` and then `npm run build` to rebuild it. The other scripts in assets/js, including frontend.js and xeditor.js, are not compiled: the shipped files are the source.
+The editor script (assets/js/editor.js) is built from the files in src/editor/ with esbuild. The full source, the build script (build.mjs) and instructions are on GitHub: [github.com/ssiddiqi4/canvasly-wordpress-builder](https://github.com/ssiddiqi4/canvasly-wordpress-builder). Run `npm ci` and then `npm run build` to rebuild it. The other scripts in assets/js, including frontend.js, xeditor.js and editor-ai.js, are not compiled: the shipped files are the source.
 
 == Installation ==
 
@@ -316,6 +335,22 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 1.2.1 =
+* New: AI Chat Bot. A button next to XEditor opens a docked chat panel. Describe a change and get a plan you can preview on the canvas, untick steps, apply as one undo step, and revert later. Works with your own OpenAI, Anthropic or Google Gemini key.
+* New: HTML import. Upload or paste HTML and CSS to get native XEditor layout: flex and grid kept, classes and CSS variables turned into XEditor classes and design variables. Works without AI.
+* New: Form Entries. Form unit submissions are saved on your site even when the notification email fails, with a per-form limit, an admin screen, and personal data export and erase support.
+* New: pages with an XEditor Loop show a three-item sample preview in the editor when Sidcraft Builder Pro is not active.
+* New for developers: `editor/topbar` action and `editor/topbar/items` filter, `SidcraftPageBuilder.topbar`, `.drawer`, `.applyOps()`, `.previewOps()`, `.pageOutline()` and `.htmlToPlan()`; PHP filters `sidcraft_page_builder_ai_chat_config`, `sidcraft_page_builder_ai_chat_complete`, `sidcraft_page_builder_ai_chat_prompt`, `sidcraft_page_builder_store_submissions` and `sidcraft_page_builder_units_manager_notes`; action `sidcraft_page_builder_form_submitted`.
+* Fixed: adding a unit no longer squeezes the top bar with a second row of Export, Import, Breakpoints, A11y, Lock, Assets and Design System buttons (they are in the ⋮ menu).
+* Fixed: XEditor buttons with a link now take their class text color instead of the page link color.
+* Units Manager: a "Duplicates" filter lists units that an add-on marks as duplicates.
+
+= 0.15.4 =
+* Fixed: Firefox. Dragging a widget from the panel onto "Drag widget here" now adds it (in a new container). In Firefox the editor could lose track of which widget was being dragged, so the drop area saw an empty drag and ignored it. The editor now records the widget as soon as the mouse goes down on its card and when the drag starts (including when Firefox starts the drag on the card's text), and stores it in the drag data under its own type.
+* Developers: the `dnd_debug=1` log now also shows the drag start and the drag data types on drop.
+* Fixed: Installing a second copy of the plugin (for example from a zip whose folder name differs from the installed one) no longer causes a fatal "Cannot redeclare" error on activation. The second copy stays idle and the Plugins screen says which copy to delete.
+* Fixed: Plugin Check error WordPressVIPMinimum.Performance.WPQueryParams.SuppressFilters_suppress_filters in the converter's candidate query.
+
 = 0.15.3 =
 * Fixed: Firefox. Dropping a widget on the "Drag widget here" area works in Firefox too. Firefox can report the drop on the label's text rather than on an element, and its pointer position is not always usable; the area now recognises the drop from the text, its own handlers and the page canvas, and its buttons and label stop catching the pointer while a drag is in progress.
 * Developers: add `dnd_debug=1` to the editor URL to show a small log of drag events over the canvas.
@@ -395,6 +430,12 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 The complete history is in `changelog.txt` inside the plugin folder.
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+Adds the AI Chat Bot with HTML import, Form Entries for form submissions, and a fix for the crowded top bar.
+
+= 0.15.4 =
+Dragging a widget onto "Drag widget here" works in Firefox.
 
 = 0.15.3 =
 Dropping a widget on "Drag widget here" works in Firefox.

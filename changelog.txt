@@ -1,4 +1,20 @@
 === Sidcraft Page Builder: full changelog ===
+= 1.2.1 =
+* New: AI Chat Bot. A button next to XEditor opens a docked chat panel. Describe a change and get a plan you can preview on the canvas, untick steps, apply as one undo step, and revert later. Works with your own OpenAI, Anthropic or Google Gemini key.
+* New: HTML import. Upload or paste HTML and CSS to get native XEditor layout: flex and grid kept, classes and CSS variables turned into XEditor classes and design variables. Works without AI.
+* New: Form Entries. Form unit submissions are saved on your site even when the notification email fails, with a per-form limit, an admin screen, and personal data export and erase support.
+* New: pages with an XEditor Loop show a three-item sample preview in the editor when Sidcraft Builder Pro is not active.
+* New for developers: `editor/topbar` action and `editor/topbar/items` filter, `SidcraftPageBuilder.topbar`, `.drawer`, `.applyOps()`, `.previewOps()`, `.pageOutline()` and `.htmlToPlan()`; PHP filters `sidcraft_page_builder_ai_chat_config`, `sidcraft_page_builder_ai_chat_complete`, `sidcraft_page_builder_ai_chat_prompt`, `sidcraft_page_builder_store_submissions` and `sidcraft_page_builder_units_manager_notes`; action `sidcraft_page_builder_form_submitted`.
+* Fixed: adding a unit no longer squeezes the top bar with a second row of Export, Import, Breakpoints, A11y, Lock, Assets and Design System buttons (they are in the ⋮ menu).
+* Fixed: XEditor buttons with a link now take their class text color instead of the page link color.
+* Units Manager: a "Duplicates" filter lists units that an add-on marks as duplicates.
+
+= 0.15.4 =
+* Fixed: Firefox. Dragging a widget from the panel onto "Drag widget here" now adds it (in a new container). In Firefox the editor could lose track of which widget was being dragged, so the drop area saw an empty drag and ignored it. The editor now records the widget as soon as the mouse goes down on its card and when the drag starts (including when Firefox starts the drag on the card's text), and stores it in the drag data under its own type.
+* Developers: the `dnd_debug=1` log now also shows the drag start and the drag data types on drop.
+* Fixed: Installing a second copy of the plugin (for example from a zip whose folder name differs from the installed one) no longer causes a fatal "Cannot redeclare" error on activation. The second copy stays idle and the Plugins screen says which copy to delete.
+* Fixed: Plugin Check error WordPressVIPMinimum.Performance.WPQueryParams.SuppressFilters_suppress_filters in the converter's candidate query.
+
 = 0.15.3 =
 * Fixed: Firefox. Dropping a widget on the "Drag widget here" area works in Firefox too. Firefox can report the drop on the label's text rather than on an element, and its pointer position is not always usable; the area now recognises the drop from the text, its own handlers and the page canvas, and its buttons and label stop catching the pointer while a drag is in progress.
 * Developers: add `dnd_debug=1` to the editor URL to show a small log of drag events over the canvas.

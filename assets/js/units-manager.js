@@ -43,6 +43,8 @@
 				show = row.getAttribute('data-usage') === '0' && row.getAttribute('data-locked') !== '1';
 			} else if (mode === 'disabled') {
 				show = row.getAttribute('data-enabled') === '0';
+			} else if (mode === 'noted') {
+				show = row.getAttribute('data-noted') === '1';
 			}
 			if (show && q) {
 				show = (row.getAttribute('data-search') || '').indexOf(q) !== -1;
