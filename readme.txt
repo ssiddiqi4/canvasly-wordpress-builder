@@ -4,7 +4,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,7 +40,7 @@ Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 
 * **AI Chat Bot** button next to XEditor in the top bar opens a docked chat panel; the canvas keeps rendering beside it.
 * **HTML import, no AI needed**: upload or paste an HTML page, snippet or CSS file. Sections, headings, text, images, buttons and lists become XEditor elements; flex and grid layouts are kept; stylesheet classes become reusable XEditor classes and CSS custom properties become design variables.
-* **Chat with your own AI key** (OpenAI, Anthropic or Google Gemini): ask for a new section, a restyle, a layout change or a translation. The bot answers with a plan of changes.
+* **Chat with your own AI key**: OpenAI, Anthropic, Google Gemini, Azure OpenAI, Perplexity, Groq, Mistral or DeepSeek. Ask for a new section, a restyle, a layout change or a translation. The bot answers with a plan of changes.
 * **You stay in control**: preview every plan on the canvas (new parts outlined in green, changed parts in amber), untick any step, then Apply or Discard. Each applied plan is one undo step and keeps a Revert button in the chat.
 * **Scope switch**: change only the selected unit, the whole page, or site-wide design variables and classes.
 * Sidcraft Builder Pro adds image input: upload a screenshot, wireframe or mockup and get a native layout.
@@ -155,13 +155,18 @@ Used by the Video unit when you link a VideoPress video. The page embeds the pla
 Used by the SoundCloud unit to play a track or playlist. The page embeds the player from w.soundcloud.com with the track URL you enter, which sends that URL and the visitor's IP address and browser data to SoundCloud when the page is viewed.
 [Terms of Use](https://soundcloud.com/terms-of-use), [Privacy Policy](https://soundcloud.com/pages/privacy).
 
-= AI Chat Bot providers: OpenAI, Anthropic, Google Gemini =
+= AI Chat Bot providers =
 
 The AI Chat Bot is optional and off until an administrator saves an API key in the chat panel's settings. After that, each message you send in the chat goes from your server to the provider you chose, together with the conversation so far and an outline of the page you are editing (unit types, text, layout settings, class and variable names). Nothing is sent when the chat is not used, and importing HTML without AI sends nothing. Your API key is stored encrypted on your site and sent only to that provider.
 
 * OpenAI (OpenAI, L.L.C.), api.openai.com: [Terms of Use](https://openai.com/policies/terms-of-use/), [Privacy Policy](https://openai.com/policies/privacy-policy/).
 * Anthropic (Anthropic, PBC), api.anthropic.com: [Commercial Terms](https://www.anthropic.com/legal/commercial-terms), [Privacy Policy](https://www.anthropic.com/legal/privacy).
 * Google Gemini API (Google LLC), generativelanguage.googleapis.com: [Gemini API Terms](https://ai.google.dev/gemini-api/terms), [Privacy Policy](https://policies.google.com/privacy).
+* Azure OpenAI (Microsoft Corporation), the your-resource.openai.azure.com or your-resource.cognitiveservices.azure.com endpoint you enter: [Microsoft Product Terms](https://www.microsoft.com/licensing/terms/productoffering/MicrosoftAzure/MCA), [Privacy Statement](https://privacy.microsoft.com/privacystatement).
+* Perplexity (Perplexity AI, Inc.), api.perplexity.ai: [API Terms of Service](https://www.perplexity.ai/hub/legal/perplexity-api-terms-of-service), [Privacy Notice](https://www.perplexity.ai/hub/legal/privacy-policy).
+* Groq (Groq, Inc.), api.groq.com: [Terms of Use](https://groq.com/terms-of-use), [Privacy Policy](https://groq.com/privacy-policy).
+* Mistral AI (Mistral AI SAS), api.mistral.ai: [Commercial Terms of Service](https://legal.mistral.ai/terms/commercial-terms-of-service), [Privacy Policy](https://legal.mistral.ai/terms/privacy-policy).
+* DeepSeek (Hangzhou DeepSeek Artificial Intelligence Co., Ltd.), api.deepseek.com: [Open Platform Terms of Service](https://cdn.deepseek.com/policies/en-US/deepseek-open-platform-terms-of-service.html), [Privacy Policy](https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html).
 
 = Kit and template import =
 
@@ -335,6 +340,11 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 1.2.2 =
+* New: the AI Chat Bot connects to every chat provider listed on Sidcraft Builder Pro's AI Connectivity screen: Azure OpenAI (your endpoint and deployment), Perplexity, Groq, Mistral and DeepSeek, in addition to OpenAI, Anthropic and Google Gemini. Cursor is not offered because it has no chat API.
+* New: providers that cannot call tools (Perplexity) return the plan as JSON text, which the chat reads the same way as a tool call.
+* Developers: filter `sidcraft_page_builder_ai_chat_tools` tells the chat whether the active connection supports tool calling.
+
 = 1.2.1 =
 * New: AI Chat Bot. A button next to XEditor opens a docked chat panel. Describe a change and get a plan you can preview on the canvas, untick steps, apply as one undo step, and revert later. Works with your own OpenAI, Anthropic or Google Gemini key.
 * New: HTML import. Upload or paste HTML and CSS to get native XEditor layout: flex and grid kept, classes and CSS variables turned into XEditor classes and design variables. Works without AI.
@@ -430,6 +440,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 The complete history is in `changelog.txt` inside the plugin folder.
 
 == Upgrade Notice ==
+
+= 1.2.2 =
+The AI Chat Bot now works with Azure OpenAI, Perplexity, Groq, Mistral and DeepSeek too.
 
 = 1.2.1 =
 Adds the AI Chat Bot with HTML import, Form Entries for form submissions, and a fix for the crowded top bar.

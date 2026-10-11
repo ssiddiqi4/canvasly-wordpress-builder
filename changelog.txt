@@ -1,4 +1,9 @@
 === Sidcraft Page Builder: full changelog ===
+= 1.2.2 =
+* New: the AI Chat Bot connects to every chat provider listed on Sidcraft Builder Pro's AI Connectivity screen: Azure OpenAI (your endpoint and deployment), Perplexity, Groq, Mistral and DeepSeek, in addition to OpenAI, Anthropic and Google Gemini. Cursor is not offered because it has no chat API.
+* New: providers that cannot call tools (Perplexity) return the plan as JSON text, which the chat reads the same way as a tool call.
+* Developers: filter `sidcraft_page_builder_ai_chat_tools` tells the chat whether the active connection supports tool calling.
+
 = 1.2.1 =
 * New: AI Chat Bot. A button next to XEditor opens a docked chat panel. Describe a change and get a plan you can preview on the canvas, untick steps, apply as one undo step, and revert later. Works with your own OpenAI, Anthropic or Google Gemini key.
 * New: HTML import. Upload or paste HTML and CSS to get native XEditor layout: flex and grid kept, classes and CSS variables turned into XEditor classes and design variables. Works without AI.

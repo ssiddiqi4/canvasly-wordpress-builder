@@ -30,6 +30,7 @@ class AiChat {
 	const MAX_TEXT     = 60000;
 	const MAX_CONTEXT  = 120000;
 	const RATE         = 20;
+	const AZURE_API_VERSION = '2024-10-21';
 
 	/**
 	 * @return void
@@ -47,35 +48,63 @@ class AiChat {
 	/**
 	 * Providers this plugin can call directly.
 	 *
-	 * @return array<string,array{label:string,base:string,format:string,models:string[]}>
+	 * The same providers as Sidcraft Builder Pro's AI Connectivity screen, except
+	 * Cursor, which has no chat API. Providers without tool calling (Perplexity)
+	 * return the plan as JSON text instead.
+	 *
+	 * @return array<string,array{label:string,base:string,format:string,models:string[],tools:bool,endpoint:bool}>
 	 */
 	public static function providers() {
+		$row = static function ( $label, $base, $format, array $models, $tools = true, $endpoint = false ) {
+			return array(
+				'label'    => $label,
+				'base'     => $base,
+				'format'   => $format,
+				'models'   => $models,
+				'tools'    => $tools,
+				'endpoint' => $endpoint,
+			);
+		};
 		return array(
-			'openai'    => array(
-				'label'  => 'OpenAI',
-				'base'   => 'https://api.openai.com/v1',
-				'format' => 'openai',
-				'models' => array( 'gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini', 'gpt-4.1' ),
-			),
-			'anthropic' => array(
-				'label'  => 'Anthropic',
-				'base'   => 'https://api.anthropic.com/v1',
-				'format' => 'anthropic',
-				'models' => array( 'claude-sonnet-4-5', 'claude-haiku-4-5' ),
-			),
-			'gemini'    => array(
-				'label'  => 'Google Gemini',
-				'base'   => 'https://generativelanguage.googleapis.com/v1beta',
-				'format' => 'gemini',
-				'models' => array( 'gemini-2.5-flash', 'gemini-2.5-pro' ),
-			),
+			'openai'     => $row( 'OpenAI', 'https://api.openai.com/v1', 'openai', array( 'gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini', 'gpt-4.1' ) ),
+			'anthropic'  => $row( 'Anthropic', 'https://api.anthropic.com/v1', 'anthropic', array( 'claude-sonnet-4-5', 'claude-haiku-4-5' ) ),
+			'gemini'     => $row( 'Google Gemini', 'https://generativelanguage.googleapis.com/v1beta', 'gemini', array( 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash' ) ),
+			'azure'      => $row( 'Azure OpenAI', '', 'azure', array( 'gpt-4o', 'gpt-4o-mini' ), true, true ),
+			'perplexity' => $row( 'Perplexity', 'https://api.perplexity.ai', 'openai', array( 'sonar', 'sonar-pro' ), false ),
+			'groq'       => $row( 'Groq', 'https://api.groq.com/openai/v1', 'openai', array( 'llama-3.3-70b-versatile', 'openai/gpt-oss-120b' ) ),
+			'mistral'    => $row( 'Mistral', 'https://api.mistral.ai/v1', 'openai', array( 'mistral-small-latest', 'mistral-large-latest' ) ),
+			'deepseek'   => $row( 'DeepSeek', 'https://api.deepseek.com', 'openai', array( 'deepseek-chat', 'deepseek-reasoner' ) ),
 		);
+	}
+
+	/**
+	 * Azure OpenAI resource endpoint: https://NAME.openai.azure.com or
+	 * https://NAME.cognitiveservices.azure.com, scheme and host only.
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	public static function clean_endpoint( $url ) {
+		$url  = trim( (string) $url );
+		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+		if ( 'https' !== strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) ) || ! self::is_azure_host( $host ) ) {
+			return '';
+		}
+		return 'https://' . $host;
+	}
+
+	/**
+	 * @param string $host
+	 * @return bool
+	 */
+	private static function is_azure_host( $host ) {
+		return (bool) preg_match( '/^[a-z0-9][a-z0-9-]{1,62}\.(openai\.azure\.com|cognitiveservices\.azure\.com)$/', (string) $host );
 	}
 
 	/**
 	 * Saved settings with the key decrypted.
 	 *
-	 * @return array{provider:string,model:string,key:string}
+	 * @return array{provider:string,model:string,key:string,endpoint:string}
 	 */
 	public static function settings() {
 		$raw       = get_option( self::OPTION, array() );
@@ -89,6 +118,7 @@ class AiChat {
 			'provider' => $provider,
 			'model'    => self::clean_model( (string) ( $raw['model'] ?? '' ) ),
 			'key'      => self::decrypt( (string) ( $raw['key'] ?? '' ) ),
+			'endpoint' => self::clean_endpoint( (string) ( $raw['endpoint'] ?? '' ) ),
 		);
 	}
 
@@ -119,14 +149,17 @@ class AiChat {
 		$list      = array();
 		foreach ( $providers as $id => $row ) {
 			$list[] = array(
-				'id'     => $id,
-				'label'  => $row['label'],
-				'models' => $row['models'],
+				'id'       => $id,
+				'label'    => $row['label'],
+				'models'   => $row['models'],
+				'endpoint' => $row['endpoint'],
+				'tools'    => $row['tools'],
 			);
 		}
 		$cfg = array(
 			'engine'        => 'lite',
-			'ready'         => '' !== $s['provider'] && '' !== $s['key'],
+			'ready'         => '' !== $s['provider'] && '' !== $s['key'] && ( empty( $providers[ $s['provider'] ]['endpoint'] ) || '' !== $s['endpoint'] ),
+			'endpoint'      => $s['endpoint'],
 			'provider'      => $s['provider'],
 			'providerLabel' => '' !== $s['provider'] ? $providers[ $s['provider'] ]['label'] : '',
 			'model'         => '' !== $s['model'] ? $s['model'] : ( '' !== $s['provider'] ? $providers[ $s['provider'] ]['models'][0] : '' ),
@@ -238,7 +271,17 @@ class AiChat {
 				'provider' => $provider,
 				'model'    => self::clean_model( (string) ( $body['model'] ?? '' ) ),
 				'key'      => (string) ( $old['key'] ?? '' ),
+				'endpoint' => '',
 			);
+			if ( '' !== $provider && ! empty( $providers[ $provider ]['endpoint'] ) ) {
+				$new['endpoint'] = self::clean_endpoint( (string) ( $body['endpoint'] ?? '' ) );
+				if ( '' === $new['endpoint'] ) {
+					return new \WP_Error( 'sidcraft_page_builder_ai_endpoint', __( 'Enter your Azure OpenAI endpoint, for example https://your-resource.openai.azure.com.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
+				}
+				if ( '' === $new['model'] ) {
+					return new \WP_Error( 'sidcraft_page_builder_ai_deployment', __( 'Enter the name of your Azure OpenAI deployment.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
+				}
+			}
 			if ( ! empty( $body['clearKey'] ) || '' === $provider ) {
 				$new['key'] = '';
 			}
@@ -276,6 +319,15 @@ class AiChat {
 		$images  = is_array( $images ) ? $images : array();
 		$system  = self::system_prompt() . "\n\n# Current editor state (JSON)\n" . $context;
 		$tools   = array( self::plan_tool() );
+		/**
+		 * Whether the active connection supports tool calling. Without it the
+		 * model is asked to return the plan as JSON text, which is parsed the same way.
+		 *
+		 * @param bool $supports
+		 */
+		if ( ! apply_filters( 'sidcraft_page_builder_ai_chat_tools', self::provider_tools() ) ) {
+			$system .= "\n\n" . self::text_plan_instructions();
+		}
 
 		/**
 		 * Let an add-on answer the turn (for example with image input).
@@ -307,9 +359,10 @@ class AiChat {
 			}
 		}
 		if ( null === $plan && '' !== $reply ) {
-			$plan = self::plan_from_text( $reply );
-			if ( $plan ) {
-				$reply = '';
+			$found = self::plan_from_text( $reply );
+			if ( $found ) {
+				$plan  = $found['plan'];
+				$reply = trim( $found['rest'] );
 			}
 		}
 		return rest_ensure_response(
@@ -381,17 +434,52 @@ class AiChat {
 	}
 
 	/**
+	 * Whether this plugin's saved provider supports tool calling.
+	 *
+	 * @return bool
+	 */
+	public static function provider_tools() {
+		$s         = self::settings();
+		$providers = self::providers();
+		return '' === $s['provider'] || ! empty( $providers[ $s['provider'] ]['tools'] );
+	}
+
+	/**
+	 * Instructions for providers that cannot call tools.
+	 *
+	 * @return string
+	 */
+	public static function text_plan_instructions() {
+		return "# Returning a plan without tools\nThis connection cannot call tools. When the user asks for a change, reply with one short sentence and then the plan as a single JSON object in a ```json code block: {\"title\": \"...\", \"summary\": \"...\", \"ops\": [ ... ]}. Use exactly the operations described above. Do not add citations or links inside the JSON.";
+	}
+
+	/**
 	 * Some models print the plan as JSON instead of calling the tool.
 	 *
 	 * @param string $text
-	 * @return array|null
+	 * @return array{plan:array,rest:string}|null
 	 */
 	private static function plan_from_text( $text ) {
-		if ( ! preg_match( '/\{[\s\S]*"ops"\s*:\s*\[[\s\S]*\}/', $text, $m ) ) {
-			return null;
+		$candidates = array();
+		if ( preg_match_all( '/```(?:json)?\s*(\{[\s\S]*?\})\s*```/i', $text, $fenced, PREG_SET_ORDER ) ) {
+			foreach ( $fenced as $m ) {
+				$candidates[] = array( $m[0], $m[1] );
+			}
 		}
-		$data = json_decode( $m[0], true );
-		return is_array( $data ) ? self::clean_plan( $data ) : null;
+		if ( preg_match( '/\{[\s\S]*"ops"\s*:\s*\[[\s\S]*\}/', $text, $m ) ) {
+			$candidates[] = array( $m[0], $m[0] );
+		}
+		foreach ( $candidates as $c ) {
+			$data = json_decode( $c[1], true );
+			$plan = is_array( $data ) ? self::clean_plan( $data ) : null;
+			if ( $plan ) {
+				return array(
+					'plan' => $plan,
+					'rest' => str_replace( $c[0], '', $text ),
+				);
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -507,20 +595,35 @@ PROMPT;
 		}
 		$row   = $providers[ $s['provider'] ];
 		$model = '' !== $s['model'] ? $s['model'] : $row['models'][0];
+		if ( empty( $row['tools'] ) ) {
+			$tools = array();
+		}
 		switch ( $row['format'] ) {
 			case 'anthropic':
 				return self::anthropic( $row['base'], $model, $s['key'], $system, $messages, $tools );
 			case 'gemini':
 				return self::gemini( $row['base'], $model, $s['key'], $system, $messages, $tools );
+			case 'azure':
+				if ( '' === $s['endpoint'] ) {
+					return new \WP_Error( 'sidcraft_page_builder_ai_setup', __( 'Enter your Azure OpenAI endpoint in the AI Chat Bot settings.', 'sidcraft-page-builder' ) );
+				}
+				return self::openai(
+					$s['endpoint'] . '/openai/deployments/' . rawurlencode( $model ) . '/chat/completions?api-version=' . self::AZURE_API_VERSION,
+					'',
+					array( 'api-key' => $s['key'] ),
+					$system,
+					$messages,
+					$tools
+				);
 			default:
-				return self::openai( $row['base'], $model, $s['key'], $system, $messages, $tools );
+				return self::openai( $row['base'] . '/chat/completions', $model, array( 'Authorization' => 'Bearer ' . $s['key'] ), $system, $messages, $tools );
 		}
 	}
 
 	/**
 	 * @return array|\WP_Error
 	 */
-	private static function openai( $base, $model, $key, $system, array $messages, array $tools ) {
+	private static function openai( $url, $model, array $auth, $system, array $messages, array $tools ) {
 		$out = array(
 			array(
 				'role'    => 'system',
@@ -533,10 +636,10 @@ PROMPT;
 				'content' => $m['content'],
 			);
 		}
-		$body = array(
-			'model'    => $model,
-			'messages' => $out,
-		);
+		$body = array( 'messages' => $out );
+		if ( '' !== $model ) {
+			$body['model'] = $model;
+		}
 		foreach ( $tools as $tool ) {
 			$body['tools'][] = array(
 				'type'     => 'function',
@@ -547,7 +650,7 @@ PROMPT;
 				),
 			);
 		}
-		$data = self::post( $base . '/chat/completions', array( 'Authorization' => 'Bearer ' . $key ), $body );
+		$data = self::post( $url, $auth, $body );
 		if ( is_wp_error( $data ) ) {
 			return $data;
 		}
@@ -679,8 +782,8 @@ PROMPT;
 	 */
 	private static function post( $url, array $headers, array $body ) {
 		$host    = wp_parse_url( $url, PHP_URL_HOST );
-		$allowed = array( 'api.openai.com', 'api.anthropic.com', 'generativelanguage.googleapis.com' );
-		if ( ! in_array( $host, $allowed, true ) ) {
+		$allowed = array( 'api.openai.com', 'api.anthropic.com', 'generativelanguage.googleapis.com', 'api.perplexity.ai', 'api.groq.com', 'api.mistral.ai', 'api.deepseek.com' );
+		if ( 'https' !== wp_parse_url( $url, PHP_URL_SCHEME ) || ( ! in_array( $host, $allowed, true ) && ! self::is_azure_host( $host ) ) ) {
 			return new \WP_Error( 'sidcraft_page_builder_ai_endpoint', __( 'The AI provider address is not allowed.', 'sidcraft-page-builder' ) );
 		}
 		$response = wp_remote_post(

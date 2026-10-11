@@ -1258,7 +1258,7 @@
 		if (!cfg.canConfigure) return `<div class="lb-ai-settings"><p>${esc(t('Only an administrator can connect an AI provider.'))}</p><p><button type="button" data-ai-back>${esc(t('Back to chat'))}</button></p></div>`;
 		const providers = cfg.providers || [];
 		const cur = providers.find((p) => p.id === cfg.provider) || providers[0] || { models: [] };
-		return `<form class="lb-ai-settings" data-ai-settings-form><h3>${esc(t('Connect your AI provider'))}</h3><p class="description">${esc(t('Use your own API key. It is stored encrypted on this site and is never shown again.'))}</p><label>${esc(t('Provider'))}<select name="provider">${providers.map((p) => `<option value="${esc(p.id)}"${p.id === cur.id ? ' selected' : ''}>${esc(p.label)}</option>`).join('')}</select></label><label>${esc(t('Model'))}<input name="model" list="lb-ai-models" value="${esc(cfg.provider === cur.id ? cfg.model || '' : cur.models[0] || '')}"><datalist id="lb-ai-models">${(cur.models || []).map((m) => '<option value="' + esc(m) + '">').join('')}</datalist></label><label>${esc(t('API key'))}<input name="key" type="password" autocomplete="off" placeholder="${esc(cfg.hasKey ? t('Saved. Leave empty to keep it.') : t('Paste your API key'))}"></label><p class="lb-ai-privacy">${esc(cfg.privacy || '')}</p>${cfg.proHint ? `<p class="lb-ai-note">${esc(cfg.proHint)}${cfg.settingsUrl ? ' <a href="' + esc(cfg.settingsUrl) + '" target="_blank" rel="noopener">' + esc(t('Open AI Connectivity')) + '</a>' : ''}</p>` : ''}<div class="lb-ai-plan-actions"><button type="submit" class="is-primary">${esc(t('Save'))}</button>${cfg.hasKey ? `<button type="button" data-ai-clear-key>${esc(t('Remove key'))}</button>` : ''}<button type="button" data-ai-back>${esc(t('Back to chat'))}</button></div><p class="lb-ai-settings-msg" role="status"></p></form>`;
+		return `<form class="lb-ai-settings" data-ai-settings-form><h3>${esc(t('Connect your AI provider'))}</h3><p class="description">${esc(t('Use your own API key. It is stored encrypted on this site and is never shown again.'))}</p><label>${esc(t('Provider'))}<select name="provider">${providers.map((p) => `<option value="${esc(p.id)}"${p.id === cur.id ? ' selected' : ''}>${esc(p.label)}</option>`).join('')}</select></label><label data-ai-endpoint-row${cur.endpoint ? '' : ' hidden'}>${esc(t('Endpoint'))}<input name="endpoint" type="url" placeholder="https://your-resource.openai.azure.com" value="${esc(cfg.endpoint || '')}"></label><label><span data-ai-model-label>${esc(cur.endpoint ? t('Deployment name') : t('Model'))}</span><input name="model" list="lb-ai-models" value="${esc(cfg.provider === cur.id ? cfg.model || '' : cur.models[0] || '')}"><datalist id="lb-ai-models">${(cur.models || []).map((m) => '<option value="' + esc(m) + '">').join('')}</datalist></label>${cur.tools === false ? '<p class="lb-ai-note" data-ai-tools-note>' + esc(t('This provider cannot call tools, so plans come back as JSON text. They work the same, but other providers are usually more reliable for page changes.')) + '</p>' : '<p class="lb-ai-note" data-ai-tools-note hidden></p>'}<label>${esc(t('API key'))}<input name="key" type="password" autocomplete="off" placeholder="${esc(cfg.hasKey ? t('Saved. Leave empty to keep it.') : t('Paste your API key'))}"></label><p class="lb-ai-privacy">${esc(cfg.privacy || '')}</p>${cfg.proHint ? `<p class="lb-ai-note">${esc(cfg.proHint)}${cfg.settingsUrl ? ' <a href="' + esc(cfg.settingsUrl) + '" target="_blank" rel="noopener">' + esc(t('Open AI Connectivity')) + '</a>' : ''}</p>` : ''}<div class="lb-ai-plan-actions"><button type="submit" class="is-primary">${esc(t('Save'))}</button>${cfg.hasKey ? `<button type="button" data-ai-clear-key>${esc(t('Remove key'))}</button>` : ''}<button type="button" data-ai-back>${esc(t('Back to chat'))}</button></div><p class="lb-ai-settings-msg" role="status"></p></form>`;
 	}
 
 	/* ---------------- networking ---------------- */
@@ -1450,7 +1450,7 @@
 			return void render();
 		}
 		if (d.aiRevert) return void doRevert(+d.aiRevert);
-		if (d.aiClearKey !== undefined) return void saveSettings({ provider: CFG().provider, model: CFG().model, clearKey: true });
+		if (d.aiClearKey !== undefined) return void saveSettings({ provider: CFG().provider, model: CFG().model, endpoint: CFG().endpoint || '', clearKey: true });
 	}
 	function onChange(e) {
 		if (!body || !body.contains(e.target)) return;
@@ -1478,6 +1478,15 @@
 			const dl = el.form.querySelector('#lb-ai-models');
 			if (p && model) model.value = p.models[0] || '';
 			if (p && dl) dl.innerHTML = p.models.map((m) => '<option value="' + esc(m) + '">').join('');
+			const row = el.form.querySelector('[data-ai-endpoint-row]');
+			if (row) row.hidden = !(p && p.endpoint);
+			const ml = el.form.querySelector('[data-ai-model-label]');
+			if (ml) ml.textContent = p && p.endpoint ? t('Deployment name') : t('Model');
+			const tn = el.form.querySelector('[data-ai-tools-note]');
+			if (tn) {
+				tn.hidden = !(p && p.tools === false);
+				tn.textContent = t('This provider cannot call tools, so plans come back as JSON text. They work the same, but other providers are usually more reliable for page changes.');
+			}
 			return;
 		}
 		if (el.dataset.aiFile) return void addFiles(el.dataset.aiFile, Array.from(el.files || []), el);
@@ -1526,7 +1535,7 @@
 		if (form.dataset.aiSettingsForm !== undefined) {
 			e.preventDefault();
 			const fd = new FormData(form);
-			saveSettings({ provider: fd.get('provider'), model: fd.get('model'), key: fd.get('key') });
+			saveSettings({ provider: fd.get('provider'), model: fd.get('model'), key: fd.get('key'), endpoint: fd.get('endpoint') || '' });
 		}
 	}
 	function saveSettings(payload) {

@@ -333,3 +333,4 @@ body.toplevel_page_sidcraft-page-builder .lb-admin.lb-fullscreen.lb-has-drawer .
 .lb-ai-settings input,
 .lb-ai-settings select { font-weight: 400; padding: 6px 8px; border: 1px solid #cfd5dc; border-radius: 6px; }
 .lb-ai-settings-msg { color: var(--lb-ai-muted); min-height: 1em; margin: 0; }
+.lb-ai-settings [hidden] { display: none; }

@@ -720,6 +720,9 @@ class I18n {
 			'Missing menu' => __( 'Missing menu', 'sidcraft-page-builder' ),
 			"Classic menus (Appearance \u{2192} Menus) and Navigation (Appearance \u{2192} Editor)." => __( "Classic menus (Appearance \u{2192} Menus) and Navigation (Appearance \u{2192} Editor).", 'sidcraft-page-builder' ),
 			// AI Chat Bot, HTML import and XEditor Loop sample preview.
+			'Endpoint' => __( 'Endpoint', 'sidcraft-page-builder' ),
+			'Deployment name' => __( 'Deployment name', 'sidcraft-page-builder' ),
+			'This provider cannot call tools, so plans come back as JSON text. They work the same, but other providers are usually more reliable for page changes.' => __( 'This provider cannot call tools, so plans come back as JSON text. They work the same, but other providers are usually more reliable for page changes.', 'sidcraft-page-builder' ),
 			'Resize panel' => __( 'Resize panel', 'sidcraft-page-builder' ),
 			'Skipped an unknown unit type:' => __( 'Skipped an unknown unit type:', 'sidcraft-page-builder' ),
 			'This unit is not available here:' => __( 'This unit is not available here:', 'sidcraft-page-builder' ),
