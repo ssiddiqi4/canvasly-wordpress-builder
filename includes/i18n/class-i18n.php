@@ -720,6 +720,12 @@ class I18n {
 			'Missing menu' => __( 'Missing menu', 'sidcraft-page-builder' ),
 			"Classic menus (Appearance \u{2192} Menus) and Navigation (Appearance \u{2192} Editor)." => __( "Classic menus (Appearance \u{2192} Menus) and Navigation (Appearance \u{2192} Editor).", 'sidcraft-page-builder' ),
 			// AI Chat Bot, HTML import and XEditor Loop sample preview.
+			'Open settings' => __( 'Open settings', 'sidcraft-page-builder' ),
+			'HTML import works without AI. To chat, connect an AI provider.' => __( 'HTML import works without AI. To chat, connect an AI provider.', 'sidcraft-page-builder' ),
+			'AI connection' => __( 'AI connection', 'sidcraft-page-builder' ),
+			/* translators: %s: where the AI connection is managed. */
+			'Managed in %s.' => __( 'Managed in %s.', 'sidcraft-page-builder' ),
+			'Connect an AI provider to chat.' => __( 'Connect an AI provider to chat.', 'sidcraft-page-builder' ),
 			'Endpoint' => __( 'Endpoint', 'sidcraft-page-builder' ),
 			'Deployment name' => __( 'Deployment name', 'sidcraft-page-builder' ),
 			'This provider cannot call tools, so plans come back as JSON text. They work the same, but other providers are usually more reliable for page changes.' => __( 'This provider cannot call tools, so plans come back as JSON text. They work the same, but other providers are usually more reliable for page changes.', 'sidcraft-page-builder' ),

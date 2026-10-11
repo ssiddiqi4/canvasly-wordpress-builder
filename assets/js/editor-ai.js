@@ -1162,14 +1162,14 @@
 		const scope = `<div class="lb-ai-scope" role="radiogroup" aria-label="${esc(t('Apply changes to'))}">${scopeBtn('selected', selNode ? t('Selected:') + ' ' + nodeLabel(selNode) : t('Selected unit'), !selNode, selNode ? '' : t('Select a unit on the canvas first'))}${scopeBtn('page', t('This page'))}${scopeBtn('site', t('Site-wide styles'), false, t('Design variables and classes shared by every page'))}</div>`;
 		const list = chat.messages.length ? chat.messages.map(messageHTML).join('') : welcomeHTML(cfg);
 		const typing = chat.busy ? `<div class="lb-ai-msg is-bot lb-ai-typing" aria-live="polite"><span></span><span></span><span></span> ${esc(t('Designing…'))}</div>` : '';
-		const err = chat.error && !chat.busy ? `<div class="lb-ai-error" role="alert"><strong>${esc(t('Something went wrong.'))}</strong> ${esc(chat.error)} <span class="lb-ai-error-actions"><button type="button" data-ai-retry>${esc(t('Try again'))}</button>${!cfg.ready && cfg.canConfigure ? '<button type="button" data-ai-settings>' + esc(t('Connect AI')) + '</button>' : ''}${cfg.settingsUrl ? '<a href="' + esc(cfg.settingsUrl) + '" target="_blank" rel="noopener">' + esc(t('Open AI Connectivity')) + '</a>' : ''}</span></div>` : '';
+		const err = chat.error && !chat.busy ? `<div class="lb-ai-error" role="alert"><strong>${esc(t('Something went wrong.'))}</strong> ${esc(chat.error)} <span class="lb-ai-error-actions"><button type="button" data-ai-retry>${esc(t('Try again'))}</button>${cfg.settingsUrl ? '<a href="' + esc(cfg.settingsUrl) + '" target="_blank" rel="noopener">' + esc(cfg.settingsLabel || t('Open settings')) + '</a>' : ''}</span></div>` : '';
 		const chips = chat.attachments
 			.map((a, i) => `<span class="lb-ai-chip">${a.kind === 'image' && a.thumb ? '<img src="' + esc(a.thumb) + '" alt="">' : '<span aria-hidden="true">&lt;/&gt;</span>'}<span class="lb-ai-chip-name">${esc(a.name)}</span>${a.kind === 'html' ? `<select data-ai-html-mode="${i}" aria-label="${esc(t('How to use this HTML'))}"><option value="convert"${a.mode !== 'ai' ? ' selected' : ''}>${esc(t('Convert directly'))}</option><option value="ai"${a.mode === 'ai' ? ' selected' : ''}>${esc(t('Rebuild with AI'))}</option></select>` : ''}<button type="button" data-ai-remove-att="${i}" aria-label="${esc(t('Remove attachment'))}">×</button></span>`)
 			.join('');
 		const imgBtn = cfg.images
 			? `<button type="button" class="lb-ai-attach" data-ai-pick="image" title="${esc(t('Upload a screenshot, wireframe or mockup (PNG, JPG, WebP)'))}">🖼 ${esc(t('Image'))}</button>`
-			: cfg.pro && cfg.settingsUrl
-			? `<a class="lb-ai-attach lb-ai-pro" href="${esc(cfg.settingsUrl)}" target="_blank" rel="noopener" title="${esc(cfg.proHint || t('Choose a provider that accepts images on AI Connectivity'))}">🖼 ${esc(t('Image to layout'))} <em>${esc(t('Set up'))}</em></a>`
+			: cfg.pro && cfg.proSettingsUrl
+			? `<a class="lb-ai-attach lb-ai-pro" href="${esc(cfg.proSettingsUrl)}" target="_blank" rel="noopener" title="${esc(cfg.proHint || t('Choose a provider that accepts images on AI Connectivity'))}">🖼 ${esc(t('Image to layout'))} <em>${esc(t('Set up'))}</em></a>`
 			: `<a class="lb-ai-attach lb-ai-pro" href="${esc(cfg.proUrl || '#')}" target="_blank" rel="noopener" title="${esc(t('Turn screenshots and mockups into layouts with Sidcraft Builder Pro'))}">🖼 ${esc(t('Image to layout'))} <em>Pro</em></a>`;
 		const composer = `<form class="lb-ai-composer" data-ai-form>${chips ? '<div class="lb-ai-chips">' + chips + '</div>' : ''}<label class="screen-reader-text" for="lb-ai-input">${esc(t('Message'))}</label><textarea id="lb-ai-input" rows="3" placeholder="${esc(cfg.ready ? t('Describe a change, or attach a design…') : t('Attach HTML to convert, or connect AI to chat…'))}"${chat.busy ? ' disabled' : ''}></textarea><div class="lb-ai-composer-row"><button type="button" class="lb-ai-attach" data-ai-pick="html" title="${esc(t('Upload an HTML page, snippet or CSS file'))}">&lt;/&gt; ${esc(t('HTML'))}</button>${imgBtn}<span class="lb-ai-spacer"></span>${chat.busy ? `<button type="button" class="lb-ai-send is-stop" data-ai-stop>${esc(t('Stop'))}</button>` : `<button type="submit" class="lb-ai-send">${esc(t('Send'))}</button>`}</div><input type="file" hidden data-ai-file="html" accept=".html,.htm,.css,.txt,text/html,text/css"><input type="file" hidden data-ai-file="image" accept="image/png,image/jpeg,image/webp" multiple></form>`;
 		const banner = preview ? `<div class="lb-ai-preview-bar" role="status"><span>${esc(t('Previewing on the canvas'))}</span><button type="button" data-ai-preview-apply class="is-primary">${esc(t('Apply'))}</button><button type="button" data-ai-preview-discard>${esc(t('Discard'))}</button></div>` : '';
@@ -1183,7 +1183,7 @@
 	}
 	function welcomeHTML(cfg) {
 		const ideas = [t('Build a dark-mode SaaS pricing section with 3 tiers and an annual billing toggle.'), t('Change all secondary buttons to use our primary brand color #0052FF across the page.'), t('Convert this 3-column feature grid into 2 columns with hover cards.'), t('Translate this hero section to Spanish and make the copy more persuasive.')];
-		return `<div class="lb-ai-welcome"><p><strong>${esc(t('Design by chatting.'))}</strong> ${esc(t('Describe what you want, attach an HTML page, or upload a design. You preview every change before it touches the page, and each one can be undone.'))}</p>${cfg.ready ? '' : `<p class="lb-ai-note">${cfg.canConfigure ? esc(t('HTML import works without AI. To chat, connect your own AI provider key.')) + ' <button type="button" data-ai-settings>' + esc(t('Connect AI')) + '</button>' : esc(t('HTML import works now. Ask an administrator to connect an AI provider to chat.'))}</p>`}<div class="lb-ai-ideas">${ideas.map((i) => `<button type="button" data-ai-idea="${esc(i)}">${esc(i)}</button>`).join('')}</div><p class="lb-ai-privacy">${esc(cfg.privacy || '')}</p></div>`;
+		return `<div class="lb-ai-welcome"><p><strong>${esc(t('Design by chatting.'))}</strong> ${esc(t('Describe what you want, attach an HTML page, or upload a design. You preview every change before it touches the page, and each one can be undone.'))}</p>${cfg.ready ? '' : `<p class="lb-ai-note">${esc(cfg.notice || t('HTML import works without AI. To chat, connect an AI provider.'))}${cfg.settingsUrl ? ' <a href="' + esc(cfg.settingsUrl) + '" target="_blank" rel="noopener">' + esc(cfg.settingsLabel || t('Open settings')) + '</a>' : ''}</p>`}<div class="lb-ai-ideas">${ideas.map((i) => `<button type="button" data-ai-idea="${esc(i)}">${esc(i)}</button>`).join('')}</div><p class="lb-ai-privacy">${esc(cfg.privacy || '')}</p></div>`;
 	}
 	function describeOp(op) {
 		const k = String(op.op || '');
@@ -1252,14 +1252,11 @@
 			.join('');
 	}
 	function settingsHTML(cfg) {
-		if (cfg.managedBy) {
-			return `<div class="lb-ai-settings"><p>${esc(t('The AI connection is managed by %s.').replace('%s', cfg.managedBy))}</p><p><strong>${esc(cfg.providerLabel || t('Not connected'))}</strong>${cfg.model ? ' · ' + esc(cfg.model) : ''}</p>${cfg.settingsUrl ? `<p><a class="button" href="${esc(cfg.settingsUrl)}" target="_blank" rel="noopener">${esc(t('Open AI Connectivity'))}</a></p>` : ''}<p><button type="button" data-ai-back>${esc(t('Back to chat'))}</button></p></div>`;
-		}
-		if (!cfg.canConfigure) return `<div class="lb-ai-settings"><p>${esc(t('Only an administrator can connect an AI provider.'))}</p><p><button type="button" data-ai-back>${esc(t('Back to chat'))}</button></p></div>`;
-		const providers = cfg.providers || [];
-		const cur = providers.find((p) => p.id === cfg.provider) || providers[0] || { models: [] };
-		return `<form class="lb-ai-settings" data-ai-settings-form><h3>${esc(t('Connect your AI provider'))}</h3><p class="description">${esc(t('Use your own API key. It is stored encrypted on this site and is never shown again.'))}</p><label>${esc(t('Provider'))}<select name="provider">${providers.map((p) => `<option value="${esc(p.id)}"${p.id === cur.id ? ' selected' : ''}>${esc(p.label)}</option>`).join('')}</select></label><label data-ai-endpoint-row${cur.endpoint ? '' : ' hidden'}>${esc(t('Endpoint'))}<input name="endpoint" type="url" placeholder="https://your-resource.openai.azure.com" value="${esc(cfg.endpoint || '')}"></label><label><span data-ai-model-label>${esc(cur.endpoint ? t('Deployment name') : t('Model'))}</span><input name="model" list="lb-ai-models" value="${esc(cfg.provider === cur.id ? cfg.model || '' : cur.models[0] || '')}"><datalist id="lb-ai-models">${(cur.models || []).map((m) => '<option value="' + esc(m) + '">').join('')}</datalist></label>${cur.tools === false ? '<p class="lb-ai-note" data-ai-tools-note>' + esc(t('This provider cannot call tools, so plans come back as JSON text. They work the same, but other providers are usually more reliable for page changes.')) + '</p>' : '<p class="lb-ai-note" data-ai-tools-note hidden></p>'}<label>${esc(t('API key'))}<input name="key" type="password" autocomplete="off" placeholder="${esc(cfg.hasKey ? t('Saved. Leave empty to keep it.') : t('Paste your API key'))}"></label><p class="lb-ai-privacy">${esc(cfg.privacy || '')}</p>${cfg.proHint ? `<p class="lb-ai-note">${esc(cfg.proHint)}${cfg.settingsUrl ? ' <a href="' + esc(cfg.settingsUrl) + '" target="_blank" rel="noopener">' + esc(t('Open AI Connectivity')) + '</a>' : ''}</p>` : ''}<div class="lb-ai-plan-actions"><button type="submit" class="is-primary">${esc(t('Save'))}</button>${cfg.hasKey ? `<button type="button" data-ai-clear-key>${esc(t('Remove key'))}</button>` : ''}<button type="button" data-ai-back>${esc(t('Back to chat'))}</button></div><p class="lb-ai-settings-msg" role="status"></p></form>`;
+		const link = cfg.settingsUrl ? `<p><a class="button" href="${esc(cfg.settingsUrl)}" target="_blank" rel="noopener">${esc(cfg.settingsLabel || t('Open settings'))}</a></p>` : '';
+		const hint = cfg.proHint ? `<p class="lb-ai-note">${esc(cfg.proHint)}${cfg.proSettingsUrl ? ' <a href="' + esc(cfg.proSettingsUrl) + '" target="_blank" rel="noopener">' + esc(t('Open AI Connectivity')) + '</a>' : ''}</p>` : '';
+		return `<div class="lb-ai-settings"><h3>${esc(t('AI connection'))}</h3><p>${esc(t('Managed in %s.').replace('%s', cfg.managedBy || ''))}</p><p><strong>${esc(cfg.providerLabel || t('Not connected'))}</strong>${cfg.model ? ' · ' + esc(cfg.model) : ''}</p>${cfg.notice ? '<p class="description">' + esc(cfg.notice) + '</p>' : ''}${link}${hint}<p class="lb-ai-privacy">${esc(cfg.privacy || '')}</p><p><button type="button" data-ai-back>${esc(t('Back to chat'))}</button></p></div>`;
 	}
+
 
 	/* ---------------- networking ---------------- */
 	function api(url, body, method) {
@@ -1317,7 +1314,7 @@
 			return;
 		}
 		if (!cfg.ready) {
-			chat.error = cfg.canConfigure ? t('Connect an AI provider in the settings to chat.') : t('Ask an administrator to connect an AI provider.');
+			chat.error = cfg.notice || t('Connect an AI provider to chat.');
 			chat.save();
 			render();
 			setButtonState();
@@ -1450,7 +1447,6 @@
 			return void render();
 		}
 		if (d.aiRevert) return void doRevert(+d.aiRevert);
-		if (d.aiClearKey !== undefined) return void saveSettings({ provider: CFG().provider, model: CFG().model, endpoint: CFG().endpoint || '', clearKey: true });
 	}
 	function onChange(e) {
 		if (!body || !body.contains(e.target)) return;
@@ -1470,23 +1466,6 @@
 		if (el.dataset.aiHtmlMode) {
 			const a = chat.attachments[+el.dataset.aiHtmlMode];
 			if (a) a.mode = el.value;
-			return;
-		}
-		if (el.name === 'provider' && el.form && el.form.dataset.aiSettingsForm !== undefined) {
-			const p = (CFG().providers || []).find((x) => x.id === el.value);
-			const model = el.form.querySelector('[name="model"]');
-			const dl = el.form.querySelector('#lb-ai-models');
-			if (p && model) model.value = p.models[0] || '';
-			if (p && dl) dl.innerHTML = p.models.map((m) => '<option value="' + esc(m) + '">').join('');
-			const row = el.form.querySelector('[data-ai-endpoint-row]');
-			if (row) row.hidden = !(p && p.endpoint);
-			const ml = el.form.querySelector('[data-ai-model-label]');
-			if (ml) ml.textContent = p && p.endpoint ? t('Deployment name') : t('Model');
-			const tn = el.form.querySelector('[data-ai-tools-note]');
-			if (tn) {
-				tn.hidden = !(p && p.tools === false);
-				tn.textContent = t('This provider cannot call tools, so plans come back as JSON text. They work the same, but other providers are usually more reliable for page changes.');
-			}
 			return;
 		}
 		if (el.dataset.aiFile) return void addFiles(el.dataset.aiFile, Array.from(el.files || []), el);
@@ -1532,30 +1511,7 @@
 			send(text);
 			return;
 		}
-		if (form.dataset.aiSettingsForm !== undefined) {
-			e.preventDefault();
-			const fd = new FormData(form);
-			saveSettings({ provider: fd.get('provider'), model: fd.get('model'), key: fd.get('key'), endpoint: fd.get('endpoint') || '' });
-		}
-	}
-	function saveSettings(payload) {
-		const cfg = CFG();
-		const msg = body && body.querySelector('.lb-ai-settings-msg');
-		if (msg) msg.textContent = t('Saving…');
-		api(cfg.restSettings, payload)
-			.then((next) => {
-				if (DATA().aiChat) Object.assign(DATA().aiChat, next);
-				chat.error = '';
-				chat.view = next.ready ? 'chat' : 'settings';
-				render();
-				setButtonState();
-				const m2 = body && body.querySelector('.lb-ai-settings-msg');
-				if (m2) m2.textContent = next.ready ? '' : t('Saved.');
-			})
-			.catch((err) => {
-				const m2 = body && body.querySelector('.lb-ai-settings-msg');
-				if (m2) m2.textContent = err.message;
-			});
+
 	}
 	function onKey(e) {
 		if (preview && (e.ctrlKey || e.metaKey) && /^[zZyY]$/.test(e.key)) {

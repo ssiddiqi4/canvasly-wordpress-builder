@@ -3,14 +3,15 @@
  * AI Chat Bot: the in-editor design assistant.
  *
  * The chat panel (assets/js/editor-ai.js) sends the conversation plus a compact
- * outline of the open page. The model answers with text, or with a plan of node
- * operations through the `propose_plan` tool. Plans are previewed on the canvas
- * and applied in the browser through the normal editor history, so nothing is
- * written to the page until the user applies the plan and saves.
+ * outline of the open page. The model answers with text and, for a change, a
+ * plan of node operations. Plans are previewed on the canvas and applied in the
+ * browser through the normal editor history, so nothing is written to the page
+ * until the user applies the plan and saves.
  *
- * This plugin talks to OpenAI, Anthropic or Google Gemini with the site owner's
- * own API key, and only when someone sends a chat message. Add-ons can supply a
- * different engine through the `sidcraft_page_builder_ai_chat_complete` filter.
+ * Requests go through the WordPress AI Client (WordPress 7.0 and later) and the
+ * provider the site owner connected under Settings → Connectors. This plugin
+ * stores no AI credentials and calls no AI provider itself. Add-ons can supply
+ * a different engine through the `sidcraft_page_builder_ai_chat_complete` filter.
  *
  * @package SidcraftPageBuilder
  */
@@ -22,15 +23,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class AiChat {
-	const OPTION       = 'sidcraft_page_builder_ai_chat';
-	const NS           = 'sidcraft-page-builder/v1';
-	const TIMEOUT      = 90;
-	const MAX_TOKENS   = 8192;
-	const MAX_MESSAGES = 40;
-	const MAX_TEXT     = 60000;
-	const MAX_CONTEXT  = 120000;
-	const RATE         = 20;
-	const AZURE_API_VERSION = '2024-10-21';
+	/**
+	 * Option used by 1.2.1–1.2.2 for the chat's own API key; removed on upgrade.
+	 */
+	const LEGACY_OPTION = 'sidcraft_page_builder_ai_chat';
+	const NS            = 'sidcraft-page-builder/v1';
+	const TIMEOUT       = 120;
+	const MAX_TOKENS    = 8192;
+	const MAX_MESSAGES  = 40;
+	const MAX_TEXT      = 60000;
+	const MAX_CONTEXT   = 120000;
+	const RATE          = 20;
 
 	/**
 	 * @return void
@@ -39,102 +42,61 @@ class AiChat {
 		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
 		add_action( 'sidcraft_page_builder_editor_enqueue', array( self::class, 'enqueue' ), 30 );
 		add_filter( 'sidcraft_page_builder_editor_localize_data', array( self::class, 'localize' ), 40, 2 );
+		add_action( 'admin_init', array( self::class, 'drop_legacy_key' ) );
+	}
+
+	/**
+	 * Earlier versions kept their own encrypted API key. The chat now uses the
+	 * site's Connectors, so the stored key is deleted.
+	 *
+	 * @return void
+	 */
+	public static function drop_legacy_key() {
+		if ( false !== get_option( self::LEGACY_OPTION, false ) ) {
+			delete_option( self::LEGACY_OPTION );
+		}
 	}
 
 	/* ------------------------------------------------------------------ *
-	 * Providers and settings
+	 * WordPress AI Client
 	 * ------------------------------------------------------------------ */
 
 	/**
-	 * Providers this plugin can call directly.
+	 * Whether this WordPress has the AI Client (7.0 and later) and AI is allowed.
 	 *
-	 * The same providers as Sidcraft Builder Pro's AI Connectivity screen, except
-	 * Cursor, which has no chat API. Providers without tool calling (Perplexity)
-	 * return the plan as JSON text instead.
-	 *
-	 * @return array<string,array{label:string,base:string,format:string,models:string[],tools:bool,endpoint:bool}>
-	 */
-	public static function providers() {
-		$row = static function ( $label, $base, $format, array $models, $tools = true, $endpoint = false ) {
-			return array(
-				'label'    => $label,
-				'base'     => $base,
-				'format'   => $format,
-				'models'   => $models,
-				'tools'    => $tools,
-				'endpoint' => $endpoint,
-			);
-		};
-		return array(
-			'openai'     => $row( 'OpenAI', 'https://api.openai.com/v1', 'openai', array( 'gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini', 'gpt-4.1' ) ),
-			'anthropic'  => $row( 'Anthropic', 'https://api.anthropic.com/v1', 'anthropic', array( 'claude-sonnet-4-5', 'claude-haiku-4-5' ) ),
-			'gemini'     => $row( 'Google Gemini', 'https://generativelanguage.googleapis.com/v1beta', 'gemini', array( 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash' ) ),
-			'azure'      => $row( 'Azure OpenAI', '', 'azure', array( 'gpt-4o', 'gpt-4o-mini' ), true, true ),
-			'perplexity' => $row( 'Perplexity', 'https://api.perplexity.ai', 'openai', array( 'sonar', 'sonar-pro' ), false ),
-			'groq'       => $row( 'Groq', 'https://api.groq.com/openai/v1', 'openai', array( 'llama-3.3-70b-versatile', 'openai/gpt-oss-120b' ) ),
-			'mistral'    => $row( 'Mistral', 'https://api.mistral.ai/v1', 'openai', array( 'mistral-small-latest', 'mistral-large-latest' ) ),
-			'deepseek'   => $row( 'DeepSeek', 'https://api.deepseek.com', 'openai', array( 'deepseek-chat', 'deepseek-reasoner' ) ),
-		);
-	}
-
-	/**
-	 * Azure OpenAI resource endpoint: https://NAME.openai.azure.com or
-	 * https://NAME.cognitiveservices.azure.com, scheme and host only.
-	 *
-	 * @param string $url
-	 * @return string
-	 */
-	public static function clean_endpoint( $url ) {
-		$url  = trim( (string) $url );
-		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
-		if ( 'https' !== strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) ) || ! self::is_azure_host( $host ) ) {
-			return '';
-		}
-		return 'https://' . $host;
-	}
-
-	/**
-	 * @param string $host
 	 * @return bool
 	 */
-	private static function is_azure_host( $host ) {
-		return (bool) preg_match( '/^[a-z0-9][a-z0-9-]{1,62}\.(openai\.azure\.com|cognitiveservices\.azure\.com)$/', (string) $host );
+	public static function client_available() {
+		return function_exists( 'wp_ai_client_prompt' ) && function_exists( 'wp_supports_ai' ) && wp_supports_ai() && class_exists( '\\WordPress\\AiClient\\AiClient' );
 	}
 
 	/**
-	 * Saved settings with the key decrypted.
+	 * Names of the connected AI providers (Settings → Connectors).
 	 *
-	 * @return array{provider:string,model:string,key:string,endpoint:string}
+	 * @return string[]
 	 */
-	public static function settings() {
-		$raw       = get_option( self::OPTION, array() );
-		$raw       = is_array( $raw ) ? $raw : array();
-		$providers = self::providers();
-		$provider  = sanitize_key( (string) ( $raw['provider'] ?? '' ) );
-		if ( ! isset( $providers[ $provider ] ) ) {
-			$provider = '';
+	public static function connected_providers() {
+		if ( ! self::client_available() ) {
+			return array();
 		}
-		return array(
-			'provider' => $provider,
-			'model'    => self::clean_model( (string) ( $raw['model'] ?? '' ) ),
-			'key'      => self::decrypt( (string) ( $raw['key'] ?? '' ) ),
-			'endpoint' => self::clean_endpoint( (string) ( $raw['endpoint'] ?? '' ) ),
-		);
-	}
-
-	/**
-	 * @param string $model
-	 * @return string
-	 */
-	private static function clean_model( $model ) {
-		return substr( preg_replace( '/[^A-Za-z0-9._:\/-]/', '', $model ), 0, 100 );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public static function can_configure() {
-		return current_user_can( 'manage_options' );
+		$names = array();
+		try {
+			$registry = \WordPress\AiClient\AiClient::defaultRegistry();
+			foreach ( $registry->getRegisteredProviderIds() as $id ) {
+				if ( ! $registry->isProviderConfigured( $id ) ) {
+					continue;
+				}
+				$name  = (string) $id;
+				$class = $registry->getProviderClassName( $id );
+				if ( is_callable( array( $class, 'metadata' ) ) ) {
+					$name = (string) $class::metadata()->getName();
+				}
+				$names[] = $name;
+			}
+		} catch ( \Throwable $e ) {
+			return array();
+		}
+		return $names;
 	}
 
 	/**
@@ -144,37 +106,35 @@ class AiChat {
 	 * @return array
 	 */
 	public static function config() {
-		$s         = self::settings();
-		$providers = self::providers();
-		$list      = array();
-		foreach ( $providers as $id => $row ) {
-			$list[] = array(
-				'id'       => $id,
-				'label'    => $row['label'],
-				'models'   => $row['models'],
-				'endpoint' => $row['endpoint'],
-				'tools'    => $row['tools'],
-			);
+		$available = self::client_available();
+		$connected = $available ? self::connected_providers() : array();
+		$admin     = self::can_configure();
+		if ( ! $available ) {
+			$notice = __( 'The AI Chat Bot uses the AI Client built into WordPress 7.0 and later. Update WordPress, then connect an AI provider under Settings → Connectors. HTML import works now.', 'sidcraft-page-builder' );
+		} elseif ( ! $connected ) {
+			$notice = $admin
+				? __( 'Connect an AI provider such as OpenAI, Anthropic or Google under Settings → Connectors. Every plugin that uses AI shares that connection.', 'sidcraft-page-builder' )
+				: __( 'Ask an administrator to connect an AI provider under Settings → Connectors.', 'sidcraft-page-builder' );
+		} else {
+			$notice = __( 'The AI Chat Bot uses the AI providers connected under Settings → Connectors.', 'sidcraft-page-builder' );
 		}
 		$cfg = array(
 			'engine'        => 'lite',
-			'ready'         => '' !== $s['provider'] && '' !== $s['key'] && ( empty( $providers[ $s['provider'] ]['endpoint'] ) || '' !== $s['endpoint'] ),
-			'endpoint'      => $s['endpoint'],
-			'provider'      => $s['provider'],
-			'providerLabel' => '' !== $s['provider'] ? $providers[ $s['provider'] ]['label'] : '',
-			'model'         => '' !== $s['model'] ? $s['model'] : ( '' !== $s['provider'] ? $providers[ $s['provider'] ]['models'][0] : '' ),
-			'hasKey'        => '' !== $s['key'],
-			'providers'     => $list,
-			'canConfigure'  => self::can_configure(),
-			'managedBy'     => '',
-			'settingsUrl'   => '',
+			'ready'         => (bool) $connected,
+			'provider'      => '',
+			'providerLabel' => $connected ? implode( ', ', $connected ) : __( 'Not connected', 'sidcraft-page-builder' ),
+			'model'         => '',
+			'canConfigure'  => $admin,
+			'managedBy'     => __( 'WordPress Settings → Connectors', 'sidcraft-page-builder' ),
+			'settingsUrl'   => $available && $admin ? admin_url( 'options-connectors.php' ) : '',
+			'settingsLabel' => __( 'Open Connectors', 'sidcraft-page-builder' ),
+			'notice'        => $notice,
 			'images'        => false,
 			'maxImages'     => 0,
 			'html'          => true,
 			'rest'          => esc_url_raw( rest_url( self::NS . '/ai-chat' ) ),
-			'restSettings'  => esc_url_raw( rest_url( self::NS . '/ai-chat/settings' ) ),
 			'proUrl'        => 'https://canvasly.pro/price.html#lite-vs-pro',
-			'privacy'       => __( 'Your messages and an outline of this page are sent to the AI provider you connect. Images are sent only when you attach them.', 'sidcraft-page-builder' ),
+			'privacy'       => __( 'Your messages and an outline of this page are sent to the AI provider connected on this site. Images are sent only when you attach them.', 'sidcraft-page-builder' ),
 		);
 		/**
 		 * Filter the AI Chat Bot configuration sent to the editor.
@@ -183,6 +143,55 @@ class AiChat {
 		 */
 		$filtered = apply_filters( 'sidcraft_page_builder_ai_chat_config', $cfg );
 		return is_array( $filtered ) ? array_merge( $cfg, $filtered ) : $cfg;
+	}
+
+	/**
+	 * Answer a turn with the WordPress AI Client. The plan comes back as JSON
+	 * text (see text_plan_instructions()).
+	 *
+	 * @param string  $system   System instruction.
+	 * @param array[] $messages Neutral transcript { role, content }.
+	 * @return array{content:string,tool_calls:array}|\WP_Error
+	 */
+	public static function complete( $system, array $messages ) {
+		if ( ! self::client_available() ) {
+			return new \WP_Error( 'sidcraft_page_builder_ai_unavailable', __( 'The AI Chat Bot needs WordPress 7.0 or later with an AI provider connected under Settings → Connectors.', 'sidcraft-page-builder' ) );
+		}
+		if ( ! self::connected_providers() ) {
+			return new \WP_Error( 'sidcraft_page_builder_ai_setup', __( 'Connect an AI provider under Settings → Connectors to chat.', 'sidcraft-page-builder' ) );
+		}
+		try {
+			$history = array();
+			foreach ( $messages as $m ) {
+				$part      = new \WordPress\AiClient\Messages\DTO\MessagePart( (string) $m['content'] );
+				$history[] = 'assistant' === $m['role']
+					? new \WordPress\AiClient\Messages\DTO\ModelMessage( array( $part ) )
+					: new \WordPress\AiClient\Messages\DTO\UserMessage( array( $part ) );
+			}
+			$options = new \WordPress\AiClient\Providers\Http\DTO\RequestOptions();
+			$options->setTimeout( (float) self::TIMEOUT );
+			$text = wp_ai_client_prompt( $history )
+				->using_system_instruction( (string) $system )
+				->using_max_tokens( self::MAX_TOKENS )
+				->using_request_options( $options )
+				->generate_text();
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'sidcraft_page_builder_ai_client', __( 'The AI request could not be prepared.', 'sidcraft-page-builder' ) );
+		}
+		if ( is_wp_error( $text ) ) {
+			return $text;
+		}
+		return array(
+			'content'    => (string) $text,
+			'tool_calls' => array(),
+		);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function can_configure() {
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -211,6 +220,7 @@ class AiChat {
 		return $data;
 	}
 
+
 	/* ------------------------------------------------------------------ *
 	 * REST
 	 * ------------------------------------------------------------------ */
@@ -230,15 +240,6 @@ class AiChat {
 				'permission_callback' => array( self::class, 'can_chat' ),
 			)
 		);
-		register_rest_route(
-			$ns,
-			'/ai-chat/settings',
-			array(
-				'methods'             => array( 'GET', 'POST' ),
-				'callback'            => array( self::class, 'rest_settings' ),
-				'permission_callback' => array( self::class, 'can_configure' ),
-			)
-		);
 	}
 
 	/**
@@ -251,50 +252,6 @@ class AiChat {
 			return false;
 		}
 		return $post_id ? current_user_can( 'edit_post', $post_id ) : current_user_can( 'edit_pages' );
-	}
-
-	/**
-	 * @param \WP_REST_Request $request
-	 * @return \WP_REST_Response|\WP_Error
-	 */
-	public static function rest_settings( $request ) {
-		if ( 'POST' === $request->get_method() ) {
-			$body      = (array) $request->get_json_params();
-			$providers = self::providers();
-			$old       = get_option( self::OPTION, array() );
-			$old       = is_array( $old ) ? $old : array();
-			$provider  = sanitize_key( (string) ( $body['provider'] ?? '' ) );
-			if ( '' !== $provider && ! isset( $providers[ $provider ] ) ) {
-				return new \WP_Error( 'sidcraft_page_builder_ai_provider', __( 'Choose a supported AI provider.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
-			}
-			$new = array(
-				'provider' => $provider,
-				'model'    => self::clean_model( (string) ( $body['model'] ?? '' ) ),
-				'key'      => (string) ( $old['key'] ?? '' ),
-				'endpoint' => '',
-			);
-			if ( '' !== $provider && ! empty( $providers[ $provider ]['endpoint'] ) ) {
-				$new['endpoint'] = self::clean_endpoint( (string) ( $body['endpoint'] ?? '' ) );
-				if ( '' === $new['endpoint'] ) {
-					return new \WP_Error( 'sidcraft_page_builder_ai_endpoint', __( 'Enter your Azure OpenAI endpoint, for example https://your-resource.openai.azure.com.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
-				}
-				if ( '' === $new['model'] ) {
-					return new \WP_Error( 'sidcraft_page_builder_ai_deployment', __( 'Enter the name of your Azure OpenAI deployment.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
-				}
-			}
-			if ( ! empty( $body['clearKey'] ) || '' === $provider ) {
-				$new['key'] = '';
-			}
-			$key = trim( sanitize_text_field( (string) ( $body['key'] ?? '' ) ) );
-			if ( '' !== $key ) {
-				if ( strlen( $key ) < 20 || preg_match( '/\s/', $key ) ) {
-					return new \WP_Error( 'sidcraft_page_builder_ai_key', __( 'That does not look like an API key.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
-				}
-				$new['key'] = self::encrypt( $key );
-			}
-			update_option( self::OPTION, $new, false );
-		}
-		return rest_ensure_response( self::config() );
 	}
 
 	/**
@@ -320,18 +277,19 @@ class AiChat {
 		$system  = self::system_prompt() . "\n\n# Current editor state (JSON)\n" . $context;
 		$tools   = array( self::plan_tool() );
 		/**
-		 * Whether the active connection supports tool calling. Without it the
-		 * model is asked to return the plan as JSON text, which is parsed the same way.
+		 * Whether the engine answering this turn supports tool calling. The
+		 * WordPress AI Client path returns the plan as JSON text, parsed the
+		 * same way as a tool call; add-on engines with tool calling return true.
 		 *
 		 * @param bool $supports
 		 */
-		if ( ! apply_filters( 'sidcraft_page_builder_ai_chat_tools', self::provider_tools() ) ) {
+		if ( ! apply_filters( 'sidcraft_page_builder_ai_chat_tools', false ) ) {
 			$system .= "\n\n" . self::text_plan_instructions();
 		}
 
 		/**
 		 * Let an add-on answer the turn (for example with image input).
-		 * Return null to use this plugin's own client.
+		 * Return null to use the WordPress AI Client.
 		 *
 		 * @param null|array|\WP_Error $result   { content: string, tool_calls: array }.
 		 * @param string               $system   System prompt.
@@ -344,7 +302,7 @@ class AiChat {
 			if ( $images ) {
 				return new \WP_Error( 'sidcraft_page_builder_ai_images', __( 'Image input is not available with this connection.', 'sidcraft-page-builder' ), array( 'status' => 400 ) );
 			}
-			$result = self::complete( $system, $messages, $tools );
+			$result = self::complete( $system, $messages );
 		}
 		if ( is_wp_error( $result ) ) {
 			$result->add_data( array( 'status' => 502 ) );
@@ -434,23 +392,12 @@ class AiChat {
 	}
 
 	/**
-	 * Whether this plugin's saved provider supports tool calling.
-	 *
-	 * @return bool
-	 */
-	public static function provider_tools() {
-		$s         = self::settings();
-		$providers = self::providers();
-		return '' === $s['provider'] || ! empty( $providers[ $s['provider'] ]['tools'] );
-	}
-
-	/**
 	 * Instructions for providers that cannot call tools.
 	 *
 	 * @return string
 	 */
 	public static function text_plan_instructions() {
-		return "# Returning a plan without tools\nThis connection cannot call tools. When the user asks for a change, reply with one short sentence and then the plan as a single JSON object in a ```json code block: {\"title\": \"...\", \"summary\": \"...\", \"ops\": [ ... ]}. Use exactly the operations described above. Do not add citations or links inside the JSON.";
+		return "# Returning a plan without tools\nWhen the user asks for a change, reply with one short sentence and then the plan as a single JSON object in a ```json code block: {\"title\": \"...\", \"summary\": \"...\", \"ops\": [ ... ]}. Use exactly the operations described above. Do not add citations or links inside the JSON.";
 	}
 
 	/**
@@ -530,7 +477,7 @@ class AiChat {
 	 */
 	public static function system_prompt() {
 		$prompt = <<<'PROMPT'
-You are the AI Chat Bot inside Sidcraft Page Builder, a visual WordPress page builder. Act as a senior UI designer and front-end developer. You change the open page only by calling the propose_plan tool. The user previews your plan on the canvas, then applies or discards it. For questions that need no change, answer in short plain text without calling the tool.
+You are the AI Chat Bot inside Sidcraft Page Builder, a visual WordPress page builder. Act as a senior UI designer and front-end developer. You change the open page only by proposing a plan: call the propose_plan tool when it is available, otherwise return the plan as JSON as described at the end of these instructions. The user previews your plan on the canvas, then applies or discards it. For questions that need no change, answer in short plain text without calling the tool.
 
 # Building blocks
 Prefer XEditor elements for new layouts. Each prints one clean HTML element and is styled with reusable classes.
@@ -577,287 +524,4 @@ PROMPT;
 		return (string) apply_filters( 'sidcraft_page_builder_ai_chat_prompt', $prompt );
 	}
 
-	/* ------------------------------------------------------------------ *
-	 * Provider client
-	 * ------------------------------------------------------------------ */
-
-	/**
-	 * @param string  $system
-	 * @param array[] $messages
-	 * @param array[] $tools
-	 * @return array{content:string,tool_calls:array}|\WP_Error
-	 */
-	public static function complete( $system, array $messages, array $tools ) {
-		$s         = self::settings();
-		$providers = self::providers();
-		if ( '' === $s['provider'] || '' === $s['key'] ) {
-			return new \WP_Error( 'sidcraft_page_builder_ai_setup', __( 'Connect an AI provider first: open the settings in the AI Chat Bot panel.', 'sidcraft-page-builder' ) );
-		}
-		$row   = $providers[ $s['provider'] ];
-		$model = '' !== $s['model'] ? $s['model'] : $row['models'][0];
-		if ( empty( $row['tools'] ) ) {
-			$tools = array();
-		}
-		switch ( $row['format'] ) {
-			case 'anthropic':
-				return self::anthropic( $row['base'], $model, $s['key'], $system, $messages, $tools );
-			case 'gemini':
-				return self::gemini( $row['base'], $model, $s['key'], $system, $messages, $tools );
-			case 'azure':
-				if ( '' === $s['endpoint'] ) {
-					return new \WP_Error( 'sidcraft_page_builder_ai_setup', __( 'Enter your Azure OpenAI endpoint in the AI Chat Bot settings.', 'sidcraft-page-builder' ) );
-				}
-				return self::openai(
-					$s['endpoint'] . '/openai/deployments/' . rawurlencode( $model ) . '/chat/completions?api-version=' . self::AZURE_API_VERSION,
-					'',
-					array( 'api-key' => $s['key'] ),
-					$system,
-					$messages,
-					$tools
-				);
-			default:
-				return self::openai( $row['base'] . '/chat/completions', $model, array( 'Authorization' => 'Bearer ' . $s['key'] ), $system, $messages, $tools );
-		}
-	}
-
-	/**
-	 * @return array|\WP_Error
-	 */
-	private static function openai( $url, $model, array $auth, $system, array $messages, array $tools ) {
-		$out = array(
-			array(
-				'role'    => 'system',
-				'content' => $system,
-			),
-		);
-		foreach ( $messages as $m ) {
-			$out[] = array(
-				'role'    => $m['role'],
-				'content' => $m['content'],
-			);
-		}
-		$body = array( 'messages' => $out );
-		if ( '' !== $model ) {
-			$body['model'] = $model;
-		}
-		foreach ( $tools as $tool ) {
-			$body['tools'][] = array(
-				'type'     => 'function',
-				'function' => array(
-					'name'        => $tool['name'],
-					'description' => $tool['description'],
-					'parameters'  => $tool['schema'],
-				),
-			);
-		}
-		$data = self::post( $url, $auth, $body );
-		if ( is_wp_error( $data ) ) {
-			return $data;
-		}
-		$msg   = $data['choices'][0]['message'] ?? array();
-		$calls = array();
-		foreach ( (array) ( $msg['tool_calls'] ?? array() ) as $c ) {
-			$args    = json_decode( (string) ( $c['function']['arguments'] ?? '' ), true );
-			$calls[] = array(
-				'name'      => (string) ( $c['function']['name'] ?? '' ),
-				'arguments' => is_array( $args ) ? $args : array(),
-			);
-		}
-		return array(
-			'content'    => is_string( $msg['content'] ?? null ) ? $msg['content'] : '',
-			'tool_calls' => $calls,
-		);
-	}
-
-	/**
-	 * @return array|\WP_Error
-	 */
-	private static function anthropic( $base, $model, $key, $system, array $messages, array $tools ) {
-		$out = array();
-		foreach ( $messages as $m ) {
-			$last = count( $out ) - 1;
-			if ( $last >= 0 && $out[ $last ]['role'] === $m['role'] ) {
-				$out[ $last ]['content'] .= "\n\n" . $m['content'];
-				continue;
-			}
-			$out[] = array(
-				'role'    => $m['role'],
-				'content' => $m['content'],
-			);
-		}
-		$body = array(
-			'model'      => $model,
-			'max_tokens' => self::MAX_TOKENS,
-			'system'     => $system,
-			'messages'   => $out,
-		);
-		foreach ( $tools as $tool ) {
-			$body['tools'][] = array(
-				'name'         => $tool['name'],
-				'description'  => $tool['description'],
-				'input_schema' => $tool['schema'],
-			);
-		}
-		$data = self::post(
-			$base . '/messages',
-			array(
-				'x-api-key'         => $key,
-				'anthropic-version' => '2023-06-01',
-			),
-			$body
-		);
-		if ( is_wp_error( $data ) ) {
-			return $data;
-		}
-		$text  = array();
-		$calls = array();
-		foreach ( (array) ( $data['content'] ?? array() ) as $b ) {
-			if ( 'text' === ( $b['type'] ?? '' ) ) {
-				$text[] = (string) $b['text'];
-			} elseif ( 'tool_use' === ( $b['type'] ?? '' ) ) {
-				$calls[] = array(
-					'name'      => (string) $b['name'],
-					'arguments' => is_array( $b['input'] ?? null ) ? $b['input'] : array(),
-				);
-			}
-		}
-		return array(
-			'content'    => implode( "\n\n", $text ),
-			'tool_calls' => $calls,
-		);
-	}
-
-	/**
-	 * @return array|\WP_Error
-	 */
-	private static function gemini( $base, $model, $key, $system, array $messages, array $tools ) {
-		$contents = array();
-		foreach ( $messages as $m ) {
-			$contents[] = array(
-				'role'  => 'assistant' === $m['role'] ? 'model' : 'user',
-				'parts' => array( array( 'text' => $m['content'] ) ),
-			);
-		}
-		$decl = array();
-		foreach ( $tools as $tool ) {
-			$decl[] = array(
-				'name'                 => $tool['name'],
-				'description'          => $tool['description'],
-				'parametersJsonSchema' => $tool['schema'],
-			);
-		}
-		$body = array(
-			'systemInstruction' => array( 'parts' => array( array( 'text' => $system ) ) ),
-			'contents'          => $contents,
-			'tools'             => array( array( 'functionDeclarations' => $decl ) ),
-		);
-		$data = self::post( $base . '/models/' . rawurlencode( $model ) . ':generateContent', array( 'x-goog-api-key' => $key ), $body );
-		if ( is_wp_error( $data ) ) {
-			return $data;
-		}
-		$text  = array();
-		$calls = array();
-		foreach ( (array) ( $data['candidates'][0]['content']['parts'] ?? array() ) as $p ) {
-			if ( isset( $p['text'] ) && empty( $p['thought'] ) ) {
-				$text[] = (string) $p['text'];
-			}
-			if ( isset( $p['functionCall']['name'] ) ) {
-				$calls[] = array(
-					'name'      => (string) $p['functionCall']['name'],
-					'arguments' => is_array( $p['functionCall']['args'] ?? null ) ? $p['functionCall']['args'] : array(),
-				);
-			}
-		}
-		return array(
-			'content'    => implode( "\n\n", $text ),
-			'tool_calls' => $calls,
-		);
-	}
-
-	/**
-	 * @param string $url
-	 * @param array  $headers
-	 * @param array  $body
-	 * @return array|\WP_Error
-	 */
-	private static function post( $url, array $headers, array $body ) {
-		$host    = wp_parse_url( $url, PHP_URL_HOST );
-		$allowed = array( 'api.openai.com', 'api.anthropic.com', 'generativelanguage.googleapis.com', 'api.perplexity.ai', 'api.groq.com', 'api.mistral.ai', 'api.deepseek.com' );
-		if ( 'https' !== wp_parse_url( $url, PHP_URL_SCHEME ) || ( ! in_array( $host, $allowed, true ) && ! self::is_azure_host( $host ) ) ) {
-			return new \WP_Error( 'sidcraft_page_builder_ai_endpoint', __( 'The AI provider address is not allowed.', 'sidcraft-page-builder' ) );
-		}
-		$response = wp_remote_post(
-			$url,
-			array(
-				'timeout'     => self::TIMEOUT,
-				'redirection' => 0,
-				'headers'     => array_merge(
-					array(
-						'Content-Type' => 'application/json',
-						'Accept'       => 'application/json',
-					),
-					$headers
-				),
-				'body'        => wp_json_encode( $body ),
-				'data_format' => 'body',
-			)
-		);
-		if ( is_wp_error( $response ) ) {
-			return new \WP_Error( 'sidcraft_page_builder_ai_http', __( 'Could not reach the AI provider.', 'sidcraft-page-builder' ) );
-		}
-		$code = (int) wp_remote_retrieve_response_code( $response );
-		$data = json_decode( (string) wp_remote_retrieve_body( $response ), true );
-		if ( $code < 200 || $code >= 300 ) {
-			$detail = is_array( $data ) ? ( $data['error']['message'] ?? ( is_string( $data['error'] ?? null ) ? $data['error'] : '' ) ) : '';
-			return new \WP_Error(
-				'sidcraft_page_builder_ai_provider',
-				/* translators: 1: HTTP status code, 2: provider error message. */
-				trim( sprintf( __( 'The AI provider returned HTTP %1$d. %2$s', 'sidcraft-page-builder' ), $code, sanitize_text_field( (string) $detail ) ) )
-			);
-		}
-		return is_array( $data ) ? $data : new \WP_Error( 'sidcraft_page_builder_ai_response', __( 'The AI provider sent a response the chat could not read.', 'sidcraft-page-builder' ) );
-	}
-
-	/* ------------------------------------------------------------------ *
-	 * Key storage
-	 * ------------------------------------------------------------------ */
-
-	/**
-	 * @return string
-	 */
-	private static function secret() {
-		return hash( 'sha256', wp_salt( 'auth' ) . '|sidcraft-ai', true );
-	}
-
-	/**
-	 * @param string $plain
-	 * @return string
-	 */
-	private static function encrypt( $plain ) {
-		if ( '' === $plain || ! function_exists( 'openssl_encrypt' ) ) {
-			return $plain;
-		}
-		$iv  = random_bytes( 16 );
-		$enc = openssl_encrypt( $plain, 'aes-256-cbc', self::secret(), OPENSSL_RAW_DATA, $iv );
-		return false === $enc ? $plain : 'enc:' . base64_encode( $iv . $enc ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Binary ciphertext stored as text.
-	}
-
-	/**
-	 * @param string $stored
-	 * @return string
-	 */
-	private static function decrypt( $stored ) {
-		if ( 0 !== strpos( $stored, 'enc:' ) ) {
-			return $stored;
-		}
-		if ( ! function_exists( 'openssl_decrypt' ) ) {
-			return '';
-		}
-		$raw = base64_decode( substr( $stored, 4 ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Binary ciphertext stored as text.
-		if ( false === $raw || strlen( $raw ) < 17 ) {
-			return '';
-		}
-		$plain = openssl_decrypt( substr( $raw, 16 ), 'aes-256-cbc', self::secret(), OPENSSL_RAW_DATA, substr( $raw, 0, 16 ) );
-		return false === $plain ? '' : $plain;
-	}
 }
