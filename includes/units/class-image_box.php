@@ -7,9 +7,9 @@ class ImageBox extends Unit {
  public function defaults(){return ['image_id'=>0,'image_url'=>'','image_size'=>'large','alt'=>'','title'=>'This is the heading','title_tag'=>'h3','text'=>'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.','link'=>'','link_target'=>'_self','box_layout'=>'top','content_align'=>'center','vertical_align'=>'top','image_width'=>'','image_space'=>15,'title_space'=>10,'image_radius'=>'','image_opacity'=>'','image_hover_opacity'=>'','title_color'=>'#222222','title_hover_color'=>'','text_color'=>'','hover_animation'=>''];}
  public function controls(){return ['image_id'=>'media','image_url'=>'url','image_size'=>'select','alt'=>'text','title'=>'text','title_tag'=>'select','text'=>'wysiwyg','link'=>'url','link_target'=>'select','box_layout'=>'select','content_align'=>'select','vertical_align'=>'select','image_width'=>'text','image_space'=>'number','title_space'=>'number','image_radius'=>'number','image_opacity'=>'number','image_hover_opacity'=>'number','title_color'=>'color','title_hover_color'=>'color','text_color'=>'color','hover_animation'=>'select'];}
  public function render($s,$children=''){
-  $layout=in_array($s['box_layout']??'top',['top','left','right'],true)?$s['box_layout']:'top';
-  $align=in_array($s['content_align']??'center',['left','center','right'],true)?$s['content_align']:'center';
-  $valign=in_array($s['vertical_align']??'top',['top','middle','bottom'],true)?$s['vertical_align']:'top';
+  $layout=in_array($s['box_layout']??'top',['top','left','right'],true)?($s['box_layout']??'top'):'top';
+  $align=in_array($s['content_align']??'center',['left','center','right'],true)?($s['content_align']??'center'):'center';
+  $valign=in_array($s['vertical_align']??'top',['top','middle','bottom'],true)?($s['vertical_align']??'top'):'top';
   $tag=$this->tag($s['title_tag']??'h3',$this->title_tags(),'h3');
   $vars=$this->style_attr(['--lb-box-image-width'=>sanitize_text_field((string)($s['image_width']??'')),'--lb-box-image-space'=>$this->unit($s['image_space']??''),'--lb-box-title-space'=>$this->unit($s['title_space']??''),'--lb-box-image-radius'=>$this->unit($s['image_radius']??''),'--lb-box-image-opacity'=>$s['image_opacity']??'','--lb-box-image-hover-opacity'=>$s['image_hover_opacity']??'','--lb-box-title-color'=>$s['title_color']??'','--lb-box-title-hover'=>$s['title_hover_color']??'','--lb-box-text-color'=>$s['text_color']??'']);
   $link=!empty($s['link'])?esc_attr(self::link_href($s['link'])):'';

@@ -41,6 +41,8 @@ class GlobalSettings {
    'post_types'=>class_exists(Documents::class)?Documents::defaults():['post','page'],
    'disable_default_colors'=>false,
    'disable_default_fonts'=>false,
+   'menu_open_links'=>true,
+   'menu_open_scroll'=>true,
    'google_maps_api_key'=>'',
    'recaptcha_type'=>'v2',
    'recaptcha_site_key'=>'',
@@ -76,6 +78,17 @@ class GlobalSettings {
   if(class_exists(AdminSettings::class))$d=AdminSettings::normalize_stored($d);
   self::$cached_raw=$raw;
   return self::$cached=$d;
+ }
+ /**
+  * Browser/REST-safe settings map. Secret values never leave the server.
+  *
+  * @return array
+  */
+ public static function public_settings(){
+  $d=self::get();
+  unset($d['recaptcha_secret_key'],$d['google_maps_api_key']);
+  if(class_exists(AdminSettings::class))$d['has_recaptcha_secret']=AdminSettings::recaptcha_secret_key()!=='';
+  return $d;
  }
  public static function init(){add_action('admin_menu',[__CLASS__,'menu']);}
  public static function menu(){add_submenu_page('sidcraft-page-builder',__('Design System', 'sidcraft-page-builder'),__('Design System', 'sidcraft-page-builder'),'manage_options','sidcraft-page-builder-global',[__CLASS__,'screen']);}

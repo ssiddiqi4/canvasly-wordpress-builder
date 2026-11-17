@@ -39,7 +39,7 @@ class Button extends Unit {
   ];
  }
  public function render($s,$children=''){
-  $size=in_array($s['size']??'medium',self::sizes(),true)?$s['size']:'medium';
+  $size=in_array($s['size']??'medium',self::sizes(),true)?($s['size']??'medium'):'medium';
   $align=$this->scalar($s['align']??'left','left');
   $align=in_array($align,['left','center','right','justify'],true)?$align:'left';
   $placement=($s['icon_placement']??'before')==='after'?'after':'before';
@@ -47,7 +47,7 @@ class Button extends Unit {
   $label='<span class="lb-button-text" data-inline="text">'.wp_kses_post($s['text']??__('Click Here', 'sidcraft-page-builder')).'</span>';
   $t=($s['target']??'_self')==='_blank'?' target="_blank" rel="noopener"':'';
   $id=!empty($s['button_id'])?' id="'.esc_attr(sanitize_html_class($s['button_id'])).'"':'';
-  $type=in_array($s['button_type']??'default',['default','info','success','warning','danger'],true)?$s['button_type']:'default';
+  $type=in_array($s['button_type']??'default',['default','info','success','warning','danger'],true)?($s['button_type']??'default'):'default';
   $a='<a class="'.$this->cls($s).' lb-button lb-button-'.sanitize_html_class($size).' lb-button-type-'.sanitize_html_class($type).($icon?' lb-button-has-icon':'').$this->hover_class($s).'"'.$id.' href="'.esc_attr(self::link_href($s['url']??'#')).'"'.$t.'>'.($placement==='before'?$icon.$label:$label.$icon).'</a>';
   return '<div class="lb-button-wrap lb-button-align-'.$align.'">'.$a.'</div>';
  }

@@ -19,7 +19,7 @@ class Counter extends Unit {
   if(!in_array($sep,[',','.',' ',"'",''],true))$sep=',';
   $tag=$this->tag($s['title_tag']??'div',$this->title_tags(),'div');
   $pos=($s['title_position']??'after')==='before'?'before':'after';
-  $align=in_array($s['align']??'center',['left','center','right'],true)?$s['align']:'center';
+  $align=in_array($s['align']??'center',['left','center','right'],true)?($s['align']??'center'):'center';
   $vars=$this->style_attr(['--lb-counter-number-color'=>$s['number_color']??'','--lb-counter-title-color'=>$s['title_color']??'','--lb-counter-number-size'=>$this->unit($s['number_size']??''),'--lb-counter-gap'=>$this->unit($s['title_gap']??''),'text-align'=>$align]);
   $title=($s['title']??'')!==''?'<'.$tag.' class="lb-counter-title">'.esc_html($s['title']).'</'.$tag.'>':'';
   $value='<div class="lb-counter-value"><span class="lb-counter-prefix">'.esc_html($s['prefix']??'').'</span><span class="lb-counter-number" data-lb-counter data-start="'.esc_attr($start).'" data-end="'.esc_attr($end).'" data-duration="'.absint($s['duration']??2000).'" data-separator="'.esc_attr($sep).'">'.esc_html(self::format($end,$sep)).'</span><span class="lb-counter-suffix">'.esc_html($s['suffix']??'').'</span></div>';

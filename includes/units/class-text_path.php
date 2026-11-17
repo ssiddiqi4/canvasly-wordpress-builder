@@ -53,7 +53,7 @@ class TextPath extends Unit {
  public function render($s,$children=''){
   unset($children);
   $text=esc_html($s['text']??'Sidcraft Page Builder');
-  $kind=in_array($s['path']??'wave',['wave','arc','circle','line'],true)?$s['path']:'wave';
+  $kind=in_array($s['path']??'wave',['wave','arc','circle','line'],true)?($s['path']??'wave'):'wave';
   $paths=['wave'=>'M 20 80 Q 140 16 260 80 T 500 80 T 740 80 T 980 80','arc'=>'M 36 112 Q 500 8 964 112','circle'=>'M 500 46 A 150 32 0 1 1 499 46','line'=>'M 20 96 H 980'];
   $id=function_exists('wp_unique_id')?wp_unique_id('lb-tp-'):'lb-tp-'.substr(md5(uniqid('',true)),0,8);
   $speed=max(5,absint($s['speed']??20));

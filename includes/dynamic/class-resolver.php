@@ -97,7 +97,13 @@ class Resolver {
 		}
 		if ( class_exists( DevMode::class ) ) {
 			$post_id = absint( $context['post_id'] ?? 0 );
-			$map     = ! empty( $context['for_canvas'] ) ? DevMode::canvas_dynamic_map( $post_id ) : DevMode::frontend_dynamic_map( $post_id );
+			// The token map is read only for {{lb:...}} tokens. Building it sanitizes the
+			// post content, which on a builder page is the whole rendered fallback copy.
+			if ( false === stripos( serialize( $settings ), '{{lb:' ) ) {
+				$map = array();
+			} else {
+				$map = ! empty( $context['for_canvas'] ) ? DevMode::canvas_dynamic_map( $post_id ) : DevMode::frontend_dynamic_map( $post_id );
+			}
 			$settings = DevMode::resolve_settings( $settings, $map, ! empty( $context['for_canvas'] ) );
 		}
 		return $settings;

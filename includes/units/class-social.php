@@ -72,9 +72,9 @@ class Social extends Unit {
   ];
  }
  public function render($s,$children=''){
-  $shape=in_array($s['shape']??'rounded',['square','rounded','circle'],true)?$s['shape']:'rounded';
+  $shape=in_array($s['shape']??'rounded',['square','rounded','circle'],true)?($s['shape']??'rounded'):'rounded';
   $scheme=($s['color_scheme']??'official')==='custom'?'custom':'official';
-  $align=in_array($s['align']??'left',['left','center','right'],true)?$s['align']:'left';
+  $align=in_array($s['align']??'left',['left','center','right'],true)?($s['align']??'left'):'left';
   $cols=max(0,min(12,absint($s['columns']??0)));
   $vars=$this->style_attr(['--lb-social-size'=>$this->unit($s['size']??''),'--lb-social-padding'=>$this->unit($s['icon_padding']??''),'--lb-social-gap'=>$this->unit($s['gap']??''),'--lb-social-row-gap'=>$this->unit($s['row_gap']??''),'--lb-social-radius'=>$this->unit($s['icon_radius']??''),'--lb-social-bg'=>$scheme==='custom'?($s['color']??''):'','--lb-social-color'=>$s['icon_color']??'','--lb-social-hover-bg'=>$s['hover_color']??'','--lb-social-hover-color'=>$s['hover_icon_color']??'','--lb-social-cols'=>$cols?:'','justify-content'=>$align==='left'?'flex-start':($align==='right'?'flex-end':'center')]);
   $t=($s['target']??'_blank')==='_blank'?' target="_blank" rel="noopener noreferrer"':'';

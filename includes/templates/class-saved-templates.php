@@ -173,6 +173,9 @@ class SavedTemplates {
 	}
 
 	public static function can_manage() {
+		if ( class_exists( '\SidcraftPageBuilder\Settings\Roles' ) && ! \SidcraftPageBuilder\Settings\Roles::can_edit() ) {
+			return false;
+		}
 		return current_user_can( 'edit_pages' );
 	}
 
@@ -436,7 +439,14 @@ class SavedTemplates {
 		$query = new \WP_Query( $q );
 		$out   = array();
 		foreach ( (array) $query->posts as $p ) {
-			$item = self::item( is_object( $p ) ? $p->ID : absint( $p ), $light );
+			$pid = is_object( $p ) ? absint( $p->ID ) : absint( $p );
+			if ( ! $pid ) {
+				continue;
+			}
+			if ( is_object( $p ) && 'publish' !== $p->post_status && ! current_user_can( 'edit_post', $pid ) ) {
+				continue;
+			}
+			$item = self::item( $pid, $light );
 			if ( $item ) {
 				$out[] = $item;
 			}
@@ -518,7 +528,7 @@ class SavedTemplates {
 			'sidcraft-page-builder',
 			__( 'Import Templates', 'sidcraft-page-builder' ),
 			__( 'Import Templates', 'sidcraft-page-builder' ),
-			'edit_pages',
+			class_exists( '\SidcraftPageBuilder\Settings\Roles' ) ? \SidcraftPageBuilder\Settings\Roles::CAP_EDIT : 'edit_pages',
 			'sidcraft-page-builder-template-import',
 			array( self::class, 'import_screen' )
 		);

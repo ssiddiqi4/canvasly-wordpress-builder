@@ -36,6 +36,8 @@ class AdminSettings {
 		return array(
 			'disable_default_colors'     => false,
 			'disable_default_fonts'      => false,
+			'menu_open_links'            => true,
+			'menu_open_scroll'           => true,
 			'google_maps_api_key'        => '',
 			'recaptcha_type'             => 'v2',
 			'recaptcha_site_key'         => '',
@@ -372,6 +374,8 @@ class AdminSettings {
 
 		$out['disable_default_colors'] = self::to_bool( $src['disable_default_colors'] ?? false );
 		$out['disable_default_fonts']  = self::to_bool( $src['disable_default_fonts'] ?? false );
+		$out['menu_open_links']        = self::to_bool( $src['menu_open_links'] ?? true );
+		$out['menu_open_scroll']       = self::to_bool( $src['menu_open_scroll'] ?? true );
 
 		$out['google_maps_api_key'] = self::sanitize_api_key( $src['google_maps_api_key'] ?? '' );
 		$type = sanitize_key( (string) ( $src['recaptcha_type'] ?? 'v2' ) );
@@ -463,6 +467,8 @@ class AdminSettings {
 		}
 		$d['disable_default_colors'] = self::to_bool( $d['disable_default_colors'] ?? false );
 		$d['disable_default_fonts']  = self::to_bool( $d['disable_default_fonts'] ?? false );
+		$d['menu_open_links']        = self::to_bool( $d['menu_open_links'] ?? true );
+		$d['menu_open_scroll']       = self::to_bool( $d['menu_open_scroll'] ?? true );
 		$d['google_maps_api_key']    = self::sanitize_api_key( $d['google_maps_api_key'] ?? '' );
 		$type = sanitize_key( (string) ( $d['recaptcha_type'] ?? 'v2' ) );
 		$d['recaptcha_type']         = in_array( $type, array( 'v2', 'v3' ), true ) ? $type : 'v2';
@@ -607,7 +613,7 @@ class AdminSettings {
 		$tab = sanitize_key( (string) $tab );
 		$p   = self::posted_fields(
 			array(
-				'post_types', 'disable_default_colors', 'disable_default_fonts', 'google_maps_api_key', 'recaptcha_type',
+				'post_types', 'disable_default_colors', 'disable_default_fonts', 'menu_open_links', 'menu_open_scroll', 'google_maps_api_key', 'recaptcha_type',
 				'recaptcha_site_key', 'recaptcha_secret_key', 'css_print_method', 'font_display', 'google_fonts_local',
 				'editor_loader_mode', 'unit_cache', 'unit_cache_ttl', 'lazy_load', 'optimized_markup', 'experiments',
 				'maintenance_mode', 'maintenance_template', 'maintenance_exclude_roles', 'safe_mode', 'rollback_keep',
@@ -618,6 +624,8 @@ class AdminSettings {
 			$out['post_types']             = isset( $p['post_types'] ) && is_array( $p['post_types'] ) ? $p['post_types'] : array();
 			$out['disable_default_colors'] = ! empty( $p['disable_default_colors'] );
 			$out['disable_default_fonts']  = ! empty( $p['disable_default_fonts'] );
+			$out['menu_open_links']        = ! empty( $p['menu_open_links'] );
+			$out['menu_open_scroll']       = ! empty( $p['menu_open_scroll'] );
 		} elseif ( $tab === 'integrations' ) {
 			$out['google_maps_api_key'] = $p['google_maps_api_key'] ?? '';
 			$out['recaptcha_type']      = $p['recaptcha_type'] ?? 'v2';
@@ -714,6 +722,19 @@ class AdminSettings {
 		}
 		$version = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? SIDCRAFT_PAGE_BUILDER_VERSION : '1.0.0';
 		wp_register_script( 'google-recaptcha', $url, array(), $version, true );
+	}
+
+	/**
+	 * Menu shortcut links (#open-menu-name) settings, as the front end needs them.
+	 *
+	 * @return array{enabled:bool,scroll:bool}
+	 */
+	public static function menu_open() {
+		$g = class_exists( GlobalSettings::class ) ? GlobalSettings::get() : array();
+		return array(
+			'enabled' => ! array_key_exists( 'menu_open_links', $g ) || ! empty( $g['menu_open_links'] ),
+			'scroll'  => ! array_key_exists( 'menu_open_scroll', $g ) || ! empty( $g['menu_open_scroll'] ),
+		);
 	}
 
 	public static function disable_default_colors() {
@@ -963,6 +984,11 @@ class AdminSettings {
 		echo '<tr><th>' . esc_html__( 'Default Fonts', 'sidcraft-page-builder' ) . '</th><td>';
 		echo '<label><input type="checkbox" name="disable_default_fonts" value="1"' . ( ! empty( $d['disable_default_fonts'] ) ? ' checked' : '' ) . '> ' . esc_html__( 'Disable default fonts', 'sidcraft-page-builder' ) . '</label>';
 		echo '<p class="description">' . esc_html__( 'Let the theme control typography. Global heading/body fonts and Theme Style font-family rules will not be printed.', 'sidcraft-page-builder' ) . '</p>';
+		echo '</td></tr>';
+		echo '<tr><th>' . esc_html__( 'Open a menu from a button', 'sidcraft-page-builder' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="menu_open_links" value="1"' . ( ! empty( $d['menu_open_links'] ) ? ' checked' : '' ) . '> ' . esc_html__( 'Let buttons and links open a dropdown in the Site Menu', 'sidcraft-page-builder' ) . '</label><br>';
+		echo '<label><input type="checkbox" name="menu_open_scroll" value="1"' . ( ! empty( $d['menu_open_scroll'] ) ? ' checked' : '' ) . '> ' . esc_html__( 'Scroll to the top of the page first', 'sidcraft-page-builder' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'Set a button or link address to #open-menu- followed by the menu item name in lowercase, with dashes instead of spaces. Example: for a menu item called “Buy Tickets”, use #open-menu-buy-tickets. When a visitor clicks it, the page scrolls to the top and that dropdown opens. On phones the menu unfolds first. If no menu item matches, the link does nothing.', 'sidcraft-page-builder' ) . '</p>';
 		echo '</td></tr></tbody></table>';
 	}
 

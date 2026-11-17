@@ -22,6 +22,13 @@ class Interactions {
 	 * @return array<string,array<string,mixed>>
 	 */
 	public static function presets() {
+		// Every node's interactions are checked against this list on save and render;
+		// build it (60+ translated labels plus the filter) once per request.
+		$sig = self::presets_signature();
+		if ( null !== self::$presets && self::$presets_sig === $sig ) {
+			return self::$presets;
+		}
+		self::$presets_sig = $sig;
 		$p = array(
 			'fade'            => array( 'label' => __( 'Fade', 'sidcraft-page-builder' ), 'group' => 'fade', 'from' => array( 'opacity' => 0 ) ),
 			'fade-up'         => array( 'label' => __( 'Fade Up', 'sidcraft-page-builder' ), 'group' => 'fade', 'from' => array( 'opacity' => 0, 'y' => 28 ) ),
@@ -82,7 +89,29 @@ class Interactions {
 			'wipe-right'      => array( 'label' => __( 'Wipe Right', 'sidcraft-page-builder' ), 'group' => 'wipe', 'from' => array( 'clip' => 'inset(0 100% 0 0)' ) ),
 		);
 		$filtered = apply_filters( 'sidcraft_page_builder_interactions_presets', $p );
-		return is_array( $filtered ) ? $filtered : $p;
+		return self::$presets = is_array( $filtered ) ? $filtered : $p;
+	}
+
+	/** @var array|null Request copy of presets(). */
+	private static $presets = null;
+
+	/** @var string */
+	private static $presets_sig = '';
+
+	/**
+	 * Changes when a presets filter is added or removed, or the locale switches.
+	 *
+	 * @return string
+	 */
+	private static function presets_signature() {
+		$hook = 'sidcraft_page_builder_interactions_presets';
+		$n    = 0;
+		if ( isset( $GLOBALS['wp_filter'][ $hook ] ) && is_object( $GLOBALS['wp_filter'][ $hook ] ) && isset( $GLOBALS['wp_filter'][ $hook ]->callbacks ) ) {
+			foreach ( $GLOBALS['wp_filter'][ $hook ]->callbacks as $cbs ) {
+				$n += count( $cbs );
+			}
+		}
+		return $n . '|' . ( function_exists( 'get_locale' ) ? get_locale() : '' );
 	}
 
 	/**

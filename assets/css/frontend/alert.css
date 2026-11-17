@@ -1,0 +1,22 @@
+/* Generated from frontend.css by patches/tools/split-frontend-css.php. Do not edit. */
+.lb-alert{padding:16px;border:1px solid #ddd;border-radius:5px}
+.lb-alert{padding:16px;border:1px solid #ddd;border-radius:5px}
+.lb-alert{padding:16px;border:1px solid #ddd;border-radius:5px}
+.lb-alert{padding:16px;border:1px solid #ddd;border-radius:5px}
+.lb-alert{padding:15px;border:1px solid #d8dde3;border-radius:6px;background:#f7f8fa}
+.lb-alert{position:relative;display:grid;gap:4px;padding:15px 45px 15px 15px;border:1px solid var(--lb-alert-border,#d8dde3);border-left-width:5px;border-radius:6px;background:var(--lb-alert-bg,#f7f8fa)}
+.lb-alert-info{--lb-alert-border-default:#31708f;background:var(--lb-alert-bg,#d9edf7);border-color:var(--lb-alert-border,#bce8f1)}
+.lb-alert-success{background:var(--lb-alert-bg,#dff0d8);border-color:var(--lb-alert-border,#d6e9c6)}
+.lb-alert-warning{background:var(--lb-alert-bg,#fcf8e3);border-color:var(--lb-alert-border,#faebcc)}
+.lb-alert-danger{background:var(--lb-alert-bg,#f2dede);border-color:var(--lb-alert-border,#ebccd1)}
+.lb-alert-info .lb-alert-title{color:var(--lb-alert-title,#31708f)}
+.lb-alert-success .lb-alert-title{color:var(--lb-alert-title,#3c763d)}
+.lb-alert-warning .lb-alert-title{color:var(--lb-alert-title,#8a6d3b)}
+.lb-alert-danger .lb-alert-title{color:var(--lb-alert-title,#a94442)}
+.lb-alert-title{display:block;font-weight:700}
+.lb-alert-text{display:block;color:var(--lb-alert-text,inherit)}
+.lb-alert-dismiss{position:absolute;top:10px;right:10px;display:inline-flex;align-items:center;justify-content:center;width:auto;padding:4px;border:0;background:transparent;color:var(--lb-alert-dismiss,inherit);font-size:var(--lb-alert-dismiss-size,16px);line-height:1;cursor:pointer;opacity:.7}
+.lb-alert-dismiss:hover{opacity:1}
+.lb-alert-dismiss .lb-fa-icon{width:1em;height:1em}
+.lb-alert.is-dismissed{display:none}
+.lb-alert .lb-alert-dismiss.lb-alert-dismiss:hover,.lb-alert .lb-alert-dismiss.lb-alert-dismiss:focus,.lb-alert .lb-alert-dismiss.lb-alert-dismiss:active{background:transparent;color:var(--lb-alert-dismiss,inherit);box-shadow:none}

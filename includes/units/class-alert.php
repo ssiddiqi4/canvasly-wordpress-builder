@@ -8,7 +8,7 @@ class Alert extends Unit {
  public function defaults(){return ['title'=>'This is an Alert','text'=>'I am a description. Click the edit button to change this text.','type'=>'info','dismissible'=>true,'dismiss_icon'=>'times','background'=>'','border_color'=>'','title_color'=>'','text_color'=>'','dismiss_color'=>'','dismiss_size'=>''];}
  public function controls(){return ['title'=>'text','text'=>'wysiwyg','type'=>'select','dismissible'=>'switch','dismiss_icon'=>'icon','background'=>'color','border_color'=>'color','title_color'=>'color','text_color'=>'color','dismiss_color'=>'color','dismiss_size'=>'number'];}
  public function render($s,$children=''){
-  $type=in_array($s['type']??'info',['info','success','warning','danger'],true)?$s['type']:'info';
+  $type=in_array($s['type']??'info',['info','success','warning','danger'],true)?($s['type']??'info'):'info';
   $vars=$this->style_attr(['--lb-alert-bg'=>$s['background']??'','--lb-alert-border'=>$s['border_color']??'','--lb-alert-title'=>$s['title_color']??'','--lb-alert-text'=>$s['text_color']??'','--lb-alert-dismiss'=>$s['dismiss_color']??'','--lb-alert-dismiss-size'=>$this->unit($s['dismiss_size']??'')]);
   $out='<div class="'.$this->cls($s).' lb-alert lb-alert-'.$type.'" role="alert"'.$vars.'>';
   if(($s['title']??'')!=='')$out.='<span class="lb-alert-title">'.esc_html($s['title']).'</span>';

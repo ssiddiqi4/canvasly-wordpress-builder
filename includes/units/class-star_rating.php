@@ -12,7 +12,7 @@ class StarRating extends Unit {
   $max=(string)($s['scale']??'5')==='10'?10:5;
   $rating=max(0,min($max,round(floatval($this->scalar($s['rating']??5,5)),1)));
   $unmarked=($s['unmarked_style']??'solid')==='outline'?'outline':'solid';
-  $align=in_array($s['align']??'left',['left','center','right','justify'],true)?$s['align']:'left';
+  $align=in_array($s['align']??'left',['left','center','right','justify'],true)?($s['align']??'left'):'left';
   $vars=$this->style_attr(['--lb-star-size'=>$this->unit($s['size']??''),'--lb-star-gap'=>$this->unit($s['star_gap']??''),'--lb-star-color'=>$s['color']??'','--lb-star-unmarked'=>$s['unmarked_color']??'','--lb-star-title-color'=>$s['title_color']??'','--lb-star-title-gap'=>$this->unit($s['title_gap']??'')]);
   $stars='';
   for($i=1;$i<=$max;$i++){

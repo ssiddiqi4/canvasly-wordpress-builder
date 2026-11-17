@@ -9,6 +9,7 @@ class Performance {
   update_post_meta(absint($post_id),'_sidsyn_asset_version',SIDCRAFT_PAGE_BUILDER_VERSION.'-'.time());
   if(class_exists(CssPrint::class))CssPrint::invalidate_post($post_id);
   if(class_exists(Optimize::class))Optimize::invalidate_post($post_id);
+  if(class_exists('\\SidcraftPageBuilder\\Rendering\\UnitMap'))\SidcraftPageBuilder\Rendering\UnitMap::forget($post_id);
  }
  public static function version($post_id){return get_post_meta(absint($post_id),'_sidsyn_asset_version',true)?:SIDCRAFT_PAGE_BUILDER_VERSION;}
  public static function minify_css($css){$css=preg_replace('/\/\*.*?\*\//s','',$css);$css=preg_replace('/\s+/',' ',$css);return trim($css);}

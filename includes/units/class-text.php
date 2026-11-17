@@ -41,7 +41,7 @@ class Text extends Unit {
  }
  public function render($s,$children=''){
   $cols=max(1,min(10,absint($this->scalar($s['text_columns']??1,1))));
-  $view=in_array($s['drop_cap_view']??'default',['default','stacked','framed'],true)?$s['drop_cap_view']:'default';
+  $view=in_array($s['drop_cap_view']??'default',['default','stacked','framed'],true)?($s['drop_cap_view']??'default'):'default';
   $vars=$this->style_attr(['--lb-text-columns'=>$cols>1?$cols:'','--lb-text-column-gap'=>$this->unit($s['column_gap']??''),'--lb-paragraph-spacing'=>$this->unit($s['paragraph_spacing']??''),'--lb-link-color'=>$s['link_color']??'','--lb-link-hover'=>$s['link_hover_color']??'','--lb-text-hover'=>$s['hover_color']??'','--lb-drop-cap-color'=>$s['drop_cap_color']??'','--lb-drop-cap-secondary'=>$s['drop_cap_secondary_color']??'','--lb-drop-cap-size'=>$this->unit($s['drop_cap_size']??''),'--lb-drop-cap-space'=>$this->unit($s['drop_cap_space']??''),'--lb-drop-cap-radius'=>$this->unit($s['drop_cap_radius']??''),'--lb-drop-cap-border'=>$this->unit($s['drop_cap_border_width']??'')]);
   $classes=$this->cls($s).' lb-text'.($cols>1?' lb-text-columns':'').(!empty($s['drop_cap'])?' lb-text-drop-cap lb-drop-cap-'.$view:'');
   return '<div class="'.$classes.'"'.$vars.' data-inline="text">'.wp_kses_post($s['text']??'').'</div>';

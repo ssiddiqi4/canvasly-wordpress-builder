@@ -1,0 +1,21 @@
+/* Generated from frontend-rtl.css by patches/tools/split-frontend-css.php. Do not edit. */
+.lb-testimonial{padding:20px;margin:0;background:#f7f8fa;border-right:4px solid #3f7fdf}
+.lb-testimonial img{width:56px;height:56px;border-radius:50%;object-fit:cover}
+.lb-testimonial{margin:0;padding:0;background:transparent;border:0;display:flex;flex-direction:column;gap:20px}
+.lb-testimonial-align-left{text-align:right}
+.lb-testimonial-align-center{text-align:center}
+.lb-testimonial-align-right{text-align:left}
+.lb-testimonial-quote{margin:0;font-size:1.1em;line-height:1.6;color:var(--lb-testimonial-quote-color,inherit)}
+.lb-testimonial-meta{display:flex;align-items:center;gap:15px}
+.lb-testimonial-align-center .lb-testimonial-meta{justify-content:center}
+.lb-testimonial-align-right .lb-testimonial-meta{justify-content:flex-end}
+.lb-testimonial-image-top .lb-testimonial-meta{flex-direction:column;gap:10px}
+.lb-testimonial-image-top.lb-testimonial-align-left .lb-testimonial-meta{align-items:flex-start}
+.lb-testimonial-image-top.lb-testimonial-align-right .lb-testimonial-meta{align-items:flex-end}
+.lb-testimonial-image{flex:0 0 auto;line-height:0}
+.lb-testimonial-image img{width:var(--lb-testimonial-image-width,60px);height:var(--lb-testimonial-image-width,60px);border-radius:var(--lb-testimonial-image-radius,50%);object-fit:cover}
+.lb-testimonial-name{margin:0;font-weight:700;color:var(--lb-testimonial-name-color,inherit)}
+.lb-testimonial-name a{color:inherit;text-decoration:none}
+.lb-testimonial-role{font-size:.9em;color:var(--lb-testimonial-role-color,inherit)}
+.lb-testimonial-list{display:grid;gap:24px}
+@media (max-width:767px){.lb-testimonial{max-width:100%}}

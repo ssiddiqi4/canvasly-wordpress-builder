@@ -9,7 +9,7 @@ class Progress extends Unit {
  public function controls(){return ['label'=>'text','title_tag'=>'select','value'=>'number','bar_style'=>'select','show_percentage'=>'switch','inner_text'=>'text','color'=>'color','background'=>'color','bar_height'=>'number','bar_radius'=>'number','inner_color'=>'color','title_color'=>'color'];}
  public function render($s,$children=''){
   $v=max(0,min(100,floatval($s['value']??70)));
-  $style=in_array($s['bar_style']??'default',['default','info','success','warning','danger'],true)?$s['bar_style']:'default';
+  $style=in_array($s['bar_style']??'default',['default','info','success','warning','danger'],true)?($s['bar_style']??'default'):'default';
   $tag=$this->tag($s['title_tag']??'span',$this->title_tags(),'span');
   $vars=$this->style_attr(['--lb-bar-color'=>$s['color']??'','--lb-bar-bg'=>$s['background']??'','--lb-bar-height'=>$this->unit($s['bar_height']??''),'--lb-bar-radius'=>$this->unit($s['bar_radius']??''),'--lb-bar-inner-color'=>$s['inner_color']??'','--lb-bar-title-color'=>$s['title_color']??'']);
   $out='<div class="'.$this->cls($s).' lb-progress lb-progress-'.$style.'"'.$vars.'>';

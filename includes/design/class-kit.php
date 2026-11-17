@@ -194,6 +194,9 @@ class Kit {
 		);
 		$out = array();
 		foreach ( (array) $q->posts as $p ) {
+			if ( 'publish' !== $p->post_status && ! current_user_can( 'edit_post', $p->ID ) ) {
+				continue;
+			}
 			$d = get_post_meta( $p->ID, '_sidsyn_template_data', true );
 			$d = is_string( $d ) ? json_decode( $d, true ) : $d;
 			$key = (string) get_post_meta( $p->ID, '_sidsyn_template_key', true );
@@ -264,6 +267,9 @@ class Kit {
 			return null;
 		}
 		if ( ! $p ) {
+			return null;
+		}
+		if ( 'publish' !== $p->post_status && ! current_user_can( 'edit_post', $id ) ) {
 			return null;
 		}
 		$doc = class_exists( DocumentManager::class ) ? DocumentManager::get( $id ) : array();
@@ -821,11 +827,13 @@ class Kit {
 	public static function sideload_media( $item, $media_dir ) {
 		$file = (string) ( $item['file'] ?? '' );
 		$path = '';
-		if ( $file !== '' && $media_dir && is_readable( $media_dir . '/' . basename( $file ) ) ) {
-			$path = $media_dir . '/' . basename( $file );
-		}
-		if ( $path === '' && $file !== '' && $media_dir && is_readable( $media_dir . '/' . $file ) ) {
-			$path = $media_dir . '/' . $file;
+		$source_name = '';
+		if ( $file !== '' && $media_dir && basename( $file ) === $file && strpos( $file, "\0" ) === false ) {
+			$candidate = $media_dir . '/' . $file;
+			if ( is_readable( $candidate ) && ( ! function_exists( 'is_link' ) || ! is_link( $candidate ) ) ) {
+				$path        = $candidate;
+				$source_name = $file;
+			}
 		}
 		if ( $path === '' && ! empty( $item['url'] ) && function_exists( 'download_url' ) ) {
 			$tmp = download_url( esc_url_raw( $item['url'] ) );
@@ -836,7 +844,7 @@ class Kit {
 		if ( $path === '' || ! is_readable( $path ) ) {
 			return 0;
 		}
-		$filename = basename( $file !== '' ? $file : $path );
+		$filename = basename( $source_name !== '' ? $source_name : $path );
 		$filename = preg_replace( '/^\d+-/', '', $filename );
 		$filename = sanitize_file_name( $filename );
 		if ( $filename === '' ) {
@@ -911,7 +919,7 @@ class Kit {
 		if ( ! is_array( $items ) ) {
 			return 0;
 		}
-		if ( $mode === 'replace' && current_user_can( 'edit_pages' ) ) {
+		if ( $mode === 'replace' && current_user_can( 'edit_pages' ) && ( ! class_exists( '\SidcraftPageBuilder\Settings\Roles' ) || \SidcraftPageBuilder\Settings\Roles::can_edit() ) ) {
 			self::delete_templates_for_replace();
 		}
 		$n = 0;
@@ -927,7 +935,7 @@ class Kit {
 	}
 
 	public static function save_template( $item ) {
-		if ( ! current_user_can( 'edit_pages' ) ) {
+		if ( ! current_user_can( 'edit_pages' ) || ( class_exists( '\SidcraftPageBuilder\Settings\Roles' ) && ! \SidcraftPageBuilder\Settings\Roles::can_edit() ) ) {
 			return 0;
 		}
 		$title = sanitize_text_field( $item['title'] ?? '' );

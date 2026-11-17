@@ -63,7 +63,7 @@ class Benchmark {
 		add_action( 'wp_print_footer_scripts', array( self::class, 'collect_assets' ), PHP_INT_MAX );
 		add_action( 'shutdown', array( self::class, 'finish' ), PHP_INT_MAX );
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
-			define( 'DONOTCACHEPAGE', true );
+			define( 'DONOTCACHEPAGE', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Standard constant read by page-cache plugins.
 		}
 	}
 

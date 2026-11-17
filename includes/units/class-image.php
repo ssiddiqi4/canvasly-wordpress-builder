@@ -73,7 +73,7 @@ class Image extends Unit {
   }
   elseif($link_to==='custom'&&!empty($s['link']))$img='<a href="'.esc_attr(self::link_href($s['link'])).'" target="'.esc_attr($s['link_target']??'_self').'"'.(($s['link_target']??'')==='_blank'?' rel="noopener"':'').'>'.$img.'</a>';
   $cap='';if(($s['caption_type']??'none')!=='none'){$text=$s['caption']??'';if($text===''&&$id)$text=wp_get_attachment_caption($id)?:'';if($text!=='')$cap='<figcaption class="lb-image-caption">'.esc_html($text).'</figcaption>';}
-  $self=in_array($s['align_self']??'start',['start','center','end','stretch'],true)?$s['align_self']:'start';
+  $self=in_array($s['align_self']??'start',['start','center','end','stretch'],true)?($s['align_self']??'start'):'start';
   return '<figure class="'.$this->cls($s).' lb-image'.$this->hover_class($s).'" style="justify-self:stretch;align-self:'.esc_attr($self).';max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box;"'.$this->attrs($s).'>'.$img.$cap.'</figure>';
  }
  public function style_css($id,$s){

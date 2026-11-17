@@ -25,7 +25,7 @@ class SafeMode {
 	public static function init() {
 		self::load_loader();
 		add_action( 'init', array( self::class, 'refresh_cookie' ), 1 );
-		add_action( 'init', array( self::class, 'maybe_reinstall' ), 2 );
+		add_action( 'admin_init', array( self::class, 'maybe_reinstall' ) );
 		add_action( 'admin_post_sidsyn_safe_mode_exit', array( self::class, 'handle_exit' ) );
 		add_action( 'admin_post_sidsyn_safe_mode_enter', array( self::class, 'handle_enter' ) );
 		add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
@@ -136,15 +136,12 @@ class SafeMode {
 	}
 
 	public static function maybe_reinstall() {
-		if ( class_exists( '\\SidcraftPageBuilder\\Admin\\AdminContext' ) && ! \SidcraftPageBuilder\Admin\AdminContext::allows_background() ) {
+		// Kept for backwards compatibility. The mu-plugin is installed only when
+		// Safe Mode is explicitly turned on; this only removes old duplicates.
+		if ( ! self::can_manage() ) {
 			return;
 		}
-		if ( ! self::enabled() || ! self::can_manage() ) {
-			return;
-		}
-		if ( ! is_readable( self::mu_path() ) ) {
-			self::install_mu_plugin();
-		}
+		self::cleanup_mu_plugins();
 	}
 
 	/**
@@ -234,7 +231,9 @@ class SafeMode {
 		if ( ! is_readable( $src ) ) {
 			return new \WP_Error( 'safe_mode_mu', __( 'The Safe Mode loader file is missing.', 'sidcraft-page-builder' ) );
 		}
+		self::delete_mu_plugins( $dest );
 		if ( function_exists( 'copy' ) && @copy( $src, $dest ) ) {
+			self::delete_mu_plugins( $dest );
 			return true;
 		}
 		$data = file_get_contents( $src );
@@ -244,15 +243,69 @@ class SafeMode {
 				__( 'Could not write the Safe Mode must-use plugin. Allow writes to wp-content/mu-plugins.', 'sidcraft-page-builder' )
 			);
 		}
+		self::delete_mu_plugins( $dest );
 		return true;
 	}
 
 	public static function remove_mu_plugin() {
-		$path = self::mu_path();
-		if ( $path !== '' && is_file( $path ) ) {
-			wp_delete_file( $path );
-		}
+		self::remove_mu_plugins();
+	}
+
+	/**
+	 * Remove duplicate copies of the Safe Mode mu-plugin, keeping the canonical one.
+	 *
+	 * @return void
+	 */
+	public static function cleanup_mu_plugins() {
+		self::delete_mu_plugins( self::mu_path() );
+	}
+
+	/**
+	 * Remove every copy of the Safe Mode mu-plugin.
+	 *
+	 * @return void
+	 */
+	public static function remove_mu_plugins() {
+		self::delete_mu_plugins();
 		delete_option( self::BOOT );
+	}
+
+	/**
+	 * Remove the mu-plugin and per-user Safe Mode state on uninstall.
+	 *
+	 * @return void
+	 */
+	public static function uninstall() {
+		self::remove_mu_plugins();
+		if ( function_exists( 'delete_metadata' ) ) {
+			$meta = class_exists( AdminSettings::class ) ? AdminSettings::SAFE_META : 'sidcraft_page_builder_safe_mode';
+			delete_metadata( 'user', 0, $meta, '', true );
+			delete_metadata( 'user', 0, self::TOKEN, '', true );
+		}
+	}
+
+	/**
+	 * @param string $keep Path to keep, or empty to remove every copy.
+	 * @return void
+	 */
+	private static function delete_mu_plugins( $keep = '' ) {
+		$dir = self::mu_dir();
+		if ( '' === $dir || ! is_dir( $dir ) ) {
+			return;
+		}
+		$keep = '' !== $keep ? wp_normalize_path( $keep ) : '';
+		foreach ( (array) glob( $dir . '/*.php' ) as $file ) {
+			if ( ! is_string( $file ) || ! is_file( $file ) ) {
+				continue;
+			}
+			if ( '' !== $keep && wp_normalize_path( $file ) === $keep ) {
+				continue;
+			}
+			$head = @file_get_contents( $file, false, null, 0, 4096 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local mu-plugin header.
+			if ( false !== $head && false !== strpos( $head, 'Sidcraft Page Builder Safe Mode' ) ) {
+				wp_delete_file( $file );
+			}
+		}
 	}
 
 	/**

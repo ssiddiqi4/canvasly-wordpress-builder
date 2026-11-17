@@ -523,7 +523,7 @@ class Review {
 			nocache_headers();
 		}
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
-			define( 'DONOTCACHEPAGE', true );
+			define( 'DONOTCACHEPAGE', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Standard constant read by page-cache plugins.
 		}
 		add_filter( 'show_admin_bar', '__return_false' );
 		header( 'X-Robots-Tag: noindex', true );

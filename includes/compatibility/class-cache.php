@@ -29,8 +29,16 @@ class Cache {
 			return false;
 		}
 
+		self::touch( $post_id );
 		if ( function_exists( 'clean_post_cache' ) ) {
 			clean_post_cache( $post_id );
+		}
+		// The builder saves without wp_update_post(), so save_post does not run. Host and
+		// proxy caches (Varnish, Nginx, the host's own page cache) purge a post on edit_post,
+		// which WordPress itself fires whenever a post changes outside the editor.
+		$post = function_exists( 'get_post' ) ? get_post( $post_id ) : null;
+		if ( $post && 'publish' === $post->post_status ) {
+			do_action( 'edit_post', $post_id, $post ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
 		}
 
 		self::call_if( 'wp_cache_post_change', $post_id );
@@ -86,6 +94,28 @@ class Cache {
 		 */
 		do_action( 'sidcraft_page_builder_cache_purge', $post_id );
 		return true;
+	}
+
+	/**
+	 * Record the save as the post's last change (post_modified), as a classic update
+	 * would: caches and sitemaps compare it, and Last-Modified headers come from it.
+	 *
+	 * @param int $post_id
+	 * @return void
+	 */
+	private static function touch( $post_id ) {
+		global $wpdb;
+		if ( ! isset( $wpdb ) || ! function_exists( 'current_time' ) ) {
+			return;
+		}
+		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Same columns wp_update_post() sets; no save_post or revision wanted.
+			$wpdb->posts,
+			array(
+				'post_modified'     => current_time( 'mysql' ),
+				'post_modified_gmt' => current_time( 'mysql', true ),
+			),
+			array( 'ID' => $post_id )
+		);
 	}
 
 	/**

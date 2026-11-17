@@ -334,3 +334,59 @@ body.toplevel_page_sidcraft-page-builder .lb-admin.lb-fullscreen.lb-has-drawer .
 .lb-ai-settings select { font-weight: 400; padding: 6px 8px; border: 1px solid #cfd5dc; border-radius: 6px; }
 .lb-ai-settings-msg { color: var(--lb-ai-muted); min-height: 1em; margin: 0; }
 .lb-ai-settings [hidden] { display: none; }
+
+/* Website import panel */
+.lb-ai-composer-row { flex-wrap: wrap; }
+.lb-ai-site { margin: 0 12px 8px; padding: 10px 12px; border: 1px solid var(--lb-ai-line); border-radius: 8px; background: #fff; font-size: 13px; color: var(--lb-ai-ink); max-height: 46vh; overflow: auto; }
+.lb-ai-site header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.lb-ai-site p { margin: 6px 0; color: var(--lb-ai-muted); }
+.lb-ai-site-field { display: block; margin: 8px 0; }
+.lb-ai-site-field span { display: block; font-weight: 600; margin-bottom: 3px; }
+.lb-ai-site-field input, .lb-ai-site-field select { width: 100%; box-sizing: border-box; }
+.lb-ai-site-check { display: flex; gap: 6px; align-items: flex-start; margin: 6px 0; }
+.lb-ai-site-check input { margin-top: 2px; }
+.lb-ai-site-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; margin-top: 10px; }
+.lb-ai-site-actions button { padding: 6px 12px; border: 1px solid var(--lb-ai-line); border-radius: 6px; background: #fff; cursor: pointer; }
+.lb-ai-site-actions button.is-primary { border-color: var(--lb-ai-accent); background: var(--lb-ai-accent); color: #fff; font-weight: 600; }
+.lb-ai-site-actions button:disabled { opacity: .5; cursor: default; }
+.lb-ai-site-pages { list-style: none; margin: 6px 0; padding: 0; }
+.lb-ai-site-pages li { padding: 4px 0; border-bottom: 1px solid var(--lb-ai-line); }
+.lb-ai-site-pages label { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.lb-ai-site-pages small { color: var(--lb-ai-muted); word-break: break-all; }
+.lb-ai-site-log { list-style: none; margin: 6px 0; padding: 0; }
+.lb-ai-site-log li { padding: 2px 0 2px 18px; position: relative; }
+.lb-ai-site-log li::before { position: absolute; left: 0; content: "…"; color: var(--lb-ai-muted); }
+.lb-ai-site-log li.is-ok::before { content: "✓"; color: #1a7f37; }
+.lb-ai-site-log li.is-error { color: #b42318; }
+.lb-ai-site-log li.is-error::before { content: "!"; }
+.lb-ai-site-error { color: #b42318 !important; font-weight: 600; }
+.lb-ai-link { border: 0; background: none; padding: 0; color: var(--lb-ai-accent); cursor: pointer; text-decoration: underline; font-size: inherit; }
+
+/* Breakpoint checks on a plan (see checkPlan in editor-ai.js). */
+.lb-ai-checks { margin: 8px 0 0; padding: 6px 8px; border-radius: 6px; background: #f0fdf4; color: #14532d; font-size: 12px; }
+.lb-ai-checks.has-errors { background: #fef2f2; color: #7f1d1d; }
+.lb-ai-checks.is-running { background: transparent; color: var(--lb-ai-muted); padding: 0; }
+.lb-ai-checks p { margin: 0; }
+.lb-ai-checks p span { color: var(--lb-ai-muted); }
+.lb-ai-checks ul { margin: 4px 0 0; padding-left: 16px; }
+.lb-ai-checks li.is-error { font-weight: 600; }
+.lb-ai-checks-blocked { margin-top: 6px !important; }
+.lb-ai-checks-blocked button { margin-left: 4px; }
+
+/* Website import: copy media option and per-page notes. */
+.lb-ai-site-check small { display: block; margin: 2px 0 0 22px; color: var(--lb-ai-muted); }
+.lb-ai-site-status { color: var(--lb-ai-muted); }
+.lb-ai-site-log li.is-warn::before { content: "✓"; color: #b54708; }
+.lb-ai-site-log li ul { list-style: disc; margin: 2px 0 4px 16px; padding: 0; color: var(--lb-ai-muted); font-size: 12px; }
+.lb-ai-site-log li ul li { padding: 0; }
+.lb-ai-site-log li ul li::before { content: none; }
+
+/* Website import: scripts of the original pages (listed, not copied). */
+.lb-ai-site-scripts { margin: 4px 0 2px; font-size: 12px; }
+.lb-ai-site-scripts summary { cursor: pointer; color: var(--lb-ai-muted); }
+.lb-ai-site-log .lb-ai-site-scripts ul { list-style: none; margin: 4px 0 0; padding: 0; font-size: 12px; }
+.lb-ai-site-log .lb-ai-site-scripts li { padding: 2px 0; word-break: break-all; }
+.lb-ai-site-log .lb-ai-site-scripts li::before { content: none; }
+.lb-ai-site-scripts small { color: var(--lb-ai-muted); }
+.lb-ai-site-scripts pre { max-height: 160px; overflow: auto; margin: 4px 0; padding: 6px; background: rgba(127, 127, 127, .1); white-space: pre-wrap; font-size: 11px; }
+.lb-ai-site-note { font-size: 12px; color: var(--lb-ai-muted); }

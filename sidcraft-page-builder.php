@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Sidcraft Page Builder
+ * Plugin Name: Sidcraft Page Builder w/ AI MCP
  * Description: A lightweight, independent visual page builder for WordPress.
- * Version: 1.2.4
+ * Version: 2.2.0
  * Requires at least: 6.9
  * Requires PHP: 7.4
  * Author: Sidcraft Page Builder
@@ -53,7 +53,7 @@ if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_URL' ) ) {
 	define( 'SIDCRAFT_PAGE_BUILDER_URL', plugin_dir_url( __FILE__ ) );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ) {
-	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '1.2.4' );
+	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '2.2.0' );
 }
 
 /**
@@ -82,6 +82,47 @@ if ( ! function_exists( 'sidcraft_page_builder_requirements_notice' ) ) {
 if ( ! sidcraft_page_builder_requirements_met() ) {
 	add_action( 'admin_notices', 'sidcraft_page_builder_requirements_notice' );
 	return;
+}
+
+/*
+ * Settings that are not autoloaded (most are large or rarely changed) but are
+ * read on most requests: load them in one query instead of one query each.
+ * Options that do not exist are remembered as missing, so they cost nothing.
+ */
+if ( function_exists( 'wp_prime_option_caches' ) && ! wp_installing() ) {
+	$sidcraft_page_builder_prime = array(
+		'global_settings',
+		'roles_synced',
+		'turnstile',
+		'google_fonts_local',
+		'xeditor_css',
+		'theme_chrome_html',
+		'lazy_load',
+		'kit_settings',
+		'variables',
+		'unit_cache',
+		'theme_style',
+		'optimized_markup',
+		'global_css_hash',
+		'frag_gen',
+		'custom_icons',
+	);
+	if ( is_admin() ) {
+		$sidcraft_page_builder_prime = array_merge( $sidcraft_page_builder_prime, array( 'submissions_keep', 'ai_chat' ) );
+	}
+	$sidcraft_page_builder_prime = array_map(
+		static function ( $name ) {
+			return 'sidcraft_page_builder_' . $name;
+		},
+		$sidcraft_page_builder_prime
+	);
+	if ( is_admin() && ! wp_using_ext_object_cache() ) {
+		// Read on every admin screen (HTML copy check).
+		$sidcraft_page_builder_prime[] = '_transient_sidsyn_snapshot_checked';
+		$sidcraft_page_builder_prime[] = '_transient_timeout_sidsyn_snapshot_checked';
+	}
+	wp_prime_option_caches( $sidcraft_page_builder_prime );
+	unset( $sidcraft_page_builder_prime );
 }
 
 $sidcraft_page_builder_documents_file = SIDCRAFT_PAGE_BUILDER_PATH . 'includes/document/class-documents.php';
@@ -277,7 +318,7 @@ if ( sidcraft_page_builder_native_editor_zero_bootstrap() ) {
 }
 
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ) {
-	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '1.2.4' );
+	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '2.2.0' );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_FILE' ) ) {
 	define( 'SIDCRAFT_PAGE_BUILDER_FILE', __FILE__ );
@@ -305,6 +346,21 @@ $sidcraft_page_builder_controls_file = SIDCRAFT_PAGE_BUILDER_PATH . 'includes/co
 if ( is_readable( $sidcraft_page_builder_controls_file ) ) {
 	require_once $sidcraft_page_builder_controls_file;
 }
+/**
+ * Register the bundled translations after setup. Registering earlier makes
+ * WordPress 6.7+ try to load them before `init` when a label is translated
+ * during plugin load, which logs a "translation loading too early" notice.
+ *
+ * @return void
+ */
+function sidcraft_page_builder_load_textdomain() {
+	load_plugin_textdomain( // phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Bundled translations in /languages.
+		'sidcraft-page-builder',
+		false,
+		dirname( plugin_basename( __FILE__ ) ) . '/languages'
+	);
+}
+add_action( 'after_setup_theme', 'sidcraft_page_builder_load_textdomain', 1 );
 \SidcraftPageBuilder\Bootstrap\Plugin::instance();
 register_activation_hook( __FILE__, array( '\SidcraftPageBuilder\Bootstrap\Plugin', 'activate' ) );
 register_deactivation_hook( __FILE__, array( '\SidcraftPageBuilder\Bootstrap\Plugin', 'deactivate' ) );

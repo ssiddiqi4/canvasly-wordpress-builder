@@ -1,0 +1,11 @@
+/* Generated from frontend-rtl.css by patches/tools/split-frontend-css.php. Do not edit. */
+.lb-star-rating{display:flex;align-items:center;gap:var(--lb-star-title-gap,10px)}
+.lb-star-rating-center{justify-content:center}
+.lb-star-rating-right{justify-content:flex-end}
+.lb-star-rating-title{color:var(--lb-star-title-color,inherit)}
+.lb-stars{display:inline-flex;gap:var(--lb-star-gap,0)}
+.lb-star{position:relative;display:inline-block;width:var(--lb-star-size,24px);height:var(--lb-star-size,24px);line-height:0}
+.lb-star svg{position:absolute;inset:0;width:100%;height:100%}
+.lb-star-base{fill:var(--lb-star-unmarked,#ccd6df)}
+.lb-star-unmarked-outline .lb-star-base{fill:none;stroke:var(--lb-star-unmarked,#ccd6df);stroke-width:1.5}
+.lb-star-fill{fill:var(--lb-star-color,#f0ad4e);clip-path:inset(0 calc(100% - var(--lb-star-fill,100%)) 0 0)}

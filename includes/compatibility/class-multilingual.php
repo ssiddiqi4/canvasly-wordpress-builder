@@ -118,6 +118,11 @@ class Multilingual {
 	 */
 	public static function filter_settings( $settings, $node = array(), $post_id = 0, $unit = null ) {
 		$settings = is_array( $settings ) ? $settings : array();
+		// No string translator is loaded: translate_string() would hand every value back
+		// unchanged, so skip walking the settings and building the control schema.
+		if ( ! self::has_translator() ) {
+			return $settings;
+		}
 		$node     = is_array( $node ) ? $node : array();
 		$post_id  = absint( $post_id );
 		$id       = preg_replace( '/[^a-zA-Z0-9_-]/', '', (string) ( $node['id'] ?? '' ) );
@@ -237,6 +242,15 @@ class Multilingual {
 		if ( function_exists( 'pll_register_string' ) ) {
 			pll_register_string( $name, $value, self::GROUP, (bool) $multiline );
 		}
+	}
+
+	/**
+	 * True when WPML or Polylang can translate registered strings on this request.
+	 *
+	 * @return bool
+	 */
+	public static function has_translator() {
+		return ( function_exists( 'has_filter' ) && has_filter( 'wpml_translate_single_string' ) ) || function_exists( 'pll_translate_string' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WPML integration hook.
 	}
 
 	/**

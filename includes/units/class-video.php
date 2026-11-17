@@ -92,7 +92,7 @@ class Video extends Unit {
   if(!empty($s['mute'])||(!empty($s['autoplay'])&&!empty($s['play_on_mobile'])))$a.=' muted';
   if(!empty($s['loop']))$a.=' loop';
   if(empty($s['download_button']))$a.=' controlsList="nodownload"';
-  $a.=' preload="'.esc_attr(in_array($s['preload']??'metadata',['none','metadata','auto'],true)?$s['preload']:'metadata').'"';
+  $a.=' preload="'.esc_attr(in_array($s['preload']??'metadata',['none','metadata','auto'],true)?($s['preload']??'metadata'):'metadata').'"';
   if($poster)$a.=' poster="'.esc_url($poster).'"';
   return '<video'.$a.'><source src="'.$url.'"></video>';
  }

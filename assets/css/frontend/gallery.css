@@ -1,0 +1,43 @@
+/* Generated from frontend.css by patches/tools/split-frontend-css.php. Do not edit. */
+.lb-gallery{display:grid;grid-template-columns:repeat(var(--lb-cols,4),minmax(0,1fr));gap:var(--lb-gap,12px);overflow:hidden;width:100%;min-width:0;max-width:100%}
+.lb-gallery-item{display:block;min-width:0;max-width:100%;overflow:hidden;break-inside:avoid}
+.lb-gallery.is-grid{display:grid;grid-template-columns:repeat(var(--lb-cols,4),minmax(0,1fr));gap:var(--lb-gap,12px)}
+.lb-gallery.is-masonry{display:block;column-count:var(--lb-cols,4);column-gap:var(--lb-gap,12px)}
+.lb-gallery.is-masonry .lb-gallery-item{display:inline-block;width:100%;margin:0 0 var(--lb-gap,12px)}
+.lb-gallery.is-grid .lb-gallery-item{aspect-ratio:var(--lb-gallery-ratio,1)}
+.lb-gallery.is-ratio-auto .lb-gallery-item,.lb-gallery.is-masonry .lb-gallery-item{aspect-ratio:auto}
+.lb-gallery img{width:100%;max-width:100%;height:auto;display:block}
+.lb-gallery.is-grid .lb-gallery-item img{height:100%;object-fit:cover}
+.lb-gallery.is-masonry .lb-gallery-item img{height:auto;object-fit:contain}
+.lb-gallery{display:grid;grid-template-columns:repeat(var(--lb-cols,4),minmax(0,1fr));gap:var(--lb-gap,12px);overflow:hidden;width:100%;min-width:0}
+.lb-gallery.is-masonry{display:block;column-count:var(--lb-cols,4);column-gap:var(--lb-gap,12px)}
+.lb-gallery img{display:block;width:100%;height:auto;max-width:100%}
+.lb-gallery-placeholder{display:block;padding:24px;text-align:center;color:#6b7280;background:#f3f4f6;border:1px dashed #cbd2da;border-radius:6px;font-size:14px}
+.lb-gallery-item figure{margin:0}
+.lb-gallery img{border-radius:var(--lb-gallery-radius,0)}
+.lb-gallery-caption{margin-top:6px;font-size:var(--lb-gallery-caption-size,13px);color:var(--lb-gallery-caption-color,inherit)}
+.lb-gallery-caption-left .lb-gallery-caption{text-align:left}
+.lb-gallery-caption-center .lb-gallery-caption{text-align:center}
+.lb-gallery-caption-right .lb-gallery-caption{text-align:right}
+.lb-gallery-shell{display:block}
+.lb-gallery-nav{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:0;margin:0 0 24px;padding:0;border:0;border-bottom:1px solid #d8dde3}
+.lb-gallery-nav button{appearance:none;border:1px solid transparent;border-bottom:none;background:transparent;padding:9px 16px;margin:0 2px -1px;color:#5c6570;cursor:pointer;font:600 13px/1.2 system-ui,sans-serif;border-radius:7px 7px 0 0}
+.lb-gallery-nav button:hover{color:#1f242a;background:#f4f6f8}
+.lb-gallery-nav button.is-active{background:#fff;color:#14181c;border-color:#d8dde3;border-bottom-color:#fff}
+.lb-gallery-item[hidden],.lb-gallery-item.is-lb-out{display:none!important}
+.lb-gallery-shell,.lb-gallery{width:100%;max-width:100%;min-width:0;height:auto}
+.lb-gallery.is-grid{display:grid;grid-template-columns:repeat(var(--lb-cols,4),minmax(0,1fr));gap:var(--lb-gap,10px)}
+.lb-gallery.is-justified{display:flex;flex-wrap:wrap;align-content:flex-start;gap:var(--lb-gap,10px);column-count:unset}
+.lb-gallery.is-masonry{display:block;column-count:var(--lb-cols,4);column-gap:var(--lb-gap,10px);column-fill:balance;height:auto;position:static;overflow:visible}
+.lb-gallery-item{margin:0;min-width:0;overflow:hidden;break-inside:avoid;box-sizing:border-box}
+.lb-gallery-item figure{margin:0;height:100%;display:block}
+.lb-gallery.is-justified .lb-gallery-item{height:var(--lb-row-h,220px);flex:1 1 auto}
+.lb-gallery.is-justified .lb-gallery-item img{width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important}
+.lb-gallery.is-grid .lb-gallery-item{aspect-ratio:var(--lb-gallery-ratio,1)}
+.lb-gallery.is-grid .lb-gallery-item img{width:100%;height:100%;object-fit:cover}
+.lb-gallery.is-masonry .lb-gallery-item{display:inline-block;width:100%;margin:0 0 var(--lb-gap,10px);position:static;height:auto}
+.lb-gallery.is-masonry .lb-gallery-item figure{height:auto}
+.lb-gallery.is-masonry .lb-gallery-item img{width:100%;height:auto;object-fit:contain}
+.lb-gallery.is-ratio-auto .lb-gallery-item,.lb-gallery.is-masonry .lb-gallery-item,.lb-gallery.is-justified .lb-gallery-item{aspect-ratio:auto}
+.lb-gallery-item[hidden],.lb-gallery-item.is-lb-out,.lb-gallery.is-masonry .lb-gallery-item[hidden],.lb-gallery.is-justified .lb-gallery-item[hidden],.lb-gallery.is-grid .lb-gallery-item[hidden],.lb-gallery.is-masonry .lb-gallery-item.is-lb-out,.lb-gallery.is-justified .lb-gallery-item.is-lb-out,.lb-gallery.is-grid .lb-gallery-item.is-lb-out{display:none!important;visibility:hidden!important;width:0!important;height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}
+@media (max-width:767px){.lb-gallery,.lb-gallery.is-grid{grid-template-columns:minmax(0,1fr)!important}.lb-gallery.is-masonry{column-count:1!important}}

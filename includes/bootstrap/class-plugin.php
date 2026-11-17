@@ -26,6 +26,9 @@ class Plugin { private static $instance; public static function instance(){ if(!
   if(is_readable($entries)){require_once $entries;\SidcraftPageBuilder\Forms\Submissions::init();}
   $ai_chat=SIDCRAFT_PAGE_BUILDER_PATH.'includes/ai/class-ai-chat.php';
   if(is_readable($ai_chat)){require_once $ai_chat;\SidcraftPageBuilder\Ai\AiChat::init();}
+  // Read-only MCP endpoint for external agents (free tier).
+  $mcp=SIDCRAFT_PAGE_BUILDER_PATH.'includes/ai/class-mcp.php';
+  if(is_readable($mcp)){require_once $mcp;\SidcraftPageBuilder\Ai\Mcp::register_hooks();}
   add_action('rest_api_init',['SidcraftPageBuilder\Api\Rest','register_routes']);
   add_filter('rest_post_dispatch',['SidcraftPageBuilder\Api\Rest','utf8_content_type'],10,3);
   if(self::is_admin_request()){
@@ -41,6 +44,8 @@ class Plugin { private static $instance; public static function instance(){ if(!
    add_filter('the_content',['SidcraftPageBuilder\Rendering\FrontendRenderer','filter_content'],20);
    add_action('wp_enqueue_scripts',[self::class,'frontend_head'],30);
   }
+  // Per-post unit maps go stale when a template or component changes.
+  if(class_exists('SidcraftPageBuilder\\Rendering\\UnitMap'))\SidcraftPageBuilder\Rendering\UnitMap::register_hooks();
   if(class_exists('SidcraftPageBuilder\\Templates\\PageTemplates'))\SidcraftPageBuilder\Templates\PageTemplates::init();
   if(class_exists('SidcraftPageBuilder\\Templates\\ThemeChrome'))\SidcraftPageBuilder\Templates\ThemeChrome::init();
   if(class_exists('SidcraftPageBuilder\\Templates\\ThemeChromeEdits'))\SidcraftPageBuilder\Templates\ThemeChromeEdits::init();
@@ -63,6 +68,8 @@ class Plugin { private static $instance; public static function instance(){ if(!
   if(class_exists('SidcraftPageBuilder\\Admin\\AdminBar'))\SidcraftPageBuilder\Admin\AdminBar::init();
   if(class_exists('SidcraftPageBuilder\\Widgets\\TemplateWidget'))add_action('widgets_init',['SidcraftPageBuilder\\Widgets\\TemplateWidget','register']);
   if(class_exists('SidcraftPageBuilder\\Document\\Revisions'))\SidcraftPageBuilder\Document\Revisions::init();
+  // Full-page copies served by a must-use plugin while the builder is off.
+  if(class_exists('SidcraftPageBuilder\\Document\\PageSnapshot'))\SidcraftPageBuilder\Document\PageSnapshot::init();
  }
  public static function is_native_block_editor_request(){
   $pagenow=$GLOBALS['pagenow']??'';
@@ -149,9 +156,11 @@ class Plugin { private static $instance; public static function instance(){ if(!
   if(class_exists('SidcraftPageBuilder\\Upgrade\\Upgrades'))\SidcraftPageBuilder\Upgrade\Upgrades::on_activate();
   else update_option('sidcraft_page_builder_version', SIDCRAFT_PAGE_BUILDER_VERSION, false);
   if(class_exists('SidcraftPageBuilder\\Settings\\Roles'))\SidcraftPageBuilder\Settings\Roles::sync();
+  if(class_exists('SidcraftPageBuilder\\Document\\PageSnapshot'))\SidcraftPageBuilder\Document\PageSnapshot::activate();
   flush_rewrite_rules();
  } public static function deactivate(){
   if(class_exists('SidcraftPageBuilder\\Upgrade\\Upgrades'))\SidcraftPageBuilder\Upgrade\Upgrades::on_deactivate();
+  if(class_exists('SidcraftPageBuilder\\Document\\PageSnapshot'))\SidcraftPageBuilder\Document\PageSnapshot::deactivate();
   flush_rewrite_rules();
  } public static function register_units(){ $r=UnitRegistry::instance();$unit_file=SIDCRAFT_PAGE_BUILDER_PATH.'includes/units/class-unit.php';if(is_readable($unit_file)) require_once $unit_file;$files=['container','inner_section','grid','heading','text','image','button','divider','spacer','icon','icon_list','image_box','progress','counter','alert','html','embed','shortcode','video','accordion','toggle','tabs','nested_tabs','nested_accordion','nested_toggle','social','gallery','carousel','star_rating','testimonial','menu_anchor','site_nav','read_more','soundcloud','audio','google_maps','sidebar','wordpress','link_in_bio','rating','icon_box','text_path','code','price_table','flip_box','login','collection_loop','template','component','form','tinymce_text_editor'];$classes=['Container','InnerSection','Grid','Heading','Text','Image','Button','Divider','Spacer','Icon','IconList','ImageBox','Progress','Counter','Alert','Html','Embed','Shortcode','Video','Accordion','Toggle','Tabs','NestedTabs','NestedAccordion','NestedToggle','Social','Gallery','Carousel','StarRating','Testimonial','MenuAnchor','SiteNav','ReadMore','SoundCloud','Audio','GoogleMaps','Sidebar','WordPressWidget','LinkInBio','Rating','IconBox','TextPath','Code','PriceTable','FlipBox','Login','CollectionLoop','Template','Component','Form','TinyMCETextEditor'];foreach($files as $i=>$f){$fq='SidcraftPageBuilder\\Units\\'.$classes[$i];$type=($f==='wordpress')?'wordpress_widget':$f;$r->register_lazy($type,SIDCRAFT_PAGE_BUILDER_PATH.'includes/units/class-'.$f.'.php',$fq);}
   // Extension points: control types first (units may use them), then add-on units.

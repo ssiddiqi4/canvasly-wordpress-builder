@@ -21,6 +21,8 @@ class Roles {
 	const NONE       = 'none';
 	const CONTENT    = 'content';
 	const FULL       = 'full';
+	const POLICY_OPTION  = 'sidcraft_page_builder_roles_policy';
+	const POLICY_VERSION = '2';
 
 	public static function init() {
 		self::maybe_sync();
@@ -209,14 +211,58 @@ class Roles {
 		if ( $done ) {
 			return;
 		}
+		$policy        = function_exists( 'get_option' ) ? (string) get_option( self::POLICY_OPTION, '' ) : '';
+		$policy_change = $policy !== self::POLICY_VERSION;
+		if ( $policy_change ) {
+			self::migrate_legacy_full_roles();
+			if ( function_exists( 'update_option' ) ) {
+				update_option( self::POLICY_OPTION, self::POLICY_VERSION, false );
+			}
+		}
 		$ver    = defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ? (string) SIDCRAFT_PAGE_BUILDER_VERSION : '';
 		$stored = function_exists( 'get_option' ) ? (string) get_option( 'sidcraft_page_builder_roles_synced', '' ) : '';
-		if ( $ver !== '' && $stored === $ver ) {
+		if ( ! $policy_change && $ver !== '' && $stored === $ver ) {
 			$done = true;
 			return;
 		}
 		self::sync();
 		$done = true;
+	}
+
+	/**
+	 * Downgrade legacy full access for content-only roles that have no page
+	 * editing capability. Administrators and roles with edit_pages keep their
+	 * existing full access; design access must now be deliberate.
+	 *
+	 * @return void
+	 */
+	private static function migrate_legacy_full_roles() {
+		if ( ! function_exists( 'get_option' ) || ! function_exists( 'update_option' ) ) {
+			return;
+		}
+		$saved = get_option( self::OPTION, array() );
+		if ( ! is_array( $saved ) || ! $saved ) {
+			return;
+		}
+		$changed = false;
+		foreach ( self::role_list() as $slug => $role ) {
+			if ( 'administrator' === $slug || ( $saved[ $slug ] ?? '' ) !== self::FULL ) {
+				continue;
+			}
+			$caps = array();
+			if ( is_object( $role ) && isset( $role->capabilities ) && is_array( $role->capabilities ) ) {
+				$caps = $role->capabilities;
+			} elseif ( is_array( $role ) ) {
+				$caps = is_array( $role['capabilities'] ?? null ) ? $role['capabilities'] : $role;
+			}
+			if ( empty( $caps['edit_pages'] ) && ! empty( $caps['edit_posts'] ) ) {
+				$saved[ $slug ] = self::CONTENT;
+				$changed        = true;
+			}
+		}
+		if ( $changed ) {
+			update_option( self::OPTION, $saved, false );
+		}
 	}
 
 	private static function mark_synced() {
@@ -277,8 +323,11 @@ class Roles {
 		} elseif ( is_array( $role ) ) {
 			$caps = is_array( $role['capabilities'] ?? null ) ? $role['capabilities'] : $role;
 		}
-		if ( ! empty( $caps['edit_posts'] ) || ! empty( $caps['edit_pages'] ) ) {
+		if ( ! empty( $caps['edit_pages'] ) ) {
 			return self::FULL;
+		}
+		if ( ! empty( $caps['edit_posts'] ) ) {
+			return self::CONTENT;
 		}
 		return self::NONE;
 	}

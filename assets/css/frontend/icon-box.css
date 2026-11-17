@@ -1,0 +1,20 @@
+/* Generated from frontend.css by patches/tools/split-frontend-css.php. Do not edit. */
+.lb-icon-box{display:block;text-decoration:none;color:inherit;padding:18px;border:1px solid #e2e6eb;border-radius:8px}
+.lb-icon-box-icon{display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px}
+.lb-icon-box-icon .lb-fa-icon{width:1em;height:1em}
+.lb-icon-box{display:flex;flex-direction:column;gap:var(--lb-box-icon-space,15px);padding:0;border:0;border-radius:0}
+.lb-icon-box-left{flex-direction:row}
+.lb-icon-box-right{flex-direction:row-reverse}
+.lb-icon-box-align-left{text-align:left;align-items:flex-start}
+.lb-icon-box-align-center{text-align:center;align-items:center}
+.lb-icon-box-align-right{text-align:right;align-items:flex-end}
+.lb-icon-box-left.lb-icon-box-valign-top,.lb-icon-box-right.lb-icon-box-valign-top{align-items:flex-start}
+.lb-icon-box-left.lb-icon-box-valign-middle,.lb-icon-box-right.lb-icon-box-valign-middle{align-items:center}
+.lb-icon-box-left.lb-icon-box-valign-bottom,.lb-icon-box-right.lb-icon-box-valign-bottom{align-items:flex-end}
+.lb-icon-box-icon{flex:0 0 auto;margin:0;line-height:0}
+.lb-icon-box-content{flex:1 1 auto;min-width:0}
+.lb-icon-box-title{margin:0 0 var(--lb-box-title-space,10px);color:var(--lb-box-title-color,inherit)}
+.lb-icon-box-title a{color:inherit;text-decoration:none}
+.lb-icon-box-title a:hover{color:var(--lb-box-title-hover,inherit)}
+.lb-icon-box-text{color:var(--lb-box-text-color,inherit)}
+@media (max-width:767px){.lb-icon-box-left,.lb-icon-box-right{flex-direction:column}}

@@ -38,7 +38,7 @@ class Testimonial extends Unit {
  }
  protected function item_html($s,$item){
   $pos=($s['image_position']??'aside')==='top'?'top':'aside';
-  $align=in_array($s['align']??'center',['left','center','right'],true)?$s['align']:'center';
+  $align=in_array($s['align']??'center',['left','center','right'],true)?($s['align']??'center'):'center';
   $tag=$this->tag($s['name_tag']??'div',$this->title_tags(),'div');
   $author=(string)($item['author']??''); $role=(string)($item['role']??''); $quote=(string)($item['quote']??'');
   $url=$this->media_url($item['image_id']??0,$item['image_url']??'',sanitize_key($s['image_size']??'thumbnail'));

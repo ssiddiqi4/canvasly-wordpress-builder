@@ -11,11 +11,11 @@ class Divider extends Unit {
  public function defaults(){return ['style'=>'solid','divider_width'=>'100%','align'=>'center','thickness'=>1,'color'=>'#dddddd','divider_gap'=>15,'pattern_size'=>20,'look'=>'line','text'=>'Divider','text_tag'=>'span','icon'=>'star','unit_align'=>'center','unit_spacing'=>15,'text_color'=>'','icon_color'=>'','icon_size'=>'','icon_view'=>'default'];}
  public function controls(){return ['style'=>'select','divider_width'=>'text','align'=>'select','thickness'=>'number','color'=>'color','divider_gap'=>'number','pattern_size'=>'number','look'=>'select','text'=>'text','text_tag'=>'select','icon'=>'icon','unit_align'=>'select','unit_spacing'=>'number','text_color'=>'color','icon_color'=>'color','icon_size'=>'number','icon_view'=>'select'];}
  public function render($s,$children=''){
-  $style=in_array($s['style']??'solid',self::line_styles(),true)?$s['style']:'solid';
-  $align=in_array($s['align']??'center',['left','center','right'],true)?$s['align']:'center';
-  $look=in_array($s['look']??'line',['line','line_text','line_icon'],true)?$s['look']:'line';
-  $ealign=in_array($s['unit_align']??'center',['left','center','right'],true)?$s['unit_align']:'center';
-  $view=in_array($s['icon_view']??'default',['default','stacked','framed'],true)?$s['icon_view']:'default';
+  $style=in_array($s['style']??'solid',self::line_styles(),true)?($s['style']??'solid'):'solid';
+  $align=in_array($s['align']??'center',['left','center','right'],true)?($s['align']??'center'):'center';
+  $look=in_array($s['look']??'line',['line','line_text','line_icon'],true)?($s['look']??'line'):'line';
+  $ealign=in_array($s['unit_align']??'center',['left','center','right'],true)?($s['unit_align']??'center'):'center';
+  $view=in_array($s['icon_view']??'default',['default','stacked','framed'],true)?($s['icon_view']??'default'):'default';
   $vars=$this->style_attr([
    '--lb-divider-width'=>sanitize_text_field((string)($s['divider_width']??'100%')),'--lb-divider-color'=>$s['color']??'','--lb-divider-weight'=>$this->unit(max(1,(float)($s['thickness']??1))),
    '--lb-divider-gap'=>$this->unit($s['divider_gap']??''),'--lb-divider-pattern'=>$this->unit($s['pattern_size']??''),'--lb-divider-spacing'=>$this->unit($s['unit_spacing']??''),

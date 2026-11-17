@@ -11,8 +11,9 @@ class FrontendRenderer {
   $js=SIDCRAFT_PAGE_BUILDER_PATH.'assets/js/frontend.js';
   $ver=SIDCRAFT_PAGE_BUILDER_VERSION.'-'.(file_exists($css)?filemtime($css):time());
   $jsver=SIDCRAFT_PAGE_BUILDER_VERSION.'-'.(file_exists($js)?filemtime($js):time());
-  wp_register_style('sidcraft-page-builder-frontend',SIDCRAFT_PAGE_BUILDER_URL.'assets/css/frontend.css',[],$ver);
-  wp_style_add_data('sidcraft-page-builder-frontend','rtl','replace');
+  // Full bundle, or core.css plus per-unit files with this handle as their anchor (StyleChunks).
+  if(class_exists('\\SidcraftPageBuilder\\Rendering\\StyleChunks'))StyleChunks::register($ver);
+  else{wp_register_style('sidcraft-page-builder-frontend',SIDCRAFT_PAGE_BUILDER_URL.'assets/css/frontend.css',[],$ver);wp_style_add_data('sidcraft-page-builder-frontend','rtl','replace');}
   wp_register_script('sidcraft-page-builder-frontend',SIDCRAFT_PAGE_BUILDER_URL.'assets/js/frontend.js',[],$jsver,true);
   if(function_exists('wp_script_add_data')) wp_script_add_data('sidcraft-page-builder-frontend','strategy','defer');
   wp_localize_script('sidcraft-page-builder-frontend','SidcraftPageBuilderFrontend',[
@@ -41,19 +42,21 @@ class FrontendRenderer {
   }
   /** Fires on wp_enqueue_scripts after core frontend assets are registered. Add-ons register their handles here; unit-declared assets enqueue after. */
   do_action('sidcraft_page_builder_frontend_enqueue');
-  if($nodes&&class_exists('\\SidcraftPageBuilder\\Rendering\\FrontendAssets'))\SidcraftPageBuilder\Rendering\FrontendAssets::enqueue($nodes,$id);
+  // The post's own document: handles from its cached unit map, decided before the head prints.
+  if($nodes&&class_exists('\\SidcraftPageBuilder\\Rendering\\FrontendAssets'))\SidcraftPageBuilder\Rendering\FrontendAssets::enqueue_post($id,$nodes);
   if($nodes&&class_exists('\\SidcraftPageBuilder\\Units\\MenuAnchor'))\SidcraftPageBuilder\Units\MenuAnchor::enqueue();
  }
  /**
   * Enqueue frontend CSS/JS/fonts for an embedded document (shortcode, block, widget).
   */
- public static function enqueue_document_assets($doc,$id=0){
+ public static function enqueue_document_assets($doc,$id=0,$cached=false){
   if(!function_exists('wp_enqueue_style'))return;
   wp_enqueue_style('sidcraft-page-builder-frontend');
   $doc=is_array($doc)?$doc:[];
   $nodes=self::document_nodes($doc);
   self::enqueue_google_fonts($nodes);
-  if(class_exists('\\SidcraftPageBuilder\\Rendering\\FrontendAssets'))\SidcraftPageBuilder\Rendering\FrontendAssets::enqueue($nodes,$id);
+  // $cached: the whole document of post $id (a preloaded template), so its unit map can be used.
+  if(class_exists('\\SidcraftPageBuilder\\Rendering\\FrontendAssets')){if($cached&&$id)\SidcraftPageBuilder\Rendering\FrontendAssets::enqueue_post($id,$nodes);else \SidcraftPageBuilder\Rendering\FrontendAssets::enqueue($nodes,$id);}
   elseif(self::needs_frontend_script($nodes,$id))wp_enqueue_script('sidcraft-page-builder-frontend');
   if($nodes&&class_exists('\\SidcraftPageBuilder\\Units\\MenuAnchor'))\SidcraftPageBuilder\Units\MenuAnchor::enqueue();
   if(function_exists('is_singular')&&!is_singular())self::enqueue_global_tokens();
@@ -88,7 +91,7 @@ class FrontendRenderer {
     $css=DocumentManager::compiled_css($id);if($css)wp_add_inline_style('sidcraft-page-builder-frontend',wp_strip_all_tags($css));
    }
    self::enqueue_google_fonts($nodes);
-   if(class_exists('\\SidcraftPageBuilder\\Rendering\\FrontendAssets'))\SidcraftPageBuilder\Rendering\FrontendAssets::enqueue($nodes,$id);
+   if(class_exists('\\SidcraftPageBuilder\\Rendering\\FrontendAssets'))\SidcraftPageBuilder\Rendering\FrontendAssets::enqueue_post($id,$nodes);
    elseif(self::needs_frontend_script($nodes,$id))wp_enqueue_script('sidcraft-page-builder-frontend');
    if(class_exists('\\SidcraftPageBuilder\\Units\\MenuAnchor'))\SidcraftPageBuilder\Units\MenuAnchor::enqueue();
    return OutputEscape::render(function()use($doc,$id){return self::render_document($doc,$id);});
@@ -309,10 +312,25 @@ class FrontendRenderer {
   $font_ver=defined('SIDCRAFT_PAGE_BUILDER_VERSION')?SIDCRAFT_PAGE_BUILDER_VERSION:'1.0.0';
   foreach(array_keys($fonts) as $font){$family=rawurlencode($font); $url='https://fonts.googleapis.com/css2?family='.$family.':wght@400;700&display=swap'; $handle='lb-font-'.sanitize_title($font); wp_enqueue_style($handle,$url,array(),$font_ver);}
  }
+ /**
+  * True when settings hold `_dynamic` bindings or list values (repeaters), the only
+  * entries Resolver::settings() looks up in the control schema.
+  *
+  * @param array $s
+  * @return bool
+  */
+ private static function settings_use_schema(array $s){
+  if(!empty($s['_dynamic']))return true;
+  foreach($s as $v){
+   if(is_array($v)&&$v&&array_keys($v)===range(0,count($v)-1))return true;
+  }
+  return false;
+ }
  private static function resolve_dynamic($s,$post_id=0,$el=null,$extra_ctx=[],$n=[]){
   $s=is_array($s)?$s:[];
   $post_id=absint($post_id);
-  $controls=$el&&method_exists($el,'all_controls')?$el->all_controls():[];
+  // Resolver::settings() reads the schema only for `_dynamic` bindings and repeater (list) values.
+  $controls=$el&&method_exists($el,'all_controls')&&self::settings_use_schema($s)?$el->all_controls():[];
   if(class_exists('\\SidcraftPageBuilder\\Dynamic\\Resolver')){
    $ctx=\SidcraftPageBuilder\Dynamic\Resolver::context($post_id,false);
    if(is_array($extra_ctx)&&$extra_ctx)$ctx=array_merge($ctx,$extra_ctx);

@@ -1,0 +1,20 @@
+/* Generated from frontend.css by patches/tools/split-frontend-css.php. Do not edit. */
+.lb-collapse{display:flex;flex-direction:column;gap:var(--lb-acc-gap,0);border:0;padding:0;margin:0}
+.lb-collapse-item{border:var(--lb-acc-border-width,1px) solid var(--lb-acc-border-color,#d8dde3)}
+.lb-collapse-item+.lb-collapse-item{border-top-width:0}
+.lb-collapse[style*="--lb-acc-gap"] .lb-collapse-item+.lb-collapse-item{border-top-width:var(--lb-acc-border-width,1px)}
+.lb-collapse-title{display:flex;align-items:center;gap:var(--lb-acc-icon-space,10px);margin:0;padding:var(--lb-acc-title-padding,15px 20px);font-weight:600;cursor:pointer;color:var(--lb-acc-title-color,inherit);background:var(--lb-acc-title-bg,transparent);user-select:none}
+.lb-collapse-title:focus-visible{outline:2px solid currentColor;outline-offset:-2px}
+.lb-collapse-heading{flex:1 1 auto}
+.lb-collapse-icon-left .lb-collapse-heading{order:2}
+.lb-collapse-icon-left .lb-collapse-icon{order:1}
+.lb-collapse-icon{display:inline-flex;flex:0 0 auto;color:var(--lb-acc-icon-color,inherit);line-height:0}
+.lb-collapse-icon .lb-fa-icon{width:1em;height:1em}
+.lb-collapse-icon-opened{display:none}
+.lb-collapse-item.is-open .lb-collapse-icon-opened{display:inline-flex}
+.lb-collapse-item.is-open .lb-collapse-icon-closed{display:none}
+.lb-collapse-item.is-open .lb-collapse-title{color:var(--lb-acc-active-color,var(--lb-acc-title-color,inherit))}
+.lb-collapse-item.is-open .lb-collapse-icon{color:var(--lb-acc-icon-active-color,var(--lb-acc-icon-color,inherit))}
+.lb-collapse-content{padding:var(--lb-acc-content-padding,15px 20px);border-top:var(--lb-acc-border-width,1px) solid var(--lb-acc-border-color,#d8dde3);color:var(--lb-acc-content-color,inherit);background:var(--lb-acc-content-bg,transparent)}
+.lb-collapse-content>:first-child{margin-top:0}
+.lb-collapse-content>:last-child{margin-bottom:0}

@@ -258,6 +258,11 @@ class DevMode {
 		if ( $value === '' ) {
 			return '';
 		}
+		// Every pattern below (eval-like calls, `{{...}}` tokens, `{%...%}`) needs a `(`
+		// or a `{`. Plain copy has neither, so return it without running the regexes.
+		if ( strpbrk( $value, '({' ) === false ) {
+			return $value;
+		}
 		$value = self::strip_eval_constructs( $value );
 		$ctx   = self::normalize_context( $context, $for_canvas );
 		if ( preg_match( '/^\{\{lb:([a-z0-9_:-]+)\}\}$/i', trim( $value ), $m ) ) {

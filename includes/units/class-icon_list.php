@@ -46,8 +46,8 @@ class IconList extends Unit {
  }
  public function render($s,$children=''){
   $layout=($s['list_layout']??'traditional')==='inline'?'inline':'traditional';
-  $align=in_array($s['icon_align']??'left',['left','center','right'],true)?$s['icon_align']:'left';
-  $dstyle=in_array($s['divider_style']??'solid',['solid','double','dotted','dashed'],true)?$s['divider_style']:'solid';
+  $align=in_array($s['icon_align']??'left',['left','center','right'],true)?($s['icon_align']??'left'):'left';
+  $dstyle=in_array($s['divider_style']??'solid',['solid','double','dotted','dashed'],true)?($s['divider_style']??'solid'):'solid';
   $vars=$this->style_attr(['--lb-list-gap'=>$this->unit($s['space_between']??''),'--lb-list-icon-size'=>$this->unit($s['icon_size']??''),'--lb-list-icon-color'=>$s['icon_color']??($s['color']??''),'--lb-list-icon-hover'=>$s['icon_hover_color']??'','--lb-list-text-color'=>$s['text_color']??'','--lb-list-text-hover'=>$s['text_hover_color']??'','--lb-list-indent'=>$this->unit($s['text_indent']??''),'--lb-list-divider-style'=>$dstyle,'--lb-list-divider-weight'=>$this->unit($s['divider_weight']??''),'--lb-list-divider-color'=>$s['divider_color']??'','--lb-list-divider-width'=>sanitize_text_field((string)($s['divider_width']??''))]);
   $t=($s['link_target']??'_self')==='_blank'?' target="_blank" rel="noopener"':'';
   $out='<ul class="'.$this->cls($s).' lb-icon-list lb-icon-list-'.$layout.' lb-icon-list-align-'.$align.(!empty($s['divider'])?' lb-icon-list-divided':'').'"'.$vars.'>';

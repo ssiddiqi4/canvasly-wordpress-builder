@@ -29,8 +29,8 @@ class Icon extends Unit {
   ];
  }
  public function render($s,$children=''){
-  $view=in_array($s['icon_view']??'default',['default','stacked','framed'],true)?$s['icon_view']:'default';
-  $shape=in_array($s['shape']??'circle',['circle','rounded','square'],true)?$s['shape']:'circle';
+  $view=in_array($s['icon_view']??'default',['default','stacked','framed'],true)?($s['icon_view']??'default'):'default';
+  $shape=in_array($s['shape']??'circle',['circle','rounded','square'],true)?($s['shape']??'circle'):'circle';
   $svg=\SidcraftPageBuilder\Utils\Icons::svg($s['icon']??'star');
   $inner_class='lb-icon-glyph'.$this->hover_class($s);
   if(!empty($s['link'])){

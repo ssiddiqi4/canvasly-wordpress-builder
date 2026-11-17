@@ -93,11 +93,12 @@ abstract class Unit {
   $handles=apply_filters('sidcraft_page_builder_unit_scripts',$handles,$this,$s);
   return self::normalize_handles(is_array($handles)?$handles:[]);
  }
- /** Normalized unique style handles after `sidcraft_page_builder_unit_styles`. */
+ /** Normalized unique style handles after `sidcraft_page_builder_unit_styles`, including the unit's per-unit frontend CSS file (StyleChunks). */
  public function get_styles($settings=[]){
   $s=is_array($settings)?$settings:[];
   $handles=$this->styles($s);
   if(!is_array($handles))$handles=[];
+  if(class_exists('\\SidcraftPageBuilder\\Rendering\\StyleChunks'))$handles=array_merge(\SidcraftPageBuilder\Rendering\StyleChunks::handles_for($this->type(),$this),$handles);
   $handles=apply_filters('sidcraft_page_builder_unit_styles',$handles,$this,$s);
   return self::normalize_handles(is_array($handles)?$handles:[]);
  }
@@ -124,13 +125,13 @@ abstract class Unit {
  /** Defaults after the `sidcraft_page_builder_unit_defaults` filter. Schema `default`s are merged under `defaults()`. Use this instead of defaults() when reading. */
  public function get_defaults(){
   $schema=[];
-  foreach($this->controls() as $k=>$def){ if(is_array($def)&&array_key_exists('default',$def))$schema[$k]=$def['default']; }
+  foreach($this->memo_unit_controls() as $k=>$def){ if(is_array($def)&&array_key_exists('default',$def))$schema[$k]=$def['default']; }
   $d=apply_filters('sidcraft_page_builder_unit_defaults',array_merge($schema,(array)$this->defaults()),$this);
   return is_array($d)?$d:[];
  }
  /** True when the unit declares at least one control as a schema array (opts the panel into the schema renderer). */
  public function uses_schema(){
-  foreach($this->controls() as $def){ if(is_array($def))return true; }
+  foreach($this->memo_unit_controls() as $def){ if(is_array($def))return true; }
   return false;
  }
  /** True when the unit renders a clickable button (CTA, submit, read more, ...). */
@@ -144,8 +145,15 @@ abstract class Unit {
   * `sidcraft_page_builder_unit_controls`, every value normalized to a definition array (see controls()).
   */
  public function all_controls(){
+  // Rendering asks for the schema several times per node (dynamic tags, translations,
+  // styles). Building it runs every control through the filter, translations and
+  // normalize_control(), so keep one copy per unit instance for the request. The key
+  // changes when the filter's callbacks or the locale change, so late hooks still apply.
+  $sig=self::memo_schema_signature('sidcraft_page_builder_unit_controls');
+  if($this->all_controls_cache!==null&&$this->all_controls_sig===$sig)return $this->all_controls_cache;
+  $this->all_controls_sig=$sig;
   $c=apply_filters('sidcraft_page_builder_unit_controls',$this->base_controls(),$this);
-  if(!is_array($c))return [];
+  if(!is_array($c))return $this->all_controls_cache=[];
   $out=[];
   foreach($c as $k=>$def){
    $k=sanitize_key((string)$k); if($k==='')continue;
@@ -155,7 +163,38 @@ abstract class Unit {
    }
    $out[$k]=self::normalize_control($k,$def);
   }
-  return $out;
+  return $this->all_controls_cache=$out;
+ }
+ /** @var array|null Request copy of all_controls(). */
+ private $all_controls_cache=null;
+ /** @var string */
+ private $all_controls_sig='';
+ /** @var array|null Request copy of controls() for get_defaults()/uses_schema(). */
+ private $memo_controls_cache=null;
+ /** @var string */
+ private $memo_controls_sig='';
+ /**
+  * Cache key for a schema built through `$hook`: the hook's callback count plus the locale
+  * (labels are translated). Cheap enough to compute on every call.
+  *
+  * @param string $hook
+  * @return string
+  */
+ protected static function memo_schema_signature($hook){
+  $n=0;
+  if(isset($GLOBALS['wp_filter'][$hook])&&is_object($GLOBALS['wp_filter'][$hook])&&isset($GLOBALS['wp_filter'][$hook]->callbacks)){
+   foreach($GLOBALS['wp_filter'][$hook]->callbacks as $cbs)$n+=count($cbs);
+  }
+  // get_locale() follows switch_to_locale() through the `locale` filter.
+  return $n.'|'.(function_exists('get_locale')?get_locale():'');
+ }
+ /** controls() memoized per request (see all_controls()). */
+ protected function memo_unit_controls(){
+  $sig=self::memo_schema_signature('');
+  if($this->memo_controls_cache!==null&&$this->memo_controls_sig===$sig)return $this->memo_controls_cache;
+  $this->memo_controls_sig=$sig;
+  $c=$this->controls();
+  return $this->memo_controls_cache=is_array($c)?$c:[];
  }
  /** Flat `key => type` map (legacy shape of all_controls()). */
  public function control_types(){

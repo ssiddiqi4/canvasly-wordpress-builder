@@ -4,7 +4,7 @@ if(!defined('ABSPATH')) exit;
 class DesignSystem {
  const SCHEMA='2.1';
  public static function export(){
-  $out=['schema'=>self::SCHEMA,'exported_at'=>current_time('c'),'variables'=>Variables::all(),'theme_style'=>class_exists(ThemeStyle::class)?ThemeStyle::all():[],'kit_settings'=>class_exists('\\SidcraftPageBuilder\\Settings\\KitSettings')?\SidcraftPageBuilder\Settings\KitSettings::all():[],'classes'=>GlobalClasses::all(),'components'=>Components::all(),'global_settings'=>class_exists('\\SidcraftPageBuilder\\Settings\\GlobalSettings')?\SidcraftPageBuilder\Settings\GlobalSettings::get():[],'atomic'=>Atomic::types(),'templates'=>class_exists(Kit::class)?Kit::templates():[]];
+  $out=['schema'=>self::SCHEMA,'exported_at'=>current_time('c'),'variables'=>Variables::all(),'theme_style'=>class_exists(ThemeStyle::class)?ThemeStyle::all():[],'kit_settings'=>class_exists('\\SidcraftPageBuilder\\Settings\\KitSettings')?\SidcraftPageBuilder\Settings\KitSettings::all():[],'classes'=>GlobalClasses::all(),'components'=>Components::all(),'global_settings'=>class_exists('\\SidcraftPageBuilder\\Settings\\GlobalSettings')?\SidcraftPageBuilder\Settings\GlobalSettings::public_settings():[],'atomic'=>Atomic::types(),'templates'=>class_exists(Kit::class)?Kit::templates():[]];
   /** Filter the design-system / kit JSON payload. @param array $out */
   $filtered=apply_filters('sidcraft_page_builder_design_system_export',$out);
   return is_array($filtered)?$filtered:$out;
@@ -16,7 +16,17 @@ class DesignSystem {
   if(isset($d['theme_style'])&&is_array($d['theme_style'])&&class_exists(ThemeStyle::class))ThemeStyle::save($d['theme_style']);
   if(isset($d['kit_settings'])&&is_array($d['kit_settings'])&&class_exists('\\SidcraftPageBuilder\\Settings\\KitSettings'))\SidcraftPageBuilder\Settings\KitSettings::save($d['kit_settings']);
   if(isset($d['classes'])&&is_array($d['classes']))foreach($d['classes'] as $name=>$css){$x=is_array($css)?$css:['base'=>$css];GlobalClasses::save($name,$x,$x['extends']??[],$x['description']??'');}
-  if(isset($d['global_settings'])&&is_array($d['global_settings'])&&current_user_can('manage_options'))update_option(\SidcraftPageBuilder\Settings\GlobalSettings::KEY,$d['global_settings'],false);
+  if(isset($d['global_settings'])&&is_array($d['global_settings'])&&current_user_can('manage_options')){
+   $incoming=$d['global_settings'];
+   if(class_exists('\\SidcraftPageBuilder\\Settings\\GlobalSettings')){
+    $current=\SidcraftPageBuilder\Settings\GlobalSettings::get();
+    foreach(['recaptcha_secret_key','google_maps_api_key'] as $secret){
+     $value=isset($incoming[$secret])?(string)$incoming[$secret]:'';
+     if($value===''||preg_match('/^\*+$/',$value))$incoming[$secret]=$current[$secret]??'';
+    }
+    update_option(\SidcraftPageBuilder\Settings\GlobalSettings::KEY,$incoming,false);
+   }
+  }
   if(isset($d['components'])&&is_array($d['components']))foreach($d['components'] as $c){if(!is_array($c)||empty($c['title'])||empty($c['document']))continue;Components::save($c['title'],$c['document'],$c['exposed']??[],0,$c['key']??'');}
   if(isset($d['templates'])&&is_array($d['templates'])&&class_exists(Kit::class))Kit::import_templates($d['templates'],'merge');
   return self::export();

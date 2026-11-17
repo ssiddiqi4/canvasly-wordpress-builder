@@ -1,4 +1,68 @@
 === Sidcraft Page Builder: full changelog ===
+= 2.2.0 =
+* New: Settings > General > Open a menu from a button. A button or link set to `#open-menu-<menu item name>` scrolls to the top and opens that dropdown in the Site Menu; on phones the menu unfolds first. Can be switched off, and the scroll-to-top is optional.
+
+= 2.1.4 =
+* Security release. Template deletion verifies the target type and `delete_post`; design/global-settings payloads redact reCAPTCHA and Maps secrets; content-only roles no longer default to full design control and legacy mappings migrate; core site identity requires `manage_options`; form recipients are resolved server-side with a per-IP/form throttle; template management requires the Role Manager edit capability; local media imports accept basenames only; `/loop` denies password-protected and non-viewable posts; draft/private pages and templates are filtered unless the caller can edit them.
+* Fixed: forms rendered outside the standard renderer use the site admin address as the fallback recipient.
+
+= 1.3.15 =
+* AI Chat Bot: the breakpoint check now catches content that runs past the edge of the screen while its unit's own box fits, for example text in a unit squeezed into a narrow column by a flex row that does not stack on mobile. When the page scrolls sideways at a breakpoint, the innermost unit of the plan that holds the overflowing content is named. Content in slider tracks, scroll areas and fixed popups is still ignored.
+
+= 1.3.14 =
+* AI Chat Bot: every plan is checked at each breakpoint before it is applied. Preview (or Apply) shows the plan on the canvas at Desktop, Tablet and Mobile (the breakpoints enabled on the site) and flags units that run past the edge of the screen, text that is cut off or spills out of its box, boxes with text but no size, siblings drawn on top of each other and links or buttons smaller than 24px to tap on narrow screens. Units hidden on that device, slides inside a slider or other clipped area, and fixed popups are left out; text shortened with an ellipsis is a note, not a problem. A plan with problems is not applied until you fix it, ask the AI to fix it, or choose Apply anyway. The device you were on is shown again afterwards.
+* AI Chat Bot: recreation runs. A plan is stored with what it depends on, as separate artifacts instead of one large prompt: the uploaded design (saved to the Media Library when you can upload files), the design variables and classes it was built with, the breakpoints and widths it is checked at, the block tree, and the validation. Each artifact has a revision and a SHA-256 hash; a validation is tied to the hashes it checked, so changing the tree, the tokens or the viewport makes it stale. The server also checks the tree's structure (unknown units, children in units that take none, refs used before they are created, breakpoints the site does not have, classes that do not exist, var(--xe-var-…) references that resolve to nothing). The newest 5 runs per page are kept. REST: `sidcraft-page-builder/v1/ai-recreation/{post}` and `…/{run}/{source|tokens|viewport|tree|validation}`, `…/validate`, `…/accept`, `…/preview`.
+* AI Chat Bot: layout memory. An applied plan leaves a one-line note (title, summary, classes and variables it defined). Each turn adds only the few notes that match the request (at most 2,400 characters) instead of the site's history, so new sections stay consistent with earlier ones. REST: `sidcraft-page-builder/v1/ai-memory`. Notes stay on your site; add-ons can supply or mirror them through the `sidcraft_page_builder_ai_memory_recall` filter and the `sidcraft_page_builder_ai_memory_recorded` action.
+* AI Chat Bot: the instructions name the breakpoint widths the preview is measured at.
+* New for add-ons: `SidcraftPageBuilder.checkLayout(ids)` measures nodes on the canvas at every breakpoint; `SidcraftPageBuilder\Ai\Recreation` (runs, artifacts, `acceptance()`, `record_visual()`, signed preview URLs that render a document tree without a login for 15 minutes); the `sidcraft_page_builder_ai_recreation_requirements` filter and the `sidcraft_page_builder_ai_recreation_accepted` action.
+* Uninstall removes layout memory and recreation runs.
+
+= 1.3.7 =
+* AI Chat Bot: new "Website" button. With Sidcraft Builder Pro, enter a website address, choose its pages and rebuild them as Sidcraft pages with the same design: as new draft pages, or one page as a plan for the page you are editing. Pages are converted directly (same layout, colors, fonts and images) or rebuilt by the AI. Without Pro the button answers "This feature is available to Sidcraft Builder PRO."
+* HTML import: headings, text and images keep styles that reach them through descendant or tag selectors and the browser's defaults (for example bold headings, ".card h3" colors, rounded images, paragraph spacing), so the theme no longer replaces them.
+* HTML import: a flex or grid row of links (a menu) keeps one item per link instead of running them together.
+* Fixed: HTML imports named their leftover style classes imported-1, imported-2 and so on, starting again for every import. The classes are shared by the whole site, so a later import changed the look of earlier pages. They are now named after their styles.
+* New for add-ons: `SidcraftPageBuilder.planToDocument(ops)` builds a page document from a plan without changing the open page, and `htmlToPlan` accepts a `classPrefix` option.
+
+= 1.3.6 =
+* AI Chat Bot: can add entrance animations. The instructions describe the Motion Effects settings of classic units (fade, slide-up or scale; trigger, duration, delay, easing, threshold, repeat), so "make the cards fade in one after another" is applied directly.
+* AI Chat Bot: the page outline shows the effects each unit already uses (entrance animations, plus effect settings add-ons register through the new `effectKeys` entry of `sidcraft_page_builder_ai_chat_config`), so the AI can change or remove them.
+* AI Chat Bot: on/off and number settings written by the AI in any tab are stored the way the unit expects (for example "yes" becomes true and "80" becomes 80).
+
+= 1.3.5 =
+* Fixed: when another plugin registers its own unit under a core unit's type (Sidcraft Builder Pro's Price Table), the canvas now shows that plugin's preview. Before, it drew the core Price Table template, which reads different settings, so the badge, description, currency, crossed-out features and button text did not appear in the editor (the published page was correct). The editor data marks such units with `replaces_core`, and the canvas runs the `editor/node/body_html` filters on their final markup.
+* Fixed: the `editor/render` action now runs again once a fully redrawn canvas has loaded. Add-ons that style the canvas on this action (such as Sidcraft Builder Pro's unit styles) were applied to the canvas document that was about to be replaced, so their styles were missing until the first edit.
+
+= 1.3.4 =
+* AI Chat Bot: fills classic units (price tables, accordions, tabs, testimonials, counters, forms…) with real content instead of leaving their defaults. Each turn now tells the AI the content settings of the classic units that matter most for the request: units already on the page or selected first, then units named in the message (for example "pricing" or "FAQ"), then the core units, within a fixed size budget. Lists such as features, FAQ items or testimonials are written in full.
+* AI Chat Bot: classic units on the page are described with their current content, so the AI can change one FAQ answer or price-table feature in place.
+* AI Chat Bot: settings written by the AI are stored the way each unit expects (on/off switches, an ID on every list item).
+* Fixed: on very large pages the page outline sent to the AI could exceed the 120,000-character limit and reach the AI cut off mid-way. It is now kept within the limit, using a shorter outline when needed.
+
+= 1.3.3 =
+* Performance: dynamic tags build their value map (which sanitizes the whole post content) only when a setting contains a `{{lb:...}}` token. On builder pages with large content this saved about 8% of the render.
+* Fixed: Plugin Check warning "The use of function set_time_limit() is discouraged". Saving page copies right before deactivation no longer raises PHP's time limit; it stops in time to stay within the host's limit and the background sweep saves any pages left.
+* Performance: a page with 200 units renders about twice as fast. Each unit type builds its control schema once per request instead of once or twice per unit, and only when the unit has dynamic tags or repeater items that need it.
+* Performance: the frontend asset scan runs once per page instead of once for wp_enqueue_scripts and again for the_content.
+* Performance: without WPML or Polylang, unit settings skip the translation pass, which changed nothing but walked every setting.
+* Performance: plain text settings (no `{` or `(`) skip the dynamic-token and eval checks, which cannot change them. The interaction preset list is built once per request.
+* Saving a 200-unit page is about 40% faster.
+
+= 1.3.2 =
+* New: pages keep their exact look when Sidcraft Page Builder is deactivated. The builder saves a full copy of each published builder page (refreshed after each save, in the background, after a template change, and right before deactivation), and a small must-use plugin serves it while the builder is off: columns, backgrounds, spacing, fonts, forms, buttons, video, audio, iframes, maps, embeds and sliders stay in place. The readable copy in post_content is unchanged and is still used for search, feeds and the block editor, and for any page edited while the builder is off. Uninstalling removes the saved copies and the must-use plugin.
+* New: a notice on the Plugins screen and Dashboard shows how many published builder pages have a saved full copy, and why the site could not save one by itself (for example when the host blocks requests to its own pages). Sidcraft Page Builder → Tools has an HTML copies of pages section (also linked as Save HTML copies under the plugin on the Plugins screen) that always shows the status and a Save HTML copies now button. The button saves the copies from your browser, which works even when those requests are blocked. A logged-out visit to a page without a current copy also saves one.
+* Performance: the HTML copies are stored as files in uploads/sidcraft-page-builder/html-copies/ (with a small record in post meta), so viewing a page never loads its copy. The copy status on the Dashboard and Plugins screens is read in a few queries and cached for 10 minutes, and the must-use plugin check runs on the Plugins screen or twice a day instead of on every admin request.
+* Developers: filters `sidcraft_page_builder_page_snapshot_enabled`, `sidcraft_page_builder_snapshot_serve` and `sidcraft_page_builder_snapshot_addons` (add-ons that render part of a page record themselves on each copy), and `PageSnapshot::refresh_stale()`.
+
+= 1.3.0 =
+* Fixed: Query Monitor and browsers still reported "Insecure content" for global.css, post-*.css and the self-hosted font stylesheet on some HTTPS sites. Behind a proxy, load balancer or CDN (for example Cloudflare), WordPress cannot see that the visitor is on HTTPS, so the 1.2.5 fix kept http://. The builder now also checks the X-Forwarded-Proto, X-Forwarded-SSL, CF-Visitor and Forwarded headers and the Site Address; when HTTPS still cannot be detected it uses a scheme-relative URL (//…) that always follows the page's own scheme.
+* Fixed: a final style_loader_src check moves builder stylesheets to https:// if a cache or another plugin rewrites them back to http://.
+* Developers: filter `sidcraft_page_builder_scheme_relative_url`.
+
+= 1.2.5 =
+* Fixed: on HTTPS sites whose WordPress Address is still saved as http:// (common behind a proxy, CDN or after moving to HTTPS), the generated global.css and post-*.css stylesheets and the self-hosted Google Fonts stylesheet were loaded over http://, which browsers block as insecure (mixed) content. Their URLs now follow the scheme of the page being viewed.
+* Fixed: self-hosted Google Font files are now referenced relative to their stylesheet, so they load on both http and https. The font stylesheet is rebuilt automatically on the next save or font refresh.
+
 = 1.2.4 =
 * Fixed: HTML import. A button whose HTML sets no background or text color (an outline or text-style button) no longer turns into a dark filled XEditor button; it keeps the background and text color it had in the original page.
 

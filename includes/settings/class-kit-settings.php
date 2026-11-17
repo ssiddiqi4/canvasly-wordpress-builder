@@ -419,6 +419,9 @@ class KitSettings {
 	}
 
 	private static function write_identity_to_core( $d ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 		$ident = is_array( $d['identity'] ?? null ) ? $d['identity'] : array();
 		update_option( 'blogname', sanitize_text_field( $ident['title'] ?? '' ) );
 		update_option( 'blogdescription', sanitize_text_field( $ident['description'] ?? '' ) );

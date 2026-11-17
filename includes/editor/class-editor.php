@@ -63,7 +63,7 @@ class Editor {
    'permalink'=>$post_id?esc_url_raw(get_permalink($post_id)):'',
    'postTitle'=>$post_id?(get_the_title($post_id)?:''):'',
    'adminUrl'=>admin_url(),
-   'globals'=>\SidcraftPageBuilder\Settings\GlobalSettings::get(),
+   'globals'=>\SidcraftPageBuilder\Settings\GlobalSettings::public_settings(),
    'icons'=>IconLibrary::all(),
    'iconLibraryUrl'=>SIDCRAFT_PAGE_BUILDER_URL.'assets/data/fontawesome-free-icons.json',
    'googleFontsUrl'=>SIDCRAFT_PAGE_BUILDER_URL.'assets/data/google-fonts.json',
@@ -249,7 +249,16 @@ class Editor {
   if(class_exists('\\SidcraftPageBuilder\\Settings\\UnitsManager')) return \SidcraftPageBuilder\Settings\UnitsManager::source_slug($e);
   return 'lite';
  }
- private static function unit_data(){$out=[];foreach(UnitRegistry::instance()->all() as $e)$out[]=['type'=>$e->type(),'title'=>$e->title(),'icon'=>$e->icon(),'category'=>$e->category(),'source'=>self::unit_source($e),'controls'=>$e->all_controls(),'defaults'=>$e->get_defaults(),'children'=>$e->supports_children(),'slots'=>$e->supports_slots(),'slot_source'=>$e->slot_source(),'keywords'=>$e->keywords(),'schema'=>$e->uses_schema(),'uses_button'=>$e->uses_button()];return $out;}
+ private static function unit_data(){$out=[];foreach(UnitRegistry::instance()->all() as $e)$out[]=['type'=>$e->type(),'title'=>$e->title(),'icon'=>$e->icon(),'category'=>$e->category(),'source'=>self::unit_source($e),'controls'=>$e->all_controls(),'defaults'=>$e->get_defaults(),'children'=>$e->supports_children(),'slots'=>$e->supports_slots(),'slot_source'=>$e->slot_source(),'keywords'=>$e->keywords(),'schema'=>$e->uses_schema(),'uses_button'=>$e->uses_button(),'replaces_core'=>self::replaces_core($e)];return $out;}
+ /**
+  * True for a unit another plugin registers under a core unit's type (for
+  * example Pro's Price Table). The canvas then uses that plugin's preview
+  * instead of the core template, which reads the core unit's settings.
+  */
+ private static function replaces_core($e){
+  $type=sanitize_key((string)$e->type());
+  return 'lite'!==self::unit_source($e)&&''!==$type&&is_readable(SIDCRAFT_PAGE_BUILDER_PATH.'includes/units/class-'.$type.'.php');
+ }
  public static function screen(){
   if(class_exists('\\SidcraftPageBuilder\\Settings\\Roles')&&!\SidcraftPageBuilder\Settings\Roles::can_edit()){
    wp_die(esc_html__('You do not have permission to use Sidcraft Page Builder.', 'sidcraft-page-builder'));

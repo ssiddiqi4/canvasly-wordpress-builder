@@ -1,10 +1,11 @@
-=== Sidcraft Page Builder ===
+=== Sidcraft Page Builder w/ AI MCP ===
 Contributors: ssiddiqi4
+Donate link: https://paypal.me/SSiddiqi275
 Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.4
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +15,21 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 
 **Sidcraft Page Builder is a free visual page builder for WordPress.** Build landing pages, home pages, blog layouts and complete websites on a live canvas with drag and drop, nested containers, CSS Grid and responsive controls, then publish through the normal WordPress workflow. No coding needed, and clean HTML and CSS when you want it.
 
-Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
+Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro). **Do not like image or video in your browser?  Edit it within [Sidcraft Page Builder Pro](https://canvasly.pro) with built-in image/video editor. No need to upload a new image.
+
+https://www.youtube.com/watch?v=ymDQiDvtQjg
+
+= Design WordPress Pages by Chatting: AI Chat Bot in Sidcraft Page Builder (Lite & Pro) =
+
+https://www.youtube.com/watch?v=WqqTkmUaMDo
+
+[Sidcraft Page Builder PRO](https://canvasly.pro) with upgraded AI/MCP capability. Now, the AI Chatbot can read any live URL and recreate the layout using native Sidcraft blocks. Whether you're migrating from another page builder or adapting a design you love, it’s easier than ever.
+
+No complicated prompts or scripts needed—just type:
+
+👉 "Read entire website https://example.com and recreate all pages with Sidcraft Page Builder blocks."
+
+Plus, after your pages are created, you can seamlessly convert and save them as static HTML pages from Sidcraft Page Builder > Tools. 
 
 = Why Sidcraft Page Builder? =
 
@@ -92,6 +107,7 @@ Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 
 = Site tools =
 
+* **Open a menu from a button.** Link any button to `#open-menu-buy-tickets` (the menu item name in lowercase with dashes) and a click scrolls to the top and opens that dropdown in the Site Menu. Switch it on or off under Settings > General.
 * Maintenance and Coming Soon mode, Safe mode for troubleshooting, and one-click rollback to an earlier Sidcraft Page Builder version.
 * Replace URL tool, system info, roles and capabilities, Units Manager and experiments.
 * Yoast SEO and Rank Math see your Sidcraft Page Builder content; WPML and Polylang can translate it.
@@ -101,6 +117,8 @@ Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 = Sidcraft Builder Pro =
 
 [Sidcraft Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) is a separate add-on that adds Theme Builder, popups, display conditions, dynamic tags, Loop Grid and Loop Carousel, 70+ extra units, WooCommerce builder units, hosted payments (Stripe, PayPal, Square, Authorize.Net, Razorpay, Mollie) with Payment Forms, form actions and submissions, custom fonts and icons, custom code, editor notes and an AI assistant with an MCP server. Pro's Login & Register and Payment Form units also include the "Require Cloudflare Turnstile" option.
+
+Every install also serves a read-only MCP endpoint at `/wp-json/sidcraft-page-builder/v1/mcp`, so AI agents such as Claude Desktop, Cursor and VS Code can read the site, the builder guide, the document schema and pages after signing in with a WordPress application password. Writing pages, templates, design tokens, media, menus, components and store data needs Sidcraft Builder Pro 2.1.3 and its own MCP endpoint.
 
 The full unit list and user guide are at [canvasly.pro](https://canvasly.pro/blocks.html). For third-party services used by optional features, see "External services" below.
 
@@ -328,117 +346,71 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 4. **Design system** - Global colors, typography, classes, variables, and components.
 5. **Templates** - Save a section and embed it with a shortcode, a block, a unit, or a sidebar widget.
 6. **Sidcraft Builder Pro** - Theme Builder, popups, shop units, and the annual plans.
+7. **AI Chat Bot and HTML import agent.
+8. **AI Chat-Bot Sidcraft Commerce for Page Builder 3 decimal price entry.
+9. **AI Chat Bot can read any live URL and recreate the layout using native Sidcraft blocks. Whether you're migrating from another page builder or adapting a design you love, it’s easier than ever.  
 
 == Changelog ==
 
-= 1.2.4 =
-* Fixed: HTML import. A button whose HTML sets no background or text color (an outline or text-style button) no longer turns into a dark filled XEditor button; it keeps the background and text color it had in the original page.
+= 2.2.0 =
+* New: Settings > General > Open a menu from a button. A button or link set to `#open-menu-<menu item name>` (for example `#open-menu-buy-tickets`) scrolls to the top and opens that dropdown in the Site Menu, and unfolds the menu first on phones. Optional scroll-to-top.
 
-= 1.2.3 =
-* Changed: the AI Chat Bot now uses the AI Client built into WordPress 7.0 and later, with the provider connected under Settings → Connectors. The plugin no longer contacts AI providers itself or stores its own AI API key; a key saved by version 1.2.1 or 1.2.2 is deleted. This follows the WordPress.org recommendation reported by Plugin Check (PluginCheck.CodeAnalysis.AIProvider.DirectIntegration).
-* On WordPress 6.9 the chat explains that it needs WordPress 7.0; HTML import keeps working without AI.
-* Sidcraft Builder Pro keeps its own AI Connectivity providers and image input.
+= 2.1.4 =
+* Security: template deletion now verifies the target is a saved template and requires `delete_post`, so an Editor can no longer delete ordinary pages through the template endpoint.
+* Security: reCAPTCHA and Google Maps API secrets are removed from design-system REST responses, editor bootstrap data and public global-settings responses. Exports and imports preserve existing secrets when a masked or omitted value is sent back.
+* Security: roles with `edit_pages` keep full access, roles with only `edit_posts` default to content-only, and a one-time migration downgrades legacy content-only roles that were stored as full. Core site identity fields now require `manage_options`.
+* Security: form recipients are resolved from the saved form node instead of the request's `_to` field, and public submissions are throttled per IP/form (default 10 per hour, filterable).
+* Security: template management and import require both `edit_pages` and the Role Manager's edit capability.
+* Security: local media import accepts basenames inside the extracted media directory only and rejects symlinks.
+* Security: `/loop` denies password-protected and non-viewable posts unless the caller can edit the post.
+* Security: draft/private pages and templates are filtered from navigation, template lists and kit exports unless the caller can edit the post.
+* Fixed: form submissions rendered outside the standard renderer fall back to the site admin address rather than trusting a request-supplied recipient.
 
-= 1.2.2 =
-* New: the AI Chat Bot connects to every chat provider listed on Sidcraft Builder Pro's AI Connectivity screen: Azure OpenAI (your endpoint and deployment), Perplexity, Groq, Mistral and DeepSeek, in addition to OpenAI, Anthropic and Google Gemini. Cursor is not offered because it has no chat API.
-* New: providers that cannot call tools (Perplexity) return the plan as JSON text, which the chat reads the same way as a tool call.
-* Developers: filter `sidcraft_page_builder_ai_chat_tools` tells the chat whether the active connection supports tool calling.
+= 2.1.3 =
+* Fixed: PHP warnings from Text, Button, Icon Box, Divider and Icon List units when a saved layout predates a newer setting.
+* Fixed: "conditional query tag called before the query" notices from early display-rule and maintenance checks.
+* Fixed: the "translation loading too early" notice by registering bundled translations after setup.
+* Fixed: the page fallback must-use plugin no longer checks query tags before the main query.
 
-= 1.2.1 =
-* New: AI Chat Bot. A button next to XEditor opens a docked chat panel. Describe a change and get a plan you can preview on the canvas, untick steps, apply as one undo step, and revert later. Works with your own OpenAI, Anthropic or Google Gemini key.
-* New: HTML import. Upload or paste HTML and CSS to get native XEditor layout: flex and grid kept, classes and CSS variables turned into XEditor classes and design variables. Works without AI.
-* New: Form Entries. Form unit submissions are saved on your site even when the notification email fails, with a per-form limit, an admin screen, and personal data export and erase support.
-* New: pages with an XEditor Loop show a three-item sample preview in the editor when Sidcraft Builder Pro is not active.
-* New for developers: `editor/topbar` action and `editor/topbar/items` filter, `SidcraftPageBuilder.topbar`, `.drawer`, `.applyOps()`, `.previewOps()`, `.pageOutline()` and `.htmlToPlan()`; PHP filters `sidcraft_page_builder_ai_chat_config`, `sidcraft_page_builder_ai_chat_complete`, `sidcraft_page_builder_ai_chat_prompt`, `sidcraft_page_builder_store_submissions` and `sidcraft_page_builder_units_manager_notes`; action `sidcraft_page_builder_form_submitted`.
-* Fixed: adding a unit no longer squeezes the top bar with a second row of Export, Import, Breakpoints, A11y, Lock, Assets and Design System buttons (they are in the ⋮ menu).
-* Fixed: XEditor buttons with a link now take their class text color instead of the page link color.
-* Units Manager: a "Duplicates" filter lists units that an add-on marks as duplicates.
+= 2.1.2 =
+* Fixed: Plugin Check warning about reading the fallback result flag without a nonce.
+* Fixed: the readme changelog now fits the WordPress.org 5,000-character limit.
 
-= 0.15.4 =
-* Fixed: Firefox. Dragging a widget from the panel onto "Drag widget here" now adds it (in a new container). In Firefox the editor could lose track of which widget was being dragged, so the drop area saw an empty drag and ignored it. The editor now records the widget as soon as the mouse goes down on its card and when the drag starts (including when Firefox starts the drag on the card's text), and stores it in the drag data under its own type.
-* Developers: the `dnd_debug=1` log now also shows the drag start and the drag data types on drop.
-* Fixed: Installing a second copy of the plugin (for example from a zip whose folder name differs from the installed one) no longer causes a fatal "Cannot redeclare" error on activation. The second copy stays idle and the Plugins screen says which copy to delete.
-* Fixed: Plugin Check error WordPressVIPMinimum.Performance.WPQueryParams.SuppressFilters_suppress_filters in the converter's candidate query.
+= 2.1.1 =
+* Fixed: the fallback must-use plugin is installed only from the explicit control on the Tools screen (or when Safe Mode is turned on). It is no longer recreated automatically on activation, updates or admin requests.
+* Fixed: duplicate copies of the fallback or Safe Mode must-use plugin are removed on update, and both are removed on uninstall.
+* Fixed: the plugin package uses standard forward-slash paths so WordPress can install and activate it.
 
-= 0.15.3 =
-* Fixed: Firefox. Dropping a widget on the "Drag widget here" area works in Firefox too. Firefox can report the drop on the label's text rather than on an element, and its pointer position is not always usable; the area now recognises the drop from the text, its own handlers and the page canvas, and its buttons and label stop catching the pointer while a drag is in progress.
-* Developers: add `dnd_debug=1` to the editor URL to show a small log of drag events over the canvas.
+= 2.1.0 =
+* New: a read-only MCP endpoint at `/wp-json/sidcraft-page-builder/v1/mcp` for AI agents, with `sidcraft-site-info`, `sidcraft-builder-guide`, `sidcraft-schema` and `sidcraft-content`. Writing content, templates, design tokens, media, menus, components and store data is part of Sidcraft Builder Pro 2.1.0.
 
-= 0.15.2 =
-* Changed: Dropping a widget on the "Drag widget here" area at the bottom of the page now creates a container with the widget inside it, in one step (one Undo removes both). Layout units such as Container, Grid and Inner Section are still placed on the page directly. Moving an existing widget there also wraps it in a new container.
-* Fixed: The "Drag widget here" area also accepts the drop when the pointer is over its buttons or label in browsers that report the drop on those elements.
-* Plugin Check: the list of pages with Elementor data is read with WP_Query instead of a direct database query.
-
-= 0.15.1 =
-* Fixed: Dragging a unit onto the "Drag widget here" area at the bottom of the page now always adds it to the end of the page. Before, the drop was sometimes lost (for example when a theme header or footer layer or a neighbouring grid caught it first), and a container had to be added first. The area is now matched by the pointer position, and it highlights while a unit is over it. Moving an existing unit there moves it to the end of the page.
-
-= 0.15.0 =
-* New: Readable fallback content. Every save that changes a layout also writes a clean copy of the page into the post content as core blocks (headings, paragraphs, lists; images and tables as Custom HTML), so the page stays readable and editable in the block editor if Sidcraft Page Builder is switched off. Search, feeds, excerpts and SEO plugins see real content. The post content a page had before is kept. Settings → Advanced → Readable fallback content; fill in existing pages with `wp sidcraft-page-builder fallback`.
-* New: Published document format. The saved JSON is described as a JSON Schema at /wp-json/sidcraft-page-builder/v1/schema and with `wp sidcraft-page-builder schema`, generated from the installed units. Documentation: canvasly.pro/document-format.html.
-* New: Review before replacing. Elementor conversions can wait in Sidcraft Page Builder → Review Conversions, where the current and converted page are shown side by side (desktop, tablet, mobile, synced scrolling) with a content check of text that did not carry over, the widgets that could not be converted, and the dynamic data to re-link. Accept replaces the page or creates a copy; Discard leaves it untouched; an accepted page can be reverted to its Elementor layout.
-* New: Batched, resumable conversion. Conversions run in small batches within the PHP time and memory limits, save progress after every page, and resume after a closed tab, timeout or fatal error (Tools screen, REST, or `wp sidcraft-page-builder convert-batch`). Every failure names the page and the element where it stopped; a failed page is never changed. All pages with Elementor data can be converted, not only the 200 listed.
-* New: Navigator tools. Collapse and expand (with Expand all / Collapse all), rename (pencil button or F2), hide on the editor canvas, and lock. A locked unit and everything inside it cannot be selected on the canvas, moved, edited or deleted until it is unlocked. Names, hidden and locked states are saved with the page and work with undo.
-* New: `wp sidcraft-page-builder benchmark` measures save, render, page-view and editor cost on a temporary 200-unit page. Results: canvasly.pro/performance.html.
-* Improved: Saving an unchanged layout writes nothing: no document write, revision, CSS rebuild or cache purge.
-* Improved: The editor page is much smaller. Shared control definitions are sent once instead of once per unit (about 1.7 MB to 0.7 MB; with Sidcraft Builder Pro about 5.9 MB to 2.0 MB).
-* Developers: New filters `sidcraft_page_builder_fallback_content_enabled`, `sidcraft_page_builder_fallback_content_html`, `sidcraft_page_builder_document_schema`, `sidcraft_page_builder_document_force_save`, `sidcraft_page_builder_convert_step_seconds` and `sidcraft_page_builder_editor_intern_controls`; actions `sidcraft_page_builder_document_unchanged`, `sidcraft_page_builder_fallback_content_written` and `sidcraft_page_builder_conversion_accepted`. Conversion reports now include `dynamic` and `unmapped_nodes` with element paths.
-
-= 0.14.4 =
-* New: Add-ons can add their own tabs to Settings (sidcraft_page_builder_settings_tabs filter and sidcraft_page_builder_settings_render_tab action).
-* Fixed: Units can be dragged from the Units panel onto the canvas in Firefox. Unit cards are no longer button elements, which Firefox will not drag; Enter or Space on a focused card adds the unit.
-* Fixed: Pro units show their locked look and license hint again while the Pro license is inactive.
-
-= 0.14.3 =
-* Fixed: Right-clicking a unit in the Units panel shows "Add to Favorites" again. The menu no longer depends on the panel finishing its refresh, and the canvas no longer throws errors when its frame has no head yet.
-
-= 0.14.2 =
-* Fixed: Opening the WordPress block editor no longer crashes with "Class SidcraftPageBuilder\Settings\AdminSettings not found" when Sidcraft Builder Pro is active and Safe Mode is on.
-
-= 0.14.1 =
-* Changed: Every PHP action and filter now starts with the plugin prefix, for example `sidcraft_page_builder_unit_render_html` instead of `sidcraft-page-builder/unit/render_html`. Add-ons must use the new names; Sidcraft Builder Pro 0.11.3 does.
-* Fixed: Template import and export work again, and imported templates keep their text intact.
-* Fixed: A container's background, height and width no longer spill into the containers inside it, and container backgrounds follow rounded corners.
-* Changed: The editor's copy and paste source file is renamed so it is not mistaken for the WordPress core clipboard library.
-
-= 0.14.0 =
-* Changed: Renamed to Sidcraft Page Builder (slug and text domain sidcraft-page-builder) after the WordPress.org plugin review.
-* Removed: Custom CSS fields on pages and units, and the Global Classes manager. Use XEditor classes instead. Custom CSS saved by earlier versions is no longer printed.
-* Security: The theme header and footer capture no longer forwards visitor cookies. Inline CSS is printed through WordPress's style functions, and rendered pages, template blocks and template shortcodes are escaped with wp_kses before output.
-* Security: Settings screens now read and sanitize only their own form fields instead of handing the whole request to add-ons.
-* Changed: `wp sidcraft-page-builder export` always writes the kit ZIP to wp-content/uploads/sidcraft-page-builder/kits/; the optional argument is now just a file name.
-* Changed: The editor top bar shows icons for Mobile, Tablet and Desktop (and any extra breakpoints) instead of text labels, and the logo mark and browser tab icon read S.
-* Changed: The Sidebar and WordPress Widget units show the real widgets in the editor canvas instead of a label. A sidebar with no widgets prints nothing for visitors and tells editors to add widgets under Appearance > Widgets.
-* Developers: Works with the Sidcraft Builder Pro add-on (renamed from Sidcraft Pro). New `custom_css/*` filters let an add-on provide custom CSS (off unless an add-on enables it), and the `kses/trusted_scripts` filter keeps registered inline scripts. JSON data scripts in rendered pages are kept.
-* Docs: The readme now lists every external service, what it receives and when, and where the editor source and build tools are.
-
-= 0.13.3 =
-* Fixed: With WP-Optimize page caching on, visitors kept seeing the old version of a page after it was saved in Sidcraft Page Builder (for example, a newly added Form did not appear). Sidcraft Page Builder now clears that page from the WP-Optimize cache on every save, as it already did for WP Super Cache, W3 Total Cache, WP Rocket, LiteSpeed, SiteGround, Breeze and others.
-
-= 0.13.2 =
-* New: "Require Cloudflare Turnstile" on the Login unit (Security section). The Log In button stays disabled until the visitor completes the Turnstile check, and the login is rejected without a valid token.
-* New: Submit gate for every Turnstile-protected form. The Form unit (Spam protection → Require Cloudflare Turnstile), the Login unit, and the WordPress login and comment forms keep their Submit / Log In button disabled until the check passes, lock it again when the token expires, errors, or is used, and block Enter-key submits while locked.
-* New: Turnstile verification for Sidcraft Page Builder login, register and lost-password forms that post to wp-login.php, used by the Login unit and by Sidcraft Builder Pro's Login & Register unit.
-* New: Turnstile widgets inside hidden tabs render when the tab opens.
-* Changed: If Settings → Integrations → WordPress forms → Login form is on, the Login unit now shows the Turnstile check automatically so its logins are not rejected.
-* Docs: readme rewritten with the full feature list, Turnstile setup steps and new FAQ entries.
-
-= 0.13.1 =
-* Plugin Check: documented why the Cloudflare Turnstile script and Siteverify endpoint are loaded from Cloudflare (required by the service, only after keys are entered), marked loop "exclude" settings as editor settings, shortened the readme Description and Changelog (full history now in changelog.txt), and added an "external services" FAQ entry.
-
-= 0.13.0 =
-* New: XEditor — a unified, CSS-first editing layer. The broken "Atomic" menu is replaced by an XEditor button in the top bar that inserts working elements (click into the selected container or drag onto the canvas).
-* New: XEditor Atomic Elements — Div Block, Flexbox, Grid, Heading, Paragraph, Image and Button. Each prints ONE HTML element on the live page (no wrapper divs); aria-label, role and custom attributes go on that element.
-* New: XEditor Classes & Variables Manager. Variables are global tokens printed as `--xe-var-*` custom properties (colors, fonts, sizes, spacing, per-breakpoint values). Classes are reusable utility presets printed as `.xe-class-*`, with Normal/Hover/Focus/Active states and per-breakpoint values; use `$name` in any value to reference a variable. Class priority is set by the order in the manager.
-* New: Class stacking on every unit (XEditor and classic): add, create or remove classes from the Classes bar at the top of the settings panel. Element "Local Style" values use zero-specificity selectors, so a stacked class always wins.
-* New: XEditor Loop data model (Loop > Loop Layout > Loop Item) with dynamic tokens such as {{post.title}}, {{post.url}}, {{post.featured_image}}, {{term.name}} and {{loop.number}}. Rendering and editor preview come from Sidcraft Builder Pro; without a Pro license loops are locked in the editor, not rendered, and kept in the page data.
-* New: Cloudflare Turnstile. Sidcraft Page Builder → Settings → Integrations: site key, secret key, optional Cloudflare API token (Verify, or Create a Turnstile widget with your Account ID), Cloudflare test keys, default look, and optional protection for all Sidcraft Page Builder forms, the WordPress login form and comments. New "Cloudflare Turnstile" unit protects the form in the same container; the Form unit has a new "Spam protection" option. Tokens are verified server-side (Siteverify) and reset after each submission.
-* Fixed: ARIA Label had no effect on most units because it was printed on a generic wrapper <div>. It is now placed on the unit's link, button, field, form or image; containers and multi-link units get role="group" so the name is announced.
-* Fixed: Form errors now show the server's message (for example a failed security check) instead of a generic error.
+= 2.0.0 =
+* Faster pages: per-page stylesheets that keep only the CSS parts a page uses, plus cached unit and asset maps.
+* Fixed: right-to-left frontend and editor stylesheets were out of date; both are regenerated from the current styles.
+* Fixed: template styles could be lost when a template rendered after the page stylesheet; they now print with the template.
+* Fixed: HTML import could miss the end of a page while it was still loading.
+* Fixed: imported SVG logos lost their colors and could restyle the page.
+* Fixed: web-font subsets and variable-font weights were added incorrectly.
+* Fixed: Google Maps embedded by coordinates used the region code as the address.
+* Fixed: an inline SVG with an empty link or numeric icon id could fail the whole import.
+* Rebuild a website: detects the builder used, reuses this site's media, and reports copied, reused and failed files.
 
 = Earlier versions =
-The complete history is in `changelog.txt` inside the plugin folder.
+* See `changelog.txt` for the full history.
 
 == Upgrade Notice ==
+
+= 2.2.0 =
+Adds buttons that open a Site Menu dropdown (Settings > General).
+
+= 2.1.4 =
+Security release. Update promptly. Fixes template deletion authorization, secret disclosure, Contributor role overreach, form mail relay, template-management bypass, media path handling, `/loop` access and draft/private filtering. Review content-only role grants after migration.
+
+= 1.3.0 =
+Fixes remaining insecure-content warnings for builder stylesheets on HTTPS sites behind a proxy or CDN.
+
+= 1.2.5 =
+Fixes insecure-content warnings: builder stylesheets now load over HTTPS on HTTPS sites.
 
 = 1.2.4 =
 HTML import keeps the colors of outline and text-style buttons.

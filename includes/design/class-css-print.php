@@ -32,6 +32,7 @@ class CssPrint {
 	private static $inlined_global    = false;
 
 	public static function init() {
+		UrlScheme::init();
 		if ( self::$booted ) {
 			return;
 		}
@@ -246,6 +247,11 @@ class CssPrint {
 		if ( $base === '' ) {
 			return '';
 		}
+		// Match the current request's scheme so HTTPS pages never load http:// CSS
+		// (wp_upload_dir() keeps the scheme of the siteurl option, which is often
+		// still http:// behind a proxy, CDN or after an HTTPS migration).
+		// is_ssl() is false behind proxies/CDNs, so set_url_scheme() alone is not enough.
+		$base = UrlScheme::match( $base );
 		$url = rtrim( $base, '/' ) . '/' . self::SUBDIR;
 		$file = ltrim( str_replace( '\\', '/', (string) $file ), '/' );
 		if ( $file !== '' && strpos( $file, '..' ) === false ) {

@@ -110,6 +110,69 @@ class TemplateEmbed {
 		return $post && ! empty( $post->ID ) ? absint( $post->ID ) : 0;
 	}
 
+	/** @var array<int,bool> Templates whose assets and CSS are already enqueued for the head. */
+	private static $preloaded = array();
+
+	/**
+	 * Enqueue a template's assets and CSS before the head prints, for a
+	 * template that will render later in the page (a theme header or footer).
+	 * Without this its stylesheet arrives only when it renders: in the footer,
+	 * after the content showed unstyled, or not at all once the builder
+	 * stylesheet has printed. Its unit handles come from the cached unit map.
+	 *
+	 * @param int $id Template id.
+	 * @return bool Whether the template was preloaded.
+	 */
+	public static function preload( $id ) {
+		$id = absint( $id );
+		if ( ! $id || isset( self::$preloaded[ $id ] ) || ! self::can_render( $id ) ) {
+			return false;
+		}
+		// wp_enqueue_scripts itself runs inside wp_head: what matters is whether the head styles printed.
+		if ( function_exists( 'did_action' ) && did_action( 'wp_print_styles' ) ) {
+			return false; // Too late for the head; render() prints the CSS with the template.
+		}
+		$doc = self::document( $id );
+		if ( ! $doc ) {
+			return false;
+		}
+		// Every region: a Header & Footer template prints both.
+		$nodes = array();
+		foreach ( array( 'header', 'root', 'footer' ) as $region ) {
+			if ( ! empty( $doc[ $region ] ) && is_array( $doc[ $region ] ) ) {
+				$nodes = array_merge( $nodes, $doc[ $region ] );
+			}
+		}
+		if ( ! $nodes ) {
+			return false;
+		}
+		$render_doc         = $doc;
+		$render_doc['root'] = $nodes;
+		if ( class_exists( FrontendRenderer::class ) && method_exists( FrontendRenderer::class, 'enqueue_document_assets' ) ) {
+			FrontendRenderer::enqueue_document_assets( $render_doc, $id, true );
+		} else {
+			self::enqueue( $render_doc, $id );
+		}
+		$css = self::head_css( $id );
+		if ( $css !== '' && function_exists( 'wp_add_inline_style' ) ) {
+			wp_add_inline_style( 'sidcraft-page-builder-frontend', wp_strip_all_tags( $css ) );
+		}
+		self::$preloaded[ $id ] = true;
+		return true;
+	}
+
+	/**
+	 * A template's CSS for the head, scoped to every embed of it. `:not(#…)`
+	 * keeps the id-level specificity the per-embed `#lb-embed-…` scope had.
+	 *
+	 * @param int $id
+	 * @return string
+	 */
+	public static function head_css( $id ) {
+		$id = absint( $id );
+		return $id ? self::scope_css( self::document_css( $id ), '.lb-tpl-' . $id . ':not(#lb-tpl-none)' ) : '';
+	}
+
 	/**
 	 * Rewrite `#lb-node-{id}` selectors so they match `.lb-src-{id}` descendants
 	 * of a unique embed wrapper (same pattern Collection Loop uses).
@@ -201,7 +264,10 @@ class TemplateEmbed {
 			}
 			$render_doc         = $doc;
 			$render_doc['root'] = $nodes;
-			self::enqueue( $render_doc, $id );
+			// A preloaded template's assets and CSS are already in the head.
+			if ( ! isset( self::$preloaded[ $id ] ) ) {
+				self::enqueue( $render_doc, $id );
+			}
 			$instance = ++self::$prints;
 			$wrap_id  = 'lb-embed-' . $id . '-' . $instance;
 			$suffix   = 'e' . $instance;
@@ -210,11 +276,22 @@ class TemplateEmbed {
 			if ( class_exists( FrontendRenderer::class ) && method_exists( FrontendRenderer::class, 'render_nodes' ) ) {
 				$html = FrontendRenderer::render_nodes( $nodes, $post_id, array(), $suffix );
 			}
-			$css = self::scope_css( self::document_css( $id ), '#' . $wrap_id );
-			if ( $css !== '' && function_exists( 'wp_add_inline_style' ) ) {
-				wp_add_inline_style( 'sidcraft-page-builder-frontend', wp_strip_all_tags( $css ) );
+			if ( ! isset( self::$preloaded[ $id ] ) ) {
+				$css = self::scope_css( self::document_css( $id ), '#' . $wrap_id );
+				if ( $css !== '' && function_exists( 'wp_add_inline_style' ) ) {
+					$handle = 'sidcraft-page-builder-frontend';
+					// Once that stylesheet has printed, CSS added to it is never output: give it
+					// a handle of its own, printed with the footer's late styles. (Not a <style>
+					// tag in the markup: rendered HTML goes through the kses allowlist.)
+					if ( function_exists( 'wp_style_is' ) && wp_style_is( $handle, 'done' ) ) {
+						$handle = 'sidcraft-page-builder-' . $wrap_id;
+						wp_register_style( $handle, false, array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Inline CSS only.
+						wp_enqueue_style( $handle );
+					}
+					wp_add_inline_style( $handle, wp_strip_all_tags( $css ) );
+				}
 			}
-			$class = 'lb-template-embed';
+			$class = 'lb-template-embed lb-tpl-' . $id;
 			$extra = trim( (string) ( $args['class'] ?? '' ) );
 			if ( $extra !== '' ) {
 				$class .= ' ' . sanitize_html_class( $extra );
@@ -348,8 +425,9 @@ class TemplateEmbed {
 	}
 
 	public static function reset_for_tests() {
-		self::$stack  = array();
-		self::$prints = 0;
+		self::$stack     = array();
+		self::$prints    = 0;
+		self::$preloaded = array();
 	}
 
 	/**

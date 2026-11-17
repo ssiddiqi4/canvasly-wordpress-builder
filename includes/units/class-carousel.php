@@ -71,14 +71,14 @@ class Carousel extends Unit {
   $slides=$this->slides($s);
   if(!$slides)return '<div class="'.$this->cls($s).' lb-carousel-placeholder">'.esc_html__('Choose images for the carousel', 'sidcraft-page-builder').'</div>';
   $show=max(1,min(10,absint($s['slides_to_show']??1)));$scroll=max(1,min($show,absint($s['slides_to_scroll']??1)));
-  $nav=in_array($s['navigation']??'both',['both','arrows','dots','none'],true)?$s['navigation']:'both';
+  $nav=in_array($s['navigation']??'both',['both','arrows','dots','none'],true)?($s['navigation']??'both'):'both';
   $linkRaw=is_string($s['link']??null)?$s['link']:'none';
   if(preg_match('~^https?://(none|file|custom)/?$~i',$linkRaw,$lm))$linkRaw=strtolower($lm[1]); // repair values saved as "http://none" by older builds
   $linkMode=in_array($linkRaw,['none','file','custom'],true)?$linkRaw:'none';
   $effect=($s['effect']??'slide')==='fade'&&$show===1?'fade':'slide';
   $dir=($s['slide_direction']??'ltr')==='rtl'?'rtl':'ltr';
-  $capMode=in_array($s['caption']??'none',['none','title','caption','description'],true)?$s['caption']:'none';
-  $capAlign=in_array($s['caption_align']??'center',['left','center','right'],true)?$s['caption_align']:'center';
+  $capMode=in_array($s['caption']??'none',['none','title','caption','description'],true)?($s['caption']??'none'):'none';
+  $capAlign=in_array($s['caption_align']??'center',['left','center','right'],true)?($s['caption_align']??'center'):'center';
   $size=sanitize_key($s['image_size']??'large');
   $height=$this->scalar($s['height']??'');
   $vars=$this->style_attr(['--lb-carousel-show'=>$show,'--lb-carousel-spacing'=>$this->unit($s['image_spacing']??''),'--lb-carousel-radius'=>$this->unit($s['image_radius']??''),'--lb-carousel-height'=>$height!==''?$this->unit($height):'','--lb-carousel-speed'=>max(0,absint($s['speed']??500)).'ms','--lb-carousel-arrow-size'=>$this->unit($s['arrows_size']??''),'--lb-carousel-arrow-color'=>$s['arrows_color']??'','--lb-carousel-dot-size'=>$this->unit($s['dots_size']??''),'--lb-carousel-dot-color'=>$s['dots_color']??'','--lb-carousel-caption-color'=>$s['caption_color']??'']);

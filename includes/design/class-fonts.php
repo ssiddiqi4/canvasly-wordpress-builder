@@ -48,6 +48,7 @@ class Fonts {
 	}
 
 	public static function init() {
+		UrlScheme::init();
 		if ( self::$booted ) {
 			return;
 		}
@@ -1146,7 +1147,7 @@ class Fonts {
 	 * @return string
 	 */
 	private static function signature( $usage, $display ) {
-		return md5( wp_json_encode( array( $usage, self::sanitize_display( $display ) ) ) );
+		return md5( wp_json_encode( array( $usage, self::sanitize_display( $display ), 'rel-urls-1' ) ) );
 	}
 
 	/**
@@ -1234,7 +1235,8 @@ class Fonts {
 	}
 
 	/**
-	 * Download a fonts.gstatic.com file and return its public URL.
+	 * Download a fonts.gstatic.com file and return its URL relative to local.css
+	 * (both live in the fonts folder), so the stylesheet works on http and https.
 	 *
 	 * @param string $remote
 	 * @return string
@@ -1263,7 +1265,7 @@ class Fonts {
 				return '';
 			}
 		}
-		return self::url( $rel );
+		return $rel;
 	}
 
 	/**
@@ -1288,6 +1290,11 @@ class Fonts {
 		if ( $base === '' ) {
 			return '';
 		}
+		// Match the current request's scheme so HTTPS pages never load http:// CSS
+		// (wp_upload_dir() keeps the scheme of the siteurl option, which is often
+		// still http:// behind a proxy, CDN or after an HTTPS migration).
+		// is_ssl() is false behind proxies/CDNs, so set_url_scheme() alone is not enough.
+		$base = UrlScheme::match( $base );
 		$url  = rtrim( $base, '/' ) . '/' . self::SUBDIR;
 		$file = ltrim( str_replace( '\\', '/', (string) $file ), '/' );
 		if ( $file !== '' && strpos( $file, '..' ) === false ) {

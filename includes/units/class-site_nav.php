@@ -324,6 +324,10 @@ class SiteNav extends Unit {
 		wp_register_style( self::STYLE_HANDLE, SIDCRAFT_PAGE_BUILDER_URL . 'assets/css/site-nav.css', array(), $ver . '-' . ( file_exists( $css ) ? filemtime( $css ) : $ver ) );
 		if ( function_exists( 'wp_register_script' ) ) {
 			wp_register_script( self::SCRIPT_HANDLE, SIDCRAFT_PAGE_BUILDER_URL . 'assets/js/site-nav.js', array(), $ver . '-' . ( file_exists( $js ) ? filemtime( $js ) : $ver ), true );
+			if ( class_exists( '\\SidcraftPageBuilder\\Settings\\AdminSettings' ) && function_exists( 'wp_add_inline_script' ) ) {
+				$menu_open = \SidcraftPageBuilder\Settings\AdminSettings::menu_open();
+				wp_add_inline_script( self::SCRIPT_HANDLE, 'window.SidcraftPageBuilderMenuOpen=' . wp_json_encode( $menu_open ) . ';', 'before' );
+			}
 		}
 	}
 

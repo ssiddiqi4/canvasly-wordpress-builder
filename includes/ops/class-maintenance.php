@@ -377,6 +377,8 @@ class Maintenance {
 			|| strpos( $uri, '/wp-json/' ) !== false
 			|| ( isset( $_GET['rest_route'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$preview_q = ! empty( $_GET[ self::PREVIEW ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// Conditional tags return false and raise a notice before the main query.
+		$ready = function_exists( 'did_action' ) && did_action( 'wp' );
 		return array(
 			'is_admin'     => function_exists( 'is_admin' ) && is_admin(),
 			'is_login'     => $login,
@@ -384,9 +386,9 @@ class Maintenance {
 			'doing_ajax'   => function_exists( 'wp_doing_ajax' ) ? wp_doing_ajax() : ( defined( 'DOING_AJAX' ) && DOING_AJAX ),
 			'doing_cron'   => function_exists( 'wp_doing_cron' ) ? wp_doing_cron() : ( defined( 'DOING_CRON' ) && DOING_CRON ),
 			'is_rest'      => $rest,
-			'is_feed'      => function_exists( 'is_feed' ) && is_feed(),
-			'is_preview'   => function_exists( 'is_preview' ) && is_preview(),
-			'is_customize' => function_exists( 'is_customize_preview' ) && is_customize_preview(),
+			'is_feed'      => $ready && function_exists( 'is_feed' ) && is_feed(),
+			'is_preview'   => $ready && function_exists( 'is_preview' ) && is_preview(),
+			'is_customize' => $ready && function_exists( 'is_customize_preview' ) && is_customize_preview(),
 			'user_roles'   => $roles,
 			'preview'      => $preview_q,
 			'can_manage'   => class_exists( AdminSettings::class ) ? AdminSettings::can_manage() : ( function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ) ),

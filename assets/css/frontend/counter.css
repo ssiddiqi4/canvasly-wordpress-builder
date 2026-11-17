@@ -1,0 +1,21 @@
+/* Generated from frontend.css by patches/tools/split-frontend-css.php. Do not edit. */
+.lb-counter{text-align:center}
+.lb-counter strong{display:block;font-size:42px}
+.lb-counter{text-align:center}
+.lb-counter strong{display:block;font-size:42px}
+.lb-counter{text-align:center}
+.lb-counter strong{display:block;font-size:42px}
+.lb-counter{text-align:center}
+.lb-counter strong{display:block;font-size:42px}
+.lb-counter{text-align:center}
+.lb-counter strong{display:block;font-size:36px}
+.lb-counter span{display:block}
+.lb-counter{display:flex;flex-direction:column;gap:var(--lb-counter-gap,8px)}
+.lb-counter-title-before{flex-direction:column}
+.lb-counter-value{display:flex;justify-content:inherit;align-items:baseline;font-size:var(--lb-counter-number-size,48px);font-weight:700;line-height:1.1;color:var(--lb-counter-number-color,inherit)}
+.lb-counter[style*="text-align:left"] .lb-counter-value{justify-content:flex-start /*rtl:flex-end*/;}
+.lb-counter[style*="text-align:center"] .lb-counter-value{justify-content:center}
+.lb-counter[style*="text-align:right"] .lb-counter-value{justify-content:flex-end /*rtl:flex-start*/;}
+.lb-counter-number{font-variant-numeric:tabular-nums}
+.lb-counter-title{margin:0;color:var(--lb-counter-title-color,inherit)}
+@media (max-width:767px){.lb-counter{max-width:100%}}

@@ -44,10 +44,10 @@ class Rest {
   register_rest_route('sidcraft-page-builder/v1','/templates/(?P<id>\d+)/export',['methods'=>'GET','callback'=>function($r){return class_exists('\\SidcraftPageBuilder\\Templates\\SavedTemplates')?\SidcraftPageBuilder\Templates\SavedTemplates::rest_export($r):new \WP_Error('missing',__('Exporter is unavailable.', 'sidcraft-page-builder'),['status'=>500]);},'permission_callback'=>[__CLASS__,'can_templates']]);
   register_rest_route('sidcraft-page-builder/v1','/templates/(?P<id>\d+)/thumbnail',['methods'=>'POST','callback'=>function($r){return class_exists('\\SidcraftPageBuilder\\Templates\\SavedTemplates')?\SidcraftPageBuilder\Templates\SavedTemplates::rest_thumbnail($r):new \WP_Error('missing',__('Thumbnails are unavailable.', 'sidcraft-page-builder'),['status'=>500]);},'permission_callback'=>[__CLASS__,'can_templates']]);
   register_rest_route('sidcraft-page-builder/v1','/templates/(?P<id>\d+)/duplicate',['methods'=>'POST','callback'=>function($r){if(class_exists('\\SidcraftPageBuilder\\Templates\\SavedTemplates'))return \SidcraftPageBuilder\Templates\SavedTemplates::rest_duplicate($r);$id=absint($r['id']);$p=get_post($id);if(!$p||$p->post_type!=='sidsyn_template')return new \WP_Error('not_found',__('Template not found', 'sidcraft-page-builder'),['status'=>404]);$new=wp_insert_post(['post_type'=>'sidsyn_template','post_status'=>'publish','post_title'=>$p->post_title.' Copy']);$d=get_post_meta($id,'_sidsyn_template_data',true);update_post_meta($new,'_sidsyn_template_data',$d);update_post_meta($new,'_sidsyn_template_type',get_post_meta($id,'_sidsyn_template_type',true));return rest_ensure_response(['success'=>true,'id'=>$new]);},'permission_callback'=>[__CLASS__,'can_templates']]);
-  register_rest_route('sidcraft-page-builder/v1','/templates/(?P<id>\d+)',['methods'=>'DELETE','callback'=>function($r){$id=absint($r['id']);return rest_ensure_response(['success'=>(bool)wp_delete_post($id,true)]);},'permission_callback'=>[__CLASS__,'can_templates']]);
+  register_rest_route('sidcraft-page-builder/v1','/templates/(?P<id>\d+)',['methods'=>'DELETE','callback'=>function($r){$id=absint($r['id']);$post=get_post($id);if(!$post||$post->post_type!=='sidsyn_template')return new \WP_Error('not_found',__('Template not found', 'sidcraft-page-builder'),['status'=>404]);if(!current_user_can('delete_post',$id))return new \WP_Error('forbidden',__('You cannot delete this template.', 'sidcraft-page-builder'),['status'=>403]);return rest_ensure_response(['success'=>(bool)wp_delete_post($id,true)]);},'permission_callback'=>[__CLASS__,'can_templates']]);
   register_rest_route('sidcraft-page-builder/v1','/classes',['methods'=>['GET','POST'],'callback'=>function($r){return $r->get_method()==='GET'?rest_ensure_response([]):self::save_class($r);},'permission_callback'=>[__CLASS__,'can_design']]);
   register_rest_route('sidcraft-page-builder/v1','/classes/(?P<name>[a-zA-Z0-9_-]+)',['methods'=>'DELETE','callback'=>[__CLASS__,'delete_class'],'permission_callback'=>[__CLASS__,'can_design']]);
-  register_rest_route('sidcraft-page-builder/v1','/global-settings',['methods'=>['GET','POST'],'callback'=>function($r){$g=\SidcraftPageBuilder\Settings\GlobalSettings::get();if($r->get_method()==='POST'){if(!current_user_can('manage_options'))return new \WP_Error('forbidden',__('Only administrators can change global settings', 'sidcraft-page-builder'),['status'=>403]);$d=$r->get_json_params();if(is_array($d['breakpoints']??null))$g=\SidcraftPageBuilder\Settings\GlobalSettings::save_breakpoints($d['breakpoints']);if(array_key_exists('post_types',$d))$g=\SidcraftPageBuilder\Settings\GlobalSettings::save_post_types($d['post_types']);if(array_key_exists('content_width',$d)){$g['content_width']=sanitize_text_field($d['content_width']??$g['content_width']);update_option(\SidcraftPageBuilder\Settings\GlobalSettings::KEY,$g,false);}if(array_key_exists('css_print_method',$d)&&class_exists('\\SidcraftPageBuilder\\Design\\CssPrint')){\SidcraftPageBuilder\Design\CssPrint::save_method($d['css_print_method']);}if(class_exists('\\SidcraftPageBuilder\\Design\\Fonts'))\SidcraftPageBuilder\Design\Fonts::save_from(is_array($d)?$d:[]);if(class_exists('\\SidcraftPageBuilder\\Design\\Optimize'))\SidcraftPageBuilder\Design\Optimize::save_from(is_array($d)?$d:[]);if(class_exists('\\SidcraftPageBuilder\\Settings\\AdminSettings')){\SidcraftPageBuilder\Settings\AdminSettings::save(is_array($d)?$d:[],true);}$g=\SidcraftPageBuilder\Settings\GlobalSettings::get();return rest_ensure_response($g);}return rest_ensure_response($g);},'permission_callback'=>[__CLASS__,'can_templates']]);
+  register_rest_route('sidcraft-page-builder/v1','/global-settings',['methods'=>['GET','POST'],'callback'=>function($r){$g=\SidcraftPageBuilder\Settings\GlobalSettings::get();if($r->get_method()==='POST'){if(!current_user_can('manage_options'))return new \WP_Error('forbidden',__('Only administrators can change global settings', 'sidcraft-page-builder'),['status'=>403]);$d=$r->get_json_params();if(is_array($d['breakpoints']??null))$g=\SidcraftPageBuilder\Settings\GlobalSettings::save_breakpoints($d['breakpoints']);if(array_key_exists('post_types',$d))$g=\SidcraftPageBuilder\Settings\GlobalSettings::save_post_types($d['post_types']);if(array_key_exists('content_width',$d)){$g['content_width']=sanitize_text_field($d['content_width']??$g['content_width']);update_option(\SidcraftPageBuilder\Settings\GlobalSettings::KEY,$g,false);}if(array_key_exists('css_print_method',$d)&&class_exists('\\SidcraftPageBuilder\\Design\\CssPrint')){\SidcraftPageBuilder\Design\CssPrint::save_method($d['css_print_method']);}if(class_exists('\\SidcraftPageBuilder\\Design\\Fonts'))\SidcraftPageBuilder\Design\Fonts::save_from(is_array($d)?$d:[]);if(class_exists('\\SidcraftPageBuilder\\Design\\Optimize'))\SidcraftPageBuilder\Design\Optimize::save_from(is_array($d)?$d:[]);if(class_exists('\\SidcraftPageBuilder\\Settings\\AdminSettings')){\SidcraftPageBuilder\Settings\AdminSettings::save(is_array($d)?$d:[],true);}$g=\SidcraftPageBuilder\Settings\GlobalSettings::get();return rest_ensure_response($g);}return rest_ensure_response(\SidcraftPageBuilder\Settings\GlobalSettings::public_settings());},'permission_callback'=>[__CLASS__,'can_templates']]);
   register_rest_route('sidcraft-page-builder/v1','/variables/custom/(?P<group>[a-zA-Z0-9_-]+)/(?P<name>[a-zA-Z0-9_-]+)',['methods'=>'DELETE','callback'=>function($r){return rest_ensure_response(['success'=>\SidcraftPageBuilder\Design\Variables::delete_custom($r['group'],$r['name'])]);},'permission_callback'=>[__CLASS__,'can_design']]);
   register_rest_route('sidcraft-page-builder/v1','/variables',['methods'=>['GET','POST'],'callback'=>function($r){if($r->get_method()==='POST'){ $d=$r->get_json_params(); $saved=Variables::save(is_array($d)?$d:[]); return rest_ensure_response($saved?:Variables::all()); } return rest_ensure_response(Variables::all());},'permission_callback'=>[__CLASS__,'can_edit']]);
   register_rest_route('sidcraft-page-builder/v1','/theme-style',['methods'=>['GET','POST'],'callback'=>function($r){if($r->get_method()==='POST'){ $d=$r->get_json_params(); $saved=class_exists(ThemeStyle::class)?ThemeStyle::save(is_array($d)?$d:[]):false; return rest_ensure_response($saved?:(class_exists(ThemeStyle::class)?ThemeStyle::all():[])); } return rest_ensure_response(class_exists(ThemeStyle::class)?ThemeStyle::all():[]);},'permission_callback'=>[__CLASS__,'can_design']]);
@@ -138,9 +138,10 @@ class Rest {
   if(!$id)return false;
   $post=get_post($id);
   if(!$post)return false;
-  if($post->post_status==='publish'&&function_exists('is_post_publicly_viewable')&&is_post_publicly_viewable($post))return true;
-  if($post->post_status==='publish')return true;
-  return current_user_can('edit_post',$id);
+  if($post->post_status!=='publish')return current_user_can('edit_post',$id);
+  if(function_exists('post_password_required')&&post_password_required($post))return current_user_can('edit_post',$id);
+  if(function_exists('is_post_type_viewable')&&!is_post_type_viewable($post->post_type))return current_user_can('edit_post',$id);
+  return true;
  }
  public static function loop_page($req){
   $id=absint($req['document']??$req->get_param('document'));
@@ -207,8 +208,7 @@ class Rest {
    if(is_wp_error($check))return $check;
   }
   $d=(array)$r->get_params();
-  unset($d['website'],$d['g-recaptcha-response'],$d['recaptcha_token'],$d['cf-turnstile-response']);
-  $to=sanitize_email($d['_to']??get_option('admin_email'));
+  unset($d['website'],$d['_to'],$d['g-recaptcha-response'],$d['recaptcha_token'],$d['cf-turnstile-response']);
   $subject=sanitize_text_field($d['_subject']??__('Sidcraft Page Builder Form Submission', 'sidcraft-page-builder'));
   $skip=['_to','_subject','_success','_post_id','_unit_id'];
   $fields=[];
@@ -222,6 +222,8 @@ class Rest {
   }
   $post_id=absint($d['_post_id']??0);
   $unit_id=preg_replace('/[^A-Za-z0-9_-]/','',(string)($d['_unit_id']??''));
+  if(self::form_rate_limited($post_id,$unit_id))return new \WP_Error('rate_limited',__('Too many form submissions. Please try again later.', 'sidcraft-page-builder'),['status'=>429]);
+  $to=self::form_recipient($post_id,$unit_id);
   $result=[
    'success'=>false,
    'send_email'=>true,
@@ -255,6 +257,63 @@ class Rest {
    if($redirect!==''&&preg_match('#^https?://#i',$redirect))$out['redirect']=$redirect;
   }
   return rest_ensure_response($out);
+ }
+ /**
+  * Resolve the recipient from the server-side form definition.
+  *
+  * @param int    $post_id
+  * @param string $unit_id
+  * @return string
+  */
+ private static function form_recipient($post_id,$unit_id){
+  if($post_id&&$unit_id&&class_exists('\\SidcraftPageBuilder\\Document\\DocumentManager')){
+   $doc=\SidcraftPageBuilder\Document\DocumentManager::get($post_id);
+   if(!is_array($doc))return sanitize_email((string)get_option('admin_email'));
+   $node=null;
+   foreach(['root','header','footer'] as $part){
+    $node=self::find_form_node(is_array($doc[$part]??null)?$doc[$part]:[],$unit_id);
+    if($node)break;
+   }
+   if(is_array($node)&&($node['type']??'')==='form'){
+    $email=sanitize_email((string)($node['settings']['email']??''));
+    if($email!=='')return $email;
+   }
+  }
+  return sanitize_email((string)get_option('admin_email'));
+ }
+ /**
+  * @param array $nodes
+  * @param string $id
+  * @return array|null
+  */
+ private static function find_form_node($nodes,$id){
+  foreach((array)$nodes as $node){
+   if(!is_array($node))continue;
+   if((string)($node['id']??'')===$id)return $node;
+   if(!empty($node['children'])){
+    $found=self::find_form_node($node['children'],$id);
+    if($found)return $found;
+   }
+  }
+  return null;
+ }
+ /**
+  * Per-IP throttle for public form submissions.
+  *
+  * @param int    $post_id
+  * @param string $unit_id
+  * @return bool
+  */
+ private static function form_rate_limited($post_id,$unit_id){
+  $ip=isset($_SERVER['REMOTE_ADDR'])?sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])):'';
+  if($ip==='')return false;
+  $limit=absint(apply_filters('sidcraft_page_builder_form_rate_limit',10,$post_id,$unit_id));
+  if($limit<1)return false;
+  $key='sidsyn_form_'.md5($ip.'|'.$post_id.'|'.$unit_id);
+  $count=(int)get_transient($key);
+  if($count>=$limit)return true;
+  set_transient($key,$count+1,defined('HOUR_IN_SECONDS')?HOUR_IN_SECONDS:3600);
+  return false;
  }
  public static function can_picker(){
   if(class_exists('\\SidcraftPageBuilder\\Settings\\Roles')&&!\SidcraftPageBuilder\Settings\Roles::can_edit())return false;

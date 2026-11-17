@@ -225,7 +225,7 @@ class TemplateIO {
 	 * @return array|\WP_Error
 	 */
 	public static function import_payload( $payload, $media = array(), $media_dir = null ) {
-		if ( ! current_user_can( 'edit_pages' ) ) {
+		if ( ! current_user_can( 'edit_pages' ) || ( class_exists( '\SidcraftPageBuilder\Settings\Roles' ) && ! \SidcraftPageBuilder\Settings\Roles::can_edit() ) ) {
 			return new \WP_Error( 'forbidden', __( 'You cannot import templates.', 'sidcraft-page-builder' ), array( 'status' => 403 ) );
 		}
 		$payload = self::normalize_incoming( $payload );

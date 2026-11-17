@@ -8,6 +8,13 @@
  * browser through the normal editor history, so nothing is written to the page
  * until the user applies the plan and saves.
  *
+ * Each turn also gets the few earlier layout decisions that match the request
+ * (LayoutMemory) instead of the site's whole history, and the breakpoints the
+ * result is checked at. A plan the user previews becomes a recreation run
+ * (Recreation): its source, tokens, viewport, tree and validation are stored
+ * as separate artifacts, and the plan is checked at every breakpoint before
+ * it is applied.
+ *
  * Requests go through the WordPress AI Client (WordPress 7.0 and later) and the
  * provider the site owner connected under Settings → Connectors. This plugin
  * stores no AI credentials and calls no AI provider itself. Add-ons can supply
@@ -43,6 +50,8 @@ class AiChat {
 		add_action( 'sidcraft_page_builder_editor_enqueue', array( self::class, 'enqueue' ), 30 );
 		add_filter( 'sidcraft_page_builder_editor_localize_data', array( self::class, 'localize' ), 40, 2 );
 		add_action( 'admin_init', array( self::class, 'drop_legacy_key' ) );
+		LayoutMemory::init();
+		Recreation::init();
 	}
 
 	/**
@@ -133,8 +142,16 @@ class AiChat {
 			'maxImages'     => 0,
 			'html'          => true,
 			'rest'          => esc_url_raw( rest_url( self::NS . '/ai-chat' ) ),
+			// Recreation runs and layout memory (see Recreation and LayoutMemory).
+			'runs'          => esc_url_raw( rest_url( self::NS . '/ai-recreation/' ) ),
+			'memory'        => esc_url_raw( rest_url( self::NS . '/ai-memory' ) ),
+			'media'         => current_user_can( 'upload_files' ) ? esc_url_raw( rest_url( 'wp/v2/media' ) ) : '',
+			'requirements'  => Recreation::requirements(),
+			'viewport'      => Recreation::clean_viewport( null ),
 			'proUrl'        => 'https://canvasly.pro/price.html#lite-vs-pro',
 			'privacy'       => __( 'Your messages and an outline of this page are sent to the AI provider connected on this site. Images are sent only when you attach them.', 'sidcraft-page-builder' ),
+			// Effect settings shown in the page outline when a unit uses them. Add-ons append theirs.
+			'effectKeys'    => array( 'interaction', 'interaction_trigger', 'interaction_duration', 'interaction_delay', 'interaction_easing', 'interaction_threshold', 'interaction_repeat' ),
 		);
 		/**
 		 * Filter the AI Chat Bot configuration sent to the editor.
@@ -275,6 +292,12 @@ class AiChat {
 		$images  = $request->get_param( 'images' );
 		$images  = is_array( $images ) ? $images : array();
 		$system  = self::system_prompt() . "\n\n# Current editor state (JSON)\n" . $context;
+		$last    = end( $messages );
+		$memory  = LayoutMemory::prompt_block( (string) ( $last['content'] ?? '' ), absint( $request->get_param( 'post_id' ) ) );
+		if ( '' !== $memory ) {
+			$system .= "\n\n" . $memory;
+		}
+		$system .= "\n\n" . self::viewport_instructions();
 		$tools   = array( self::plan_tool() );
 		/**
 		 * Whether the engine answering this turn supports tool calling. The
@@ -392,6 +415,19 @@ class AiChat {
 	}
 
 	/**
+	 * The breakpoints every plan is checked at after the preview.
+	 *
+	 * @return string
+	 */
+	public static function viewport_instructions() {
+		$rows = array();
+		foreach ( Recreation::clean_viewport( null )['breakpoints'] as $b ) {
+			$rows[] = $b['name'] . ' ' . $b['width'] . 'px';
+		}
+		return "# Viewport\nThe preview is measured at " . implode( ', ', $rows ) . '. A plan whose layout overflows horizontally, clips text or overlaps elements at any of these widths is flagged before it is applied, so set responsive values for each.';
+	}
+
+	/**
 	 * Instructions for providers that cannot call tools.
 	 *
 	 * @return string
@@ -488,8 +524,21 @@ Prefer XEditor elements for new layouts. Each prints one clean HTML element and 
 - xe_paragraph: settings: text (basic inline HTML allowed: strong, em, a, br, span), tag (p).
 - xe_image: settings: source "url", src (image URL or ""), alt. Never invent image URLs: use "" so a placeholder shows, and write a helpful alt text.
 - xe_button: settings: text, link ("#" when unknown).
-Containers (xe_div_block, xe_flexbox, xe_grid) take children. Classic units listed in "units" may also be used when they fit better (forms, price tables, tabs, accordions, sliders); keep their settings minimal.
+Containers (xe_div_block, xe_flexbox, xe_grid) take children. Classic units listed in "units" may also be used when they fit better (forms, price tables, tabs, accordions, sliders, testimonials, counters).
+
+# Classic unit settings
+"unit_settings" in the editor state lists the content settings of the classic units most relevant to this request, as "key:kind; key:kind". When you insert or update one of these units, fill these settings with complete, realistic content instead of leaving the defaults.
+- text: plain text. html: text with basic inline HTML. url: a URL string ("#" when unknown). number: a number.
+- select: one of the listed values, written exactly (a|b|c means "a", "b" or "c").
+- switch: true or false.
+- list of {…}: an array of objects, one per item, each with the listed keys, for example "items":[{"title":"Shipping","content":"We ship in 2 days."}]. Write every item you want; the list replaces the existing one.
+Leave out settings you do not need; they keep their defaults.
+Nodes in "tree" may carry "content": the current content settings of a classic unit. To change one item of a list, send the whole list with the change.
+For a classic unit in "units" that is not in "unit_settings", keep its settings minimal.
 Responsive values are objects keyed by breakpoint, for example "columns": {"desktop":"3","tablet":"2","mobile":"1"}.
+
+# Entrance animations
+Classic units (not xe_ elements) can animate when they appear. Settings: interaction: "fade", "slide-up", "scale" or "" (none); interaction_trigger: "viewport" (when scrolled into view, the usual choice), "load", "hover", "click", "scroll" or "focus"; interaction_duration and interaction_delay: seconds (0 to 30); interaction_easing: "ease", "ease-in", "ease-out", "ease-in-out" or "linear"; interaction_threshold: 0 to 1, how much of the unit must be visible; interaction_repeat: true or false. Stagger delays (0, 0.1, 0.2) for cards in a row. Use animations sparingly.
 
 # Styling
 Style with classes, not inline settings. Every node has settings.xe_classes: an array of class names (without the "xe-class-" prefix).

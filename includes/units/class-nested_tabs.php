@@ -54,7 +54,7 @@ class NestedTabs extends Unit {
   $html=is_array($children)?$children:[];
   $active=max(0,min(count($slots)-1,absint($s['active']??0)));
   $vertical=($s['orientation']??'horizontal')==='vertical';
-  $align=in_array($s['tabs_align']??'start',['start','center','end','stretch'],true)?$s['tabs_align']:'start';
+  $align=in_array($s['tabs_align']??'start',['start','center','end','stretch'],true)?($s['tabs_align']??'start'):'start';
   $tag=$this->tag($s['title_tag']??'div',$this->title_tags(),'div');
   $uid='lb'.substr(md5(wp_json_encode($slots).(string)($s['css_id']??'').wp_rand()),0,8);
   $vars=$this->style_attr([

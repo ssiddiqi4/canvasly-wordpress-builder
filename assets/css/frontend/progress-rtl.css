@@ -1,0 +1,20 @@
+/* Generated from frontend-rtl.css by patches/tools/split-frontend-css.php. Do not edit. */
+.lb-progress-track{height:10px;border-radius:10px;overflow:hidden}
+.lb-progress-track span{display:block;height:100%}
+.lb-progress-track{height:10px;border-radius:10px;overflow:hidden}
+.lb-progress-track span{display:block;height:100%}
+.lb-progress-track{height:10px;border-radius:10px;overflow:hidden}
+.lb-progress-track span{display:block;height:100%}
+.lb-progress-track{height:10px;border-radius:10px;overflow:hidden}
+.lb-progress-track span{display:block;height:100%}
+.lb-progress-track{height:8px;border-radius:99px;background:#eee;overflow:hidden}
+.lb-progress-track span{display:block;height:100%;background:#333}
+.lb-progress{display:grid;gap:8px}
+.lb-progress-label{display:block;color:var(--lb-bar-title-color,inherit);font-weight:600}
+.lb-progress-track{height:var(--lb-bar-height,30px);border-radius:var(--lb-bar-radius,4px);background:var(--lb-bar-bg,#eee);overflow:hidden}
+.lb-progress-fill{display:flex;align-items:center;justify-content:space-between;gap:10px;height:100%;padding:0 15px;background:var(--lb-bar-color,#61ce70);color:var(--lb-bar-inner-color,#fff);font-size:12px;font-weight:600;white-space:nowrap;transition:width 1.2s cubic-bezier(.22,.61,.36,1)}
+.lb-progress-info .lb-progress-fill{background:var(--lb-bar-color,#5bc0de)}
+.lb-progress-success .lb-progress-fill{background:var(--lb-bar-color,#5cb85c)}
+.lb-progress-warning .lb-progress-fill{background:var(--lb-bar-color,#f0ad4e)}
+.lb-progress-danger .lb-progress-fill{background:var(--lb-bar-color,#d9534f)}
+.lb-progress-percent{margin-right:auto}

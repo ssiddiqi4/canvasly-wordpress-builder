@@ -75,7 +75,7 @@ class Gallery extends Unit {
   $url=wp_get_attachment_image_url($id,sanitize_key($s['size']??'medium')?:'medium');
   if(!$url) return '';
   $alt=(string)get_post_meta($id,'_wp_attachment_image_alt',true);
-  $capMode=in_array($s['caption']??'none',['none','title','caption','description'],true)?$s['caption']:'none';
+  $capMode=in_array($s['caption']??'none',['none','title','caption','description'],true)?($s['caption']??'none'):'none';
   $cap=$capMode!=='none'?Carousel::caption_text($id,$capMode):'';
   $lazy=!isset($s['lazy_load']) || !empty($s['lazy_load']);
   $ratio=$this->ratio($id);
@@ -83,7 +83,7 @@ class Gallery extends Unit {
   $cls='lb-gallery-item'.$this->hover_class($s);
   $style=$this->item_style($s,$ratio);
   $extra=' class="'.$cls.'" data-lb-ratio="'.esc_attr((string)$ratio).'" style="'.esc_attr($style).'"'.($set!==''?' data-lb-in="'.esc_attr($set).'"':'').($hidden?' hidden':'');
-  $linkMode=in_array($s['link']??'file',['none','file','attachment'],true)?$s['link']:'file';
+  $linkMode=in_array($s['link']??'file',['none','file','attachment'],true)?($s['link']??'file'):'file';
   $light=!empty($s['lightbox'])&&$linkMode==='file';
   if($linkMode==='file'){
    $lb='';
@@ -98,13 +98,13 @@ class Gallery extends Unit {
  }
  public function render($s,$children=''){
   $groups=$this->collections($s);
-  $order=in_array($s['order_by']??'default',['default','random','date','title'],true)?$s['order_by']:'default';
+  $order=in_array($s['order_by']??'default',['default','random','date','title'],true)?($s['order_by']??'default'):'default';
   $hasMany=($s['mode']??'single')==='multiple' && count($groups)>1;
   $showAll=!isset($s['show_all']) || !empty($s['show_all']);
   $cols=max(1,min(10,absint($this->scalar($s['columns']??4,4))));
   $layout=$this->layout_of($s);
-  $capAlign=in_array($s['caption_align']??'center',['left','center','right'],true)?$s['caption_align']:'center';
-  $last=in_array($s['last_row']??'auto',['auto','fit','grow'],true)?$s['last_row']:'auto';
+  $capAlign=in_array($s['caption_align']??'center',['left','center','right'],true)?($s['caption_align']??'center'):'center';
+  $last=in_array($s['last_row']??'auto',['auto','fit','grow'],true)?($s['last_row']??'auto'):'auto';
   $layoutCls=' is-'.$layout.(($s['image_ratio']??'1:1')==='auto'?' is-ratio-auto':'');
   $items='';$any=false;
   foreach($groups as $i=>$g){

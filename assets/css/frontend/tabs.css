@@ -1,0 +1,30 @@
+/* Generated from frontend.css by patches/tools/split-frontend-css.php. Do not edit. */
+.lb-tab{padding:12px;border:1px solid #ddd}
+.lb-tab{padding:12px;border:1px solid #ddd}
+.lb-tab{padding:12px;border:1px solid #ddd}
+.lb-tab{padding:12px;border:1px solid #ddd}
+.lb-tabs-widget .lb-tab-button{padding:9px 14px;border:1px solid #d7dce2;background:#f7f8fa;cursor:pointer}
+.lb-tabs-widget .lb-tab-button.is-active{background:#222;color:#fff}
+.lb-tabs-widget .lb-tab-panel{padding:14px;border:1px solid #d7dce2;border-top:0}
+.lb-tabs-widget{display:flex;flex-direction:column}
+.lb-tabs-nav{display:flex;flex-wrap:wrap;gap:0;margin:0}
+.lb-tabs-align-center .lb-tabs-nav{justify-content:center}
+.lb-tabs-align-end .lb-tabs-nav{justify-content:flex-end}
+.lb-tabs-align-stretch .lb-tab-button{flex:1 1 0}
+.lb-tabs-widget .lb-tab-button{margin:0;padding:var(--lb-tab-padding,12px 20px);border:var(--lb-tab-border-width,1px) solid var(--lb-tab-border-color,#d7dce2);background:var(--lb-tab-bg,#f7f8fa);color:var(--lb-tab-color,inherit);cursor:pointer;font-weight:600;font-size:inherit;line-height:1.4}
+.lb-tabs-widget .lb-tab-button+.lb-tab-button{margin-left:calc(var(--lb-tab-border-width,1px) * -1)}
+.lb-tabs-widget .lb-tab-button.is-active{background:var(--lb-tab-active-bg,#fff);color:var(--lb-tab-active-color,inherit);position:relative;z-index:1}
+.lb-tabs-horizontal .lb-tab-button.is-active{border-bottom-color:transparent;margin-bottom:calc(var(--lb-tab-border-width,1px) * -1)}
+.lb-tabs-widget .lb-tab-panel{padding:var(--lb-tab-content-padding,20px);border:var(--lb-tab-border-width,1px) solid var(--lb-tab-border-color,#d7dce2);color:var(--lb-tab-content-color,inherit);background:var(--lb-tab-content-bg,transparent)}
+.lb-tab-panel>:first-child{margin-top:0}
+.lb-tab-panel>:last-child{margin-bottom:0}
+.lb-tabs-vertical{flex-direction:row;align-items:flex-start}
+.lb-tabs-vertical .lb-tabs-nav{flex-direction:column;flex:0 0 var(--lb-tabs-nav-width,25%);width:var(--lb-tabs-nav-width,25%)}
+.lb-tabs-vertical .lb-tab-button+.lb-tab-button{margin-left:0;margin-top:calc(var(--lb-tab-border-width,1px) * -1)}
+.lb-tabs-vertical .lb-tab-button.is-active{border-right-color:transparent;margin-right:calc(var(--lb-tab-border-width,1px) * -1)}
+.lb-tabs-vertical .lb-tabs-panels{flex:1 1 auto;min-width:0}
+.lb-tabs-vertical.lb-tabs-align-center .lb-tabs-nav{justify-content:flex-start;align-self:center}
+.lb-tabs-vertical.lb-tabs-align-end .lb-tabs-nav{align-self:flex-end}
+@media (max-width:767px){.lb-tabs-vertical{flex-direction:column}}
+.lb-tabs-nav .lb-tab-button.lb-tab-button:hover,.lb-tabs-nav .lb-tab-button.lb-tab-button:focus,.lb-tabs-nav .lb-tab-button.lb-tab-button:active{background:var(--lb-tab-bg,#f7f8fa);color:var(--lb-tab-color,inherit);border-color:var(--lb-tab-border-color,#d7dce2);box-shadow:none}
+.lb-tabs-nav .lb-tab-button.lb-tab-button.is-active:hover,.lb-tabs-nav .lb-tab-button.lb-tab-button.is-active:focus,.lb-tabs-nav .lb-tab-button.lb-tab-button.is-active:active{background:var(--lb-tab-active-bg,#fff);color:var(--lb-tab-active-color,inherit)}
