@@ -265,8 +265,31 @@ function installHistory() {
       alert(app.t("Save this page first, then preview it."));
       return;
     }
-    if (app.dirty) await app.save(true);
-    window.open(url, "_blank", "noopener");
+    if (!app.dirty) {
+      window.open(url, "_blank", "noopener");
+      return;
+    }
+    // Open the tab right away, while the click still counts as a user action, so the browser does not block it and
+    // the page responds at once. It loads the preview as soon as the save has finished.
+    const win = window.open("", "_blank");
+    if (win) {
+      try {
+        win.opener = null;
+        win.document.title = app.t("Preview");
+        win.document.body.style.cssText = "font:16px system-ui,sans-serif;padding:32px;color:#333";
+        win.document.body.textContent = app.t("Saving your changes, then opening the preview\u2026");
+      } catch (e) {}
+    }
+    const status = app.$("#lb-status");
+    const previous = status ? status.textContent : "";
+    if (status) status.textContent = app.t("Saving before preview\u2026");
+    try {
+      await Promise.race([app.save(true), new Promise((resolve) => setTimeout(resolve, 30000))]);
+    } finally {
+      if (status && status.textContent === app.t("Saving before preview\u2026")) status.textContent = previous;
+    }
+    if (win && !win.closed) win.location.href = url;
+    else window.open(url, "_blank", "noopener");
   };
   app.openHistory = function openHistory(tab) {
     app.historyOpen = true;

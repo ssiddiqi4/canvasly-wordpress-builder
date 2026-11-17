@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -352,6 +352,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 2.3.1 =
+* Fix: the editor's Preview button now opens the new tab at once and shows "Saving your changes…" there while the page saves, then loads the preview. Before, nothing happened until the save finished, which felt broken on slow servers and could trigger the browser's pop-up blocker.
+
 = 2.3.0 =
 * New: Tools > "Redesign this site from an example landing page" card. The feature itself is part of Sidcraft Builder Pro; in Sidcraft Page Builder the card is shown with the Go button switched off and a PRO note.
 
@@ -402,6 +405,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * See `changelog.txt` for the full history.
 
 == Upgrade Notice ==
+
+= 2.3.1 =
+Preview opens instantly instead of waiting for the save.
 
 = 2.3.0 =
 Adds the Pro site-redesign card to Tools.

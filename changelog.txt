@@ -1,4 +1,7 @@
 === Sidcraft Page Builder: full changelog ===
+= 2.3.1 =
+* Fix: Preview opens the new tab immediately and loads the preview after the autosave finishes.
+
 = 2.3.0 =
 * New: Tools > "Redesign this site from an example landing page" card (Pro feature; switched off in Sidcraft Page Builder with a PRO note).
 
