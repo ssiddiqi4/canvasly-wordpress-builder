@@ -16,6 +16,7 @@ class Tool {
 		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );
 		if ( ! function_exists( 'is_admin' ) || is_admin() ) {
 			add_action( 'sidcraft_page_builder_tools_screen', array( self::class, 'screen' ) );
+			add_action( 'sidcraft_page_builder_tools_before_import', array( self::class, 'redesign_locked_card' ), 20 );
 			add_action( 'admin_post_sidsyn_convert', array( self::class, 'handle' ) );
 			add_action( 'admin_notices', array( self::class, 'admin_notice' ) );
 		}
@@ -305,10 +306,42 @@ class Tool {
 		echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible"><p>' . esc_html( (string) ( $n['message'] ?? '' ) ) . '</p></div>';
 	}
 
+	/**
+	 * Card for the Pro "redesign from an example landing page" feature. Pro prints the working card
+	 * on the same action; without Pro this shows the same card with the Go button switched off.
+	 *
+	 * @return void
+	 */
+	public static function redesign_locked_card() {
+		if ( apply_filters( 'sidcraft_page_builder_redesign_available', false ) ) {
+			return;
+		}
+		echo '<div id="sidcraft-page-builder-redesign" class="card" style="max-width:none;margin-top:24px;padding:16px 20px;">';
+		echo '<h2>' . esc_html__( 'Redesign this site from an example landing page', 'sidcraft-page-builder' ) . ' <span style="background:#7c3aed;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:middle">PRO</span></h2>';
+		echo '<p class="description">' . esc_html__( 'Upload an example landing page and get a ready-to-install Site Kit: a new landing page, redesigned pages and articles, header, footer and menu, built from your own content.', 'sidcraft-page-builder' ) . '</p>';
+		echo '<p><label><strong>' . esc_html__( 'Example landing page', 'sidcraft-page-builder' ) . '</strong><br><input type="file" disabled></label></p>';
+		echo '<p><button type="button" class="button button-primary" disabled>' . esc_html__( 'Go', 'sidcraft-page-builder' ) . '</button> <em>' . esc_html__( 'PRO feature. Install and activate Sidcraft Builder Pro to use it.', 'sidcraft-page-builder' ) . '</em></p>';
+		echo '<h3>' . esc_html__( 'How it works once unlocked', 'sidcraft-page-builder' ) . '</h3><ol style="list-style:lower-alpha;margin-left:22px">';
+		foreach ( array(
+			__( 'Back up the site first.', 'sidcraft-page-builder' ),
+			__( 'Go to Plugins → Add New → Upload, install and activate the ZIP.', 'sidcraft-page-builder' ),
+			__( 'Open Tools → <your site name> Site Kit and press 1. Import the new site. Old pages and posts with the same address are moved to the Trash automatically, so your URLs don’t change.', 'sidcraft-page-builder' ),
+			__( 'Press 2. Set featured images.', 'sidcraft-page-builder' ),
+			__( 'Press 3. Trash the rest of the old pages and posts.', 'sidcraft-page-builder' ),
+		) as $step ) {
+			echo '<li>' . esc_html( $step ) . '</li>';
+		}
+		echo '</ol></div>';
+	}
+
 	public static function screen() {
 		if ( ! self::can_manage() ) {
 			return;
 		}
+		/**
+		 * Cards printed above "Import Elementor Pages". Sidcraft Builder Pro adds the Site Redesign card here.
+		 */
+		do_action( 'sidcraft_page_builder_tools_before_import' );
 		$candidates = Converter::candidates();
 		$total      = count( Converter::candidate_ids() );
 		$job        = Job::get();

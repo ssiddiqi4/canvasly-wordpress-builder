@@ -1,4 +1,7 @@
 === Sidcraft Page Builder: full changelog ===
+= 2.3.0 =
+* New: Tools > "Redesign this site from an example landing page" card (Pro feature; switched off in Sidcraft Page Builder with a PRO note).
+
 = 2.2.0 =
 * New: Settings > General > Open a menu from a button. A button or link set to `#open-menu-<menu item name>` scrolls to the top and opens that dropdown in the Site Menu; on phones the menu unfolds first. Can be switched off, and the scroll-to-top is optional.
 

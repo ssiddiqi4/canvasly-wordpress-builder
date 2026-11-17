@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -352,6 +352,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 2.3.0 =
+* New: Tools > "Redesign this site from an example landing page" card. The feature itself is part of Sidcraft Builder Pro; in Sidcraft Page Builder the card is shown with the Go button switched off and a PRO note.
+
 = 2.2.0 =
 * New: Settings > General > Open a menu from a button. A button or link set to `#open-menu-<menu item name>` (for example `#open-menu-buy-tickets`) scrolls to the top and opens that dropdown in the Site Menu, and unfolds the menu first on phones. Optional scroll-to-top.
 
@@ -399,6 +402,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * See `changelog.txt` for the full history.
 
 == Upgrade Notice ==
+
+= 2.3.0 =
+Adds the Pro site-redesign card to Tools.
 
 = 2.2.0 =
 Adds buttons that open a Site Menu dropdown (Settings > General).
