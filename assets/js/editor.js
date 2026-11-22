@@ -3284,7 +3284,11 @@
           css: String(data.css || ""),
           links: Array.isArray(data.links) ? data.links.filter(Boolean) : []
         };
-        if (html.trim() && typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
+        if (html.trim() && typeof app.lbPaintCanvas === "function") {
+          app.lbPaintCanvas({ skipPanel: true });
+          // A preview that arrives while the canvas is still starting up was not drawn; paint once more.
+          setTimeout(function () { app.lbPaintCanvas({ skipPanel: true }); }, 500);
+        }
         else if (typeof app.frameDoc === "function") app.installShortcodePreviewStyles(app.frameDoc());
       }).catch(() => {
         delete app.shortcodePreviewPending[key];
