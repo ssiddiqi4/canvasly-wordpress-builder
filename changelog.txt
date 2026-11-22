@@ -1,4 +1,7 @@
 === Sidcraft Page Builder: full changelog ===
+= 2.3.3 =
+* Fix: a Shortcode unit's live preview that arrived while the editor canvas was still starting was never drawn, so the unit showed the raw shortcode text. The canvas now repaints once more after the preview loads.
+
 = 2.3.2 =
 * Fix: searching the Icon Library shows only the matching icons (the hidden attribute was overridden by display:flex).
 

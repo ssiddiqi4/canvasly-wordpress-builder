@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -352,6 +352,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 2.3.3 =
+* Fix: a Shortcode unit's live preview that arrived while the editor canvas was still starting was never drawn, so the unit showed the raw shortcode text. The canvas now repaints once more after the preview loads.
+
 = 2.3.2 =
 * Fix: searching the Icon Library now shows only the matching icons. Before, the count changed but every icon stayed on screen.
 
@@ -408,6 +411,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * See `changelog.txt` for the full history.
 
 == Upgrade Notice ==
+
+= 2.3.3 =
+Shortcode units now always show their preview in the editor.
 
 = 2.3.2 =
 Icon Library search now filters the icons.
