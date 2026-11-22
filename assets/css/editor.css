@@ -1280,3 +1280,6 @@ html.lb-is-dragging .lb-container-inner[style*="display:grid"]:not([style*="grid
 .lb-node.lb-hidden-here:after{border:1px dashed #8c96a3;background:repeating-linear-gradient(135deg,rgba(140,150,163,.08) 0 8px,transparent 8px 16px)}
 .lb-node.lb-has-hidden:before{content:attr(data-lb-hidden-label);position:absolute;top:4px;right:4px;z-index:6;max-width:calc(100% - 8px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:2px 7px;border-radius:3px;background:#646970;color:#fff;font:600 10px/1.5 system-ui,sans-serif;letter-spacing:.02em;pointer-events:none}
 .lb-node.lb-hidden-here:before{background:#3c434a}
+
+/* Icon library search: the hidden attribute must beat display:flex on the grid buttons. */
+.lb-icon-choice[hidden]{display:none!important}

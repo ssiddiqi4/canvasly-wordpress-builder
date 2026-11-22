@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -352,6 +352,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 2.3.2 =
+* Fix: searching the Icon Library now shows only the matching icons. Before, the count changed but every icon stayed on screen.
+
 = 2.3.1 =
 * Fix: the editor's Preview button now opens the new tab at once and shows "Saving your changes…" there while the page saves, then loads the preview. Before, nothing happened until the save finished, which felt broken on slow servers and could trigger the browser's pop-up blocker.
 
@@ -405,6 +408,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * See `changelog.txt` for the full history.
 
 == Upgrade Notice ==
+
+= 2.3.2 =
+Icon Library search now filters the icons.
 
 = 2.3.1 =
 Preview opens instantly instead of waiting for the save.

@@ -1,4 +1,7 @@
 === Sidcraft Page Builder: full changelog ===
+= 2.3.2 =
+* Fix: searching the Icon Library shows only the matching icons (the hidden attribute was overridden by display:flex).
+
 = 2.3.1 =
 * Fix: Preview opens the new tab immediately and loads the preview after the autosave finishes.
 
