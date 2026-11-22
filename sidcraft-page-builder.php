@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Sidcraft Page Builder w/ AI MCP
  * Description: A lightweight, independent visual page builder for WordPress.
- * Version: 2.3.4
+ * Version: 2.3.5
  * Requires at least: 6.9
  * Requires PHP: 7.4
  * Author: Sidcraft Page Builder
@@ -53,7 +53,7 @@ if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_URL' ) ) {
 	define( 'SIDCRAFT_PAGE_BUILDER_URL', plugin_dir_url( __FILE__ ) );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ) {
-	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '2.3.4' );
+	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '2.3.5' );
 }
 
 /**
@@ -318,7 +318,7 @@ if ( sidcraft_page_builder_native_editor_zero_bootstrap() ) {
 }
 
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_VERSION' ) ) {
-	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '2.3.4' );
+	define( 'SIDCRAFT_PAGE_BUILDER_VERSION', '2.3.5' );
 }
 if ( ! defined( 'SIDCRAFT_PAGE_BUILDER_FILE' ) ) {
 	define( 'SIDCRAFT_PAGE_BUILDER_FILE', __FILE__ );

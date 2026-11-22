@@ -4274,7 +4274,7 @@
     };
     app.inheritToolbarHTML = function inheritToolbarHTML() {
       const scope = app.themeChromeScope === "theme" ? app.t("Entire theme") : app.t("This page only");
-      return '<div class="lb-inherit-toolbar" contenteditable="false"><button type="button" data-lb-cmd="bold" title="' + app.esc(app.t("Bold")) + '"><b>B</b></button><button type="button" data-lb-cmd="italic" title="' + app.esc(app.t("Italic")) + '"><i>I</i></button><button type="button" data-lb-cmd="link" title="' + app.esc(app.t("Link")) + '">' + app.esc(app.t("Link")) + '</button><button type="button" data-lb-chrome-scope title="' + app.esc(app.t("Theme header and footer")) + '">' + app.esc(scope) + "</button></div>";
+      return '<div class="lb-inherit-toolbar" contenteditable="false"><button type="button" data-lb-cmd="bold" title="' + app.esc(app.t("Bold")) + '"><b>B</b></button><button type="button" data-lb-cmd="italic" title="' + app.esc(app.t("Italic")) + '"><i>I</i></button><button type="button" data-lb-cmd="link" title="' + app.esc(app.t("Link")) + '">' + app.esc(app.t("Link")) + '</button><button type="button" data-lb-chrome-scope title="' + app.esc(app.t("Theme header and footer")) + '">' + app.esc(scope) + '</button><button type="button" data-lb-chrome-reset title="' + app.esc(app.t("Remove the changes saved for the header and footer and use the theme's own again")) + '">' + app.esc(app.t("Reset")) + '</button><button type="button" data-lb-chrome-hide title="' + app.esc(app.t("Remove the header and footer from this page (sets the page template to Canvas)")) + '">' + app.esc(app.t("Remove")) + "</button></div>";
     };
     app.syncInheritScopeLabels = function syncInheritScopeLabels() {
       const fd = app.frameDoc();
@@ -4711,6 +4711,44 @@
       fd.querySelectorAll("[data-lb-theme-inherit]").forEach((el) => app.ensureInheritEditor(el));
       if (fd.__lbInheritNav) return;
       fd.__lbInheritNav = true;
+    // Reset / Hide buttons of the inherited header and footer.
+    fd.addEventListener(
+      "click",
+      (e) => {
+        const btn = e.target.closest && e.target.closest("[data-lb-chrome-reset],[data-lb-chrome-hide]");
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (btn.hasAttribute("data-lb-chrome-hide")) {
+          app.commit(app.t("Edited page settings"));
+          app.state.settings = Object.assign({}, app.state.settings || {}, { template: "canvas" });
+          if (typeof app.applyPageTemplatePreview === "function") app.applyPageTemplatePreview();
+          app.dirty = true;
+          if (app.scheduleSave) app.scheduleSave();
+          return;
+        }
+        const api = String((app.D && app.D.api) || "").replace(/\/$/, "");
+        const id = parseInt((app.D && app.D.postId) || 0, 10) || 0;
+        if (!api || !id) return;
+        fetch(api + "/theme-chrome", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-WP-Nonce": (app.D && app.D.nonce) || "" },
+          body: JSON.stringify({ post_id: id, scope: "page", reset: true }),
+        })
+          .then((r) => (r.ok ? r.json() : null))
+          .then(() => {
+            app.themeChromeHtml = null;
+            app.themeChromeBaseline = null;
+            app.themeChromeHtmlDirty = false;
+            app.themeChromeScopeDirty = false;
+            app.themeChromeLoading = false;
+            app.ensureThemeChrome();
+          })
+          .catch(() => {});
+      },
+      true,
+    );
+
       fd.addEventListener(
         "click",
         (e) => {

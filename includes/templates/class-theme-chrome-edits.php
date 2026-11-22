@@ -75,12 +75,43 @@ class ThemeChromeEdits {
 		$post_id = self::param_int( $request, 'post_id' );
 		$scope   = self::param_string( $request, 'scope' );
 		$parts   = self::param_array( $request, 'parts' );
+		if ( $post_id && self::param_bool( $request, 'reset' ) ) {
+			self::reset( $post_id );
+			$payload = self::payload( $post_id );
+			return function_exists( 'rest_ensure_response' ) ? rest_ensure_response( $payload ) : $payload;
+		}
 		$saved   = self::save( $post_id, $scope, $parts );
 		if ( function_exists( 'is_wp_error' ) && is_wp_error( $saved ) ) {
 			return $saved;
 		}
 		$payload = self::payload( $post_id );
 		return function_exists( 'rest_ensure_response' ) ? rest_ensure_response( $payload ) : $payload;
+	}
+
+	/**
+	 * Forget the saved header and footer of this page and, when the user may change the theme, the site-wide copies too, so the theme's own are used again.
+	 *
+	 * @param int $post_id Page ID.
+	 * @return true
+	 */
+	public static function reset( $post_id ) {
+		$post_id = absint( $post_id );
+		delete_post_meta( $post_id, self::META );
+		delete_post_meta( $post_id, self::SCOPE );
+		if ( self::can_publish_theme() ) {
+			delete_option( self::OPTION );
+		}
+		return true;
+	}
+
+	/**
+	 * @param mixed  $request Request.
+	 * @param string $key     Parameter.
+	 * @return bool
+	 */
+	private static function param_bool( $request, $key ) {
+		$v = self::param( $request, $key, false );
+		return ! empty( $v ) && 'false' !== $v && '0' !== $v;
 	}
 
 	/**

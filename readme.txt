@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.4
+Stable tag: 2.3.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -352,6 +352,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 2.3.5 =
+* New: the header and footer that a page inherits from the theme now have a Reset button (use the theme's own again, discarding saved changes made on this page or for the whole theme) and a Remove button (hide them on this page by setting the page template to Canvas) in their toolbar. Before, a header or footer you had edited stayed on the page, even after the theme was deleted, and could not be removed.
+
 = 2.3.4 =
 * New: classes typed under Advanced > CSS Classes now also apply to the unit in the editor canvas, so a theme or page stylesheet that targets them shows while you edit (it already did on the live page).
 
@@ -414,6 +417,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * See `changelog.txt` for the full history.
 
 == Upgrade Notice ==
+
+= 2.3.5 =
+Inherited header and footer can be reset or removed from the page.
 
 = 2.3.4 =
 The editor canvas now shows CSS classes on units, so styled pages look right while editing.
