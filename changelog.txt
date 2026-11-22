@@ -1,4 +1,7 @@
 === Sidcraft Page Builder: full changelog ===
+= 2.3.4 =
+* New: classes typed under Advanced > CSS Classes now also apply to the unit in the editor canvas, so a theme or page stylesheet that targets them shows while you edit (it already did on the live page).
+
 = 2.3.3 =
 * Fix: a Shortcode unit's live preview that arrived while the editor canvas was still starting was never drawn, so the unit showed the raw shortcode text. The canvas now repaints once more after the preview loads.
 

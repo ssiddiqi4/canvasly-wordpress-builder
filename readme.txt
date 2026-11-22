@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.3
+Stable tag: 2.3.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -352,6 +352,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 
 == Changelog ==
 
+= 2.3.4 =
+* New: classes typed under Advanced > CSS Classes now also apply to the unit in the editor canvas, so a theme or page stylesheet that targets them shows while you edit (it already did on the live page).
+
 = 2.3.3 =
 * Fix: a Shortcode unit's live preview that arrived while the editor canvas was still starting was never drawn, so the unit showed the raw shortcode text. The canvas now repaints once more after the preview loads.
 
@@ -411,6 +414,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 * See `changelog.txt` for the full history.
 
 == Upgrade Notice ==
+
+= 2.3.4 =
+The editor canvas now shows CSS classes on units, so styled pages look right while editing.
 
 = 2.3.3 =
 Shortcode units now always show their preview in the editor.

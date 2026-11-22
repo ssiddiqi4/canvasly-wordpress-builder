@@ -2990,10 +2990,25 @@
       }
       return `<div class="lb-embed-placeholder">${app.esc(app.meta(n.type).title || n.type)}</div>`;
     };
-    app.nodeHTML = function nodeHTML(n) {
+    // Classes typed under Advanced > CSS Classes also go on the unit's element in the canvas, so a theme or page stylesheet that targets them shows while editing.
+    app.withUnitClasses = function withUnitClasses(html, s) {
+      const raw = String((s && s.css_class) || "");
+      const extra = raw
+        .split(/\s+/)
+        .filter((c) => /^[A-Za-z_][A-Za-z0-9_-]{0,63}$/.test(c))
+        .join(" ");
+      if (!extra || typeof html !== "string") return html;
+      const m = html.match(/^<([a-zA-Z][a-zA-Z0-9]*)([^>]*)>/);
+      if (!m) return html;
+      const attrs = m[2];
+      const cm = attrs.match(/\sclass="([^"]*)"/);
+      const next = cm ? attrs.replace(/\sclass="([^"]*)"/, ' class="$1 ' + extra + '"') : attrs + ' class="' + extra + '"';
+      return "<" + m[1] + next + ">" + html.slice(m[0].length);
+    };
+  app.nodeHTML = function nodeHTML(n) {
       try {
         const s = n.settings || {}, e = app.meta(n.type), sel2 = app.selected === n.id ? " is-selected" : "", globalNames = String(s.global_class || "").split(/[\s,]+/).map((x) => x.trim()).filter(Boolean).map((x) => "lb-class-" + x.replace(/[^a-zA-Z0-9_-]/g, "")).filter(Boolean), classes = "lb-node lb-node-" + app.esc(n.type) + sel2 + (globalNames.length ? " " + globalNames.join(" ") : "");
-        return `<div class="${classes}" id="lb-node-${app.esc(n.id)}" data-id="${app.esc(n.id)}" data-type="${app.esc(n.type)}" draggable="true" tabindex="0" aria-label="${app.esc(e.title || n.type)}">${app.bodyHTML(n)}<div class="lb-node-toolbar"><span>${app.esc(e.title || n.type)}</span><button type="button" data-act="move-up" title="${app.t("Move up")}">↑</button><button type="button" data-act="move-down" title="${app.t("Move down")}">↓</button><button type="button" data-act="duplicate" title="${app.t("Duplicate")}">＋</button><button type="button" data-act="delete" title="${app.t("Delete")}">×</button></div></div>`;
+        return `<div class="${classes}" id="lb-node-${app.esc(n.id)}" data-id="${app.esc(n.id)}" data-type="${app.esc(n.type)}" draggable="true" tabindex="0" aria-label="${app.esc(e.title || n.type)}">${app.withUnitClasses(app.bodyHTML(n), s)}<div class="lb-node-toolbar"><span>${app.esc(e.title || n.type)}</span><button type="button" data-act="move-up" title="${app.t("Move up")}">↑</button><button type="button" data-act="move-down" title="${app.t("Move down")}">↓</button><button type="button" data-act="duplicate" title="${app.t("Duplicate")}">＋</button><button type="button" data-act="delete" title="${app.t("Delete")}">×</button></div></div>`;
       } catch (err) {
         if (window.console) console.error(err);
         const title = (app.meta(n && n.type) || {}).title || n && n.type || "Unit";
