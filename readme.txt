@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.5
+Stable tag: 2.3.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -351,6 +351,9 @@ Read the [documentation](https://canvasly.pro/overview.html) or [contact support
 9. **AI Chat Bot can read any live URL and recreate the layout using native Sidcraft blocks. Whether you're migrating from another page builder or adapting a design you love, it’s easier than ever.  
 
 == Changelog ==
+
+= 2.3.6 =
+* Fix: restoring a site from a kit. Imported pages are now published by default (a new "Publish imported pages" tick box; untick to keep drafts), and importing a kit no longer turns an already-live page back into a draft. The export form now has "Selected pages and posts" and every page ticked by default, so a kit made with Export keeps your pages. If you import a kit file that has no pages in it, you now see a clear message instead of a silent success.
 
 = 2.3.5 =
 * New: the header and footer that a page inherits from the theme now have a Reset button (use the theme's own again, discarding saved changes made on this page or for the whole theme) and a Remove button (hide them on this page by setting the page template to Canvas) in their toolbar. Before, a header or footer you had edited stayed on the page, even after the theme was deleted, and could not be removed.

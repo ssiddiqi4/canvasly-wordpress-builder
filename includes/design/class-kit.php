@@ -25,6 +25,9 @@ class Kit {
 	const TRANSIENT   = 'sidcraft_page_builder_kit_export_';
 	const NOTICE      = 'sidcraft_page_builder_kit_notice';
 	const SOURCE_META = '_sidsyn_kit_source';
+
+	/** Publish imported pages instead of leaving them as drafts. */
+	private static $publish_imported = false;
 	const MAX_CONTENT = 80;
 	const MAX_MEDIA   = 200;
 
@@ -652,6 +655,7 @@ class Kit {
 		$mode = in_array( $mode, array( 'merge', 'replace' ), true ) ? $mode : 'merge';
 		$args = is_array( $args ) ? $args : array();
 		$include_content = array_key_exists( 'include_content', $args ) ? ! empty( $args['include_content'] ) : true;
+		self::$publish_imported = ! empty( $args['publish'] );
 
 		if ( is_array( $source ) ) {
 			$result = self::import_payload( $source, $mode, $include_content );
@@ -783,6 +787,7 @@ class Kit {
 			'templates'  => $tpl_count,
 			'components' => count( $comp_map ),
 			'content'    => $pg_count,
+			'content_in_kit' => count( $content ),
 			'kit'        => $exported,
 		);
 	}
@@ -1062,9 +1067,17 @@ class Kit {
 				$id = absint( $q->posts[0] );
 			}
 		}
+		$status = self::$publish_imported ? 'publish' : 'draft';
+		if ( $id ) {
+			$cur = get_post_status( $id );
+			// Never unpublish a page that is already live.
+			if ( $cur && 'trash' !== $cur && ! self::$publish_imported ) {
+				$status = $cur;
+			}
+		}
 		$postarr = array(
 			'post_type'    => $type,
-			'post_status'  => 'draft',
+			'post_status'  => $status,
 			'post_title'   => $title,
 			'post_name'    => $slug,
 			'post_excerpt' => sanitize_textarea_field( $item['excerpt'] ?? '' ),
@@ -1203,10 +1216,15 @@ class Kit {
 		$result = self::import(
 			$file['tmp_name'],
 			$mode,
-			array( 'include_content' => ! empty( $_POST['include_content'] ) )
+			array(
+				'include_content' => ! empty( $_POST['include_content'] ),
+				'publish'         => ! empty( $_POST['publish'] ),
+			)
 		);
 		if ( is_wp_error( $result ) ) {
 			self::store_notice( 'error', $result->get_error_message() );
+		} elseif ( ! empty( $_POST['include_content'] ) && 0 === (int) ( $result['content_in_kit'] ?? 0 ) ) {
+			self::store_notice( 'error', __( 'Kit imported, but this kit file contains no pages, so nothing could be restored. When exporting, tick "Selected pages and posts" and choose the pages, then import that file.', 'sidcraft-page-builder' ) );
 		} else {
 			self::store_notice(
 				'success',
@@ -1277,13 +1295,13 @@ class Kit {
 		echo '<tr><th>' . esc_html__( 'Include', 'sidcraft-page-builder' ) . '</th><td>';
 		echo '<label><input type="checkbox" name="include_templates" value="1" checked> ' . esc_html__( 'Saved templates', 'sidcraft-page-builder' ) . '</label><br>';
 		echo '<label><input type="checkbox" name="include_media" value="1" checked> ' . esc_html__( 'Media files', 'sidcraft-page-builder' ) . '</label><br>';
-		echo '<label><input type="checkbox" name="include_content" value="1" id="lb-kit-include-content"> ' . esc_html__( 'Selected pages and posts', 'sidcraft-page-builder' ) . '</label>';
+		echo '<label><input type="checkbox" name="include_content" value="1" id="lb-kit-include-content" checked> ' . esc_html__( 'Selected pages and posts', 'sidcraft-page-builder' ) . '</label>';
 		echo '</td></tr>';
 		echo '<tr><th>' . esc_html__( 'Content', 'sidcraft-page-builder' ) . '</th><td>';
 		if ( $pages ) {
 			echo '<fieldset style="max-height:220px;overflow:auto;border:1px solid #dcdcde;padding:8px 12px;max-width:480px">';
 			foreach ( $pages as $p ) {
-				echo '<label style="display:block;margin:3px 0;"><input type="checkbox" name="content_ids[]" value="' . esc_attr( (string) ( $p['id'] ?? 0 ) ) . '"> ' . esc_html( ( $p['title'] ?? '' ) . ' (' . ( $p['type'] ?? 'page' ) . ')' ) . '</label>';
+				echo '<label style="display:block;margin:3px 0;"><input type="checkbox" name="content_ids[]" value="' . esc_attr( (string) ( $p['id'] ?? 0 ) ) . '" checked> ' . esc_html( ( $p['title'] ?? '' ) . ' (' . ( $p['type'] ?? 'page' ) . ')' ) . '</label>';
 			}
 			echo '</fieldset>';
 			echo '<p class="description">' . esc_html__( 'Leave unchecked to skip content, or tick Include selected pages and choose items. Imported pages are created as drafts.', 'sidcraft-page-builder' ) . '</p>';
@@ -1311,7 +1329,8 @@ class Kit {
 		echo '<label><input type="radio" name="mode" value="replace"> ' . esc_html__( "Replace \u{2014} overwrite site settings, tokens, classes, components and templates", 'sidcraft-page-builder' ) . '</label>';
 		echo '</td></tr>';
 		echo '<tr><th>' . esc_html__( 'Content', 'sidcraft-page-builder' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="include_content" value="1" checked> ' . esc_html__( 'Import pages included in the kit (as drafts)', 'sidcraft-page-builder' ) . '</label>';
+		echo '<label><input type="checkbox" name="include_content" value="1" checked> ' . esc_html__( 'Import pages included in the kit (as drafts)', 'sidcraft-page-builder' ) . '</label><br>';
+		echo '<label><input type="checkbox" name="publish" value="1" checked> ' . esc_html__( 'Publish imported pages (untick to keep them as drafts)', 'sidcraft-page-builder' ) . '</label>';
 		echo '</td></tr></tbody></table>';
 		echo '<p><button class="button button-primary">' . esc_html__( 'Import Kit', 'sidcraft-page-builder' ) . '</button></p>';
 		echo '</form>';
