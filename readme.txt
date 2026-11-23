@@ -116,11 +116,11 @@ Plus, after your pages are created, you can seamlessly convert and save them as 
 
 = Sidcraft Builder Pro =
 
-[Sidcraft Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) is a separate add-on that adds Theme Builder, popups, display conditions, dynamic tags, Loop Grid and Loop Carousel, 70+ extra units, WooCommerce builder units, hosted payments (Stripe, PayPal, Square, Authorize.Net, Razorpay, Mollie) with Payment Forms, form actions and submissions, custom fonts and icons, custom code, editor notes and an AI assistant with an MCP server. Pro's Login & Register and Payment Form units also include the "Require Cloudflare Turnstile" option.
+[Sidcraft Builder Pro](https://canvasly.pro/sidcraft/price.html#lite-vs-pro) is a separate add-on that adds Theme Builder, popups, display conditions, dynamic tags, Loop Grid and Loop Carousel, 70+ extra units, WooCommerce builder units, hosted payments (Stripe, PayPal, Square, Authorize.Net, Razorpay, Mollie) with Payment Forms, form actions and submissions, custom fonts and icons, custom code, editor notes and an AI assistant with an MCP server. Pro's Login & Register and Payment Form units also include the "Require Cloudflare Turnstile" option.
 
 Every install also serves a read-only MCP endpoint at `/wp-json/sidcraft-page-builder/v1/mcp`, so AI agents such as Claude Desktop, Cursor and VS Code can read the site, the builder guide, the document schema and pages after signing in with a WordPress application password. Writing pages, templates, design tokens, media, menus, components and store data needs Sidcraft Builder Pro 2.1.3 and its own MCP endpoint.
 
-The full unit list and user guide are at [canvasly.pro](https://canvasly.pro/blocks.html). For third-party services used by optional features, see "External services" below.
+The full unit list and user guide are at [canvasly.pro](https://canvasly.pro/sidcraft/blocks.html). For third-party services used by optional features, see "External services" below.
 
 Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
 
@@ -198,7 +198,7 @@ The editor script (assets/js/editor.js) is built from the files in src/editor/ w
 * WordPress 6.9 or greater, tested up to 7.1
 * PHP 8.1 or greater
 
-Shop units appear only while WooCommerce is active. [Sidcraft Builder Pro](https://canvasly.pro/installation.html) will not start if Sidcraft Page Builder is missing, switched off, or older than 0.12.73.
+Shop units appear only while WooCommerce is active. [Sidcraft Builder Pro](https://canvasly.pro/sidcraft/installation.html) will not start if Sidcraft Page Builder is missing, switched off, or older than 0.12.73.
 
 = Installation =
 
@@ -213,17 +213,17 @@ Shop units appear only while WooCommerce is active. [Sidcraft Builder Pro](https
 2. Paste the site key and secret key from your Cloudflare dashboard, or paste an API token and Account ID and click **Create Turnstile widget for this site**.
 3. In the editor, select a Form and set **Spam protection** to **Require Cloudflare Turnstile**, or select a Login unit and turn on **Require Cloudflare Turnstile**.
 
-Step-by-step install for Sidcraft Page Builder and Sidcraft Builder Pro, including the license screen, is in the [installation guide](https://canvasly.pro/installation.html). Settings for post types, CSS, fonts, maps, and performance are in the [settings guide](https://canvasly.pro/settings.html).
+Step-by-step install for Sidcraft Page Builder and Sidcraft Builder Pro, including the license screen, is in the [installation guide](https://canvasly.pro/sidcraft/installation.html). Settings for post types, CSS, fonts, maps, and performance are in the [settings guide](https://canvasly.pro/sidcraft/settings.html).
 
 == Frequently Asked Questions ==
 
 = How do I install Sidcraft Page Builder? =
 
-From the WordPress dashboard go to Plugins → Add New → Upload Plugin, upload the Sidcraft Page Builder zip, then Activate. You can also copy the plugin folder into `wp-content/plugins/`. The [installation guide](https://canvasly.pro/installation.html) covers Sidcraft Builder Pro as well.
+From the WordPress dashboard go to Plugins → Add New → Upload Plugin, upload the Sidcraft Page Builder zip, then Activate. You can also copy the plugin folder into `wp-content/plugins/`. The [installation guide](https://canvasly.pro/sidcraft/installation.html) covers Sidcraft Builder Pro as well.
 
 = Is Sidcraft Page Builder free? =
 
-Yes. Sidcraft Page Builder is free and GPL licensed, with no limit on pages or sites. [Sidcraft Builder Pro](https://canvasly.pro/price.html) is an optional paid add-on.
+Yes. Sidcraft Page Builder is free and GPL licensed, with no limit on pages or sites. [Sidcraft Builder Pro](https://canvasly.pro/sidcraft/price.html) is an optional paid add-on.
 
 = What does Sidcraft Page Builder require? =
 
@@ -235,7 +235,7 @@ Open the page and choose **Edit with Sidcraft Page Builder**, or use the admin-b
 
 = Where are the settings? =
 
-[Sidcraft Page Builder → Settings](https://canvasly.pro/settings.html) covers post types, maps, reCAPTCHA, Cloudflare Turnstile (Integrations tab), CSS, fonts, performance, tools, and experiments. Colors, type, and breakpoints are under Design System.
+[Sidcraft Page Builder → Settings](https://canvasly.pro/sidcraft/settings.html) covers post types, maps, reCAPTCHA, Cloudflare Turnstile (Integrations tab), CSS, fonts, performance, tools, and experiments. Colors, type, and breakpoints are under Design System.
 
 = How do I add Cloudflare Turnstile to a form or login? =
 
@@ -259,7 +259,7 @@ Click **Use Cloudflare test keys** under Settings → Integrations. Every challe
 
 = Does Sidcraft Page Builder work with my theme and with Gutenberg? =
 
-On the normal WordPress editing screen, Sidcraft Page Builder does not load its full editor. The Sidcraft Page Builder Template block and the Edit with Sidcraft Page Builder launcher still appear. You can turn off Sidcraft Page Builder's default colors and fonts so the theme keeps those. See the [FAQ](https://canvasly.pro/faq.html).
+On the normal WordPress editing screen, Sidcraft Page Builder does not load its full editor. The Sidcraft Page Builder Template block and the Edit with Sidcraft Page Builder launcher still appear. You can turn off Sidcraft Page Builder's default colors and fonts so the theme keeps those. See the [FAQ](https://canvasly.pro/sidcraft/faq.html).
 
 = Do I need to know how to code? =
 
@@ -275,11 +275,11 @@ Yes. Every layout and style value can be set per breakpoint, and the editor prev
 
 = Can I reuse a section on another page? =
 
-Right-click a Container or Grid and choose Save as Template. Place it later with the Template unit, `[sidcraft_page_builder_template id="42"]`, the Sidcraft Page Builder Template block, or the Sidcraft Page Builder Template sidebar widget. Attributes are listed on the [shortcodes page](https://canvasly.pro/shortcodes.html).
+Right-click a Container or Grid and choose Save as Template. Place it later with the Template unit, `[sidcraft_page_builder_template id="42"]`, the Sidcraft Page Builder Template block, or the Sidcraft Page Builder Template sidebar widget. Attributes are listed on the [shortcodes page](https://canvasly.pro/sidcraft/shortcodes.html).
 
 = Why is a unit missing from the library? =
 
-Units Manager can disable a type or hide it from your role. Nested Tabs, Accordion, and Toggle, Collection Loop, and Grid container can also be switched off under Settings → Features. Shop units are absent unless WooCommerce is active. Pro units are absent unless [Sidcraft Builder Pro](https://canvasly.pro/price.html) has started.
+Units Manager can disable a type or hide it from your role. Nested Tabs, Accordion, and Toggle, Collection Loop, and Grid container can also be switched off under Settings → Features. Shop units are absent unless WooCommerce is active. Pro units are absent unless [Sidcraft Builder Pro](https://canvasly.pro/sidcraft/price.html) has started.
 
 = I saved a page but visitors still see the old version. Why? =
 
@@ -287,7 +287,7 @@ A page cache (from a caching plugin, your host, or a CDN) is serving an older co
 
 = Will Sidcraft Page Builder slow down my site? =
 
-CSS and scripts load only for the units on the page. You can print CSS as external files, cache non-dynamic unit HTML, lazy-load images, and self-host Google Fonts. The Turnstile script loads only on pages with a protected form. See [Performance](https://canvasly.pro/settings.html#performance).
+CSS and scripts load only for the units on the page. You can print CSS as external files, cache non-dynamic unit HTML, lazy-load images, and self-host Google Fonts. The Turnstile script loads only on pages with a protected form. See [Performance](https://canvasly.pro/sidcraft/settings.html#performance).
 
 = Is Sidcraft Page Builder SEO friendly? =
 
@@ -303,11 +303,11 @@ Use Sidcraft Page Builder → Settings → Tools → Replace URL. Run Dry run fi
 
 = What is the difference between Sidcraft Page Builder and Sidcraft Builder Pro? =
 
-Sidcraft Page Builder is the free page builder: the visual editor, the free unit library, the design system, forms with Turnstile, entrance and exit motion, page templates, the collection loop, and basic dynamic tags. [Sidcraft Builder Pro](https://canvasly.pro/price.html#lite-vs-pro) adds Theme Builder, popups, Loop Grid, 70+ extra units, shop units, hosted payments, extra form actions, editor notes, and the AI connection. Every Pro plan includes the same features.
+Sidcraft Page Builder is the free page builder: the visual editor, the free unit library, the design system, forms with Turnstile, entrance and exit motion, page templates, the collection loop, and basic dynamic tags. [Sidcraft Builder Pro](https://canvasly.pro/sidcraft/price.html#lite-vs-pro) adds Theme Builder, popups, Loop Grid, 70+ extra units, shop units, hosted payments, extra form actions, editor notes, and the AI connection. Every Pro plan includes the same features.
 
 = The editor looks broken. What should I try? =
 
-Under Settings → Advanced, set Editor loader to Iframe. Under Settings → Tools, turn on Safe mode for your account. Safe mode loads the editor without other plugins and without the theme. More answers are in the [FAQ](https://canvasly.pro/faq.html).
+Under Settings → Advanced, set Editor loader to Iframe. Under Settings → Tools, turn on Safe mode for your account. Safe mode loads the editor without other plugins and without the theme. More answers are in the [FAQ](https://canvasly.pro/sidcraft/faq.html).
 
 = Does Sidcraft Page Builder work with other page builders? =
 
@@ -328,7 +328,7 @@ Each page keeps a readable copy of its layout in the normal WordPress content: h
 
 = Where is the saved format documented? =
 
-On the [document format page](https://canvasly.pro/document-format.html), and as a JSON Schema at /wp-json/sidcraft-page-builder/v1/schema on your own site.
+On the [document format page](https://canvasly.pro/sidcraft/document-format.html), and as a JSON Schema at /wp-json/sidcraft-page-builder/v1/schema on your own site.
 
 = Does Sidcraft Page Builder connect to external services? =
 
@@ -336,7 +336,7 @@ Only when you use a feature that needs one, such as Google Fonts, a captcha, a m
 
 = Where do I get help? =
 
-Read the [documentation](https://canvasly.pro/overview.html) or [contact support](https://canvasly.pro/support.html).
+Read the [documentation](https://canvasly.pro/sidcraft/overview.html) or [contact support](https://canvasly.pro/sidcraft/support.html).
 
 == Screenshots ==
 

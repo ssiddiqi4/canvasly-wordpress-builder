@@ -9,7 +9,7 @@
  *
  * Read it at GET /wp-json/sidcraft-page-builder/v1/schema, or with
  * `wp sidcraft-page-builder schema`. Human documentation:
- * https://canvasly.pro/document-format.html
+ * https://canvasly.pro/sidcraft/document-format.html
  *
  * @package SidcraftPageBuilder
  */
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Schema {
 
-	const DOCS_URL = 'https://canvasly.pro/document-format.html';
+	const DOCS_URL = 'https://canvasly.pro/sidcraft/document-format.html';
 
 	public static function init() {
 		add_action( 'sidcraft_page_builder_rest_register_routes', array( self::class, 'routes' ) );

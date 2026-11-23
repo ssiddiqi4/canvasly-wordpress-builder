@@ -148,7 +148,7 @@ class AiChat {
 			'media'         => current_user_can( 'upload_files' ) ? esc_url_raw( rest_url( 'wp/v2/media' ) ) : '',
 			'requirements'  => Recreation::requirements(),
 			'viewport'      => Recreation::clean_viewport( null ),
-			'proUrl'        => 'https://canvasly.pro/price.html#lite-vs-pro',
+			'proUrl'        => 'https://canvasly.pro/sidcraft/price.html#lite-vs-pro',
 			'privacy'       => __( 'Your messages and an outline of this page are sent to the AI provider connected on this site. Images are sent only when you attach them.', 'sidcraft-page-builder' ),
 			// Effect settings shown in the page outline when a unit uses them. Add-ons append theirs.
 			'effectKeys'    => array( 'interaction', 'interaction_trigger', 'interaction_duration', 'interaction_delay', 'interaction_easing', 'interaction_threshold', 'interaction_repeat' ),
