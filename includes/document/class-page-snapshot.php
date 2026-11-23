@@ -749,7 +749,7 @@ class PageSnapshot {
 			'ids'     => $pages,
 			'missing' => $missing,
 		);
-		set_transient( self::COVERAGE, $result, 10 * MINUTE_IN_SECONDS );
+		set_transient( self::COVERAGE, $result, 6 * HOUR_IN_SECONDS ); // Cleared whenever a copy is saved, so a long lifetime avoids repeated scans and writes.
 		return $result;
 	}
 
