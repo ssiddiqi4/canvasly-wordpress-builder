@@ -15,6 +15,10 @@ if ( ! headers_sent() ) {
 }
 
 $sidcraft_page_builder_inherit_theme = class_exists( '\SidcraftPageBuilder\Templates\ThemeChrome' ) && \SidcraftPageBuilder\Templates\ThemeChrome::provides();
+if ( $sidcraft_page_builder_inherit_theme && class_exists( '\SidcraftPageBuilder\Templates\PageTemplates' ) && \SidcraftPageBuilder\Templates\PageTemplates::hides_theme_chrome( function_exists( 'get_queried_object_id' ) ? get_queried_object_id() : 0 ) ) {
+	// The page owner removed the theme header and footer: render the page alone.
+	$sidcraft_page_builder_inherit_theme = false;
+}
 
 if ( $sidcraft_page_builder_inherit_theme && \SidcraftPageBuilder\Templates\ThemeChrome::is_block_theme() ) {
 	?><!DOCTYPE html>

@@ -4022,6 +4022,11 @@
         })
       );
     };
+    app.hideChromeControlHTML = function hideChromeControlHTML() {
+      if (!(app.D && app.D.themeChrome && app.D.themeChrome.header)) return "";
+      const on = !!(app.state.settings || {}).hide_theme_chrome;
+      return `<label class="lb-control" style="flex-direction:row;gap:8px;align-items:center"><input type="checkbox" id="lb-hide-chrome" ${on ? "checked" : ""}><span>${app.t("Hide the theme header and footer on this page")}</span></label>`;
+    };
     app.openPageSettings = function openPageSettings() {
       const s = app.state.settings || {};
       const tpl = app.pageTemplate();
@@ -4032,7 +4037,7 @@
       ].map(([v, l]) => `<option value="${v}" ${tpl === v ? "selected" : ""}>${l}</option>`).join("");
       app.showModal(
         app.t("Page Settings"),
-        `<label class="lb-control"><span>${app.t("Page template")}</span><select id="lb-page-template">${opts}</select></label><p class="lb-muted">${app.t("Default uses the theme layout. Full Width keeps the header and footer. Canvas inherits the theme header and footer when the theme has them, and is a blank document otherwise.")}</p>${app.themeChromeScopeHTML()}${app.pageStatusHTML()}<label class="lb-control"><span>${app.t("Page title")}</span><input id="lb-page-title" value="${app.esc(s.title || "")}"></label><label class="lb-control"><span>${app.t("Body class")}</span><input id="lb-body-class" value="${app.esc(s.body_class || "")}"></label><label class="lb-control"><span>${app.t("Content width")}</span><input id="lb-page-width" value="${app.esc(s.page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "1180px")}"></label><button type="button" class="lb-btn primary" id="lb-page-save">${app.t("Save")}</button>`
+        `<label class="lb-control"><span>${app.t("Page template")}</span><select id="lb-page-template">${opts}</select></label><p class="lb-muted">${app.t("Default uses the theme layout. Full Width keeps the header and footer. Canvas inherits the theme header and footer when the theme has them, and is a blank document otherwise.")}</p>${app.hideChromeControlHTML()}${app.themeChromeScopeHTML()}${app.pageStatusHTML()}<label class="lb-control"><span>${app.t("Page title")}</span><input id="lb-page-title" value="${app.esc(s.title || "")}"></label><label class="lb-control"><span>${app.t("Body class")}</span><input id="lb-body-class" value="${app.esc(s.body_class || "")}"></label><label class="lb-control"><span>${app.t("Content width")}</span><input id="lb-page-width" value="${app.esc(s.page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || "1180px")}"></label><button type="button" class="lb-btn primary" id="lb-page-save">${app.t("Save")}</button>`
       );
       const readSettings = () => {
         const next = Object.assign({}, app.state.settings || {}, {
@@ -4042,6 +4047,10 @@
           template: app.$("#lb-page-template")?.value || "default"
         });
         if (!["default", "full_width", "canvas"].includes(next.template)) next.template = "default";
+        if (app.$("#lb-hide-chrome")) {
+          if (app.$("#lb-hide-chrome").checked) next.hide_theme_chrome = true;
+          else delete next.hide_theme_chrome;
+        }
         return next;
       };
       const preview = () => {
@@ -4052,9 +4061,20 @@
         });
         if (!["default", "full_width", "canvas"].includes(app.state.settings.template))
           app.state.settings.template = "default";
+        if (app.$("#lb-hide-chrome")) {
+          if (app.$("#lb-hide-chrome").checked) app.state.settings.hide_theme_chrome = true;
+          else delete app.state.settings.hide_theme_chrome;
+        }
         app.applyPageTemplatePreview();
       };
-      app.$("#lb-page-template")?.addEventListener("change", () => {
+      app.$("#lb-hide-chrome")?.addEventListener("change", () => {
+      app.commit(app.t("Edited page settings"));
+      preview();
+      if (typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
+      app.dirty = true;
+      if (app.scheduleSave) app.scheduleSave();
+    });
+    app.$("#lb-page-template")?.addEventListener("change", () => {
         app.commit(app.t("Edited page settings"));
         preview();
         app.dirty = true;
@@ -4114,6 +4134,7 @@
     app.pageInheritsThemeChrome = function pageInheritsThemeChrome() {
       const kind = String(app.D && app.D.templateType || "");
       if (kind && kind !== "page") return false;
+      if ((app.state.settings || {}).hide_theme_chrome) return false;
       const chrome = app.D && app.D.themeChrome;
       return !!(chrome && chrome.header && chrome.footer);
     };
@@ -4715,14 +4736,26 @@
     fd.addEventListener(
       "click",
       (e) => {
-        const btn = e.target.closest && e.target.closest("[data-lb-chrome-reset],[data-lb-chrome-hide]");
+        const btn = e.target.closest && e.target.closest("[data-lb-chrome-reset],[data-lb-chrome-hide],[data-lb-chrome-show]");
         if (!btn) return;
         e.preventDefault();
         e.stopPropagation();
+        if (btn.hasAttribute("data-lb-chrome-show")) {
+          app.commit(app.t("Edited page settings"));
+          const next = Object.assign({}, app.state.settings || {});
+          delete next.hide_theme_chrome;
+          app.state.settings = next;
+          if (typeof app.applyPageTemplatePreview === "function") app.applyPageTemplatePreview();
+          if (typeof app.applyPageTemplatePreview === "function") if (typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
+          app.dirty = true;
+          if (app.scheduleSave) app.scheduleSave();
+          return;
+        }
         if (btn.hasAttribute("data-lb-chrome-hide")) {
           app.commit(app.t("Edited page settings"));
-          app.state.settings = Object.assign({}, app.state.settings || {}, { template: "canvas" });
+          app.state.settings = Object.assign({}, app.state.settings || {}, { template: "canvas", hide_theme_chrome: true });
           if (typeof app.applyPageTemplatePreview === "function") app.applyPageTemplatePreview();
+          if (typeof app.applyPageTemplatePreview === "function") if (typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
           app.dirty = true;
           if (app.scheduleSave) app.scheduleSave();
           return;
@@ -4935,6 +4968,23 @@
       const editing = app.chromeFocus === part ? " is-editing" : "";
       return "<" + tag + ' class="lb-theme-bar lb-theme-' + tag + " lb-chrome" + hidden + editing + '" data-lb-chrome="' + part + '">' + app.chromeInnerHTML(part) + "</" + tag + ">";
     };
+    app.syncChromeRestore = function syncChromeRestore(fd) {
+      if (!fd) return;
+      const root = fd.querySelector(".lb-frame-root");
+      const hiddenChrome = !!(app.state.settings || {}).hide_theme_chrome && !!(app.D && app.D.themeChrome && app.D.themeChrome.header);
+      let note = fd.querySelector(".lb-chrome-restore");
+      if (hiddenChrome && !note && root) {
+        note = fd.createElement("div");
+        note.className = "lb-chrome-restore";
+        note.setAttribute("style", "margin:6px;padding:8px 12px;background:#1f2937;color:#fff;border-radius:8px;font:13px/1.4 system-ui,sans-serif;display:flex;gap:12px;align-items:center;justify-content:space-between");
+        note.innerHTML = "<span></span><button type='button' data-lb-chrome-show style='background:#fff;color:#1f2937;border:0;border-radius:6px;padding:4px 10px;cursor:pointer'></button>";
+        note.firstChild.textContent = app.t("The theme header and footer are removed from this page.");
+        note.lastChild.textContent = app.t("Restore");
+        root.parentNode.insertBefore(note, root);
+      } else if (!hiddenChrome && note) {
+        note.remove();
+      }
+    };
     app.paintChrome = function paintChrome(fd) {
       if (!fd) return;
       fd.querySelectorAll("[data-lb-chrome]").forEach((el) => {
@@ -4944,6 +4994,7 @@
         el.classList.toggle("is-hidden", el.classList.contains("lb-site-part") ? false : !app.pageShowsThemeChrome());
         el.classList.toggle("is-editing", app.chromeFocus === part);
       });
+      app.syncChromeRestore(fd);
     };
     app.focusChrome = function focusChrome(part) {
       if (part !== "header" && part !== "footer" && part !== "root") return;
@@ -5030,6 +5081,7 @@
         const inherited = el.classList.contains("lb-theme-inherit");
         el.classList.toggle("is-hidden", inherited ? !inherit : !show);
       });
+      app.syncChromeRestore(fd);
       if (inherit) app.ensureThemeChrome();
     };
     app.addNewPage = async function addNewPage() {

@@ -62,6 +62,21 @@ class PageTemplates {
 	}
 
 	/**
+	 * True when the page owner removed the inherited theme header and footer ("Remove" in the editor).
+	 *
+	 * @param int $post_id
+	 * @return bool
+	 */
+	public static function hides_theme_chrome( $post_id ) {
+		$post_id = absint( $post_id );
+		if ( ! $post_id ) {
+			return false;
+		}
+		$doc = DocumentManager::get( $post_id );
+		return is_array( $doc['settings'] ?? null ) && ! empty( $doc['settings']['hide_theme_chrome'] );
+	}
+
+	/**
 	 * PHP file for a template key, or empty string for theme default.
 	 *
 	 * @param string $template
