@@ -262,7 +262,7 @@ class DocumentManager {
   $stored_hash=(string)get_post_meta($id,self::HASH,true);
   $same=self::has($id)&&hash_equals($stored_hash!==''?$stored_hash:self::canonical_hash($old),$hash);
   if($same&&!apply_filters('sidcraft_page_builder_document_force_save',false,$id,$clean)){
-   if((string)get_post_meta($id,self::AUTOSAVE,true)!==''){
+   if(!empty(get_post_meta($id,self::AUTOSAVE,true))){
     if(class_exists(Revisions::class))Revisions::delete_autosave($id);else delete_post_meta($id,self::AUTOSAVE);
    }
    if(class_exists(FallbackContent::class))FallbackContent::sync($id,$clean,false,$hash);

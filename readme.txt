@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.7
+Stable tag: 2.3.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -351,6 +351,9 @@ Read the [documentation](https://canvasly.pro/sidcraft/overview.html) or [contac
 9. **AI Chat Bot can read any live URL and recreate the layout using native Sidcraft blocks. Whether you're migrating from another page builder or adapting a design you love, it’s easier than ever.  
 
 == Changelog ==
+
+= 2.3.8 =
+* Fix: a PHP warning ("Array to string conversion") when saving a page that had an autosave.
 
 = 2.3.7 =
 * Fix: the Remove button on the header and footer a page inherits from its theme now really removes them. It sets a new page setting, "Hide the theme header and footer on this page", that works on the page itself (before, it only switched the template to Canvas, which keeps the theme's header and footer). The editor shows the page's own Header and Footer areas instead. To bring the theme's back, open Page Settings, untick the new box, save and reload.
