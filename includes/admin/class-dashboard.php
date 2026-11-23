@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dashboard {
 	const PAGE          = 'sidcraft-page-builder-dashboard';
 	const PARENT        = 'sidcraft-page-builder';
-	const DOCUMENTS_URL = 'https://canvasly.pro';
+	const DOCUMENTS_URL = 'https://canvasly.pro/sidcraft/';
 	const SUPPORT_URL   = 'https://canvasly.pro/sidcraft/support.html';
 
 	public static function init() {

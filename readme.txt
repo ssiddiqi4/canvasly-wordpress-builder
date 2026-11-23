@@ -15,7 +15,7 @@ Drag-and-drop WordPress page builder with CSS Grid, 50+ units, templates, a desi
 
 **Sidcraft Page Builder is a free visual page builder for WordPress.** Build landing pages, home pages, blog layouts and complete websites on a live canvas with drag and drop, nested containers, CSS Grid and responsive controls, then publish through the normal WordPress workflow. No coding needed, and clean HTML and CSS when you want it.
 
-Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro). **Do not like image or video in your browser?  Edit it within [Sidcraft Page Builder Pro](https://canvasly.pro) with built-in image/video editor. No need to upload a new image.
+Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro/sidcraft/). **Do not like image or video in your browser?  Edit it within [Sidcraft Page Builder Pro](https://canvasly.pro/sidcraft/) with built-in image/video editor. No need to upload a new image.
 
 https://www.youtube.com/watch?v=ymDQiDvtQjg
 
@@ -23,7 +23,7 @@ https://www.youtube.com/watch?v=ymDQiDvtQjg
 
 https://www.youtube.com/watch?v=WqqTkmUaMDo
 
-[Sidcraft Page Builder PRO](https://canvasly.pro) with upgraded AI/MCP capability. Now, the AI Chatbot can read any live URL and recreate the layout using native Sidcraft blocks. Whether you're migrating from another page builder or adapting a design you love, it’s easier than ever.
+[Sidcraft Page Builder PRO](https://canvasly.pro/sidcraft/) with upgraded AI/MCP capability. Now, the AI Chatbot can read any live URL and recreate the layout using native Sidcraft blocks. Whether you're migrating from another page builder or adapting a design you love, it’s easier than ever.
 
 No complicated prompts or scripts needed—just type:
 
@@ -122,7 +122,7 @@ Every install also serves a read-only MCP endpoint at `/wp-json/sidcraft-page-bu
 
 The full unit list and user guide are at [canvasly.pro](https://canvasly.pro/sidcraft/blocks.html). For third-party services used by optional features, see "External services" below.
 
-Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro)
+Unlock full potential of [Sidcraft Page Builder with PRO](https://canvasly.pro/sidcraft/)
 
 == External services ==
 
