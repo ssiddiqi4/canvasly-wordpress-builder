@@ -2700,7 +2700,11 @@
           const gc = /^\d+$/.test(gcRaw) ? `repeat(${Math.max(1, Math.min(24, parseInt(gcRaw, 10)))},minmax(${app.esc(app.resp(s.min_column || "0px"))},1fr))` : gcRaw;
           const gr = /^\d+$/.test(grRaw) ? `repeat(${Math.max(1, Math.min(24, parseInt(grRaw, 10)))},minmax(${app.esc(app.resp(s.min_row || "0px"))},1fr))` : grRaw;
           put("grid-template-columns", gc || `repeat(${cols},minmax(${app.esc(app.resp(s.min_column || "0px"))},1fr))`);
-          put("grid-template-rows", gr || `repeat(${rows},minmax(${app.esc(app.resp(s.min_row || "0px"))},1fr))`);
+          // As on the published page: rows only when set (or while the grid is empty, so there is somewhere to drop).
+          // Inventing three 1fr rows made a grid with one row of content several times too tall.
+          if (gr) put("grid-template-rows", gr);
+          else if (rowRaw) put("grid-template-rows", `repeat(${rows},minmax(${app.esc(app.resp(s.min_row || "0px"))},1fr))`);
+          else if (!(n.children || []).length) put("grid-template-rows", `repeat(${rows},minmax(48px,auto))`);
           put("grid-auto-flow", app.resp(s.auto_flow) || "row");
           put("grid-auto-columns", app.resp(s.grid_auto_columns) || "auto");
           put("grid-auto-rows", app.resp(s.grid_auto_rows || s.min_row) || "auto");
