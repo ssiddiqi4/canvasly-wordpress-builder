@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.9
+Stable tag: 2.3.10
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -351,6 +351,9 @@ Read the [documentation](https://canvasly.pro/sidcraft/overview.html) or [contac
 9. **AI Chat Bot can read any live URL and recreate the layout using native Sidcraft blocks. Whether you're migrating from another page builder or adapting a design you love, it’s easier than ever.  
 
 == Changelog ==
+
+= 2.3.10 =
+* Fix: in the editor, a section's padding was drawn outside its background, colour and wave shape, adding extra space that the published page does not have. Padding is now inside the section, and empty-looking default padding on nested containers and grids is no longer added when they hold content.
 
 = 2.3.9 =
 * Fix: in the editor, a Grid with one row of content (for example text on the left and pictures on the right) was drawn several times too tall, because the editor invented three equal rows when no rows were set. The editor now draws rows the way the published page does.

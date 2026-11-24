@@ -1757,7 +1757,20 @@ function installWidgetDepth() {
       const margin = app.formatBox(s.margin),
         padding = app.formatBox(s.padding);
       if (margin && margin !== "0 0 0 0") extra.push("margin:" + margin);
-      if (padding && padding !== "0 0 0 0") extra.push("padding:" + padding);
+      // Containers/grids pad their inner element (which carries the background), not the wrapper.
+      if (padding && padding !== "0 0 0 0") {
+        if (!["container", "inner_section", "grid"].includes(n.type)) extra.push("padding:" + padding);
+        else {
+          const rest = html.slice(m[0].length);
+          const im = rest.match(/^<div\b[^>]*\blb-(?:container|grid)-inner\b[^>]*>/);
+          if (im) {
+            const it = /\sstyle="/.test(im[0])
+              ? im[0].replace(/style="([^"]*)"/, (_, st) => 'style="' + st.replace(/;?$/, ";") + "padding:" + padding + ';"')
+              : im[0].replace(/>$/, ' style="padding:' + padding + ';">');
+            html = m[0] + it + rest.slice(im[0].length);
+          }
+        }
+      }
       if (n.type === "image") {
         const w = String(app.resp(s.width) || "100%").trim() || "100%";
         const align = ["center", "right"].includes(String(s.alignment || "left")) ? s.alignment : "left";
