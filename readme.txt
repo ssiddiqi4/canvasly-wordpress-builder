@@ -3,7 +3,7 @@ Contributors: ssiddiqi4
 Donate link: https://paypal.me/SSiddiqi275
 Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
-Tested up to: 7.1
+Tested up to: 7.2
 Requires PHP: 7.4
 Stable tag: 2.4.0
 License: GPLv2 or later
@@ -39,6 +39,8 @@ Plus, after your pages are created, you can seamlessly convert and save them as 
 * **Performance built in**: per-page CSS and scripts, external CSS files, a unit cache, lazy images and self-hosted Google Fonts.
 * **Spam-safe forms and logins**: honeypot, Google reCAPTCHA or privacy-friendly Cloudflare Turnstile, with the Submit or Log In button kept disabled until the visitor passes the check.
 * **AI Chat Bot and HTML import**: turn an HTML page into native, editable layout in one click, or describe a change and preview it on the canvas before applying it.
+
+== Features ==
 
 = Visual editor =
 
