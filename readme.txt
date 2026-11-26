@@ -88,6 +88,7 @@ Plus, after your pages are created, you can seamlessly convert and save them as 
 = Forms, login and spam protection =
 
 * **Newsletter signup from the Form unit (new)**: add the people who fill in a form to Mailchimp, Kit (ConvertKit), MailerLite, Brevo, ActiveCampaign, Klaviyo, Beehiiv, FluentCRM, MailPoet or your own Listmonk. Connect the service under Settings → Email services, then choose it in the form (Email service → Add to newsletter). Options: list ID, a checkbox that must be ticked, tags, and double opt-in. Mailchimp works like the Mailchimp for WordPress plugin: existing subscribers are updated, new ones are subscribed or asked to confirm.
+* **Sidcraft Commerce newsletter (new)**: choose a default newsletter service and list under Settings → Email services, and the people who join through the Sidcraft Commerce Newsletter Signup unit or tick the newsletter box at checkout are added to it too. They are sent only after they have confirmed through Commerce's own confirmation email, so the service does not ask them a second time, and the call runs in the background so the checkout is never slowed down.
 * **Send form emails through a service (new)**: send the Form unit's notification through Resend, Postmark, Amazon SES, Mailgun, SendGrid or Brevo instead of the web server's mail, which often lands in spam. Includes a test email, an automatic fallback to normal WordPress mail, and an option to use the service for all email from the site.
 
 * **Form unit**: text, email, phone, URL, textarea, select and checkbox fields; stacked, inline or two-column layout; custom recipient and success message.
@@ -147,7 +148,7 @@ Used to protect forms from spam, only after you enter reCAPTCHA keys under Setti
 
 Newsletter and email services are contacted only after you enter that service's details under Settings → Email services and choose it in a Form unit or as the mailer. Nothing is sent to a service otherwise, no data goes to the plugin author, and the keys are stored on your server only.
 
-When a visitor submits a form that is connected to a newsletter service, your server sends that visitor's email address, name (if the form has one), the list or audience ID and any tags you set to the service, to add them to your list. If the form has a consent checkbox, this happens only when the visitor ticked it. When a transactional service is the mailer, your server sends each form notification (the recipient, sender, subject and message text, which contains what the visitor typed) to that service. The settings screen also sends the key you entered to the service when you press a Save and show or test button, to list your lists or send a test email.
+When a visitor joins the Sidcraft Commerce list (Newsletter Signup unit or checkout box) and you chose a default newsletter service, your server sends that subscriber's email address, first name and tags to the service once they have confirmed. When a visitor submits a form that is connected to a newsletter service, your server sends that visitor's email address, name (if the form has one), the list or audience ID and any tags you set to the service, to add them to your list. If the form has a consent checkbox, this happens only when the visitor ticked it. When a transactional service is the mailer, your server sends each form notification (the recipient, sender, subject and message text, which contains what the visitor typed) to that service. The settings screen also sends the key you entered to the service when you press a Save and show or test button, to list your lists or send a test email.
 
 * Mailchimp (Intuit Inc.), api.mailchimp.com: [Terms](https://mailchimp.com/legal/terms/), [Privacy](https://www.intuit.com/privacy/statement/).
 * Kit, formerly ConvertKit (Kit, Inc.), api.kit.com: [Terms](https://kit.com/terms), [Privacy](https://kit.com/privacy).
@@ -378,6 +379,7 @@ Read the [documentation](https://canvasly.pro/sidcraft/overview.html) or [contac
 == Changelog ==
 
 = 2.4.0 =
+* New: Sidcraft Commerce subscribers (Newsletter Signup unit and the checkout box) can also be added to a default newsletter service and list, after they confirm, in the background.
 * New: Settings → Email services. Connect Mailchimp, Kit (ConvertKit), MailerLite, Brevo, ActiveCampaign, Klaviyo, Beehiiv, FluentCRM, MailPoet or Listmonk and add the people who fill in a Form unit to a list (list ID, optional consent checkbox, tags and double opt-in are set in the form, under Email service).
 * New: send the Form unit's notification email through Resend, Postmark, Amazon SES, Mailgun, SendGrid or Brevo instead of the web server's mail, with a test email, a fallback to normal WordPress mail and an option to use the service for all site email.
 * Keys are stored on the server only, shown masked, and every service is contacted only after you set it up.

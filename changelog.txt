@@ -1,5 +1,6 @@
 === Sidcraft Page Builder: full changelog ===
 = 2.4.0 =
+* New: Sidcraft Commerce Newsletter Signup and checkout subscribers can be added to a default newsletter service and list under Settings → Email services, after they confirm.
 * New: Settings → Email services: newsletter signup from the Form unit (Mailchimp, Kit, MailerLite, Brevo, ActiveCampaign, Klaviyo, Beehiiv, FluentCRM, MailPoet, Listmonk) and form email through Resend, Postmark, Amazon SES, Mailgun, SendGrid or Brevo.
 
 = 2.3.5 =

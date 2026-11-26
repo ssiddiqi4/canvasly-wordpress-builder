@@ -21,6 +21,7 @@ class EmailServices {
 	const LOG    = 'sidcraft_page_builder_email_log';
 	const MASK   = '••••••••';
 	const NONCE  = 'sidcraft_page_builder_email';
+	const PUSH   = 'sidcraft_page_builder_email_push';
 
 	/** @var array|null */
 	private static $cache = null;
@@ -33,6 +34,9 @@ class EmailServices {
 		add_filter( 'sidcraft_page_builder_form_submission', array( __CLASS__, 'mark_form_mail' ), 99 );
 		add_action( 'sidcraft_page_builder_form_submitted', array( __CLASS__, 'unmark_form_mail' ), 1 );
 		add_filter( 'pre_wp_mail', array( __CLASS__, 'pre_mail' ), 10, 2 );
+		// Sidcraft Commerce: its Newsletter Signup unit and checkout box. Fires once the person is a confirmed subscriber.
+		add_action( 'sidcraft_commerce_subscriber_confirmed', array( __CLASS__, 'on_commerce_subscriber' ) );
+		add_action( self::PUSH, array( __CLASS__, 'push_commerce' ), 10, 2 );
 		add_filter( 'sidcraft_page_builder_settings_tabs', array( __CLASS__, 'tab' ) );
 		add_action( 'sidcraft_page_builder_settings_render_tab', array( __CLASS__, 'render' ) );
 		add_action( 'admin_post_sidcraft_page_builder_email', array( __CLASS__, 'handle' ) );
@@ -105,7 +109,7 @@ class EmailServices {
 	/* ---------- settings ---------- */
 
 	public static function defaults() {
-		return array( 'keys' => array(), 'mailer' => 'wp', 'scope' => 'forms', 'fallback' => 1, 'from_email' => '', 'from_name' => '' );
+		return array( 'keys' => array(), 'mailer' => 'wp', 'scope' => 'forms', 'fallback' => 1, 'from_email' => '', 'from_name' => '', 'commerce_service' => 'none', 'commerce_list' => '', 'commerce_tags' => '', 'commerce_checkout' => 1 );
 	}
 
 	public static function get() {
@@ -204,7 +208,12 @@ class EmailServices {
 			$mailer = 'wp';
 		}
 		$from = isset( $post['from_email'] ) && is_string( $post['from_email'] ) ? sanitize_email( $post['from_email'] ) : $cur['from_email'];
+		$svc  = isset( $post['commerce_service'] ) && is_string( $post['commerce_service'] ) ? sanitize_key( $post['commerce_service'] ) : $cur['commerce_service'];
 		$new  = array(
+			'commerce_service'  => isset( self::marketing()[ $svc ] ) ? $svc : 'none',
+			'commerce_list'     => isset( $post['commerce_service'] ) ? ( is_string( $post['commerce_list'] ?? null ) ? mb_substr( sanitize_text_field( $post['commerce_list'] ), 0, 120 ) : '' ) : $cur['commerce_list'],
+			'commerce_tags'     => isset( $post['commerce_service'] ) ? ( is_string( $post['commerce_tags'] ?? null ) ? mb_substr( sanitize_text_field( $post['commerce_tags'] ), 0, 300 ) : '' ) : $cur['commerce_tags'],
+			'commerce_checkout' => isset( $post['commerce_service'] ) ? ( empty( $post['commerce_checkout'] ) ? 0 : 1 ) : $cur['commerce_checkout'],
 			'keys'       => $keys,
 			'mailer'     => $mailer,
 			'scope'      => isset( $post['scope'] ) && 'all' === $post['scope'] ? 'all' : 'forms',
@@ -315,6 +324,69 @@ class EmailServices {
 		);
 		self::log( $service, 'subscribe ' . self::mask( $email ), $res[0], $res[0] ? __( 'Added.', 'sidcraft-page-builder' ) : $res[1] );
 		/** Fires after a form visitor was sent to a newsletter service. @param string $service Service id. @param bool $ok Success. @param string $message Problem text. */
+		do_action( 'sidcraft_page_builder_form_subscribed', $service, $res[0], $res[1] );
+	}
+
+	/* ---------- Sidcraft Commerce: Newsletter Signup unit and checkout box ---------- */
+
+	/**
+	 * A Sidcraft Commerce subscriber is confirmed (their own confirmation link was clicked, or they ticked the box at
+	 * checkout, or double opt-in is off). Send them to the default newsletter service, in the background so neither the
+	 * checkout nor the confirmation page waits for it. The service's own confirmation email is not used: Commerce has
+	 * already asked.
+	 *
+	 * @param object $row Commerce subscriber row (email, first_name, tags, source).
+	 */
+	public static function on_commerce_subscriber( $row ) {
+		$s = self::get();
+		if ( ! is_object( $row ) || 'none' === $s['commerce_service'] || ! isset( self::marketing()[ $s['commerce_service'] ] ) ) {
+			return;
+		}
+		$source  = sanitize_key( (string) ( $row->source ?? '' ) );
+		$allowed = array( 'form' );
+		if ( ! empty( $s['commerce_checkout'] ) ) {
+			$allowed[] = 'checkout';
+		}
+		/** Which Commerce sign-up sources go to the newsletter service (imports are left out by default). @param string[] $allowed Sources. @param object $row Subscriber. */
+		$allowed = (array) apply_filters( 'sidcraft_page_builder_commerce_sources', $allowed, $row );
+		if ( ! in_array( $source, $allowed, true ) ) {
+			return;
+		}
+		$email = sanitize_email( (string) ( $row->email ?? '' ) );
+		if ( ! is_email( $email ) ) {
+			return;
+		}
+		$args = array( 'email' => $email, 'first' => mb_substr( sanitize_text_field( (string) ( $row->first_name ?? '' ) ), 0, 80 ), 'tags' => (string) ( $row->tags ?? '' ) );
+		wp_schedule_single_event( time() + 2, self::PUSH, array( $args, 1 ) );
+	}
+
+	/**
+	 * Background job: add one Commerce subscriber to the default service. One retry after five minutes.
+	 *
+	 * @param array $args email, first, tags.
+	 * @param int   $try  Attempt number.
+	 */
+	public static function push_commerce( $args, $try = 1 ) {
+		$s       = self::get();
+		$service = $s['commerce_service'];
+		if ( ! is_array( $args ) || 'none' === $service || ! isset( self::marketing()[ $service ] ) ) {
+			return;
+		}
+		$email = sanitize_email( (string) ( $args['email'] ?? '' ) );
+		$tags  = array_merge(
+			array_filter( array_map( 'trim', explode( ',', (string) $s['commerce_tags'] ) ) ),
+			array_filter( array_map( 'trim', explode( ',', (string) ( $args['tags'] ?? '' ) ) ) )
+		);
+		$res = Marketing::subscribe(
+			$service,
+			self::creds( $service ),
+			array( 'email' => $email, 'first' => (string) ( $args['first'] ?? '' ), 'last' => '', 'list' => trim( (string) $s['commerce_list'] ), 'tags' => array_slice( array_values( array_unique( $tags ) ), 0, 10 ), 'double' => false )
+		);
+		self::log( $service, 'commerce ' . self::mask( $email ), $res[0], $res[0] ? __( 'Added.', 'sidcraft-page-builder' ) : $res[1] );
+		if ( ! $res[0] && $try < 2 ) {
+			wp_schedule_single_event( time() + 5 * MINUTE_IN_SECONDS, self::PUSH, array( $args, $try + 1 ) );
+		}
+		/** This action is documented in on_submitted(). */
 		do_action( 'sidcraft_page_builder_form_subscribed', $service, $res[0], $res[1] );
 	}
 
@@ -474,6 +546,19 @@ class EmailServices {
 			}
 			echo '</p></div>';
 		}
+
+		echo '<h2 class="title">' . esc_html__( 'Sidcraft Commerce newsletter', 'sidcraft-page-builder' ) . '</h2>';
+		echo '<p class="description" style="max-width:760px">' . esc_html__( 'People who join through the Newsletter Signup unit, or tick "email me news and offers" at checkout, are kept in the Sidcraft Commerce list. Choose a service here to add them to it as well. They are sent only after they have confirmed (Commerce sends its own confirmation email), so the service does not ask them again.', 'sidcraft-page-builder' ) . '</p>';
+		if ( ! function_exists( 'SidcraftCommerce\setting' ) ) {
+			echo '<p class="description"><em>' . esc_html__( 'Sidcraft Commerce is not active on this site. This setting does nothing until it is.', 'sidcraft-page-builder' ) . '</em></p>';
+		}
+		echo '<table class="form-table" role="presentation"><tbody><tr><th scope="row"><label for="sbp-cs">' . esc_html__( 'Default newsletter service', 'sidcraft-page-builder' ) . '</label></th><td><select id="sbp-cs" name="sbp_email[commerce_service]"><option value="none"' . selected( $s['commerce_service'], 'none', false ) . '>' . esc_html__( 'Do not add', 'sidcraft-page-builder' ) . '</option>';
+		foreach ( self::marketing() as $id => $d ) {
+			echo '<option value="' . esc_attr( $id ) . '"' . selected( $s['commerce_service'], $id, false ) . '>' . esc_html( $d[0] . ( self::configured( $id ) ? ' ✓' : '' ) ) . '</option>';
+		}
+		echo '</select></td></tr><tr><th scope="row"><label for="sbp-cl">' . esc_html__( 'List, audience or group ID', 'sidcraft-page-builder' ) . '</label></th><td><input id="sbp-cl" class="regular-text code" type="text" name="sbp_email[commerce_list]" value="' . esc_attr( $s['commerce_list'] ) . '"><p class="description">' . esc_html__( 'Use the "Save and show my … values" button of the service above to see your IDs.', 'sidcraft-page-builder' ) . '</p></td></tr>';
+		echo '<tr><th scope="row"><label for="sbp-ct">' . esc_html__( 'Tags', 'sidcraft-page-builder' ) . '</label></th><td><input id="sbp-ct" class="regular-text" type="text" name="sbp_email[commerce_tags]" value="' . esc_attr( $s['commerce_tags'] ) . '"><p class="description">' . esc_html__( 'Optional, separated by commas. The tags set on the Commerce subscriber are added too.', 'sidcraft-page-builder' ) . '</p></td></tr>';
+		echo '<tr><th scope="row">' . esc_html__( 'Checkout box', 'sidcraft-page-builder' ) . '</th><td><label><input type="checkbox" name="sbp_email[commerce_checkout]" value="1"' . checked( ! empty( $s['commerce_checkout'] ), true, false ) . '> ' . esc_html__( 'Also add customers who tick the newsletter box at checkout', 'sidcraft-page-builder' ) . '</label></td></tr></tbody></table>';
 
 		echo '<h2 class="title">' . esc_html__( 'Send form emails through a service', 'sidcraft-page-builder' ) . '</h2>';
 		echo '<p class="description" style="max-width:760px">' . esc_html__( 'By default the notification email of a Form unit is sent by your web server, which often lands in spam or never leaves. Choose a transactional service to send it through its API instead.', 'sidcraft-page-builder' ) . '</p>';
