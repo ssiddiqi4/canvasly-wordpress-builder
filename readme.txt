@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.2
 Requires PHP: 7.4
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -352,8 +352,11 @@ Read the [documentation](https://canvasly.pro/sidcraft/overview.html) or [contac
 
 == Changelog ==
 
-= 2.4.0 =
+= 2.4.1 =
 * New: Sidcraft Commerce subscribers (Newsletter Signup unit and the checkout box) can also be added to a default newsletter service and list, after they confirm, in the background.
+* Readme: shortened to fit the WordPress.org limits, Tested up to 7.2.
+
+= 2.4.0 =
 * New: Settings → Email services. Connect Mailchimp, Kit (ConvertKit), MailerLite, Brevo, ActiveCampaign, Klaviyo, Beehiiv, FluentCRM, MailPoet or Listmonk and add the people who fill in a Form unit to a list (list ID, optional consent checkbox, tags and double opt-in are set in the form, under Email service).
 * New: send the Form unit's notification email through Resend, Postmark, Amazon SES, Mailgun, SendGrid or Brevo instead of the web server's mail, with a test email, a fallback to normal WordPress mail and an option to use the service for all site email.
 * Keys are stored on the server only, shown masked, and every service is contacted only after you set it up.
@@ -433,6 +436,12 @@ Read the [documentation](https://canvasly.pro/sidcraft/overview.html) or [contac
 * See `changelog.txt` for the full history.
 
 == Upgrade Notice ==
+
+= 2.4.1 =
+Sidcraft Commerce mailing-list sign-ups can also be added to Mailchimp and other services. Needs Sidcraft Commerce 2.0.2 for the matching documentation (not required for it to work).
+
+= 2.4.0 =
+New Settings → Email services: newsletter signup and email sending through Mailchimp, Kit, Brevo, Resend, Amazon SES and more. Nothing is sent to a service until you set it up.
 
 = 2.3.5 =
 Inherited header and footer can be reset or removed from the page.
