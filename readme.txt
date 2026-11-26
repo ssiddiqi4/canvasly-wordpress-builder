@@ -185,6 +185,14 @@ When you import a kit or template file whose images are listed by URL rather tha
 
 The editor script (assets/js/editor.js) is built from the files in src/editor/ with esbuild. The full source, the build script (build.mjs) and instructions are on GitHub: [github.com/ssiddiqi4/canvasly-wordpress-builder](https://github.com/ssiddiqi4/canvasly-wordpress-builder). Run `npm ci` and then `npm run build` to rebuild it. The other scripts in assets/js, including frontend.js, xeditor.js and editor-ai.js, are not compiled: the shipped files are the source.
 
+== Other plugins from the same author ==
+
+* [Sidcraft Media Offload](https://wordpress.org/plugins/sidcraft-cloud-media-offload)
+* [Sidcraft Commerce for Sidcraft Page Builder](https://wordpress.org/plugins/sidcraft-commerce-for-sidcraft-page-builder)
+* [Sidcraft Restaurant](https://wordpress.org/plugins/sidcraft-restaurant-for-sidcraft-commerce)
+* [VidCellar](https://wordpress.org/plugins/vidcellar-lite)
+* [Canvasly Web Studio](https://canvasly.pro)
+
 == Installation ==
 
 = Minimum requirements =
