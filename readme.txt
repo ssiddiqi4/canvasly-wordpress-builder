@@ -44,37 +44,26 @@ Plus, after your pages are created, you can seamlessly convert and save them as 
 
 = Visual editor =
 
-* Drag-and-drop canvas with Containers, Inner Sections and CSS Grid (tracks, gaps, spans, drag-to-resize).
-* Desktop, tablet and mobile views with per-breakpoint values and custom breakpoints.
-* Inline text editing, undo/redo, revisions and history, autosave with restore bar, favorites and a searchable unit library.
-* Sidcraft Page Builder colour picker with HEX, RGB, HSL, opacity, eyedropper and Global Colors.
+* Drag-and-drop canvas with Containers, Inner Sections and CSS Grid; desktop, tablet and mobile views with custom breakpoints.
+* Inline text editing, undo/redo, revisions, autosave, favorites and a searchable unit library.
+* Colour picker with HEX, RGB, HSL, opacity, eyedropper and Global Colors.
 * Content, Style and Advanced tabs on every unit: spacing, borders, shadows, backgrounds (image, gradient, video, slideshow), transforms, filters and blend modes.
-* Style > Items flex controls (direction, justify, align, gaps, wrap) on containers and widgets.
-* Editing lock so two people never overwrite each other.
-* Navigator with collapse and expand, rename, hide on canvas and lock.
+* Navigator, and an editing lock so two people never overwrite each other.
 
 = AI Chat Bot and HTML import =
 
-* **AI Chat Bot** button next to XEditor in the top bar opens a docked chat panel; the canvas keeps rendering beside it.
-* **HTML import, no AI needed**: upload or paste an HTML page, snippet or CSS file. Sections, headings, text, images, buttons and lists become XEditor elements; flex and grid layouts are kept; stylesheet classes become reusable XEditor classes and CSS custom properties become design variables.
-* **Chat with the AI your site already uses**: the chat works through the AI Client built into WordPress 7.0 and later, with the provider connected under Settings → Connectors (for example OpenAI, Anthropic or Google). No separate API key. Ask for a new section, a restyle, a layout change or a translation, and the bot answers with a plan of changes.
-* **You stay in control**: preview every plan on the canvas (new parts outlined in green, changed parts in amber), untick any step, then Apply or Discard. Each applied plan is one undo step and keeps a Revert button in the chat.
-* **Scope switch**: change only the selected unit, the whole page, or site-wide design variables and classes.
-* Sidcraft Builder Pro adds image input: upload a screenshot, wireframe or mockup and get a native layout.
+* **AI Chat Bot**: a docked chat panel that works through the AI Client built into WordPress 7.0 and later, with the provider you connect under Settings → Connectors (OpenAI, Anthropic, Google and others). No separate API key. Ask for a section, a restyle, a layout change or a translation, preview the plan on the canvas, untick any step, then Apply or Discard. Each applied plan is one undo step.
+* **HTML import, no AI needed**: upload or paste HTML or CSS. Sections, text, images, buttons and lists become XEditor elements, stylesheet classes become reusable classes and CSS custom properties become design variables.
+* Sidcraft Builder Pro adds image input: upload a screenshot or mockup and get a native layout.
 
 = Your content stays yours =
 
-* Every layout is also saved as clean, readable content in WordPress (core blocks), so pages stay readable and editable if the builder is ever switched off.
-* The saved format is documented and published as a JSON Schema, not hidden in shortcodes.
-* Saving an unchanged page writes nothing to the database, and page views make no database writes.
-* `wp sidcraft-page-builder benchmark` measures save, render, page-view and editor cost on your own site.
+* Every layout is also saved as clean, readable content (core blocks), so pages stay readable if the builder is switched off. The saved format is documented as a JSON Schema, not hidden in shortcodes.
+* Saving an unchanged page writes nothing and page views make no database writes. `wp sidcraft-page-builder benchmark` measures your own site.
 
 = XEditor (CSS-first layer) =
 
-* Atomic elements: Div Block, Flexbox, Grid, Heading, Paragraph, Image and Button.
-* Classes & Variables Manager: global `--xe-var-*` tokens and reusable `.xe-class-*` utility classes with Normal, Hover, Focus and Active states and breakpoints.
-* Class stacking on every unit (XEditor and classic).
-* XEditor Loop data model with dynamic tokens such as `{{post.title}}` and `{{post.url}}` (rendering comes with Sidcraft Builder Pro). Pages that contain a loop show a three-item sample preview in the editor.
+* Atomic elements (Div Block, Flexbox, Grid, Heading, Paragraph, Image, Button), global `--xe-var-*` tokens, reusable `.xe-class-*` classes with states and breakpoints, and a Loop data model with tokens such as `{{post.title}}` (rendering comes with Sidcraft Builder Pro).
 
 = 50+ free units =
 
@@ -87,38 +76,25 @@ Plus, after your pages are created, you can seamlessly convert and save them as 
 
 = Forms, login and spam protection =
 
-* **Newsletter signup from the Form unit (new)**: add the people who fill in a form to Mailchimp, Kit (ConvertKit), MailerLite, Brevo, ActiveCampaign, Klaviyo, Beehiiv, FluentCRM, MailPoet or your own Listmonk. Connect the service under Settings → Email services, then choose it in the form (Email service → Add to newsletter). Options: list ID, a checkbox that must be ticked, tags, and double opt-in. Mailchimp works like the Mailchimp for WordPress plugin: existing subscribers are updated, new ones are subscribed or asked to confirm.
-* **Sidcraft Commerce newsletter (new)**: choose a default newsletter service and list under Settings → Email services, and the people who join through the Sidcraft Commerce Newsletter Signup unit or tick the newsletter box at checkout are added to it too. They are sent only after they have confirmed through Commerce's own confirmation email, so the service does not ask them a second time, and the call runs in the background so the checkout is never slowed down.
-* **Send form emails through a service (new)**: send the Form unit's notification through Resend, Postmark, Amazon SES, Mailgun, SendGrid or Brevo instead of the web server's mail, which often lands in spam. Includes a test email, an automatic fallback to normal WordPress mail, and an option to use the service for all email from the site.
-
-* **Form unit**: text, email, phone, URL, textarea, select and checkbox fields; stacked, inline or two-column layout; custom recipient and success message.
-* **Cloudflare Turnstile (new)**: under Settings → Integrations, paste your site and secret keys, or let Sidcraft Page Builder create the Turnstile widget for you with a Cloudflare API token. Test keys, theme, size and appearance options are included.
-* **Require Turnstile per form**: the Form unit (Spam protection → Require Cloudflare Turnstile) and the Login unit (Require Cloudflare Turnstile) keep the Submit or Log In button disabled until the visitor completes the check. The button locks again if the token expires or after each submission, and every token is verified on the server with Cloudflare Siteverify.
-* **Site-wide protection**: optionally protect every Sidcraft Page Builder form, the WordPress login form (wp-login.php) and the comment form.
-* **Cloudflare Turnstile unit**: drop it next to any Sidcraft Page Builder form to protect that form.
-* Honeypot and Google reCAPTCHA (v2 or v3) are also supported.
-* **Form Entries**: every submission is also saved on your site (Sidcraft Page Builder → Form Entries), so a lead is not lost when the notification email fails. Keep the newest 50 entries per form or set your own number; visitor IP addresses are not stored, and the WordPress personal data export and erase tools include these entries.
+* **Form unit**: text, email, phone, URL, textarea, select and checkbox fields; stacked, inline or two-column layout; custom recipient and success message. Form Entries keeps every submission (the newest 50 per form by default, no visitor IPs, included in the WordPress personal data export and erase tools).
+* **Newsletter signup (new)**: add the people who fill in a form to Mailchimp, Kit (ConvertKit), MailerLite, Brevo, ActiveCampaign, Klaviyo, Beehiiv, FluentCRM, MailPoet or Listmonk, with a list ID, a consent checkbox, tags and double opt-in. Sidcraft Commerce subscribers (Newsletter Signup unit and checkout box) can be added to a default service too, after they confirm, in the background.
+* **Form emails through a service (new)**: send the notification through Resend, Postmark, Amazon SES, Mailgun, SendGrid or Brevo, with a test email and a fallback to normal WordPress mail. Everything is set up under Settings → Email services.
+* **Spam protection**: honeypot, Google reCAPTCHA (v2 or v3) and Cloudflare Turnstile. Turnstile can be required per form or for every form, the login form and comments; the Submit button stays disabled until the check passes and every token is verified on the server. Paste keys under Settings → Integrations, or create the widget with a Cloudflare API token.
 
 = Templates and theme =
 
-* Save any section as a template and place it with the Template unit, the Sidcraft Page Builder Template block, a sidebar widget or the `[sidcraft_page_builder_template]` shortcode.
-* Canvas and Full Width page templates, header and footer editing, and template import and export.
-* Works with any theme; optionally turn off Sidcraft Page Builder's default colors and fonts so your theme keeps them.
+* Save any section as a template and place it with the Template unit, block, widget or `[sidcraft_page_builder_template]` shortcode. Canvas and Full Width page templates, header and footer editing, template import and export.
+* Works with any theme; optionally turn off the builder's default colors and fonts so your theme keeps them.
 
 = Motion and accessibility =
 
-* Entrance and exit animation presets, custom keyframes, scroll triggers and hover effects.
-* ARIA label, role and custom attributes placed on the real link, button, field or image.
-* RTL styles and translation-ready strings.
+* Entrance and exit animations, custom keyframes, scroll triggers and hover effects; ARIA label, role and attributes on the real element; RTL styles and translation-ready strings.
 
 = Site tools =
 
-* **Open a menu from a button.** Link any button to `#open-menu-buy-tickets` (the menu item name in lowercase with dashes) and a click scrolls to the top and opens that dropdown in the Site Menu. Switch it on or off under Settings > General.
-* Maintenance and Coming Soon mode, Safe mode for troubleshooting, and one-click rollback to an earlier Sidcraft Page Builder version.
-* Replace URL tool, system info, roles and capabilities, Units Manager and experiments.
-* Yoast SEO and Rank Math see your Sidcraft Page Builder content; WPML and Polylang can translate it.
-* Import pages and templates built with Elementor: review each conversion side by side before it replaces a page, convert large sites in resumable batches, and revert at any time.
-* REST routes, WP-CLI commands and hooks for developers.
+* Link any button to `#open-menu-buy-tickets` (the menu item name in lowercase with dashes) to open that dropdown in the Site Menu (Settings > General).
+* Maintenance and Coming Soon mode, Safe mode, one-click rollback to an earlier version, Replace URL tool, system info, roles, Units Manager and experiments.
+* Yoast SEO and Rank Math see your content; WPML and Polylang can translate it. Import Elementor pages with a side-by-side review and revert at any time. REST routes, WP-CLI commands and hooks for developers.
 
 = Sidcraft Builder Pro =
 
@@ -146,23 +122,21 @@ Used to protect forms from spam, only after you enter reCAPTCHA keys under Setti
 
 = Email services (only after you connect one under Settings, Email services) =
 
-Newsletter and email services are contacted only after you enter that service's details under Settings → Email services and choose it in a Form unit or as the mailer. Nothing is sent to a service otherwise, no data goes to the plugin author, and the keys are stored on your server only.
+Contacted only after you enter a service's details and choose it in a Form unit, as the default newsletter service or as the mailer. Keys stay on your server. A newsletter service receives the subscriber's email address, name, list or audience ID and tags: when a visitor submits a connected form (and ticked the consent box, if the form has one), or after a Sidcraft Commerce subscriber confirms. A mailer receives each form notification (recipient, sender, subject and message text). The settings screen sends your key to the service when you press a Save and show or test button.
 
-When a visitor joins the Sidcraft Commerce list (Newsletter Signup unit or checkout box) and you chose a default newsletter service, your server sends that subscriber's email address, first name and tags to the service once they have confirmed. When a visitor submits a form that is connected to a newsletter service, your server sends that visitor's email address, name (if the form has one), the list or audience ID and any tags you set to the service, to add them to your list. If the form has a consent checkbox, this happens only when the visitor ticked it. When a transactional service is the mailer, your server sends each form notification (the recipient, sender, subject and message text, which contains what the visitor typed) to that service. The settings screen also sends the key you entered to the service when you press a Save and show or test button, to list your lists or send a test email.
-
-* Mailchimp (Intuit Inc.), api.mailchimp.com: [Terms](https://mailchimp.com/legal/terms/), [Privacy](https://www.intuit.com/privacy/statement/).
-* Kit, formerly ConvertKit (Kit, Inc.), api.kit.com: [Terms](https://kit.com/terms), [Privacy](https://kit.com/privacy).
-* MailerLite (MailerLite Inc.), connect.mailerlite.com: [Terms](https://www.mailerlite.com/legal/terms-of-service), [Privacy](https://www.mailerlite.com/legal/privacy-policy).
-* Brevo (Sendinblue SAS), api.brevo.com (newsletters and email sending): [Terms](https://www.brevo.com/legal/termsofuse/), [Privacy](https://www.brevo.com/legal/privacypolicy/).
-* ActiveCampaign (ActiveCampaign, LLC), your account address on api-us1.com or activehosted.com: [Terms](https://www.activecampaign.com/legal/terms-of-service), [Privacy](https://www.activecampaign.com/legal/privacy-policy).
-* Klaviyo (Klaviyo, Inc.), a.klaviyo.com: [Terms](https://www.klaviyo.com/legal/terms-of-service), [Privacy](https://www.klaviyo.com/legal/privacy).
-* Beehiiv (Beehiiv, Inc.), api.beehiiv.com: [Terms](https://www.beehiiv.com/tou), [Privacy](https://www.beehiiv.com/privacy).
-* Listmonk: your own server, at the address you enter. FluentCRM and MailPoet: plugins on your own site, nothing leaves your server.
-* Resend (Resend, Inc.), api.resend.com (email sending): [Terms](https://resend.com/legal/terms-of-service), [Privacy](https://resend.com/legal/privacy-policy).
-* Postmark (ActiveCampaign, LLC), api.postmarkapp.com (email sending): [Terms](https://postmarkapp.com/terms-of-service), [Privacy](https://postmarkapp.com/privacy-policy).
-* Amazon SES (Amazon Web Services, Inc.), email.REGION.amazonaws.com (email sending): [Terms](https://aws.amazon.com/service-terms/), [Privacy](https://aws.amazon.com/privacy/).
-* Mailgun (Sinch Mailgun), api.mailgun.net or api.eu.mailgun.net (email sending): [Terms](https://www.mailgun.com/legal/terms/), [Privacy](https://www.mailgun.com/legal/privacy-policy/).
-* SendGrid (Twilio Inc.), api.sendgrid.com (email sending): [Terms](https://www.twilio.com/en-us/legal/tos), [Privacy](https://www.twilio.com/en-us/legal/privacy).
+* Mailchimp (Intuit), api.mailchimp.com: [Terms](https://mailchimp.com/legal/terms/), [Privacy](https://www.intuit.com/privacy/statement/).
+* Kit (Kit, Inc.), api.kit.com: [Terms](https://kit.com/terms), [Privacy](https://kit.com/privacy).
+* MailerLite, connect.mailerlite.com: [Terms](https://www.mailerlite.com/legal/terms-of-service), [Privacy](https://www.mailerlite.com/legal/privacy-policy).
+* Brevo, api.brevo.com: [Terms](https://www.brevo.com/legal/termsofuse/), [Privacy](https://www.brevo.com/legal/privacypolicy/).
+* ActiveCampaign, your account address on api-us1.com or activehosted.com: [Terms](https://www.activecampaign.com/legal/terms-of-service), [Privacy](https://www.activecampaign.com/legal/privacy-policy).
+* Klaviyo, a.klaviyo.com: [Terms](https://www.klaviyo.com/legal/terms-of-service), [Privacy](https://www.klaviyo.com/legal/privacy).
+* Beehiiv, api.beehiiv.com: [Terms](https://www.beehiiv.com/tou), [Privacy](https://www.beehiiv.com/privacy).
+* Listmonk: your own server. FluentCRM and MailPoet: plugins on your own site; nothing leaves your server.
+* Resend, api.resend.com: [Terms](https://resend.com/legal/terms-of-service), [Privacy](https://resend.com/legal/privacy-policy).
+* Postmark, api.postmarkapp.com: [Terms](https://postmarkapp.com/terms-of-service), [Privacy](https://postmarkapp.com/privacy-policy).
+* Amazon SES, email.REGION.amazonaws.com: [Terms](https://aws.amazon.com/service-terms/), [Privacy](https://aws.amazon.com/privacy/).
+* Mailgun, api.mailgun.net or api.eu.mailgun.net: [Terms](https://www.mailgun.com/legal/terms/), [Privacy](https://www.mailgun.com/legal/privacy-policy/).
+* SendGrid (Twilio), api.sendgrid.com: [Terms](https://www.twilio.com/en-us/legal/tos), [Privacy](https://www.twilio.com/en-us/legal/privacy).
 
 = Cloudflare Turnstile (Cloudflare, Inc.) =
 
