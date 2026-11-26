@@ -438,7 +438,7 @@ Read the [documentation](https://canvasly.pro/sidcraft/overview.html) or [contac
 == Upgrade Notice ==
 
 = 2.4.1 =
-Sidcraft Commerce mailing-list sign-ups can also be added to Mailchimp and other services. Needs Sidcraft Commerce 2.0.2 for the matching documentation (not required for it to work).
+Sidcraft Commerce mailing-list sign-ups can also be added to Mailchimp and other services. Sidcraft Commerce 2.1.1 documents it (updating Commerce is not required for it to work).
 
 = 2.4.0 =
 New Settings → Email services: newsletter signup and email sending through Mailchimp, Kit, Brevo, Resend, Amazon SES and more. Nothing is sent to a service until you set it up.
