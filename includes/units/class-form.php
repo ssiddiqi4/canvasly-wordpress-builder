@@ -26,9 +26,11 @@ class Form extends Unit {
    ['_id'=>'ff3','label'=>__('Message', 'sidcraft-page-builder'),'name'=>'message','type'=>'textarea','required'=>true,'placeholder'=>'','options'=>''],
   ],
   'submit'=>__('Send Message', 'sidcraft-page-builder'),'success'=>__('Thanks! Your message has been sent.', 'sidcraft-page-builder'),'email'=>'','honeypot'=>true,'layout'=>'stack',
+ 'subscribe_service'=>'none',
  ];}
  public function controls(){
   $form=__('Form', 'sidcraft-page-builder');
+  $mail=__('Email service', 'sidcraft-page-builder');
   return [
    'title'=>$this->ctrl('text',__('Title', 'sidcraft-page-builder'),'content',$form),
    'fields'=>$this->ctrl('repeater',__('Fields', 'sidcraft-page-builder'),'content',$form,[
@@ -47,9 +49,23 @@ class Form extends Unit {
    'email'=>$this->ctrl('text',__('Send To', 'sidcraft-page-builder'),'content',$form,['placeholder'=>__('Leave empty to use the site admin email', 'sidcraft-page-builder')]),
    'honeypot'=>$this->ctrl('switch',__('Honeypot', 'sidcraft-page-builder'),'content',$form),
    'captcha'=>$this->ctrl('select',__('Spam protection', 'sidcraft-page-builder'),'content',$form,['options'=>['auto'=>__('Site default', 'sidcraft-page-builder'),'turnstile'=>__('Require Cloudflare Turnstile', 'sidcraft-page-builder'),'none'=>__('None (honeypot only)', 'sidcraft-page-builder')],'description'=>__('Require Cloudflare Turnstile keeps the Submit button disabled until the visitor completes the Turnstile check, and the server verifies the token. Site default uses reCAPTCHA when it is configured, or Turnstile when “All Sidcraft Page Builder forms” is set. Turnstile keys live in Settings → Integrations.', 'sidcraft-page-builder')]),
+   'subscribe_service'=>$this->ctrl('select',__('Add to newsletter', 'sidcraft-page-builder'),'content',$mail,['options'=>self::subscribe_options(),'description'=>__('Adds the person who fills in this form to a list at your email service. Connect the service first under Settings, Email services.', 'sidcraft-page-builder')]),
+   'subscribe_list'=>$this->ctrl('text',__('List, audience or group ID', 'sidcraft-page-builder'),'content',$mail,['condition'=>['subscribe_service'=>self::subscribe_ids()],'description'=>__('Settings, Email services shows the IDs of your lists.', 'sidcraft-page-builder')]),
+   'subscribe_email_field'=>$this->ctrl('text',__('Email field name', 'sidcraft-page-builder'),'content',$mail,['placeholder'=>'email','condition'=>['subscribe_service'=>self::subscribe_ids()]]),
+   'subscribe_name_field'=>$this->ctrl('text',__('Name field name', 'sidcraft-page-builder'),'content',$mail,['placeholder'=>'name','condition'=>['subscribe_service'=>self::subscribe_ids()]]),
+   'subscribe_consent_field'=>$this->ctrl('text',__('Only if this checkbox is ticked', 'sidcraft-page-builder'),'content',$mail,['description'=>__('Optional. The name of a checkbox field (for example newsletter). Leave empty to add everyone who submits the form.', 'sidcraft-page-builder'),'condition'=>['subscribe_service'=>self::subscribe_ids()]]),
+   'subscribe_tags'=>$this->ctrl('text',__('Tags', 'sidcraft-page-builder'),'content',$mail,['description'=>__('Optional, separated by commas. Supported by Mailchimp (names), Kit (tag IDs) and FluentCRM.', 'sidcraft-page-builder'),'condition'=>['subscribe_service'=>self::subscribe_ids()]]),
+   'subscribe_double'=>$this->ctrl('switch',__('Ask to confirm (double opt-in)', 'sidcraft-page-builder'),'content',$mail,['condition'=>['subscribe_service'=>self::subscribe_ids()]]),
    'layout'=>$this->ctrl('select',__('Layout', 'sidcraft-page-builder'),'content',$form,['options'=>['stack'=>__('Stacked', 'sidcraft-page-builder'),'inline'=>__('Inline', 'sidcraft-page-builder'),'two-column'=>__('Two Columns', 'sidcraft-page-builder')]]),
   ];
  }
+ /** Newsletter services for the "Add to newsletter" select. */
+ private static function subscribe_options(){
+  $o=['none'=>__('Do not add', 'sidcraft-page-builder')];
+  if(class_exists('\\SidcraftPageBuilder\\Integrations\\EmailServices')){foreach(\SidcraftPageBuilder\Integrations\EmailServices::marketing() as $id=>$d)$o[$id]=$d[0];}
+  return $o;
+ }
+ private static function subscribe_ids(){return array_values(array_diff(array_keys(self::subscribe_options()),['none']));}
  public function render($s,$children=''){
   $id='lb-form-'.wp_generate_uuid4();
   $layout_raw=$s['layout']??'stack';

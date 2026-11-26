@@ -15079,6 +15079,54 @@
      "x-control": "select",
      "title": "Spam protection"
     },
+    "subscribe_service": {
+     "type": "string",
+     "x-options": [
+      "none",
+      "mailchimp",
+      "kit",
+      "mailerlite",
+      "brevo",
+      "activecampaign",
+      "klaviyo",
+      "beehiiv",
+      "fluentcrm",
+      "mailpoet",
+      "listmonk"
+     ],
+     "x-control": "select",
+     "title": "Add to newsletter"
+    },
+    "subscribe_list": {
+     "type": "string",
+     "x-control": "text",
+     "title": "List, audience or group ID"
+    },
+    "subscribe_email_field": {
+     "type": "string",
+     "x-control": "text",
+     "title": "Email field name"
+    },
+    "subscribe_name_field": {
+     "type": "string",
+     "x-control": "text",
+     "title": "Name field name"
+    },
+    "subscribe_consent_field": {
+     "type": "string",
+     "x-control": "text",
+     "title": "Only if this checkbox is ticked"
+    },
+    "subscribe_tags": {
+     "type": "string",
+     "x-control": "text",
+     "title": "Tags"
+    },
+    "subscribe_double": {
+     "type": "boolean",
+     "x-control": "switch",
+     "title": "Ask to confirm (double opt-in)"
+    },
     "layout": {
      "type": "string",
      "x-options": [

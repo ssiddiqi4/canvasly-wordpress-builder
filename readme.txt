@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.8
+Stable tag: 2.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,6 +85,9 @@ Plus, after your pages are created, you can seamlessly convert and save them as 
 
 = Forms, login and spam protection =
 
+* **Newsletter signup from the Form unit (new)**: add the people who fill in a form to Mailchimp, Kit (ConvertKit), MailerLite, Brevo, ActiveCampaign, Klaviyo, Beehiiv, FluentCRM, MailPoet or your own Listmonk. Connect the service under Settings → Email services, then choose it in the form (Email service → Add to newsletter). Options: list ID, a checkbox that must be ticked, tags, and double opt-in. Mailchimp works like the Mailchimp for WordPress plugin: existing subscribers are updated, new ones are subscribed or asked to confirm.
+* **Send form emails through a service (new)**: send the Form unit's notification through Resend, Postmark, Amazon SES, Mailgun, SendGrid or Brevo instead of the web server's mail, which often lands in spam. Includes a test email, an automatic fallback to normal WordPress mail, and an option to use the service for all email from the site.
+
 * **Form unit**: text, email, phone, URL, textarea, select and checkbox fields; stacked, inline or two-column layout; custom recipient and success message.
 * **Cloudflare Turnstile (new)**: under Settings → Integrations, paste your site and secret keys, or let Sidcraft Page Builder create the Turnstile widget for you with a Cloudflare API token. Test keys, theme, size and appearance options are included.
 * **Require Turnstile per form**: the Form unit (Spam protection → Require Cloudflare Turnstile) and the Login unit (Require Cloudflare Turnstile) keep the Submit or Log In button disabled until the visitor completes the check. The button locks again if the token expires or after each submission, and every token is verified on the server with Cloudflare Siteverify.
@@ -137,6 +140,26 @@ Used to show the Google fonts you pick in the editor. When a published page uses
 
 Used to protect forms from spam, only after you enter reCAPTCHA keys under Settings. Pages with a protected form load the reCAPTCHA script from www.google.com, which sends the visitor's IP address, browser data and interaction data to Google. When the form is submitted, your server sends the reCAPTCHA response token, your secret key and the visitor's IP address to www.google.com/recaptcha/api/siteverify to check it.
 [Terms of Service](https://policies.google.com/terms), [Privacy Policy](https://policies.google.com/privacy).
+
+= Email services (only after you connect one under Settings, Email services) =
+
+Newsletter and email services are contacted only after you enter that service's details under Settings → Email services and choose it in a Form unit or as the mailer. Nothing is sent to a service otherwise, no data goes to the plugin author, and the keys are stored on your server only.
+
+When a visitor submits a form that is connected to a newsletter service, your server sends that visitor's email address, name (if the form has one), the list or audience ID and any tags you set to the service, to add them to your list. If the form has a consent checkbox, this happens only when the visitor ticked it. When a transactional service is the mailer, your server sends each form notification (the recipient, sender, subject and message text, which contains what the visitor typed) to that service. The settings screen also sends the key you entered to the service when you press a Save and show or test button, to list your lists or send a test email.
+
+* Mailchimp (Intuit Inc.), api.mailchimp.com: [Terms](https://mailchimp.com/legal/terms/), [Privacy](https://www.intuit.com/privacy/statement/).
+* Kit, formerly ConvertKit (Kit, Inc.), api.kit.com: [Terms](https://kit.com/terms), [Privacy](https://kit.com/privacy).
+* MailerLite (MailerLite Inc.), connect.mailerlite.com: [Terms](https://www.mailerlite.com/legal/terms-of-service), [Privacy](https://www.mailerlite.com/legal/privacy-policy).
+* Brevo (Sendinblue SAS), api.brevo.com (newsletters and email sending): [Terms](https://www.brevo.com/legal/termsofuse/), [Privacy](https://www.brevo.com/legal/privacypolicy/).
+* ActiveCampaign (ActiveCampaign, LLC), your account address on api-us1.com or activehosted.com: [Terms](https://www.activecampaign.com/legal/terms-of-service), [Privacy](https://www.activecampaign.com/legal/privacy-policy).
+* Klaviyo (Klaviyo, Inc.), a.klaviyo.com: [Terms](https://www.klaviyo.com/legal/terms-of-service), [Privacy](https://www.klaviyo.com/legal/privacy).
+* Beehiiv (Beehiiv, Inc.), api.beehiiv.com: [Terms](https://www.beehiiv.com/tou), [Privacy](https://www.beehiiv.com/privacy).
+* Listmonk: your own server, at the address you enter. FluentCRM and MailPoet: plugins on your own site, nothing leaves your server.
+* Resend (Resend, Inc.), api.resend.com (email sending): [Terms](https://resend.com/legal/terms-of-service), [Privacy](https://resend.com/legal/privacy-policy).
+* Postmark (ActiveCampaign, LLC), api.postmarkapp.com (email sending): [Terms](https://postmarkapp.com/terms-of-service), [Privacy](https://postmarkapp.com/privacy-policy).
+* Amazon SES (Amazon Web Services, Inc.), email.REGION.amazonaws.com (email sending): [Terms](https://aws.amazon.com/service-terms/), [Privacy](https://aws.amazon.com/privacy/).
+* Mailgun (Sinch Mailgun), api.mailgun.net or api.eu.mailgun.net (email sending): [Terms](https://www.mailgun.com/legal/terms/), [Privacy](https://www.mailgun.com/legal/privacy-policy/).
+* SendGrid (Twilio Inc.), api.sendgrid.com (email sending): [Terms](https://www.twilio.com/en-us/legal/tos), [Privacy](https://www.twilio.com/en-us/legal/privacy).
 
 = Cloudflare Turnstile (Cloudflare, Inc.) =
 
@@ -351,6 +374,11 @@ Read the [documentation](https://canvasly.pro/sidcraft/overview.html) or [contac
 9. **AI Chat Bot can read any live URL and recreate the layout using native Sidcraft blocks. Whether you're migrating from another page builder or adapting a design you love, it’s easier than ever.  
 
 == Changelog ==
+
+= 2.4.0 =
+* New: Settings → Email services. Connect Mailchimp, Kit (ConvertKit), MailerLite, Brevo, ActiveCampaign, Klaviyo, Beehiiv, FluentCRM, MailPoet or Listmonk and add the people who fill in a Form unit to a list (list ID, optional consent checkbox, tags and double opt-in are set in the form, under Email service).
+* New: send the Form unit's notification email through Resend, Postmark, Amazon SES, Mailgun, SendGrid or Brevo instead of the web server's mail, with a test email, a fallback to normal WordPress mail and an option to use the service for all site email.
+* Keys are stored on the server only, shown masked, and every service is contacted only after you set it up.
 
 = 2.3.8 =
 * Fix: a PHP warning ("Array to string conversion") when saving a page that had an autosave.

@@ -1,4 +1,7 @@
 === Sidcraft Page Builder: full changelog ===
+= 2.4.0 =
+* New: Settings → Email services: newsletter signup from the Form unit (Mailchimp, Kit, MailerLite, Brevo, ActiveCampaign, Klaviyo, Beehiiv, FluentCRM, MailPoet, Listmonk) and form email through Resend, Postmark, Amazon SES, Mailgun, SendGrid or Brevo.
+
 = 2.3.5 =
 * New: the header and footer that a page inherits from the theme now have a Reset button (use the theme's own again, discarding saved changes made on this page or for the whole theme) and a Remove button (hide them on this page by setting the page template to Canvas) in their toolbar. Before, a header or footer you had edited stayed on the page, even after the theme was deleted, and could not be removed.
 

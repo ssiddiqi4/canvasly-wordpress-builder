@@ -7,6 +7,9 @@ delete_option('sidcraft_page_builder_convert_lock');
 // Form entries are personal data: remove them with the plugin.
 $sidcraft_page_builder_entries=__DIR__.'/includes/forms/class-submissions.php';
 if(is_readable($sidcraft_page_builder_entries)){require_once $sidcraft_page_builder_entries;\SidcraftPageBuilder\Forms\Submissions::uninstall();}
+// Email services: the keys of connected services and their activity log.
+delete_option('sidcraft_page_builder_email');
+delete_option('sidcraft_page_builder_email_log');
 delete_option('sidcraft_page_builder_ai_chat');
 // AI layout memory and recreation runs (working data, not page documents).
 delete_option('sidcraft_page_builder_ai_layout_memory');

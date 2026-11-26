@@ -21,6 +21,9 @@ class Plugin { private static $instance; public static function instance(){ if(!
   if(is_readable($xe_engine)){require_once $xe_engine;\SidcraftPageBuilder\XEditor\XEditorEngine::init();}
   $turnstile=SIDCRAFT_PAGE_BUILDER_PATH.'includes/integrations/class-turnstile.php';
   if(is_readable($turnstile)){require_once $turnstile;\SidcraftPageBuilder\Integrations\Turnstile::init();}
+  // Email services: newsletter signup from the Form unit and form email through a transactional service.
+  $email_services=SIDCRAFT_PAGE_BUILDER_PATH.'includes/integrations/class-email-services.php';
+  if(is_readable($email_services)){require_once $email_services;\SidcraftPageBuilder\Integrations\EmailServices::init();}
   // Form Entries (stored submissions) and the in-editor AI Chat Bot.
   $entries=SIDCRAFT_PAGE_BUILDER_PATH.'includes/forms/class-submissions.php';
   if(is_readable($entries)){require_once $entries;\SidcraftPageBuilder\Forms\Submissions::init();}
