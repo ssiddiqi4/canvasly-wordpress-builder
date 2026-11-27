@@ -77,9 +77,19 @@ class StyleChunks {
 			return false;
 		}
 		$data = include $dir . 'manifest.php';
-		// Files generated from another frontend.css (edited without re-running the tool) are not used.
-		if ( ! is_array( $data ) || empty( $data['chunks'] ) || ( $data['size'] ?? -1 ) !== @filesize( SIDCRAFT_PAGE_BUILDER_PATH . 'assets/css/frontend.css' ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A missing file means no split.
+		if ( ! is_array( $data ) || empty( $data['chunks'] ) ) {
 			return false;
+		}
+		// Files generated from another frontend.css (edited without re-running the tool) are not used.
+		$css_path = SIDCRAFT_PAGE_BUILDER_PATH . 'assets/css/frontend.css';
+		$size     = (int) @filesize( $css_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A missing file means no split.
+		if ( (int) ( $data['size'] ?? -1 ) !== $size ) {
+			// A CRLF checkout changes the byte count without changing the CSS. Verify the
+			// normalised content hash before giving up the per-unit stylesheets.
+			$css = is_readable( $css_path ) ? (string) file_get_contents( $css_path ) : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local generated CSS.
+			if ( '' === $css || md5( str_replace( array( "\r\n", "\r" ), "\n", $css ) ) !== (string) ( $data['source'] ?? '' ) ) {
+				return false;
+			}
 		}
 		self::$manifest = $data;
 		return $data;

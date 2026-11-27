@@ -431,6 +431,11 @@ app.nodeHTML = function nodeHTML(n) {
       e.dataTransfer.setData("text/plain", "node:" + app.dragNode);
       window.__lbDragPayload = "node:" + app.dragNode;
     };
+    n.ondragend = () => {
+      n.classList.remove("drop-target");
+      const fd = app.frameDoc();
+      app.lbNudgeCanvasRepaint(fd, fd && fd.querySelector(".lb-frame-root"));
+    };
     n.ondragover = (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -449,40 +454,36 @@ app.nodeHTML = function nodeHTML(n) {
           v = "";
         }
       }
+      if (!/^unit:|^node:/.test(v)) return;
       const land = app.dropLanding ? app.dropLanding(e, n) : null;
-      if (land && /^unit:|^node:/.test(v)) {
-        if (land.kind === "slot" && land.slot && app.nestedActive) app.nestedActive[land.parentId] = land.slot;
-        if (v.startsWith("unit:")) app.add(v.slice(5), land.parentId, null, land.slot || null);
-        else app.moveExisting(v.slice(5), land.parentId, "inside", land.slot || null);
-        return;
-      }
-      if (v.startsWith("unit:")) {
-        if (app.acceptsInside({ type: n.dataset.type })) app.add(v.slice(5), n.dataset.id);
-        else {
-          const r = app.locate(app.state.root, n.dataset.id);
-          if (r) {
-            const pos =
-              e.clientY < n.getBoundingClientRect().top + n.getBoundingClientRect().height / 2 ? "before" : "after";
-            const node = app.makeNode(v.slice(5));
-            if (node) {
-              if (r.parent && typeof app.assignSlot === "function") app.assignSlot(node, r.parent, r.node.slot);
-              app.commit();
-              r.nodes.splice(r.index + (pos === "after" ? 1 : 0), 0, node);
-              app.selected = node.id;
-              app.render();
-            }
-          }
+      const rect = n.getBoundingClientRect();
+      const before = e.clientY < rect.top + rect.height / 2;
+      app.lbAfterCanvasDrag(() => {
+        if (land && /^unit:|^node:/.test(v)) {
+          if (land.kind === "slot" && land.slot && app.nestedActive) app.nestedActive[land.parentId] = land.slot;
+          if (v.startsWith("unit:")) app.add(v.slice(5), land.parentId, null, land.slot || null);
+          else app.moveExisting(v.slice(5), land.parentId, "inside", land.slot || null);
+          return;
         }
-      } else if (v.startsWith("node:")) {
-        const rect = n.getBoundingClientRect();
-        const pos =
-          e.clientY < rect.top + rect.height / 2
-            ? "before"
-            : app.acceptsInside({ type: n.dataset.type })
-              ? "inside"
-              : "after";
+        if (!v.startsWith("node:") && app.acceptsInside({ type: n.dataset.type })) {
+          app.add(v.slice(5), n.dataset.id);
+          return;
+        }
+        if (v.startsWith("unit:")) {
+          const r = app.locate(app.state.root, n.dataset.id);
+          if (!r) return;
+          const node = app.makeNode(v.slice(5));
+          if (!node) return;
+          if (r.parent && typeof app.assignSlot === "function") app.assignSlot(node, r.parent, r.node.slot);
+          app.commit();
+          r.nodes.splice(r.index + (before ? 0 : 1), 0, node);
+          app.selected = node.id;
+          app.render();
+          return;
+        }
+        const pos = before ? "before" : app.acceptsInside({ type: n.dataset.type }) ? "inside" : "after";
         app.moveExisting(v.slice(5), n.dataset.id, pos);
-      }
+      });
     };
     n.querySelectorAll(":scope > .lb-node-toolbar [data-act]").forEach((b) => {
       if (b.__lbAct) return;

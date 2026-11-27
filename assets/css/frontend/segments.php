@@ -1354,4 +1354,12 @@ html{scroll-behavior:smooth}
     1 => '.lb-node-container>.lb-container,.lb-node-inner_section>.lb-container{border-radius:inherit}
 ',
   ),
+  123 => 
+  array (
+    0 => 'flip-box',
+    1 => '.lb-flip-front,.lb-flip-back{font-size:16px;overflow:hidden}
+.lb-flip-content{min-height:0}
+.lb-flip-title,.lb-flip-desc{overflow-wrap:anywhere}
+',
+  ),
 );

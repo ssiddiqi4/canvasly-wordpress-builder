@@ -494,3 +494,8 @@ html{scroll-behavior:smooth}
 .lb-loop-dot.lb-loop-dot.is-active:hover,.lb-loop-dot.lb-loop-dot.is-active:focus{background:#1d2327}
 /* The box radius lives on the node; let the container background follow it. */
 .lb-node-container>.lb-container,.lb-node-inner_section>.lb-container{border-radius:inherit}
+/* Flip box: keep the card typography independent of the theme body size and clip
+   anything that still does not fit, so front and back match the editor canvas. */
+.lb-flip-front,.lb-flip-back{font-size:16px;overflow:hidden}
+.lb-flip-content{min-height:0}
+.lb-flip-title,.lb-flip-desc{overflow-wrap:anywhere}

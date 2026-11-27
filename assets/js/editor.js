@@ -2022,24 +2022,23 @@
         window.open(url, "_blank", "noopener");
         return;
       }
-      // Open the tab right away, while the click still counts as a user action, so the browser does not block it and
-      // the page responds at once. It loads the preview as soon as the save has finished.
       const win = window.open("", "_blank");
       if (win) {
         try {
           win.opener = null;
           win.document.title = app.t("Preview");
           win.document.body.style.cssText = "font:16px system-ui,sans-serif;padding:32px;color:#333";
-          win.document.body.textContent = app.t("Saving your changes, then opening the preview\u2026");
-        } catch (e) {}
+          win.document.body.textContent = app.t("Saving your changes, then opening the preview…");
+        } catch (e) {
+        }
       }
       const status = app.$("#lb-status");
       const previous = status ? status.textContent : "";
-      if (status) status.textContent = app.t("Saving before preview\u2026");
+      if (status) status.textContent = app.t("Saving before preview…");
       try {
-        await Promise.race([app.save(true), new Promise((resolve) => setTimeout(resolve, 30000))]);
+        await Promise.race([app.save(true), new Promise((resolve) => setTimeout(resolve, 3e4))]);
       } finally {
-        if (status && status.textContent === app.t("Saving before preview\u2026")) status.textContent = previous;
+        if (status && status.textContent === app.t("Saving before preview…")) status.textContent = previous;
       }
       if (win && !win.closed) win.location.href = url;
       else window.open(url, "_blank", "noopener");
@@ -2673,11 +2672,7 @@
           const cols = Math.max(1, Math.min(24, parseInt(app.resp(s.columns || 2), 10) || 2));
           const rows = Math.max(1, Math.min(24, parseInt(app.resp(s.grid_rows || s.rows || 3), 10) || 3));
           put("grid-template-columns", cc || `repeat(${cols},minmax(0,1fr))`);
-          // Rows as on the published page: the stored rows, or rows that fit the units.
-          // Empty rows to drop into exist only while something is dragged, or while the grid is empty.
-          const rowsSet = rr || (app.resp(s.grid_rows) ? `repeat(${rows},auto)` : "");
-          if (rowsSet) put("grid-template-rows", rowsSet);
-          else if (!(n.children || []).length) put("grid-template-rows", `repeat(${rows},minmax(48px,auto))`);
+          put("grid-template-rows", rr || `repeat(${rows},minmax(0,1fr))`);
           put("grid-auto-flow", app.resp(s.auto_flow) || "row");
           put("grid-auto-columns", app.resp(s.grid_auto_columns) || "auto");
           put("grid-auto-rows", app.resp(s.grid_auto_rows) || "auto");
@@ -2990,13 +2985,9 @@
       }
       return `<div class="lb-embed-placeholder">${app.esc(app.meta(n.type).title || n.type)}</div>`;
     };
-    // Classes typed under Advanced > CSS Classes also go on the unit's element in the canvas, so a theme or page stylesheet that targets them shows while editing.
     app.withUnitClasses = function withUnitClasses(html, s) {
-      const raw = String((s && s.css_class) || "");
-      const extra = raw
-        .split(/\s+/)
-        .filter((c) => /^[A-Za-z_][A-Za-z0-9_-]{0,63}$/.test(c))
-        .join(" ");
+      const raw = String(s && s.css_class || "");
+      const extra = raw.split(/\s+/).filter((c) => /^[A-Za-z_][A-Za-z0-9_-]{0,63}$/.test(c)).join(" ");
       if (!extra || typeof html !== "string") return html;
       const m = html.match(/^<([a-zA-Z][a-zA-Z0-9]*)([^>]*)>/);
       if (!m) return html;
@@ -3005,7 +2996,7 @@
       const next = cm ? attrs.replace(/\sclass="([^"]*)"/, ' class="$1 ' + extra + '"') : attrs + ' class="' + extra + '"';
       return "<" + m[1] + next + ">" + html.slice(m[0].length);
     };
-  app.nodeHTML = function nodeHTML(n) {
+    app.nodeHTML = function nodeHTML(n) {
       try {
         const s = n.settings || {}, e = app.meta(n.type), sel2 = app.selected === n.id ? " is-selected" : "", globalNames = String(s.global_class || "").split(/[\s,]+/).map((x) => x.trim()).filter(Boolean).map((x) => "lb-class-" + x.replace(/[^a-zA-Z0-9_-]/g, "")).filter(Boolean), classes = "lb-node lb-node-" + app.esc(n.type) + sel2 + (globalNames.length ? " " + globalNames.join(" ") : "");
         return `<div class="${classes}" id="lb-node-${app.esc(n.id)}" data-id="${app.esc(n.id)}" data-type="${app.esc(n.type)}" draggable="true" tabindex="0" aria-label="${app.esc(e.title || n.type)}">${app.withUnitClasses(app.bodyHTML(n), s)}<div class="lb-node-toolbar"><span>${app.esc(e.title || n.type)}</span><button type="button" data-act="move-up" title="${app.t("Move up")}">↑</button><button type="button" data-act="move-down" title="${app.t("Move down")}">↓</button><button type="button" data-act="duplicate" title="${app.t("Duplicate")}">＋</button><button type="button" data-act="delete" title="${app.t("Delete")}">×</button></div></div>`;
@@ -3130,6 +3121,11 @@
         e.dataTransfer.setData("text/plain", "node:" + app.dragNode);
         window.__lbDragPayload = "node:" + app.dragNode;
       };
+      n.ondragend = () => {
+        n.classList.remove("drop-target");
+        const fd = app.frameDoc();
+        app.lbNudgeCanvasRepaint(fd, fd && fd.querySelector(".lb-frame-root"));
+      };
       n.ondragover = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -3148,34 +3144,36 @@
             v = "";
           }
         }
+        if (!/^unit:|^node:/.test(v)) return;
         const land = app.dropLanding ? app.dropLanding(e, n) : null;
-        if (land && /^unit:|^node:/.test(v)) {
-          if (land.kind === "slot" && land.slot && app.nestedActive) app.nestedActive[land.parentId] = land.slot;
-          if (v.startsWith("unit:")) app.add(v.slice(5), land.parentId, null, land.slot || null);
-          else app.moveExisting(v.slice(5), land.parentId, "inside", land.slot || null);
-          return;
-        }
-        if (v.startsWith("unit:")) {
-          if (app.acceptsInside({ type: n.dataset.type })) app.add(v.slice(5), n.dataset.id);
-          else {
-            const r = app.locate(app.state.root, n.dataset.id);
-            if (r) {
-              const pos = e.clientY < n.getBoundingClientRect().top + n.getBoundingClientRect().height / 2 ? "before" : "after";
-              const node = app.makeNode(v.slice(5));
-              if (node) {
-                if (r.parent && typeof app.assignSlot === "function") app.assignSlot(node, r.parent, r.node.slot);
-                app.commit();
-                r.nodes.splice(r.index + (pos === "after" ? 1 : 0), 0, node);
-                app.selected = node.id;
-                app.render();
-              }
-            }
+        const rect = n.getBoundingClientRect();
+        const before = e.clientY < rect.top + rect.height / 2;
+        app.lbAfterCanvasDrag(() => {
+          if (land && /^unit:|^node:/.test(v)) {
+            if (land.kind === "slot" && land.slot && app.nestedActive) app.nestedActive[land.parentId] = land.slot;
+            if (v.startsWith("unit:")) app.add(v.slice(5), land.parentId, null, land.slot || null);
+            else app.moveExisting(v.slice(5), land.parentId, "inside", land.slot || null);
+            return;
           }
-        } else if (v.startsWith("node:")) {
-          const rect = n.getBoundingClientRect();
-          const pos = e.clientY < rect.top + rect.height / 2 ? "before" : app.acceptsInside({ type: n.dataset.type }) ? "inside" : "after";
+          if (!v.startsWith("node:") && app.acceptsInside({ type: n.dataset.type })) {
+            app.add(v.slice(5), n.dataset.id);
+            return;
+          }
+          if (v.startsWith("unit:")) {
+            const r = app.locate(app.state.root, n.dataset.id);
+            if (!r) return;
+            const node = app.makeNode(v.slice(5));
+            if (!node) return;
+            if (r.parent && typeof app.assignSlot === "function") app.assignSlot(node, r.parent, r.node.slot);
+            app.commit();
+            r.nodes.splice(r.index + (before ? 0 : 1), 0, node);
+            app.selected = node.id;
+            app.render();
+            return;
+          }
+          const pos = before ? "before" : app.acceptsInside({ type: n.dataset.type }) ? "inside" : "after";
           app.moveExisting(v.slice(5), n.dataset.id, pos);
-        }
+        });
       };
       n.querySelectorAll(":scope > .lb-node-toolbar [data-act]").forEach((b) => {
         if (b.__lbAct) return;
@@ -3301,10 +3299,10 @@
         };
         if (html.trim() && typeof app.lbPaintCanvas === "function") {
           app.lbPaintCanvas({ skipPanel: true });
-          // A preview that arrives while the canvas is still starting up was not drawn; paint once more.
-          setTimeout(function () { app.lbPaintCanvas({ skipPanel: true }); }, 500);
-        }
-        else if (typeof app.frameDoc === "function") app.installShortcodePreviewStyles(app.frameDoc());
+          setTimeout(function() {
+            app.lbPaintCanvas({ skipPanel: true });
+          }, 500);
+        } else if (typeof app.frameDoc === "function") app.installShortcodePreviewStyles(app.frameDoc());
       }).catch(() => {
         delete app.shortcodePreviewPending[key];
       });
@@ -4068,13 +4066,13 @@
         app.applyPageTemplatePreview();
       };
       app.$("#lb-hide-chrome")?.addEventListener("change", () => {
-      app.commit(app.t("Edited page settings"));
-      preview();
-      if (typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
-      app.dirty = true;
-      if (app.scheduleSave) app.scheduleSave();
-    });
-    app.$("#lb-page-template")?.addEventListener("change", () => {
+        app.commit(app.t("Edited page settings"));
+        preview();
+        if (typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
+        app.dirty = true;
+        if (app.scheduleSave) app.scheduleSave();
+      });
+      app.$("#lb-page-template")?.addEventListener("change", () => {
         app.commit(app.t("Edited page settings"));
         preview();
         app.dirty = true;
@@ -4295,7 +4293,7 @@
     };
     app.inheritToolbarHTML = function inheritToolbarHTML() {
       const scope = app.themeChromeScope === "theme" ? app.t("Entire theme") : app.t("This page only");
-      return '<div class="lb-inherit-toolbar" contenteditable="false"><button type="button" data-lb-cmd="bold" title="' + app.esc(app.t("Bold")) + '"><b>B</b></button><button type="button" data-lb-cmd="italic" title="' + app.esc(app.t("Italic")) + '"><i>I</i></button><button type="button" data-lb-cmd="link" title="' + app.esc(app.t("Link")) + '">' + app.esc(app.t("Link")) + '</button><button type="button" data-lb-chrome-scope title="' + app.esc(app.t("Theme header and footer")) + '">' + app.esc(scope) + '</button><button type="button" data-lb-chrome-reset title="' + app.esc(app.t("Remove the changes saved for the header and footer and use the theme's own again")) + '">' + app.esc(app.t("Reset")) + '</button><button type="button" data-lb-chrome-hide title="' + app.esc(app.t("Remove the header and footer from this page (sets the page template to Canvas)")) + '">' + app.esc(app.t("Remove")) + "</button></div>";
+      return '<div class="lb-inherit-toolbar" contenteditable="false"><button type="button" data-lb-cmd="bold" title="' + app.esc(app.t("Bold")) + '"><b>B</b></button><button type="button" data-lb-cmd="italic" title="' + app.esc(app.t("Italic")) + '"><i>I</i></button><button type="button" data-lb-cmd="link" title="' + app.esc(app.t("Link")) + '">' + app.esc(app.t("Link")) + '</button><button type="button" data-lb-chrome-scope title="' + app.esc(app.t("Theme header and footer")) + '">' + app.esc(scope) + +'</button><button type="button" data-lb-chrome-reset title="' + app.esc(app.t("Remove the changes saved for the header and footer and use the theme's own again")) + '">' + app.esc(app.t("Reset")) + '</button><button type="button" data-lb-chrome-hide title="' + app.esc(app.t("Remove the header and footer from this page (sets the page template to Canvas)")) + '">' + app.esc(app.t("Remove")) + "</button></div>";
     };
     app.syncInheritScopeLabels = function syncInheritScopeLabels() {
       const fd = app.frameDoc();
@@ -4732,56 +4730,56 @@
       fd.querySelectorAll("[data-lb-theme-inherit]").forEach((el) => app.ensureInheritEditor(el));
       if (fd.__lbInheritNav) return;
       fd.__lbInheritNav = true;
-    // Reset / Hide buttons of the inherited header and footer.
-    fd.addEventListener(
-      "click",
-      (e) => {
-        const btn = e.target.closest && e.target.closest("[data-lb-chrome-reset],[data-lb-chrome-hide],[data-lb-chrome-show]");
-        if (!btn) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if (btn.hasAttribute("data-lb-chrome-show")) {
-          app.commit(app.t("Edited page settings"));
-          const next = Object.assign({}, app.state.settings || {});
-          delete next.hide_theme_chrome;
-          app.state.settings = next;
-          if (typeof app.applyPageTemplatePreview === "function") app.applyPageTemplatePreview();
-          if (typeof app.applyPageTemplatePreview === "function") if (typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
-          app.dirty = true;
-          if (app.scheduleSave) app.scheduleSave();
-          return;
-        }
-        if (btn.hasAttribute("data-lb-chrome-hide")) {
-          app.commit(app.t("Edited page settings"));
-          app.state.settings = Object.assign({}, app.state.settings || {}, { template: "canvas", hide_theme_chrome: true });
-          if (typeof app.applyPageTemplatePreview === "function") app.applyPageTemplatePreview();
-          if (typeof app.applyPageTemplatePreview === "function") if (typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
-          app.dirty = true;
-          if (app.scheduleSave) app.scheduleSave();
-          return;
-        }
-        const api = String((app.D && app.D.api) || "").replace(/\/$/, "");
-        const id = parseInt((app.D && app.D.postId) || 0, 10) || 0;
-        if (!api || !id) return;
-        fetch(api + "/theme-chrome", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-WP-Nonce": (app.D && app.D.nonce) || "" },
-          body: JSON.stringify({ post_id: id, scope: "page", reset: true }),
-        })
-          .then((r) => (r.ok ? r.json() : null))
-          .then(() => {
+      fd.addEventListener(
+        "click",
+        (e) => {
+          const btn = e.target.closest && e.target.closest("[data-lb-chrome-reset],[data-lb-chrome-hide],[data-lb-chrome-show]");
+          if (!btn) return;
+          e.preventDefault();
+          e.stopPropagation();
+          if (btn.hasAttribute("data-lb-chrome-show")) {
+            app.commit(app.t("Edited page settings"));
+            const next = Object.assign({}, app.state.settings || {});
+            delete next.hide_theme_chrome;
+            app.state.settings = next;
+            if (typeof app.applyPageTemplatePreview === "function") app.applyPageTemplatePreview();
+            if (typeof app.applyPageTemplatePreview === "function") {
+              if (typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
+            }
+            app.dirty = true;
+            if (app.scheduleSave) app.scheduleSave();
+            return;
+          }
+          if (btn.hasAttribute("data-lb-chrome-hide")) {
+            app.commit(app.t("Edited page settings"));
+            app.state.settings = Object.assign({}, app.state.settings || {}, { template: "canvas", hide_theme_chrome: true });
+            if (typeof app.applyPageTemplatePreview === "function") app.applyPageTemplatePreview();
+            if (typeof app.applyPageTemplatePreview === "function") {
+              if (typeof app.lbPaintCanvas === "function") app.lbPaintCanvas({ skipPanel: true });
+            }
+            app.dirty = true;
+            if (app.scheduleSave) app.scheduleSave();
+            return;
+          }
+          const api = String(app.D && app.D.api || "").replace(/\/$/, "");
+          const id = parseInt(app.D && app.D.postId || 0, 10) || 0;
+          if (!api || !id) return;
+          fetch(api + "/theme-chrome", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-WP-Nonce": app.D && app.D.nonce || "" },
+            body: JSON.stringify({ post_id: id, scope: "page", reset: true })
+          }).then((r) => r.ok ? r.json() : null).then(() => {
             app.themeChromeHtml = null;
             app.themeChromeBaseline = null;
             app.themeChromeHtmlDirty = false;
             app.themeChromeScopeDirty = false;
             app.themeChromeLoading = false;
             app.ensureThemeChrome();
-          })
-          .catch(() => {});
-      },
-      true,
-    );
-
+          }).catch(() => {
+          });
+        },
+        true
+      );
       fd.addEventListener(
         "click",
         (e) => {
@@ -5410,13 +5408,15 @@
         (app.state.settings || {}).page_width || (typeof app.kitContentWidth === "function" ? app.kitContentWidth() : "") || app.D.globals?.content_width || ""
       ).trim() : "";
       const widthStyle = width ? "--lb-page-width:" + app.esc(width) + ";" : "";
-      return '<!doctype html><html class="lb-template-' + slug + '" dir="' + (app.D.isRtl ? "rtl" : "ltr") + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="' + app.esc(css) + '"><style>' + designCss + "html,body{margin:0;padding:0;background:#fff;font-family:system-ui,sans-serif;box-sizing:border-box}html{height:100%;overflow-x:hidden;overflow-y:scroll;scrollbar-gutter:stable}html::-webkit-scrollbar{width:12px}html::-webkit-scrollbar-track{background:#eef1f4}html::-webkit-scrollbar-thumb{background:#b7c0ca;border-radius:6px}" + app.pageStageStyle(false) + '.lb-node{position:relative;margin:0;max-width:100%}.lb-insert-zone{min-height:18px}.lb-grid-inner,.lb-container-inner{box-sizing:border-box}.lb-grid-inner>.lb-insert-zone,.lb-container-inner[style*="display:grid"]>.lb-insert-zone{display:none}.lb21-hover-tab{position:absolute;width:max-content;height:25px;min-width:88px;max-height:25px;padding:0 6px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;background:#2d6fd0;border-radius:7px 7px 0 0;z-index:2147483000;pointer-events:auto}</style></head><body class="' + app.esc(app.pageTemplateBodyClass()) + '"><div class="lb-page-stage">' + app.pageChromeHTML("header") + '<div class="lb-frame-root lb-scope" style="' + widthStyle + '">' + body + "</div>" + app.pageChromeHTML("footer") + "</div></body></html>";
+      return '<!doctype html><html class="lb-template-' + slug + '" dir="' + (app.D.isRtl ? "rtl" : "ltr") + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="' + app.esc(css) + '"><style>' + designCss + "html,body{margin:0;padding:0;background:#fff;font-family:system-ui,sans-serif;box-sizing:border-box}html{height:100%;overflow-x:hidden;overflow-y:scroll;scrollbar-gutter:stable}html::-webkit-scrollbar{width:12px}html::-webkit-scrollbar-track{background:#eef1f4}html::-webkit-scrollbar-thumb{background:#b7c0ca;border-radius:6px}" + app.pageStageStyle(false) + '.lb-node{position:relative;margin:0;max-width:100%}.lb-insert-zone{min-height:18px}.lb-grid-inner,.lb-container-inner{box-sizing:border-box}.lb-grid-inner>.lb-insert-zone,.lb-container-inner[style*="display:grid"]>.lb-insert-zone{display:none}.lb21-hover-tab{position:absolute;width:max-content;height:25px;min-width:88px;max-height:25px;padding:0 6px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;background:#dca6ef;border-radius:7px 7px 0 0;z-index:2147483000;pointer-events:auto}</style></head><body class="' + app.esc(app.pageTemplateBodyClass()) + '"><div class="lb-page-stage">' + app.pageChromeHTML("header") + '<div class="lb-frame-root lb-scope" style="' + widthStyle + '">' + body + "</div>" + app.pageChromeHTML("footer") + "</div></body></html>";
     };
     app.lbPaintCanvas = function lbPaintCanvas(opts) {
       const frame = document.getElementById("lb-editor-frame");
       const fd = frame && frame.contentDocument;
-      if (document.body.classList.contains("lb123-resizing") || fd && fd.body && fd.body.classList.contains("lb123-resizing"))
+      if (document.body.classList.contains("lb123-resizing") || fd && fd.body && fd.body.classList.contains("lb123-resizing")) {
+        app.lbPaintPending = true;
         return true;
+      }
       const canvas = fd && fd.querySelector(".lb-frame-root");
       const work = app.root.querySelector(".lb-work");
       if (!canvas || !work) return false;
@@ -5447,7 +5447,42 @@
       if (app.refreshRevisionBanner) app.refreshRevisionBanner();
       if (app.historyOpen && app.refreshHistoryPanel) app.refreshHistoryPanel();
       if (typeof app.hydrateShortcodes === "function") app.hydrateShortcodes();
+      app.lbPaintPending = false;
+      app.lbNudgeCanvasRepaint(fd, canvas);
       return true;
+    };
+    app.lbNudgeCanvasRepaint = function lbNudgeCanvasRepaint(fd, root) {
+      if (!fd || !root) return;
+      const view = fd.defaultView || window;
+      const paint = function() {
+        try {
+          const prev = root.style.transform;
+          root.style.transform = "translateZ(0)";
+          void root.offsetHeight;
+          root.style.transform = prev;
+        } catch (err) {
+        }
+      };
+      if (view.requestAnimationFrame) view.requestAnimationFrame(paint);
+      else setTimeout(paint, 16);
+    };
+    app.lbAfterCanvasDrag = function lbAfterCanvasDrag(fn) {
+      const run = function() {
+        try {
+          fn();
+        } catch (err) {
+          if (window.console) console.error("[Sidcraft Page Builder] drop failed", err);
+        }
+        const fd = app.frameDoc();
+        app.lbNudgeCanvasRepaint(fd, fd && fd.querySelector(".lb-frame-root"));
+      };
+      if (window.requestAnimationFrame) window.requestAnimationFrame(run);
+      else setTimeout(run, 0);
+    };
+    app.lbFlushCanvasPaint = function lbFlushCanvasPaint() {
+      if (!app.lbPaintPending) return;
+      app.lbPaintPending = false;
+      app.lbPaintCanvas({ skipPanel: true });
     };
     app.render = function render() {
       app.closeContextMenu();
@@ -6017,8 +6052,9 @@
         e.preventDefault();
         e.stopPropagation();
         rootCanvas.classList.remove("canvas-drop");
-        app.dndLog("drop on page canvas: " + (app.dragPayload(e) || "-"));
-        app.dropOnPage(app.dragPayload(e));
+        const payload = app.dragPayload(e);
+        app.dndLog("drop on page canvas: " + (payload || "-"));
+        app.lbAfterCanvasDrag(() => app.dropOnPage(payload));
       };
       app.bindPageDropZone(fd, lockPage);
       fd.querySelectorAll("[data-lb-chrome]").forEach((bar) => {
@@ -9702,9 +9738,13 @@
               fd.removeEventListener("pointermove", move, true);
               fd.removeEventListener("pointerup", up, true);
               fd.removeEventListener("pointercancel", up, true);
+              document.removeEventListener("pointermove", move, true);
+              document.removeEventListener("pointerup", up, true);
+              document.removeEventListener("pointercancel", up, true);
               fd.body.classList.remove("lb123-resizing");
               document.body.classList.remove("lb123-resizing");
               lab.remove();
+              if (typeof app.lbFlushCanvasPaint === "function") app.lbFlushCanvasPaint();
               if (!moved) {
                 place();
                 return;
@@ -9728,6 +9768,9 @@
             fd.addEventListener("pointermove", move, true);
             fd.addEventListener("pointerup", up, true);
             fd.addEventListener("pointercancel", up, true);
+            document.addEventListener("pointermove", move, true);
+            document.addEventListener("pointerup", up, true);
+            document.addEventListener("pointercancel", up, true);
           });
         });
       }
@@ -9823,9 +9866,13 @@
               fd.removeEventListener("pointermove", move, true);
               fd.removeEventListener("pointerup", up, true);
               fd.removeEventListener("pointercancel", up, true);
+              document.removeEventListener("pointermove", move, true);
+              document.removeEventListener("pointerup", up, true);
+              document.removeEventListener("pointercancel", up, true);
               fd.body.classList.remove("lb123-resizing");
               document.body.classList.remove("lb123-resizing");
               lab.remove();
+              if (typeof app.lbFlushCanvasPaint === "function") app.lbFlushCanvasPaint();
               if (!moved) {
                 place();
                 return;
@@ -9849,10 +9896,12 @@
             fd.addEventListener("pointermove", move, true);
             fd.addEventListener("pointerup", up, true);
             fd.addEventListener("pointercancel", up, true);
+            document.addEventListener("pointermove", move, true);
+            document.addEventListener("pointerup", up, true);
+            document.addEventListener("pointercancel", up, true);
           });
         });
       }
-      let lb123LastEdgePress = null;
       function lb123StartUnitResize(e, node, edge, handle) {
         e.preventDefault();
         e.stopPropagation();
@@ -9869,16 +9918,6 @@
         const yEdge = edge.includes("s") ? "s" : edge.includes("n") ? "n" : "";
         const sibX = xEdge ? lb123AdjacentSibling(node, xEdge, r.parent, metrics.gapX) : null;
         const sibY = yEdge ? lb123AdjacentSibling(node, yEdge, r.parent, metrics.gapY) : null;
-        // A second press on the top or bottom edge within 400 ms fits the box to its units.
-        const now = Date.now(), last = lb123LastEdgePress;
-        lb123LastEdgePress = { id, yEdge, t: now };
-        if (yEdge && lb123IsBoxType(r.node.type) && last && last.id === id && last.yEdge === yEdge && now - last.t < 400) {
-          lb123LastEdgePress = null;
-          handle?.classList?.remove("is-dragging");
-          app.lbFitHeight(id);
-          return;
-        }
-        const natural = yEdge === "s" && !sibY && lb123IsBoxType(r.node.type) ? lb123NaturalHeight(node, lb123IsGridBox(r.node)) : 0;
         lb123HistoryStart();
         lb123Resize = {
           kind: "unit",
@@ -9902,9 +9941,7 @@
           startCols: colPx,
           startRows: rowPx,
           sibX,
-          sibY,
-          natural,
-          fit: false
+          sibY
         };
         node.ownerDocument.body.classList.add("lb123-resizing");
         document.body.classList.add("lb123-resizing");
@@ -9947,71 +9984,6 @@
         if (inner) inner.style.setProperty("min-height", pxv, "important");
         return pxv;
       }
-      function lb123IsGridBox(n) {
-        return !!n && (n.type === "grid" || (typeof app.resp === "function" ? app.resp(n.settings?.layout) : n.settings?.layout) === "grid");
-      }
-      // Height the box needs for its units alone: no min-height, fixed height or empty grid rows.
-      function lb123NaturalHeight(el, grid) {
-        const inner = el.querySelector(":scope > .lb-grid-inner, :scope > .lb-container-inner");
-        const saved = [el, inner].filter(Boolean).map((x) => [x, x.getAttribute("style")]);
-        [el, inner].forEach((x) => {
-          if (!x) return;
-          x.style.setProperty("min-height", "0", "important");
-          x.style.setProperty("height", "auto", "important");
-        });
-        if (inner && grid) inner.style.setProperty("grid-template-rows", "none", "important");
-        const h = el.getBoundingClientRect().height;
-        saved.forEach(([x, st]) => st == null ? x.removeAttribute("style") : x.setAttribute("style", st));
-        return h;
-      }
-      // Grid rows that hold at least one unit, counted from the top.
-      function lb123UsedRows(el) {
-        const inner = el.querySelector(":scope > .lb-grid-inner, :scope > .lb-container-inner");
-        if (!inner) return 0;
-        const cs = inner.ownerDocument.defaultView.getComputedStyle(inner);
-        const tracks = [...String(cs.gridTemplateRows || "").matchAll(/(-?\d*\.?\d+)px/g)].map((m) => parseFloat(m[1]));
-        if (!tracks.length) return 0;
-        const gap = parseFloat(cs.rowGap) || 0;
-        const top = inner.getBoundingClientRect().top + (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.paddingTop) || 0);
-        let used = 0;
-        for (const c of inner.children) {
-          if (!c.classList.contains("lb-node")) continue;
-          const r = c.getBoundingClientRect();
-          if (!r.width && !r.height) continue;
-          let y = 0;
-          for (let i = 0; i < tracks.length; i++) {
-            if (r.bottom - top > y + 1) used = Math.max(used, i + 1);
-            y += tracks[i] + gap;
-            if (y > r.bottom - top) break;
-          }
-        }
-        return used;
-      }
-      // Remove the space a box keeps below its units: its min height, fixed height
-      // and, for grid layouts, empty or oversized rows (rows then fit their units).
-      app.lbFitHeight = function lbFitHeight(id, quiet) {
-        const r = app.locate(app.state.root, id);
-        if (!r || !lb123IsBoxType(r.node.type)) return false;
-        if (!quiet) lb123HistoryStart();
-        const n = r.node;
-        n.settings = n.settings || {};
-        ["min_height", "height"].forEach((k) => {
-          const v = n.settings[k];
-          if (v != null && v !== "" && !(typeof v === "object" && !Object.values(v).some((x) => x != null && x !== ""))) lb123ResponsiveSet(n, k, "");
-        });
-        if (lb123IsGridBox(n)) {
-          const el = lb123Node(id);
-          const rows = el ? lb123UsedRows(el) : 0;
-          ["grid_template_rows", "grid_rows"].forEach((k) => {
-            if (n.settings[k] != null && n.settings[k] !== "") lb123ResponsiveSet(n, k, "");
-          });
-          if (n.type === "grid" && rows > 0) lb123ResponsiveSet(n, "grid_template_rows", "repeat(" + rows + ", auto)");
-        }
-        app.selected = id;
-        lb123Finish();
-        app.render();
-        return true;
-      };
       function lb123UnitMove(e) {
         const a = lb123Resize;
         if (!a || a.kind !== "unit") return;
@@ -10061,19 +10033,7 @@
             if (live2) live2.style.setProperty("margin-left", Math.round(ml) + "px", "important");
           }
         }
-        // Bottom edge dragged up to the units: preview the box fitted to them.
-        a.fit = !!(a.yEdge === "s" && a.natural > 0 && h <= a.natural + 2);
-        if (a.fit) {
-          const el = lb123Node(a.id);
-          const inner = el?.querySelector(":scope > .lb-grid-inner, :scope > .lb-container-inner");
-          [el, inner].forEach((x) => {
-            if (!x) return;
-            x.style.setProperty("min-height", "0", "important");
-            x.style.setProperty("height", "auto", "important");
-          });
-          if (inner && lb123IsGridBox(n)) inner.style.setProperty("grid-template-rows", "none", "important");
-          h = a.natural;
-        } else if (a.yEdge) {
+        if (a.yEdge) {
           lb123ApplySize(n, lb123Node(a.id), "y", h, a.parentH, "");
           if (a.sibY) {
             const sib = app.locate(app.state.root, a.sibY.id)?.node;
@@ -10088,7 +10048,7 @@
         if (live) {
           const inner = live.querySelector(":scope > .lb-grid-inner, :scope > .lb-container-inner");
           if (inner && (n.type === "grid" || n.settings?.layout === "grid") && !a.sibX && !a.sibY) {
-            if (a.startRows && a.startRows.length && a.yEdge && !a.fit) {
+            if (a.startRows && a.startRows.length && a.yEdge) {
               const rows = a.startRows.slice();
               const dh = h - a.startH;
               if (a.yEdge === "s") rows[rows.length - 1] = Math.max(LB123_MIN, a.startRows[a.startRows.length - 1] + dh);
@@ -10134,7 +10094,7 @@
           }
           const bits = [];
           if (a.xEdge) bits.push(Math.round(w / a.parentW * 1e3) / 10 + "%");
-          if (a.yEdge) bits.push(a.fit ? app.t("Fit to content") : Math.round(h) + "px");
+          if (a.yEdge) bits.push(Math.round(h) + "px");
           lb123Tip(a.doc, bits.join(" × ") || "", tx, ty);
         }
       }
@@ -10154,10 +10114,6 @@
         const r = app.locate(app.state.root, a.id);
         if (r) app.selected = a.id;
         lb123Resize = null;
-        if (a.fit && r) {
-          app.lbFitHeight(a.id, true);
-          return;
-        }
         lb123Finish();
         app.render();
       }
@@ -11537,11 +11493,10 @@
         if (e.type === "drop") {
           e.preventDefault();
           e.stopImmediatePropagation();
-          // The cell highlighted during the drag: empty drop rows close as the drag ends.
-          const g = window.__lb21Target;
-          const cell = g && g.parentId === h.parentEl.dataset.id ? { col: g.col, row: g.row } : c;
-          if (v.startsWith("unit:")) addAt21(v.slice(5), h.parentEl.dataset.id, cell);
-          else moveAt21(v.slice(5), h.parentEl.dataset.id, cell);
+          app.lbAfterCanvasDrag(() => {
+            if (v.startsWith("unit:")) addAt21(v.slice(5), h.parentEl.dataset.id, c);
+            else moveAt21(v.slice(5), h.parentEl.dataset.id, c);
+          });
           clearGuide21();
         }
       }
@@ -11749,17 +11704,17 @@
       .lb21-grid-target>.lb-node.lb-node-image img{display:block;max-width:100%!important;max-height:100%;width:100%;height:auto;object-fit:contain;box-sizing:border-box;}
       .lb21-grid-target.lb21-drop-active::after{content:"";position:absolute;left:var(--lb21-left);top:var(--lb21-top);width:var(--lb21-width);height:var(--lb21-height);border:2px solid rgba(220,166,239,.98);background:rgba(220,166,239,.16);box-sizing:border-box;pointer-events:none;z-index:999999;}
       .lb-node{position:relative;}
-      body>.lb21-hover-tab,.lb21-hover-tab{position:absolute!important;width:max-content!important;height:25px!important;min-width:88px!important;min-height:0!important;max-height:25px!important;max-width:none!important;margin:0!important;padding:0 6px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;background:#2d6fd0!important;border-radius:7px 7px 0 0!important;z-index:2147483000!important;box-shadow:0 1px 3px rgba(0,0,0,.18)!important;white-space:nowrap!important;flex:none!important;pointer-events:auto!important;}
+      body>.lb21-hover-tab,.lb21-hover-tab{position:absolute!important;width:max-content!important;height:25px!important;min-width:88px!important;min-height:0!important;max-height:25px!important;max-width:none!important;margin:0!important;padding:0 6px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;background:#dca6ef!important;border-radius:7px 7px 0 0!important;z-index:2147483000!important;box-shadow:0 1px 3px rgba(0,0,0,.18)!important;white-space:nowrap!important;flex:none!important;pointer-events:auto!important;}
       .lb-grid-inner>.lb-node,.lb-container-inner[style*="display:grid"]>.lb-node,.lb-layout-grid>.lb-node{height:auto!important;max-height:none!important;overflow:visible!important;}
       .lb-node:not(.lb-node-container):not(.lb-node-grid):not(.lb-node-image):not(.lb-node-tinymce_text_editor):not(.lb-node-social)>:not(.lb-node-toolbar):not(.lb-insert-zone):not(.lb21-hover-tab):not(.lb-flip-box):not(.xe-el){flex:0 0 auto!important;position:relative!important;height:auto!important;min-height:0!important;}
       .lb-grid-inner>.lb-node.lb-node-flip_box,.lb-container-inner>.lb-node.lb-node-flip_box,.lb-layout-grid>.lb-node.lb-node-flip_box,.lb21-grid-target>.lb-node.lb-node-flip_box,.lb22-grid-host>.lb-node.lb-node-flip_box{position:relative!important;min-height:var(--lb-el-min-h,var(--lb-flip-height,280px))!important;align-self:stretch!important;}
       .lb-node-flip_box>.lb-flip-box{flex:1 1 auto!important;align-self:stretch!important;position:relative!important;display:grid!important;grid-template:minmax(var(--lb-flip-height,280px),1fr)/1fr!important;width:100%!important;height:100%!important;min-height:var(--lb-flip-height,280px)!important;box-sizing:border-box!important;}
       .lb-node-flip_box>.lb-flip-box>.lb-flip-layer{position:relative!important;inset:auto!important;grid-area:1/1!important;width:100%!important;height:100%!important;min-height:100%!important;}
-      .lb21-hover-tab button{border:0;background:transparent;color:#fff;font:700 18px/1 system-ui,sans-serif;width:22px;height:22px;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+      .lb21-hover-tab button{border:0;background:transparent;color:#111;font:700 18px/1 system-ui,sans-serif;width:22px;height:22px;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
       .lb21-hover-tab .lb21-grip{width:28px;display:grid;grid-template-columns:repeat(3,4px);grid-template-rows:repeat(2,4px);gap:3px;}
-      .lb21-hover-tab .lb21-grip i{width:4px;height:4px;border-radius:50%;background:#fff;display:block;}
+      .lb21-hover-tab .lb21-grip i{width:4px;height:4px;border-radius:50%;background:#111;display:block;}
       .lb21-hover-tab .lb21-close{font-size:23px;}
-      .lb21-hover-tab button:hover{background:rgba(255,255,255,.2);border-radius:4px;}
+      .lb21-hover-tab button:hover{background:rgba(255,255,255,.28);border-radius:4px;}
     `;
       }
       function refresh21() {
@@ -12334,11 +12289,10 @@
           if (!t3) return;
           e.preventDefault();
           e.stopImmediatePropagation();
-          // The cell highlighted during the drag: empty drop rows close as the drag ends.
-          const hov = window.__lb23CellTarget;
-          const cell = hov && hov.parentId === t3.parentId ? { col: hov.col, row: hov.row } : { col: t3.col, row: t3.row };
-          if (v.startsWith("unit:")) app.lb23AddAtCell(v.slice(5), t3.parentId, cell);
-          else app.lb23MoveAtCell(v.slice(5), t3.parentId, cell);
+          app.lbAfterCanvasDrag(() => {
+            if (v.startsWith("unit:")) app.lb23AddAtCell(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
+            else app.lb23MoveAtCell(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
+          });
           window.__lb23CellTarget = null;
           app.lb23CleanGuides(fd);
         },
@@ -12854,11 +12808,6 @@
         lbExtOldRender();
         lbExtBindControls();
         app.LB.hooks.doAction("editor/render", app.LB);
-        // A full render builds a new canvas iframe whose document loads after
-        // this point and replaces the one add-ons just styled. Run the action
-        // again once it has loaded so their canvas styles reach it.
-        const frame = document.getElementById("lb-editor-frame");
-        if (frame) frame.addEventListener("load", () => app.LB.hooks.doAction("editor/render", app.LB), { once: true });
       };
       const lbExtOldRefresh = app.refreshRightPanel;
       app.refreshRightPanel = function() {
@@ -16156,35 +16105,6 @@
       };
     })();
     (function() {
-      // Units hidden by Advanced > Responsive: greyed out on the devices they are hidden on,
-      // with a label naming those devices, so hidden containers stand out in the canvas.
-      const DEVICES = [
-        ["widescreen", "Widescreen"],
-        ["desktop", "Desktop"],
-        ["laptop", "Laptop"],
-        ["tablet_extra", "Tablet Extra"],
-        ["tablet", "Tablet"],
-        ["mobile_extra", "Mobile Extra"],
-        ["mobile", "Mobile"]
-      ];
-      const on = (v) => v === true || v === 1 || v === "1" || v === "yes" || v === "true" || v === "on";
-      const prevNode = app.nodeHTML;
-      app.nodeHTML = function(n) {
-        const html = prevNode(n);
-        const s = n && n.settings;
-        if (!s) return html;
-        const hidden = DEVICES.filter(([d]) => on(s["hide_" + d]));
-        if (!hidden.length) return html;
-        const m = html.match(/^<div\b[^>]*\bclass="([^"]*\blb-node\b[^"]*)"[^>]*>/);
-        if (!m) return html;
-        const here = hidden.some(([d]) => d === (app.device || "desktop"));
-        const label = app.t("Hidden on %s", hidden.map(([, l]) => app.t(l)).join(", "));
-        let tag = m[0].replace(/\bclass="([^"]*)"/, (_, c) => 'class="' + c + " lb-has-hidden" + (here ? " lb-hidden-here" : "") + '"');
-        tag = tag.replace(/>$/, ' data-lb-hidden-label="' + app.esc(label) + '">');
-        return tag + html.slice(m[0].length);
-      };
-    })();
-    (function() {
       function childBox(axis) {
         const row = axis === "row";
         return {
@@ -16361,9 +16281,6 @@
         <button type="button" class="lb-btn" data-lb-add-axis="column">+ Column</button>
         <button type="button" class="lb-btn" data-lb-add-axis="row">+ Row</button>
       </div>
-      <div class="lb-structure-actions">
-        <button type="button" class="lb-btn" data-lb-fit-height title="Removes this container's min height, fixed height and empty grid rows, so it ends right below its units. You can also drag its bottom edge up to its units, or double-click that edge.">Fit height to content</button>
-      </div>
     </section>`;
       }
       function commonStyle(html, n) {
@@ -16537,15 +16454,10 @@
         const preset = e.target.closest("[data-lb-split]");
         const apply = e.target.closest("[data-lb-split-apply]");
         const add = e.target.closest("[data-lb-add-axis]");
-        const fit = e.target.closest("[data-lb-fit-height]");
-        if (!preset && !apply && !add && !fit) return;
+        if (!preset && !apply && !add) return;
         e.preventDefault();
         e.stopPropagation();
         if (!app.selected) return;
-        if (fit) {
-          if (typeof app.lbFitHeight === "function") app.lbFitHeight(app.selected);
-          return;
-        }
         if (preset) {
           const parts = preset.dataset.lbSplit.split("x").map(Number);
           applySplit(app.selected, parts[0], parts[1]);
@@ -17211,11 +17123,18 @@
             e.stopPropagation();
             if (e.stopImmediatePropagation) e.stopImmediatePropagation();
             clearSlotOver(fd);
-            placeDrag(payload, hit);
+            app.lbAfterCanvasDrag(() => placeDrag(payload, hit));
           },
           true
         );
-        fd.addEventListener("dragend", () => clearSlotOver(fd), true);
+        fd.addEventListener(
+          "dragend",
+          () => {
+            clearSlotOver(fd);
+            app.lbNudgeCanvasRepaint(fd, fd.querySelector(".lb-frame-root"));
+          },
+          true
+        );
         fd.addEventListener(
           "mousedown",
           (e) => {
@@ -25236,25 +25155,6 @@
 
   // src/editor/index.js
   installHooks();
-  /*
-   * A unit that another plugin registers under a core type (Pro's Price
-   * Table) has its own settings, but the canvas layers draw the core
-   * template for that type and never reach the editor/node/body_html
-   * filters. Run the filters on the final markup for these types so the
-   * plugin's preview is shown. Installed after every other bodyHTML layer.
-   */
-  function installReplacedUnitPreview() {
-    const replaced = (app.D.units || []).filter((u) => u && u.replaces_core).map((u) => u.type);
-    if (!replaced.length || !app.LB || !app.LB.hooks) return;
-    const paintBody = app.bodyHTML;
-    app.bodyHTML = function bodyHTMLReplacedUnits(n) {
-      const html = paintBody(n);
-      if (!n || replaced.indexOf(n.type) === -1) return html;
-      const helpers = { esc: app.esc, styleInline: app.styleInline, meta: app.meta, t: app.t, nodeHTML: (child) => app.nodeHTML(child) };
-      const own = app.LB.hooks.applyFilters("editor/node/body_html/" + n.type, void 0, n, helpers);
-      return app.LB.hooks.applyFilters("editor/node/body_html", typeof own === "string" ? own : html, n, helpers);
-    };
-  }
   function boot() {
     if (installState() === false) return;
     installBreakpoints();
@@ -25287,7 +25187,6 @@
     installRoleCaps();
     installHeartbeat();
     installCanvasSchema();
-    installReplacedUnitPreview();
     if (typeof app.nodeHTML === "function" && !app.nodeHTML.__lbSafe) {
       const paintNode = app.nodeHTML;
       app.nodeHTML = function nodeHTMLSafe(n) {

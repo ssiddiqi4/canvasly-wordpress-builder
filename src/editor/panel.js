@@ -2552,8 +2552,11 @@ function installPanel() {
     if (
       document.body.classList.contains("lb123-resizing") ||
       (fd && fd.body && fd.body.classList.contains("lb123-resizing"))
-    )
+    ) {
+      // Never lose a paint requested during a resize: flush it when the resize ends.
+      app.lbPaintPending = true;
       return true;
+    }
     const canvas = fd && fd.querySelector(".lb-frame-root");
     const work = app.root.querySelector(".lb-work");
     if (!canvas || !work) return false;
@@ -2587,7 +2590,53 @@ function installPanel() {
     if (app.refreshRevisionBanner) app.refreshRevisionBanner();
     if (app.historyOpen && app.refreshHistoryPanel) app.refreshHistoryPanel();
     if (typeof app.hydrateShortcodes === "function") app.hydrateShortcodes();
+    app.lbPaintPending = false;
+    app.lbNudgeCanvasRepaint(fd, canvas);
     return true;
+  };
+  /**
+   * Force the canvas iframe to paint one more frame.
+   *
+   * Chrome can keep the previous frame (and the native drag image) on screen after
+   * a drag or a large innerHTML swap until the iframe receives another event. A
+   * one-frame compositing change clears it without touching layout or scroll.
+   */
+  app.lbNudgeCanvasRepaint = function lbNudgeCanvasRepaint(fd, root) {
+    if (!fd || !root) return;
+    const view = fd.defaultView || window;
+    const paint = function () {
+      try {
+        const prev = root.style.transform;
+        root.style.transform = "translateZ(0)";
+        void root.offsetHeight;
+        root.style.transform = prev;
+      } catch (err) {}
+    };
+    if (view.requestAnimationFrame) view.requestAnimationFrame(paint);
+    else setTimeout(paint, 16);
+  };
+  /**
+   * Run a drag result after the browser has finished the drag, then repaint.
+   * Applying a drop inside the drop handler leaves the drag image behind.
+   */
+  app.lbAfterCanvasDrag = function lbAfterCanvasDrag(fn) {
+    const run = function () {
+      try {
+        fn();
+      } catch (err) {
+        if (window.console) console.error("[Sidcraft Page Builder] drop failed", err);
+      }
+      const fd = app.frameDoc();
+      app.lbNudgeCanvasRepaint(fd, fd && fd.querySelector(".lb-frame-root"));
+    };
+    if (window.requestAnimationFrame) window.requestAnimationFrame(run);
+    else setTimeout(run, 0);
+  };
+  /** Paint a canvas change that was skipped while a resize was running. */
+  app.lbFlushCanvasPaint = function lbFlushCanvasPaint() {
+    if (!app.lbPaintPending) return;
+    app.lbPaintPending = false;
+    app.lbPaintCanvas({ skipPanel: true });
   };
   app.render = function render() {
     app.closeContextMenu();
@@ -3231,8 +3280,9 @@ function installPanel() {
           e.preventDefault();
           e.stopPropagation();
           rootCanvas.classList.remove("canvas-drop");
-          app.dndLog("drop on page canvas: " + (app.dragPayload(e) || "-"));
-          app.dropOnPage(app.dragPayload(e));
+          const payload = app.dragPayload(e);
+          app.dndLog("drop on page canvas: " + (payload || "-"));
+          app.lbAfterCanvasDrag(() => app.dropOnPage(payload));
         };
     app.bindPageDropZone(fd, lockPage);
     fd.querySelectorAll("[data-lb-chrome]").forEach((bar) => {

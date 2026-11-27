@@ -486,11 +486,18 @@ function installNested() {
           e.stopPropagation();
           if (e.stopImmediatePropagation) e.stopImmediatePropagation();
           clearSlotOver(fd);
-          placeDrag(payload, hit);
+          app.lbAfterCanvasDrag(() => placeDrag(payload, hit));
         },
         true,
       );
-      fd.addEventListener("dragend", () => clearSlotOver(fd), true);
+      fd.addEventListener(
+        "dragend",
+        () => {
+          clearSlotOver(fd);
+          app.lbNudgeCanvasRepaint(fd, fd.querySelector(".lb-frame-root"));
+        },
+        true,
+      );
       fd.addEventListener(
         "mousedown",
         (e) => {

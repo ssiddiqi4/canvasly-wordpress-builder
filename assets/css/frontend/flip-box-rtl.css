@@ -71,3 +71,8 @@
 :is(.lb-node-flip_box:not(.lb123-resize-active):hover .lb-flip-trigger-hover,.lb-node-flip_box:not(.lb123-resize-active)>.lb-flip-box.lb-flip-trigger-hover:hover,.lb-flip-box.is-flipped,.lb-node-flip_box.lb-flip-show-back>.lb-flip-box).lb-flip-effect-zoom .lb-flip-back,:is(.lb-node-flip_box:not(.lb123-resize-active):hover .lb-flip-trigger-hover,.lb-node-flip_box:not(.lb123-resize-active)>.lb-flip-box.lb-flip-trigger-hover:hover,.lb-flip-box.is-flipped,.lb-node-flip_box.lb-flip-show-back>.lb-flip-box).lb-flip-effect-fade .lb-flip-back{opacity:1;transform:none;z-index:1}
 @media (prefers-reduced-motion:reduce){.lb-flip-layer,.lb-flip-front,.lb-flip-back{transition:none}}
 .lb-node-flip_box.lb123-resize-active .lb-flip-layer,.lb-node-flip_box.lb123-resize-active .lb-flip-front,.lb-node-flip_box.lb123-resize-active .lb-flip-back{transition:none}
+/* Flip box: keep the card typography independent of the theme body size and clip
+   anything that still does not fit, so front and back match the editor canvas. */
+.lb-flip-front,.lb-flip-back{font-size:16px;overflow:hidden}
+.lb-flip-content{min-height:0}
+.lb-flip-title,.lb-flip-desc{overflow-wrap:anywhere}

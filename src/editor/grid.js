@@ -920,9 +920,13 @@ function installGrid() {
             fd.removeEventListener("pointermove", move, true);
             fd.removeEventListener("pointerup", up, true);
             fd.removeEventListener("pointercancel", up, true);
+            document.removeEventListener("pointermove", move, true);
+            document.removeEventListener("pointerup", up, true);
+            document.removeEventListener("pointercancel", up, true);
             fd.body.classList.remove("lb123-resizing");
             document.body.classList.remove("lb123-resizing");
             lab.remove();
+            if (typeof app.lbFlushCanvasPaint === "function") app.lbFlushCanvasPaint();
             if (!moved) {
               place();
               return;
@@ -945,6 +949,9 @@ function installGrid() {
           fd.addEventListener("pointermove", move, true);
           fd.addEventListener("pointerup", up, true);
           fd.addEventListener("pointercancel", up, true);
+          document.addEventListener("pointermove", move, true);
+          document.addEventListener("pointerup", up, true);
+          document.addEventListener("pointercancel", up, true);
         });
       });
     }
@@ -1061,9 +1068,13 @@ function installGrid() {
             fd.removeEventListener("pointermove", move, true);
             fd.removeEventListener("pointerup", up, true);
             fd.removeEventListener("pointercancel", up, true);
+            document.removeEventListener("pointermove", move, true);
+            document.removeEventListener("pointerup", up, true);
+            document.removeEventListener("pointercancel", up, true);
             fd.body.classList.remove("lb123-resizing");
             document.body.classList.remove("lb123-resizing");
             lab.remove();
+            if (typeof app.lbFlushCanvasPaint === "function") app.lbFlushCanvasPaint();
             if (!moved) {
               place();
               return;
@@ -1086,6 +1097,9 @@ function installGrid() {
           fd.addEventListener("pointermove", move, true);
           fd.addEventListener("pointerup", up, true);
           fd.addEventListener("pointercancel", up, true);
+          document.addEventListener("pointermove", move, true);
+          document.addEventListener("pointerup", up, true);
+          document.addEventListener("pointercancel", up, true);
         });
       });
     }
@@ -2779,8 +2793,10 @@ function installGrid() {
       if (e.type === "drop") {
         e.preventDefault();
         e.stopImmediatePropagation();
-        if (v.startsWith("unit:")) addAt21(v.slice(5), h.parentEl.dataset.id, c);
-        else moveAt21(v.slice(5), h.parentEl.dataset.id, c);
+        app.lbAfterCanvasDrag(() => {
+          if (v.startsWith("unit:")) addAt21(v.slice(5), h.parentEl.dataset.id, c);
+          else moveAt21(v.slice(5), h.parentEl.dataset.id, c);
+        });
         clearGuide21();
       }
     }
@@ -3617,8 +3633,10 @@ function installGrid() {
         if (!t3) return;
         e.preventDefault();
         e.stopImmediatePropagation();
-        if (v.startsWith("unit:")) app.lb23AddAtCell(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
-        else app.lb23MoveAtCell(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
+        app.lbAfterCanvasDrag(() => {
+          if (v.startsWith("unit:")) app.lb23AddAtCell(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
+          else app.lb23MoveAtCell(v.slice(5), t3.parentId, { col: t3.col, row: t3.row });
+        });
         window.__lb23CellTarget = null;
         app.lb23CleanGuides(fd);
       },
