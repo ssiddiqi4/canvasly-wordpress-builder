@@ -5,7 +5,7 @@ Tags: page builder, drag and drop, landing page, website builder, templates
 Requires at least: 6.9
 Tested up to: 7.2
 Requires PHP: 7.4
-Stable tag: 2.4.1
+Stable tag: 2.4.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -360,6 +360,12 @@ Read the [documentation](https://canvasly.pro/sidcraft/overview.html) or [contac
 
 == Changelog ==
 
+= 2.4.2 =
+* Fix: the editor canvas repaints at once after a unit is moved or dropped, so no marks are left behind until you click.
+* Fix: the Flip Box keeps its text and Read more button inside the card on the front end. Its text no longer takes the theme's heading and link sizes, and the card grows with its text.
+* Fix: the container tab in the editor is blue again.
+* Fix: the split front-end CSS stays on when the plugin is checked out with Windows line endings.
+
 = 2.4.1 =
 * New: Sidcraft Commerce subscribers (Newsletter Signup unit and the checkout box) can also be added to a default newsletter service and list, after they confirm, in the background.
 * Readme: shortened to fit the WordPress.org limits, Tested up to 7.2.
@@ -444,6 +450,9 @@ Read the [documentation](https://canvasly.pro/sidcraft/overview.html) or [contac
 * See `changelog.txt` for the full history.
 
 == Upgrade Notice ==
+
+= 2.4.2 =
+Fixes the editor canvas repaint after drag and drop, and the Flip Box layout on the front end.
 
 = 2.4.1 =
 Sidcraft Commerce mailing-list sign-ups can also be added to Mailchimp and other services. Sidcraft Commerce 2.1.1 documents it (updating Commerce is not required for it to work).

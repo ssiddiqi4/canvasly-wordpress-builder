@@ -1,4 +1,10 @@
 === Sidcraft Page Builder: full changelog ===
+= 2.4.2 =
+* Fix: the editor canvas repaints at once after a unit is moved or dropped, so no marks are left behind until you click.
+* Fix: the Flip Box keeps its text and Read more button inside the card on the front end. Its text no longer takes the theme's heading and link sizes, and the card grows with its text.
+* Fix: the container tab in the editor is blue again.
+* Fix: the split front-end CSS stays on when the plugin is checked out with Windows line endings.
+
 = 2.4.1 =
 * New: Sidcraft Commerce Newsletter Signup and checkout subscribers can be added to a default newsletter service and list under Settings → Email services, after they confirm.
 * Readme: shortened to fit the WordPress.org limits, Tested up to 7.2.
