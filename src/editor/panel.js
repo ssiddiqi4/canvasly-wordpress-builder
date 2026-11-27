@@ -2533,7 +2533,7 @@ function installPanel() {
       designCss +
       "html,body{margin:0;padding:0;background:#fff;font-family:system-ui,sans-serif;box-sizing:border-box}html{height:100%;overflow-x:hidden;overflow-y:scroll;scrollbar-gutter:stable}html::-webkit-scrollbar{width:12px}html::-webkit-scrollbar-track{background:#eef1f4}html::-webkit-scrollbar-thumb{background:#b7c0ca;border-radius:6px}" +
       app.pageStageStyle(false) +
-      '.lb-node{position:relative;margin:0;max-width:100%}.lb-insert-zone{min-height:18px}.lb-grid-inner,.lb-container-inner{box-sizing:border-box}.lb-grid-inner>.lb-insert-zone,.lb-container-inner[style*="display:grid"]>.lb-insert-zone{display:none}.lb21-hover-tab{position:absolute;width:max-content;height:25px;min-width:88px;max-height:25px;padding:0 6px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;background:#dca6ef;border-radius:7px 7px 0 0;z-index:2147483000;pointer-events:auto}</style></head><body class="' +
+      '.lb-node{position:relative;margin:0;max-width:100%}.lb-insert-zone{min-height:18px}.lb-grid-inner,.lb-container-inner{box-sizing:border-box}.lb-grid-inner>.lb-insert-zone,.lb-container-inner[style*="display:grid"]>.lb-insert-zone{display:none}.lb21-hover-tab{position:absolute;width:max-content;height:25px;min-width:88px;max-height:25px;padding:0 6px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;background:#2d6fd0;border-radius:7px 7px 0 0;z-index:2147483000;pointer-events:auto}</style></head><body class="' +
       app.esc(app.pageTemplateBodyClass()) +
       '"><div class="lb-page-stage">' +
       app.pageChromeHTML("header") +

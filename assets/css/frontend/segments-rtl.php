@@ -1362,6 +1362,8 @@ html{scroll-behavior:smooth}
 .lb-flip-box .lb-flip-front .lb-flip-title,.lb-flip-box .lb-flip-back .lb-flip-title{margin:0 0 var(--lb-flip-title-space,10px);font-family:inherit;font-size:1.25em;font-weight:600;line-height:1.25;letter-spacing:normal;text-transform:none;overflow-wrap:anywhere}
 .lb-flip-box .lb-flip-front .lb-flip-desc,.lb-flip-box .lb-flip-back .lb-flip-desc{margin:0 0 16px;font-family:inherit;font-size:1em;line-height:1.5;letter-spacing:normal;text-transform:none;overflow-wrap:anywhere}
 .lb-flip-box .lb-flip-back .lb-flip-button{margin:0;font-family:inherit;font-size:16px;font-weight:400;line-height:1.3;letter-spacing:normal;text-transform:none;max-width:100%;box-sizing:border-box;white-space:normal}
+.lb-flip-box>.lb-flip-layer{display:grid;height:auto;min-height:100%}
+.lb-flip-box .lb-flip-front,.lb-flip-box .lb-flip-back{position:relative;inset:auto;grid-area:1/1;width:100%;height:auto;min-height:100%}
 ',
   ),
 );
