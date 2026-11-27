@@ -1357,9 +1357,11 @@ html{scroll-behavior:smooth}
   123 => 
   array (
     0 => 'flip-box',
-    1 => '.lb-flip-front,.lb-flip-back{font-size:16px;overflow:hidden}
-.lb-flip-content{min-height:0}
-.lb-flip-title,.lb-flip-desc{overflow-wrap:anywhere}
+    1 => '.lb-flip-box .lb-flip-front,.lb-flip-box .lb-flip-back{font-family:var(--lb-theme-body-font-family,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif);font-size:16px;line-height:1.5;letter-spacing:normal;text-transform:none;text-shadow:none;overflow:hidden}
+.lb-flip-box .lb-flip-content{min-height:0;line-height:inherit;letter-spacing:normal;text-transform:none}
+.lb-flip-box .lb-flip-front .lb-flip-title,.lb-flip-box .lb-flip-back .lb-flip-title{margin:0 0 var(--lb-flip-title-space,10px);font-family:inherit;font-size:1.25em;font-weight:600;line-height:1.25;letter-spacing:normal;text-transform:none;overflow-wrap:anywhere}
+.lb-flip-box .lb-flip-front .lb-flip-desc,.lb-flip-box .lb-flip-back .lb-flip-desc{margin:0 0 16px;font-family:inherit;font-size:1em;line-height:1.5;letter-spacing:normal;text-transform:none;overflow-wrap:anywhere}
+.lb-flip-box .lb-flip-back .lb-flip-button{margin:0;font-family:inherit;font-size:16px;font-weight:400;line-height:1.3;letter-spacing:normal;text-transform:none;max-width:100%;box-sizing:border-box;white-space:normal}
 ',
   ),
 );

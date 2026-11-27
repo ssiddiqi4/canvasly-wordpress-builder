@@ -494,8 +494,10 @@ html{scroll-behavior:smooth}
 .lb-loop-dot.lb-loop-dot.is-active:hover,.lb-loop-dot.lb-loop-dot.is-active:focus{background:#1d2327}
 /* The box radius lives on the node; let the container background follow it. */
 .lb-node-container>.lb-container,.lb-node-inner_section>.lb-container{border-radius:inherit}
-/* Flip box: keep the card typography independent of the theme body size and clip
-   anything that still does not fit, so front and back match the editor canvas. */
-.lb-flip-front,.lb-flip-back{font-size:16px;overflow:hidden}
-.lb-flip-content{min-height:0}
-.lb-flip-title,.lb-flip-desc{overflow-wrap:anywhere}
+/* Flip box: pin the card text to the editor canvas values so a theme's body, heading and link
+   styles cannot change the layout. Typography controls use id-scoped selectors and still win. */
+.lb-flip-box .lb-flip-front,.lb-flip-box .lb-flip-back{font-family:var(--lb-theme-body-font-family,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif);font-size:16px;line-height:1.5;letter-spacing:normal;text-transform:none;text-shadow:none;overflow:hidden}
+.lb-flip-box .lb-flip-content{min-height:0;line-height:inherit;letter-spacing:normal;text-transform:none}
+.lb-flip-box .lb-flip-front .lb-flip-title,.lb-flip-box .lb-flip-back .lb-flip-title{margin:0 0 var(--lb-flip-title-space,10px);font-family:inherit;font-size:1.25em;font-weight:600;line-height:1.25;letter-spacing:normal;text-transform:none;overflow-wrap:anywhere}
+.lb-flip-box .lb-flip-front .lb-flip-desc,.lb-flip-box .lb-flip-back .lb-flip-desc{margin:0 0 16px;font-family:inherit;font-size:1em;line-height:1.5;letter-spacing:normal;text-transform:none;overflow-wrap:anywhere}
+.lb-flip-box .lb-flip-back .lb-flip-button{margin:0;font-family:inherit;font-size:16px;font-weight:400;line-height:1.3;letter-spacing:normal;text-transform:none;max-width:100%;box-sizing:border-box;white-space:normal}

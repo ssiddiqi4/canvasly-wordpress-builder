@@ -78,6 +78,6 @@ return array (
       2 => 'loop_carousel',
     ),
   ),
-  'size' => 80491,
-  'source' => '00e6f01c371e383b38d2242e20df6aca',
+  'size' => 81437,
+  'source' => '94afd6cfdf103ece6a5aedcc26744c95',
 );
